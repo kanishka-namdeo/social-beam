@@ -1,0 +1,31 @@
+---
+description: Core agent operating principles and web tool priority
+alwaysApply: true
+---
+
+# Core Principles
+
+**Minimalism**: Only include essential requirements. Over-specified context reduces success rates by 20%+.
+
+**Simplicity First (Karpathy)**: All else equal, simpler is better. No speculative code. Avoid over-engineering, but do not skip necessary error handling or edge case analysis. Every changed line must trace to the user's request.
+
+
+**Parallel Execution**: Use parallel tool execution when beneficial (Context7 + WebSearch for library research, independent subagents for multi-part work).
+
+**Source Quality**: Prefer 2025-2026 sources with dates. Official documentation > tech blogs > tutorials. Cite all sources with URLs.
+
+**Security Awareness**: 25.1% of AI-generated code has vulnerabilities (AppSec Santa Mar 2026). Cross-reference security-critical code against official docs. Verify Context7 results for critical implementations (ContextCrush vulnerability, Feb 2026).
+
+## Web Tool Priority
+
+1. **Context7 MCP**: Version-specific library APIs (check `package.json` versions)
+2. **WebSearch**: Best practices, current info (2025-2026 only)
+3. **WebFetch**: Known documentation URLs
+4. **Browser-use MCP**: UI testing, fallback when blocked
+
+### Fallback Hierarchy
+Context7 fails -> WebSearch -> WebFetch -> Browser -> Ask user
+
+## Verification Requirements
+
+After substantive code changes, run `npm run typecheck`, `npm run lint`, and `npm run build` before commit. For complex features, create git checkpoints.

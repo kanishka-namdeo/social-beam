@@ -1,0 +1,203 @@
+---
+trigger: always_on
+---
+
+# Design Assets Enforcement
+
+**Trigger**: Always active — enforce whenever modifying or creating UI components.
+
+## Core Rule
+
+All UI components must use **React Native Reusables** (shadcn/ui for React Native). Never use raw React Native primitives (`View`, `Text`, `TouchableOpacity`) for UI elements that have a corresponding shadcn component.
+
+## Component Mapping
+
+Use these React Native Reusables components instead of raw RN primitives:
+
+| UI Element | Use | Instead Of |
+|-----------|-----|-----------|
+| Button | `<Button />` from `@/components/ui/button` | `TouchableOpacity`, `Pressable` |
+| Card | `<Card />` from `@/components/ui/card` | `View` with shadow |
+| Input | `<Input />` from `@/components/ui/input` | `TextInput` raw styling |
+| Label | `<Label />` from `@/components/ui/label` | `Text` with label styles |
+| Badge | `<Badge />` from `@/components/ui/badge` | `View` with colored bg |
+| Text | `<Text />` with className styling | `Text` with inline styles |
+| Dialog/Modal | `@/components/ui/dialog` | `Modal` |
+| Toast | `@/components/ui/sonner` or `@/components/ui/toast` | `Alert` |
+| Select | `<Select />` from `@/components/ui/select` | `Picker` |
+| Switch | `<Switch />` from `@/components/ui/switch` | `Switch` raw |
+| Separator | `<Separator />` from `@/components/ui/separator` | `View` with border |
+| Avatar | `<Avatar />` from `@/components/ui/avatar` | `Image` with circle |
+| Tabs | `<Tabs />` from `@/components/ui/tabs` | Manual tab state |
+| Tooltip | `<Tooltip />` from `@/components/ui/tooltip` | Custom tooltip |
+| Dropdown Menu | `<DropdownMenu />` from `@/components/ui/dropdown-menu` | Custom popover |
+| Progress | `<Progress />` from `@/components/ui/progress` | `View` with width |
+| Skeleton | `<Skeleton />` from `@/components/ui/skeleton` | `View` with gray bg |
+| Accordion | `<Accordion />` from `@/components/ui/accordion` | Manual expand/collapse |
+
+## Styling Rules
+
+### 1. Use Tailwind Classes via className
+
+```tsx
+// GOOD
+<View className="flex-1 bg-background p-4">
+  <Text className="text-foreground text-lg font-semibold">Title</Text>
+</View>
+
+// BAD — raw inline styles
+<View style={{ flex: 1, backgroundColor: '#fff', padding: 16 }}>
+  <Text style={{ color: '#000', fontSize: 18, fontWeight: '600' }}>Title</Text>
+</View>
+```
+
+### 2. Use the `cn()` Utility for Conditional Classes
+
+```tsx
+import { cn } from "@/lib/utils";
+
+<View className={cn(
+  "flex-1 rounded-lg border",
+  isActive && "border-primary bg-primary/5",
+  className
+)} />
+```
+
+### 3. Colors Come from CSS Variables (Tokens)
+
+All colors use HSL CSS variables defined in `global.css`. Never hardcode hex/rgb colors.
+
+#### Base Tokens
+
+| Token | CSS Variable | Usage |
+|-------|-------------|-------|
+| `bg-background` | `--background` | Page/canvas background |
+| `text-foreground` | `--foreground` | Primary text color |
+| `bg-card` | `--card` | Card backgrounds |
+| `bg-primary` | `--primary` | Primary actions (Cohere coral #FF7759) |
+| `bg-secondary` | `--secondary` | Secondary elements |
+| `bg-muted` | `--muted` | De-emphasized content |
+| `bg-accent` | `--accent` | Hover/active states |
+| `bg-destructive` | `--destructive` | Error/danger states |
+| `border-border` | `--border` | Borders |
+| `ring-ring` | `--ring` | Focus rings (coral) |
+
+#### Brand Tokens
+
+| Token | CSS Variable | Usage |
+|-------|-------------|-------|
+| `bg-brand` / `bg-brand-500` | `--brand` | Primary brand accent, CTAs |
+| `bg-brand-soft` | `--brand-soft` | Soft coral for subtle highlights |
+
+#### Semantic Tokens
+
+| Token | CSS Variable | Usage |
+|-------|-------------|-------|
+| `bg-success` | `--success` | Success states, connected accounts |
+| `bg-warning` | `--warning` | Warnings, token expiry |
+| `bg-info` | `--info` | Info notifications, queued posts |
+
+#### Chart Colors (Cohere gradient spectrum)
+
+| Token | CSS Variable | Usage |
+|-------|-------------|-------|
+| `bg-chart-c1` to `bg-chart-c10` | `--chart-1` to `--chart-10` | Analytics platform colors |
+
+#### AI Tokens
+
+| Token | CSS Variable | Usage |
+|-------|-------------|-------|
+| `bg-ai-surface` | `--ai-surface` | AI agent surface background |
+| `bg-ai-confidence-high` | `--ai-confidence-high` | High confidence badge |
+| `bg-ai-confidence-medium` | `--ai-confidence-medium` | Medium confidence badge |
+| `bg-ai-confidence-low` | `--ai-confidence-low` | Low confidence badge |
+
+#### Post Status Tokens
+
+| Token | CSS Variable | Usage |
+|-------|-------------|-------|
+| `bg-post-draft` | `--post-draft` | Draft status badge |
+| `bg-post-queued` | `--post-queued` | Queued status badge |
+| `bg-post-publishing` | `--post-publishing` | Publishing status badge |
+| `bg-post-published` | `--post-published` | Published status badge |
+| `bg-post-failed` | `--post-failed` | Failed status badge |
+
+#### Compose Form Tokens
+
+| Token | CSS Variable | Usage |
+|-------|-------------|-------|
+| `text-compose-counter-normal` | `--compose-counter-normal` | Character counter normal |
+| `text-compose-counter-warning` | `--compose-counter-warning` | Character counter warning |
+| `text-compose-counter-error` | `--compose-counter-error` | Character counter error |
+| `border-compose-media-drop-border` | `--compose-media-drop-border` | Media drop zone border |
+| `border-compose-media-drop-active` | `--compose-media-drop-active` | Media drop zone active border |
+
+### 4. Use Semantic Tailwind Classes
+
+```tsx
+// GOOD — semantic tokens
+className="bg-card text-card-foreground rounded-lg border-border"
+
+// BAD — hardcoded colors
+className="bg-white text-black rounded-lg border-gray-200"
+```
+
+### 5. Border Radius Tokens
+
+```
+rounded-sm = calc(var(--radius) - 4px)
+rounded-md = calc(var(--radius) - 2px)
+rounded-lg = var(--radius)
+```
+
+### 6. Spacing Uses Tailwind Scale
+
+Use Tailwind spacing (`p-4`, `gap-2`, `m-6`) — never pixel values. The scale is 0.25rem (4px) based.
+
+## Component Location
+
+All UI components live in:
+
+```
+src/components/ui/
+  ├── button.tsx
+  ├── card.tsx
+  ├── input.tsx
+  ├── label.tsx
+  ├── badge.tsx
+  └── ... (add via CLI)
+```
+
+Add new components using:
+
+```bash
+npx @react-native-reusables/cli@latest add <component-name>
+```
+
+## Portal Host
+
+Modal-like components (Dialog, DropdownMenu, Tooltip, Popover) render through `@rn-primitives/portal`. The `<PortalHost />` is already placed in `src/app/_layout.tsx` — do not add another one.
+
+## Dark Mode
+
+Dark mode is automatic via CSS `.dark:root` variables in `global.css`. Components using semantic tokens (`bg-background`, `text-foreground`) adapt automatically. Do not manually detect or switch dark mode in components.
+
+## Accessibility
+
+- Touch targets: minimum `h-11` (44px) height
+- Use `aria-label` on icon-only buttons
+- Status indicators: always combine color + icon + text (never color alone)
+- Focus rings: provided by React Native Reusables — do not remove
+
+## What to Check Before Committing UI Changes
+
+- [ ] No hardcoded color values (hex, rgb, rgba) — use token classes
+- [ ] No raw `TouchableOpacity`/`Pressable` where `<Button />` applies
+- [ ] No inline `style={{}}` where `className` with Tailwind applies
+- [ ] New UI components added via RNR CLI, not hand-written
+- [ ] `cn()` used for conditional class merging
+- [ ] Touch targets meet 44px minimum
+- [ ] Status tokens used correctly (success/warning/info) — no ad-hoc colors
+- [ ] Post status badges use `post.*` tokens only
+- [ ] Chart colors use `chart.c1`-`c10` only — no custom palettes
+- [ ] AI surfaces use `ai-surface` tokens — no hardcoded blues

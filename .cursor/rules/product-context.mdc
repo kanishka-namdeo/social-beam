@@ -1,0 +1,31 @@
+---
+description: Product vision, scope, and design context. Apply when adding features, planning UI work, or making product decisions.
+alwaysApply: true
+---
+
+# Product Context
+
+**Trigger**: Always active. Load these docs before any feature implementation or UI design work.
+
+## Canonical Product Docs
+
+| Doc | Path | When to Read |
+|-----|------|--------------|
+| Design Intent | `DESIGN.md` | Before any UI component work — page blueprints, interaction patterns, design decisions |
+| MVP Scope | `docs/mvp-scope.md` | Before adding features — confirms what is in/out of scope for v1 |
+| Product Vision | `docs/tool-vision-and-market-research.md` | Before planning new features — understand AI-native positioning, target users, monetization |
+| User Flows | `docs/user-flows-ai-native.md` | Before implementing screen interactions — step-by-step user journeys | Before implementing AI features — agent patterns, brand voice, credit system |
+
+## Usage Rules
+
+1. **DESIGN.md** → Follow existing page blueprints when they match your feature. For new pages, propose changes consistent with the established design language.
+
+2. **mvp-scope.md** → Do not implement features marked "out of scope" for MVP. If uncertain, check the explicit out-of-scope section first.
+
+3. **tool-vision-and-market-research.md** → Align feature proposals with the AI-native vision (AI as default, not optional add-on) and credit-based monetization model.
+
+4. **user-flows-ai-native.md** → Match existing user flow patterns before inventing new interaction models.
+
+## Priority Order
+
+MVP scope > Design system > User flows > Vision. Scope boundaries are the hard constraint; everything else is guidance.

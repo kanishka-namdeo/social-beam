@@ -1,0 +1,180 @@
+---
+description: Plan mode validation and research checklist. For subagent handoff/execution patterns, see agent-handoff-verification.mdc.
+alwaysApply: true
+---
+
+# Plan Mode Enhancement
+
+**Trigger**: User requests plan mode, says "plan" or "design", or asks "how to implement"
+
+## CRITICAL: Plan Validation Gate
+
+> Plan execution patterns are in `agent-handoff-verification.mdc`. This file covers plan creation only.
+
+### Validation Checklist (Run Before Finalizing Plan)
+
+| # | Criterion | Pass/Fail | Action if Fail |
+|---|-----------|-----------|----------------|
+| 1 | Has "## Research Summary" section? | Must Pass | Run web research, add section |
+| 2 | Research Summary has 2+ cited sources? | Must Pass | Add more sources via Context7/WebSearch/WebFetch |
+| 3 | All sources dated 2025-2026? | Must Pass | Replace outdated sources with current |
+| 4 | Has "## Breaking Changes & Migrations" section? | Must Pass | Research version changes, add section |
+| 5 | Has "## Security Considerations" section? | Must Pass | Review security docs, add section |
+| 6 | Has "## Verification Steps" checklist? | Must Pass | Add verification checklist |
+
+**Validation Gate Logic**:
+```
+IF any criterion fails:
+  STOP finalizing plan
+  RUN missing research
+  UPDATE plan
+  RE-RUN validation
+UNTIL all criteria pass
+THEN finalize plan
+```
+
+---
+
+## Pre-Plan Research Checklist
+
+**Before creating implementation plan**:
+
+### 1. Identify Technologies
+- Extract all libraries/frameworks from user query
+- Check `package.json` for current versions
+- Note any version migrations needed
+
+### 2. Check Existing Design System (if UI feature)
+- Read `DESIGN.md` for page blueprints, interaction patterns, and design intent
+- Read `src/theme.ts` for available tokens and semantic mappings
+- Read `.cursor/rules/design-assets-enforcement.mdc` for component requirements
+- If the feature matches an existing page blueprint in DESIGN.md, follow it
+- If the feature is new, propose changes that fit the established design language
+
+### 3. Parallel Web Research
+Execute all applicable research in parallel:
+- **Context7**: Query version-specific APIs for each library
+- **WebSearch**: "[library] best practices 2025 2026"
+- **WebFetch**: Top 3 official documentation URLs
+
+> **Research thoroughly regardless of perceived complexity**: Even seemingly minor changes may have implications worth understanding. Validate assumptions with documentation.
+
+### 4. Parallel Web Research
+Execute all applicable research in parallel:
+- **Context7**: Query version-specific APIs for each library
+- **WebSearch**: "[library] best practices 2025 2026"
+- **WebFetch**: Top 3 official documentation URLs
+
+> **Research thoroughly regardless of perceived complexity**: Even seemingly minor changes may have implications worth understanding. Validate assumptions with documentation.
+
+### 5. Synthesize Findings
+- Compare Context7 APIs with web best practices
+- Note breaking changes between versions
+- Identify security considerations
+- Extract code examples from authoritative sources
+
+### 6. Document Sources
+For each finding:
+- Source URL
+- Publication/update date (must be 2025-2026)
+- Relevant excerpt or API signature
+
+---
+
+## MANDATORY Plan Template
+
+**Every plan MUST follow this exact structure**:
+
+```markdown
+---
+name: [plan-name]
+overview: [brief description]
+todos:
+  - id: [task-id]
+    content: [task description]
+    status: pending
+    subagent_type: [generalPurpose|explore|shell|browser-use]
+    handoff_context: [what previous task output this needs]
+---
+
+# [Plan Title]
+
+## Overview
+[Brief description of what the plan accomplishes]
+
+---
+
+## Research Summary
+
+**[Library Name] v[version]**:
+- [API/pattern]: [description]
+- Source: [URL] ([date, 2025-2026])
+
+---
+
+## Implementation Approach
+
+[Step-by-step approach based on researched patterns]
+
+---
+
+## File Changes
+
+| File | Change | API/Pattern Used | Source |
+|---|-----|---|-----|
+| `path/to/file.ts` | [description] | [API] from [library] v[version] | [source URL] |
+
+---
+
+## Verification Steps
+
+- [ ] `npm run typecheck` (0 errors)
+- [ ] `npm run lint` (0 warnings)
+- [ ] `npm run build` (success)
+- [ ] [Specific acceptance criteria 1]
+- [ ] [Specific acceptance criteria 2]
+
+---
+
+## Breaking Changes & Migrations
+
+**[Library] v[X] → v[Y]**:
+- [Breaking change description]
+- [Migration steps if needed]
+
+---
+
+## Security Considerations
+
+**[Security area]**:
+- [Security pattern verified]
+
+---
+
+## Execution Order
+
+Tasks execute sequentially via subagent dispatch. See `agent-handoff-verification.mdc` for handoff patterns.
+```
+
+---
+
+## Research Complexity Scale
+
+| Task Complexity | Required Research | Min Sources |
+|-----|----|----|
+| **Simple** (typo fix, rename) | Verify context, check implications | 0-1 |
+| **Medium** (API usage, config change) | Context7 + WebSearch | 1-2 |
+| **Complex** (new library, feature) | Context7 + WebSearch + WebFetch | 2+ |
+| **Critical** (auth, crypto, security) | Context7 + WebSearch + WebFetch + OWASP | 3+ |
+
+> **Note**: Even simple tasks benefit from checking context and implications. The minimum source counts are floors, not ceilings.
+
+---
+
+## Fallback Strategy
+
+If research tools fail:
+1. Context7 not found → WebSearch official docs
+2. WebSearch empty → WebFetch known URLs
+3. WebFetch blocked → Note in plan, ask user for docs
+4. Document which tools failed in plan
