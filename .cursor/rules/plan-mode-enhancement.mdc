@@ -46,7 +46,7 @@ THEN finalize plan
 
 ### 2. Check Existing Design System (if UI feature)
 - Read `DESIGN.md` for page blueprints, interaction patterns, and design intent
-- Read `src/theme.ts` for available tokens and semantic mappings
+- Read `app/globals.css` for available CSS variable tokens and `@theme inline` mappings — tokens are defined in the `@theme` block (lines 7-49) and `:root` / `.dark` variable blocks
 - Read `.cursor/rules/design-assets-enforcement.mdc` for component requirements
 - If the feature matches an existing page blueprint in DESIGN.md, follow it
 - If the feature is new, propose changes that fit the established design language
@@ -59,21 +59,13 @@ Execute all applicable research in parallel:
 
 > **Research thoroughly regardless of perceived complexity**: Even seemingly minor changes may have implications worth understanding. Validate assumptions with documentation.
 
-### 4. Parallel Web Research
-Execute all applicable research in parallel:
-- **Context7**: Query version-specific APIs for each library
-- **WebSearch**: "[library] best practices 2025 2026"
-- **WebFetch**: Top 3 official documentation URLs
-
-> **Research thoroughly regardless of perceived complexity**: Even seemingly minor changes may have implications worth understanding. Validate assumptions with documentation.
-
-### 5. Synthesize Findings
+### 3. Synthesize Findings
 - Compare Context7 APIs with web best practices
 - Note breaking changes between versions
 - Identify security considerations
 - Extract code examples from authoritative sources
 
-### 6. Document Sources
+### 3. Document Sources
 For each finding:
 - Source URL
 - Publication/update date (must be 2025-2026)
@@ -93,8 +85,6 @@ todos:
   - id: [task-id]
     content: [task description]
     status: pending
-    subagent_type: [generalPurpose|explore|shell|browser-use]
-    handoff_context: [what previous task output this needs]
 ---
 
 # [Plan Title]
@@ -128,9 +118,9 @@ todos:
 
 ## Verification Steps
 
-- [ ] `npm run typecheck` (0 errors)
-- [ ] `npm run lint` (0 warnings)
-- [ ] `npm run build` (success)
+- [ ] `pnpm run typecheck` (0 errors)
+- [ ] `pnpm run lint` (0 warnings)
+- [ ] `pnpm run build` (success)
 - [ ] [Specific acceptance criteria 1]
 - [ ] [Specific acceptance criteria 2]
 
@@ -151,9 +141,17 @@ todos:
 
 ---
 
+## Execution Mode
+
+Run scope analysis per task (see `agent-handoff-verification.mdc` decision tree):
+- Tasks touching >3 files, crossing layers, or security-critical → use Task subagent
+- Single-file or same-layer changes → direct execution (TodoWrite + tools)
+
 ## Execution Order
 
-Tasks execute sequentially via subagent dispatch. See `agent-handoff-verification.mdc` for handoff patterns.
+1. [task-1]: [description]
+2. [task-2]: [description] (depends on task-1)
+3. [task-N]: [description] (depends on task-N-1)
 ```
 
 ---

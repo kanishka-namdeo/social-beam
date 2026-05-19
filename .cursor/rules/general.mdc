@@ -10,7 +10,7 @@ alwaysApply: true
 **Simplicity First (Karpathy)**: All else equal, simpler is better. No speculative code. Avoid over-engineering, but do not skip necessary error handling or edge case analysis. Every changed line must trace to the user's request.
 
 
-**Parallel Execution**: Use parallel tool execution when beneficial (Context7 + WebSearch for library research, independent subagents for multi-part work).
+**Parallel Tool Execution**: Use parallel tool calls when independent (Context7 + WebSearch for research, reading multiple files at once, concurrent lint/typecheck runs). This does NOT apply to subagent task dispatch — when using Task subagents, they must execute sequentially with explicit handoffs. See `agent-handoff-verification.mdc` for the decision tree on when to use subagents vs direct execution.
 
 **Source Quality**: Prefer 2025-2026 sources with dates. Official documentation > tech blogs > tutorials. Cite all sources with URLs.
 
@@ -26,6 +26,10 @@ alwaysApply: true
 ### Fallback Hierarchy
 Context7 fails -> WebSearch -> WebFetch -> Browser -> Ask user
 
+## Package Manager
+
+This project uses **pnpm**. Always use `pnpm` for installing dependencies and running scripts. Never use `npm` or `yarn`.
+
 ## Verification Requirements
 
-After substantive code changes, run `npm run typecheck`, `npm run lint`, and `npm run build` before commit. For complex features, create git checkpoints.
+After substantive code changes, run `pnpm run typecheck`, `pnpm run lint`, and `pnpm run build` before commit. For complex features, create git checkpoints.

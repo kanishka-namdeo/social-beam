@@ -1,5 +1,5 @@
 ---
-description: Execution checkpoints and verification for agent mode handoff with enforced sequential subagent orchestration
+description: Execution checkpoints and verification for agent mode handoff. Chooses direct or subagent execution based on task scope.
 alwaysApply: true
 ---
 
@@ -7,12 +7,52 @@ alwaysApply: true
 
 **Trigger**: User approves plan, says "proceed", "build it", or "implement"
 
-## MANDATORY: Sequential Subagent Execution
+## Execution Mode Decision Tree
 
-> ⚠️ **MANDATORY**: Execute plans using sequential subagent dispatch with explicit handoffs.
->
-> Parallel execution is NOT permitted under any circumstances. All tasks must execute sequentially with explicit handoffs.
+Cursor's native plan executor drives tasks via `TodoWrite` + direct tool calls. It does **not** auto-dispatch subagents. Choose your execution mode based on task scope:
 
+```
+Task Scope Analysis:
+|-- Single file or rename/refactor?              -> DIRECT execution (TodoWrite + tools)
+|-- 2-3 files, same layer?                       -> DIRECT execution
+|-- >3 files OR crosses layers (frontend->backend->DB)? -> SUBAGENT
+|-- Security-critical (auth, crypto, encryption)? -> SUBAGENT
+|-- Needs isolated context from previous task?   -> SUBAGENT
++-- Complex multi-step with handoff deps?        -> SUBAGENT
+```
+
+### Direct Execution (Default Path)
+
+Use `TodoWrite` to track plan todos, then implement with Read/Write/StrReplace/Shell:
+
+1. Parse approved plan
+2. Create git checkpoint (if >3 files changing)
+3. Set first todo to in_progress
+4. Implement task with direct tool calls
+5. Run incremental verification (typecheck/lint on modified files)
+6. Mark todo complete, set next todo in_progress
+7. Repeat until all todos done
+8. Run full verification: `pnpm run typecheck && pnpm run lint && pnpm run build`
+
+### Subagent Execution (Opt-In for Complex Tasks)
+
+When the decision tree says SUBAGENT, dispatch `Task` subagents sequentially:
+
+1. Parse approved plan, build task queue
+2. For each task, dispatch:
+   ```
+   Task({ subagent_type: "generalPurpose",
+          prompt: "[Task content + files + success criteria from plan]",
+          description: "Task N: [name]",
+          readonly: false })
+   ```
+3. After each subagent: verify output, run typecheck/lint on modified files
+4. Pass handoff context to next subagent dispatch
+5. After all tasks: full verification
+
+**NEVER** dispatch subagents in parallel. Always sequential with explicit handoffs.
+
+---
 
 ## Pre-Execution Checklist
 
@@ -20,221 +60,21 @@ alwaysApply: true
 
 ### 1. Parse Approved Plan
 - Extract all task definitions with full text
-- Extract handoff payload schema for each task
 - Identify acceptance criteria
 - Note library versions and APIs to use
-- List commands to run (typecheck, lint, build)
+- Run scope analysis: count files per task, check layer boundaries
 
 ### 2. Create Git Checkpoint (REQUIRED for complex changes)
 
 ```bash
-# For complex multi-file changes
 git checkout -b feature/[feature-name]
-
-# OR create checkpoint commit
-git add -A
-git commit -m "checkpoint: before implementing [feature]"
+# OR
+git add -A && git commit -m "checkpoint: before implementing [feature]"
 ```
 
-### 3. Build Task Execution Queue
-
-```markdown
-TASK EXECUTION QUEUE (Sequential):
-
-| Order | Task ID | Description | Depends On | Files |
-|-------|---------|-------------|------------|-------|
-| 1 | task-1 | [desc] | None | [file list] |
-| 2 | task-2 | [desc] | task-1 | [file list] |
-| 3 | task-3 | [desc] | task-2 | [file list] |
-
-CONFLICT CHECK:
-- No file appears in multiple consecutive tasks that could conflict
-- Each task's handoff payload is ready
-```
-
-### 4. Verify Research Sources
+### 3. Verify Research Sources
 - Quick WebSearch: "[library] breaking changes 2025 2026"
-- Verify no new breaking changes since plan research
 - If found: update plan, notify user
-
----
-
-## Sequential Subagent Dispatch Flow
-
-### The Orchestrator Pattern (Default)
-
-```typescript
-// STEP 1: Dispatch first task subagent
-const task1Result = Task({
-  subagent_type: "generalPurpose",
-  prompt: `
-You are implementing Task 1 of a multi-step plan.
-
-**Feature**: [feature name from plan]
-
-**Your Task**: [Task 1 full definition from plan]
-
-**Files to Modify**:
-- Create: [exact paths]
-- Modify: [exact paths with line ranges]
-
-**Success Criteria**:
-- [ ] [Criterion 1]
-- [ ] [Criterion 2]
-
-**Implementation Steps**:
-[Exact steps from plan]
-
-**After completion, output this handoff**:
-{
-  "what_was_done": "Summary of what you implemented",
-  "key_decisions": ["Decision 1 - why", "Decision 2 - why"],
-  "artifacts": ["path/to/file1.ts", "path/to/file2.ts"],
-  "remaining_steps": ["Task 2", "Task 3"],
-  "important_context": ["Any context Task 2 needs"],
-  "success_criteria_met": true/false
-}
-`,
-  description: "Task 1: [task name]",
-  readonly: false
-});
-
-// STEP 2: Review Task 1 output
-// Parse handoff payload from task1Result
-
-// STEP 3: Dispatch Task 2 with Task 1's handoff
-const task2Result = Task({
-  subagent_type: "generalPurpose",
-  prompt: `
-You are implementing Task 2 of a multi-step plan.
-
-**Feature**: [feature name from plan]
-
-**Handoff from Task 1**:
-${JSON.stringify(handoffFromTask1, null, 2)}
-
-**Your Task**: [Task 2 full definition from plan]
-
-**Files to Modify**:
-- Create: [exact paths]
-- Modify: [exact paths with line ranges]
-
-**Context from Previous**:
-- Task 1 created: [list files]
-- Key decisions: [list decisions]
-- You should: [specific guidance]
-
-**Success Criteria**:
-- [ ] [Criterion 1]
-- [ ] [Criterion 2]
-
-**Implementation Steps**:
-[Exact steps from plan]
-
-**After completion, output this handoff**:
-{
-  "what_was_done": "Summary",
-  "key_decisions": ["..."],
-  "artifacts": ["..."],
-  "remaining_steps": ["Task 3"],
-  "important_context": ["..."],
-  "success_criteria_met": true/false
-}
-`,
-  description: "Task 2: [task name]",
-  readonly: false
-});
-
-// Continue for remaining tasks...
-```
-
-### After Each Task: Review Gate
-
-```markdown
-REVIEW GATE (after each task completes):
-
-1. Parse handoff payload from subagent output
-2. Verify success_criteria_met === true
-3. If false: dispatch fix subagent or report blocker
-4. Run incremental verification (if applicable):
-   - TypeScript: Files modified → run typecheck on those files
-   - Lint: Run lint on modified files
-5. Store handoff payload for next task
-6. Dispatch next task subagent
-
-NEVER proceed to next task if:
-- success_criteria_met is false
-- TypeScript/lint errors on modified files
-- Handoff payload missing required fields
-```
-
----
-
-## Task Subagent Prompt Template
-
-Every subagent dispatch MUST use this structure:
-
-```markdown
-# Task N: [Task Name]
-
-## Context
-- Feature: [feature name]
-- Overall Plan: [brief description]
-- Previous Task Output: [handoff JSON or "None (first task)"]
-
-## Your Specific Task
-[Full task definition from plan]
-
-## Files
-- **Create**: [exact paths with expected content]
-- **Modify**: [exact paths with line ranges]
-- **Reference** (read-only): [pattern files to follow]
-
-## Success Criteria
-- [ ] [Criterion 1]
-- [ ] [Criterion 2]
-- [ ] TypeScript passes on modified files
-- [ ] Lint passes on modified files
-
-## Implementation Steps
-[Exact numbered steps from plan]
-
-## Required Output Format
-After completing the task, output this exact JSON:
-
-```json
-{
-  "status": "DONE" | "DONE_WITH_CONCERNS" | "NEEDS_CONTEXT" | "BLOCKED",
-  "what_was_done": "[summary]",
-  "key_decisions": ["[decision 1 - reasoning]", "[decision 2 - reasoning]"],
-  "artifacts": ["path/to/file1.ts", "path/to/file2.ts"],
-  "remaining_steps": ["[next task name]", "..."],
-  "important_context": ["[context for next task]"],
-  "success_criteria_met": true,
-  "concerns": ["[optional: concerns or observations]"]
-}
-```
-
-## Constraints
-- Do NOT modify: [files outside task scope]
-- Must follow: [patterns from reference files]
-- Must not add: [things to avoid from plan]
-```
-
----
-
-## Handling Subagent Status
-
-Implementer subagents MUST report one of four statuses. Handle each:
-
-| Status | Meaning | Required Action |
-|--------|---------|-----------------|
-| `DONE` | Task completed successfully | Proceed to review gate, then next task |
-| `DONE_WITH_CONCERNS` | Completed but flagged doubts | Review concerns first, address if correctness/scope issue, then proceed |
-| `NEEDS_CONTEXT` | Missing information | Provide context and re-dispatch same task |
-| `BLOCKED` | Cannot complete | Assess blocker, upgrade model, break task smaller, or escalate to user |
-
-**NEVER** ignore a blocker escalation. If subagent said it's stuck, something needs to change.
 
 ---
 
@@ -243,29 +83,22 @@ Implementer subagents MUST report one of four statuses. Handle each:
 **After each task (not just at the end)**:
 
 ### TypeScript Check (Modified Files Only)
-
 ```bash
-# Check specific files
 npx tsc --noEmit path/to/file1.ts path/to/file2.ts
-
 # Or full typecheck if many files
-npm run typecheck
+pnpm run typecheck
 ```
 
 ### Lint Check (Modified Files Only)
-
 ```bash
-# Check specific files
 npx eslint path/to/file1.ts path/to/file2.ts
-
 # Or full lint
-npm run lint
+pnpm run lint
 ```
 
 ### Build Check (After All Tasks)
-
 ```bash
-npm run build
+pnpm run build
 ```
 
 ---
@@ -275,29 +108,22 @@ npm run build
 **Before marking complete**:
 
 ### 1. Run All Verification Commands
-
 ```bash
-npm run typecheck
-npm run lint
-npm run build
+pnpm run typecheck
+pnpm run lint
+pnpm run build
 ```
 
 ### 2. Verify Against Plan
-
-- ✅ All plan steps completed
-- ✅ All acceptance criteria met
-- ✅ All handoff payloads valid
-- ✅ All sources cited in code comments (if complex)
-- ✅ No TODOs or incomplete sections
+- All plan steps completed
+- All acceptance criteria met
+- No TODOs or incomplete sections
 
 ### 3. Web Final Check
-
 - Search: "[implemented feature] best practices 2026"
 - Verify implementation matches current patterns
-- Check for any missed security considerations
 
 ### 4. Git Commit
-
 ```bash
 git add .
 git commit -m "feat: [feature description]
@@ -305,81 +131,23 @@ git commit -m "feat: [feature description]
 - Implements [feature] following [pattern]
 - Uses [library] v[version] APIs
 - Verified against [source1], [source2]
-- All checks pass: typecheck, lint, build
-- Sequential subagent execution: [N] tasks"
+- All checks pass: typecheck, lint, build"
 ```
 
 ---
 
-## Completion Summary
+## Subagent Status Handling (When Using Subagents)
 
-**Report to user**:
+Implementer subagents MUST report one of four statuses. Handle each:
 
-```markdown
-## Implementation Complete ✅
+| Status | Meaning | Required Action |
+|--------|---------|-----------------|
+| `DONE` | Task completed successfully | Proceed to review gate, then next task |
+| `DONE_WITH_CONCERNS` | Completed but flagged doubts | Review concerns, address if correctness/scope issue |
+| `NEEDS_CONTEXT` | Missing information | Provide context and re-dispatch same task |
+| `BLOCKED` | Cannot complete | Assess blocker, upgrade model, break task smaller, or escalate to user |
 
-**Execution Mode**: Sequential Subagent Dispatch
-
-**Tasks Completed**: [N] tasks in sequence
-
-**Changes**:
-- [File 1]: [summary]
-- [File 2]: [summary]
-
-**Verification**:
-- ✅ `npm run typecheck` (0 errors)
-- ✅ `npm run lint` (0 errors)  
-- ✅ `npm run build` (success)
-
-**Research Sources**:
-- [Source 1 URL] - [pattern verified]
-- [Source 2 URL] - [API reference]
-
-**Handoff Summary**:
-- Task 1 → Task 2: [key artifacts/decisions]
-- Task 2 → Task 3: [key artifacts/decisions]
-
-**Next Steps**:
-- [Any manual testing needed]
-- [Any documentation updates]
-```
-
----
-
-## Failure Handling
-
-### If Subagent Reports BLOCKED
-
-```markdown
-1. Read blocker description carefully
-2. Assess blocker type:
-   - Context problem → Provide more context, re-dispatch same model
-   - Model capability → Re-dispatch with more capable model
-   - Task too large → Break into smaller pieces, update plan
-   - Plan wrong → Escalate to user, do NOT guess
-3. NEVER retry same model without changes
-4. NEVER skip a blocked task
-```
-
-### If Verification Fails
-
-```markdown
-1. TypeScript/Lint errors:
-   - Identify which task caused error
-   - Dispatch fix subagent to that file
-   - Re-run verification
-
-2. Build failures:
-   - Read error output
-   - Search: "[error] [library] 2026"
-   - Check library compatibility
-   - If unresolved: revert to checkpoint, research alternative
-
-3. Acceptance criteria not met:
-   - Identify gap
-   - Dispatch fix subagent with specific instructions
-   - Re-verify
-```
+**NEVER** ignore a blocker escalation.
 
 ---
 
@@ -387,16 +155,8 @@ git commit -m "feat: [feature description]
 
 **For authentication, encryption, user input**:
 
-1. Cross-reference implementation against:
-   - Official library security docs
-   - OWASP guidelines
-   - 2+ authoritative 2026 sources
-
-2. Check for common vulnerabilities:
-   - Injection (33.1% of AI code findings, AppSec Santa Mar 2026)
-   - Improper validation
-   - Insecure defaults
-
+1. Cross-reference implementation against official library security docs + OWASP guidelines
+2. Check for: injection (33.1% of AI code findings, AppSec Santa Mar 2026), improper validation, insecure defaults
 3. If uncertain: flag for manual security review
 
 ---
@@ -407,35 +167,28 @@ git commit -m "feat: [feature description]
 - Before complex multi-file changes
 - Before security-critical implementations
 - Before migrations or breaking changes
-- After each task (optional: commit per task)
 
-**Checkpoint per task pattern**:
-
+**Pattern**:
 ```bash
-# After each task completes successfully
 git add -A
-git commit -m "task-N: [task description] complete"
-
-# On failure: revert to last task checkpoint
-git reset --hard HEAD~1
+git commit -m "checkpoint: before [change]"
+# On failure: git reset --hard HEAD~1
 ```
 
 ---
 
 ## Success Metrics
 
-✅ All tasks executed via sequential subagent dispatch
-✅ Handoff payloads passed between tasks
-✅ All verification commands pass
-✅ Implementation matches plan acceptance criteria
-✅ Sources cited for complex implementations
-✅ Git checkpoint created (if complex feature)
-✅ No security red flags
+- All tasks completed (direct or subagent based on scope analysis)
+- All verification commands pass
+- Implementation matches plan acceptance criteria
+- Git checkpoint created (if complex feature)
+- No security red flags
 
-❌ Tasks executed in main context (no subagents)
-❌ Handoff payloads missing or invalid
-❌ Code committed without verification
-❌ Verification failures ignored
-❌ Plan acceptance criteria not met
-❌ Blocked tasks skipped
-❌ Tasks executed in parallel (sequential-only enforced)
+## Failure Indicators
+
+- Verification failures ignored
+- Code committed without verification
+- Plan acceptance criteria not met
+- Blocked tasks skipped without escalation
+- Tasks executed in parallel when subagent mode (sequential-only enforced)
