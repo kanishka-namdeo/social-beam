@@ -1,0 +1,7 @@
+{
+  "name": "@prisma/client-generated",
+  "version": "0.0.0",
+  "main": "./client.ts",
+  "types": "./client.ts",
+  "sideEffects": false
+}

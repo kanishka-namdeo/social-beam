@@ -1,0 +1,314 @@
+---
+description: Next.js 16 app directory patterns and conventions. Apply when creating or modifying pages, layouts, API routes, or proxy. Covers server/client components, data fetching, routing, and auth patterns.
+globs: app/**/*.ts,app/**/*.tsx,proxy.ts
+---
+
+# Next.js Patterns
+
+**Trigger**: Auto-applied to `app/` directory files and `proxy.ts`.
+
+> **Read `node_modules/next/dist/docs/` before writing any code.** This project uses Next.js 16.2.6 with breaking changes from earlier versions. Heed deprecation notices.
+
+## Server vs Client Components
+
+**Default to Server Components.** Only add `'use client'` when the component requires browser APIs or interactivity:
+
+```typescript
+// Server Component (default — no directive needed)
+// app/dashboard/page.tsx
+import { prisma } from '@/lib/prisma';
+
+export default async function DashboardPage() {
+  const data = await fetchDashboardData(); // runs on server
+  return <DashboardContent data={data} />;
+}
+```
+
+```typescript
+// Client Component (requires directive at file top)
+// app/dashboard/client-chart.tsx
+'use client';
+
+import { useState } from 'react';
+import { LineChart } from '@/components/charts/line-chart';
+
+export function ClientChart({ data }: { data: number[] }) {
+  const [hovered, setHovered] = useState<number | null>(null);
+  return <LineChart data={data} onHover={setHovered} />;
+}
+```
+
+**Client-only triggers**: `useState`, `useEffect`, `useReducer`, `useRef`, DOM access, browser APIs (`window`, `navigator`, `localStorage`), event handlers (`onClick`, `onChange`, `onSubmit`), custom hooks.
+
+**Pass server data as props to client components** — do not fetch data inside client components:
+
+```typescript
+// GOOD — server fetches, client renders
+// app/page.tsx
+import { DashboardContent } from '@/components/dashboard-content';
+
+export default async function Page() {
+  const data = await fetchData();
+  return <DashboardContent data={data} />;
+}
+```
+
+## Route Handlers (API Routes)
+
+**File convention**: `app/api/[resource]/route.ts`
+
+**Always export named HTTP method functions** (`GET`, `POST`, `PUT`, `DELETE`, `PATCH`):
+
+```typescript
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
+
+const createSchema = z.object({
+  name: z.string().min(1).max(100),
+  email: z.string().email(),
+});
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const parsed = createSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid request body', details: parsed.error.flatten() },
+        { status: 400 }
+      );
+    }
+
+    const resource = await prisma.resource.create({ data: parsed.data });
+    return NextResponse.json({ data: resource }, { status: 201 });
+  } catch (error) {
+    log.error('api.request.error', { error: String(error) });
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+**Validate all inputs with Zod**. Never trust `req.json()` output.
+
+**Use standard HTTP status codes**: 200/201 success, 400 bad request, 401 unauthorized, 403 forbidden, 404 not found, 409 conflict, 500 internal error.
+
+**Response shape consistency**:
+
+```typescript
+// Success
+{ data: { ... } }
+// Error
+{ error: 'message', details?: { ... } }
+```
+
+## Route Groups
+
+**Use route groups `(name)` for layout scoping without URL segments**:
+
+```
+app/
+  (auth)/
+    layout.tsx        # Shared auth layout
+    login/page.tsx
+    register/page.tsx
+  (dashboard)/
+    layout.tsx        # Shared dashboard layout
+    page.tsx
+    settings/page.tsx
+```
+
+Route groups are stripped from URLs. `app/(auth)/login/page.tsx` maps to `/login`.
+
+## Proxy (Next.js 16)
+
+**In Next.js 16, `middleware.ts` is renamed to `proxy.ts` and exports `proxy` instead of `middleware`**.
+
+**Keep proxy fast and stateless**. Do not run database queries in the proxy. Use the `auth()` wrapper pattern from Auth.js v5 for session checks:
+
+```typescript
+// proxy.ts
+import NextAuth from "next-auth";
+import { NextResponse, type NextRequest } from "next/server";
+import authConfig from "./auth.config";
+
+const { auth } = NextAuth(authConfig);
+
+export const proxy = auth(async function proxy(request: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+  return NextResponse.next();
+});
+
+export const config = {
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
+};
+```
+
+**Exclude API routes, static assets, and image files** from proxy via the matcher.
+
+## Data Fetching
+
+**Server Components fetch data directly** — no `getServerSideProps` or `getStaticProps`:
+
+```typescript
+// GOOD — Server Component
+export default async function Page() {
+  const posts = await prisma.post.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+  });
+  return <PostList posts={posts} />;
+}
+```
+
+**For external API calls in Server Components**, use `fetch` with cache configuration:
+
+```typescript
+const data = await fetch('https://api.example.com/data', {
+  next: { revalidate: 3600 }, // Cache for 1 hour
+});
+```
+
+**Never pass `req` or `res` to Server Components** — use `headers()`, `cookies()`, and `searchParams` from `next/headers` instead.
+
+## Authentication Integration
+
+**Use the `auth()` helper from the auth config in Server Components and Route Handlers**:
+
+```typescript
+// Server Component
+import { auth } from '@/lib/auth';
+
+export default async function ProtectedPage() {
+  const session = await auth();
+  if (!session?.user) {
+    return redirect('/login');
+  }
+  // ...
+}
+```
+
+```typescript
+// Route Handler
+import { auth } from '@/lib/auth';
+
+export async function GET() {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  // ...
+}
+```
+
+**Do not read session from cookies directly in route handlers** — always use the `auth()` helper.
+
+### SessionProvider in Root Layout
+
+`SessionProvider` from `next-auth/react` uses `useContext` internally and **must** live in a Client Component. Never import it directly in `app/layout.tsx` (a Server Component).
+
+```typescript
+// ✅ GOOD — use a Client Component wrapper in layout
+// app/layout.tsx (Server Component)
+import { Providers } from '@/components/providers'; // has "use client"
+
+export default async function RootLayout({ children }) {
+  const session = await auth(); // can be null for unauthenticated users
+  return (
+    <Providers session={session}>
+      {children}
+    </Providers>
+  );
+}
+```
+
+```typescript
+// ✅ GOOD — providers.tsx (Client Component)
+"use client";
+import { SessionProvider } from "next-auth/react";
+import type { Session } from "next-auth";
+
+export function Providers({ children, session }: { children: React.ReactNode; session?: Session | null }) {
+  return (
+    <SessionProvider session={session ?? undefined}>
+      {children}
+    </SessionProvider>
+  );
+}
+```
+
+**Critical rules for SessionProvider**:
+1. **Always render `SessionProvider`** — even when unauthenticated. The `signIn()` function from `next-auth/react` requires `SessionProvider` context to work, even on login pages.
+2. **Pass `undefined` not `null`** — when `auth()` returns `null` (unauthenticated), convert to `undefined` before passing to `SessionProvider`. Passing `null` can cause context initialization issues.
+3. **Never conditionally skip `SessionProvider`** — auth layouts, login pages, and public pages all need the `SessionProvider` context for `signIn()` and `useSession()` to function.
+
+## Form Handling
+
+**Server Actions for forms when possible** (Next.js 16 preferred pattern):
+
+```typescript
+// Server Action in a 'use server' file or component
+'use server';
+
+import { z } from 'zod';
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
+
+const formSchema = z.object({
+  name: z.string().min(1),
+});
+
+export async function createItem(formData: FormData) {
+  const parsed = formSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { error: 'Invalid input' };
+  }
+  await prisma.item.create({ data: parsed.data });
+  revalidatePath('/dashboard');
+  redirect('/dashboard');
+}
+```
+
+**Client-side forms use `onSubmit` with async handlers**: See `app/(auth)/login/page.tsx` for the pattern.
+
+## Error Boundaries
+
+**Use `error.tsx` and `not-found.tsx` files per route segment** for graceful error handling:
+
+```typescript
+// app/dashboard/error.tsx
+'use client';
+
+export default function Error({ error, reset }: { error: Error; reset: () => void }) {
+  return (
+    <div>
+      <h2>Something went wrong</h2>
+      <button onClick={reset}>Try again</button>
+    </div>
+  );
+}
+```
+
+## Layout Composition
+
+**Layouts accept `children` and persist across navigations**:
+
+```typescript
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex min-h-screen items-center justify-center p-4">
+      {children}
+    </div>
+  );
+}
+```
+
+**Pass data from parent layouts to child pages via React Context or props, not server fetches inside nested layouts.**

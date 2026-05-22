@@ -1,0 +1,396 @@
+---
+description: "Enforce LangGraph agent coding patterns for TypeScript. Covers state design, node purity, tool loops, conditional routing, interrupts, checkpointer usage, and anti-patterns. Apply when modifying lib/agent/** files."
+globs: "lib/agent/**/*.ts"
+alwaysApply: true
+---
+
+# LangGraph Coding Patterns
+
+**Trigger**: Active when creating or modifying LangGraph agent files (`lib/agent/**/*.ts`).
+
+## 1. State Design
+
+### Use Annotation.Root with Explicit Reducers
+
+All state must use `Annotation.Root` from `@langchain/langgraph`. Every field needs a reducer — never leave a field without one.
+
+```typescript
+import { Annotation, MessagesAnnotation } from '@langchain/langgraph';
+
+export const OnboardingState = Annotation.Root({
+  ...MessagesAnnotation.spec,
+  userId: Annotation<string>(),
+  currentStep: Annotation<string>({
+    default: () => 'greeting',
+    reducer: (_current, next) => next,
+  }),
+  userInfo: Annotation<Record<string, unknown>>({
+    default: () => ({}),
+    reducer: (current, next) => ({ ...current, ...next }),
+  }),
+  uiComponents: Annotation<Array<{ type: string; props: Record<string, unknown> }>>({
+    default: () => [],
+    reducer: (current, next) => [...current, ...next],
+  }),
+});
+```
+
+### Reducer Selection Guide
+
+| Pattern | Reducer | Use Case |
+|---------|---------|----------|
+| Replace value | `(_current, next) => next` | `currentStep`, `userId`, single-result fields |
+| Merge objects | `(current, next) => ({ ...current, ...next })` | `userInfo`, config objects |
+| Append array | `(current, next) => [...current, ...next]` | `uiComponents`, event logs |
+| Messages | Use `MessagesAnnotation.spec` | Chat history (built-in `add_messages` reducer) |
+
+### State Field Rules
+
+- **Keep state minimal**: Only store values that need to persist across nodes or be inspected by routers
+- **No transient data in state**: Pass temporary values through function scope, not state channels
+- **Type all fields**: Use typed annotations, never `Annotation<any>()`
+- **Always provide defaults**: Use `default: () => ...` to avoid undefined state
+
+## 2. Node Purity
+
+### Nodes Are Pure Transformations
+
+Nodes MUST be pure functions: `(state) => Partial<State>`. No mutations, no side effects.
+
+```typescript
+// ❌ WRONG — mutates state, side effects
+async function badNode(state: OnboardingStateType) {
+  state.currentStep = 'next';           // mutation
+  await prisma.user.update(...);        // side effect in node
+  return state;
+}
+
+// ✅ RIGHT — pure transformation
+async function goodNode(state: OnboardingStateType): Promise<Partial<OnboardingStateType>> {
+  return {
+    currentStep: 'next',
+  };
+}
+```
+
+### Rules
+
+- **Return partial state**: Return `Partial<OnboardingStateType>`, only the fields that changed
+- **No mutation**: Never mutate `state` object or any nested reference
+- **No direct DB writes in nodes**: Let the checkpointer handle persistence (see §5)
+- **Async for I/O**: All LLM calls and tool invocations must use `async/await`
+- **Single responsibility**: Each node does one thing — generate response, wait for user, execute tools
+
+### Node Naming Convention
+
+| Pattern | Examples |
+|---------|----------|
+| Model node (LLM call) | `accountConnectorModel`, `audienceCollectorNode` |
+| Wait node (interrupt) | `accountConnectorWait`, `brandVoiceWait` |
+| Tools node (ToolNode) | `accountConnectorTools`, `audienceCollectorTools` |
+| Router node | `orchestrator` |
+
+## 3. Tool Loop Pattern
+
+### CRITICAL: Wire Tool Calls as Explicit Graph Nodes
+
+LLM tool calls MUST NOT be hidden inside model nodes. The tool execution loop must be explicit in the graph structure.
+
+```typescript
+// ❌ WRONG — LLM node handles tools internally, graph unaware
+.addEdge('modelNode', 'waitNode')
+
+// ✅ RIGHT — conditional edge checks for tool calls, routes to tools node
+.addConditionalEdges('modelNode', routeAfterModel, {
+  modelTools: 'modelTools',
+  modelWait: 'modelWait',
+})
+.addEdge('modelTools', 'modelNode')   // loop back to model after tools execute
+```
+
+### Required Tool Loop Components
+
+Every tool-enabled step needs **4 parts**:
+
+**1. Model Node** — LLM call with `bindTools([...tools])`:
+
+```typescript
+const model = new ChatOpenAI({ modelName: 'qwen3.6-plus' })
+  .bindTools([toolA, toolB]);
+
+export async function myModelNode(state: OnboardingStateType) {
+  const response = await model.invoke([...state.messages]);
+  return { messages: [response] };
+}
+```
+
+**2. ToolNode wrapper** — Prebuilt `ToolNode` from `@langchain/langgraph/prebuilt`:
+
+```typescript
+import { ToolNode } from '@langchain/langgraph/prebuilt';
+
+export const myTools = new ToolNode([toolA, toolB]);
+```
+
+**3. Routing function** — Pure inspection, checks for `tool_calls`:
+
+```typescript
+function routeAfterMyModel(state: OnboardingStateType): string {
+  const msgs = state.messages;
+  const lastMsg = msgs[msgs.length - 1] as unknown as Record<string, unknown>;
+  const hasToolCalls = Array.isArray(lastMsg?.tool_calls)
+    && (lastMsg.tool_calls as unknown[]).length > 0;
+
+  const iteration = ((state as Record<string, unknown>).__tool_loop_iteration as number) ?? 0;
+  if (iteration >= 10) {
+    logger.warn('agent.tool_loop_guard_triggered', { node: 'myModel', iterations: iteration });
+    return 'myWait';
+  }
+
+  return hasToolCalls ? 'myTools' : 'myWait';
+}
+```
+
+**4. Wait node** — `interrupt()` for human-in-the-loop:
+
+```typescript
+export async function myWait(state: OnboardingStateType) {
+  const userReply = interrupt({ step: 'my_step', question: 'waiting' }) as string;
+  return { messages: [new HumanMessage(userReply)] };
+}
+```
+
+### Tool-Loop Guard (Mandatory)
+
+Every tool-loop routing function MUST include:
+- **Iteration counter**: Track `__tool_loop_iteration` in state
+- **Max iterations**: Exit to wait node after 10 iterations
+- **Logging**: Warn when guard triggers
+
+Track iterations in the tool-node wrapper:
+
+```typescript
+.addNode('myTools', withDebugTrace('myTools', async (state) => {
+  const iteration = ((state as Record<string, unknown>).__tool_loop_iteration as number ?? 0) + 1;
+  const result = await myTools.invoke(state);
+  return {
+    ...(result as unknown as Partial<OnboardingStateType>),
+    __tool_loop_iteration: iteration,
+  };
+}))
+```
+
+## 4. Conditional Routing
+
+### Routers Are Pure Inspections
+
+Routing functions MUST be pure — no state mutation, no side effects, no LLM calls.
+
+```typescript
+// ❌ WRONG — side effect in router
+let counter = 0;
+function route(state) { counter++; return counter > 3 ? 'end' : 'continue'; }
+
+// ✅ RIGHT — pure inspection
+function route(state: OnboardingStateType): string {
+  return state.currentStep === 'completion' ? 'completion' : 'greetingHandler';
+}
+```
+
+### Orchestrator Pattern
+
+Use an orchestrator node + conditional edges for multi-step workflows:
+
+```typescript
+function routeFromOrchestrator(state: OnboardingStateType): string {
+  switch (state.currentStep) {
+    case 'greeting': return 'greetingHandler';
+    case 'collect_info': return 'userInfoCollector';
+    case 'define_audience': return 'audienceCollector';
+    case 'connect_accounts': return 'accountConnectorModel';
+    case 'analyze_profile': return 'profileAnalyzer';
+    case 'train_brand_voice': return 'brandVoice';
+    case 'completion': return 'completion';
+    default: return 'completion';
+  }
+}
+```
+
+### Wrap Routers with Debug Logging
+
+Use `createRoutedRouter` from `lib/agent/debug.ts` for all conditional routers:
+
+```typescript
+const loggedRouteFromOrchestrator = createRoutedRouter('routeFromOrchestrator', routeFromOrchestrator);
+```
+
+## 5. Interrupts & Human-in-the-Loop
+
+### Interrupt Usage
+
+Use `interrupt()` from `@langchain/langgraph` to pause for user input:
+
+```typescript
+import { interrupt } from '@langchain/langgraph';
+
+export async function waitNode(state: OnboardingStateType) {
+  const userReply = interrupt({
+    step: state.currentStep,
+    question: 'waiting for user',
+  }) as string;
+
+  return { messages: [new HumanMessage(userReply)] };
+}
+```
+
+### Wait Node Advancement Rules
+
+Wait nodes MUST NOT unconditionally advance `currentStep`. Only advance when the step's work is actually complete:
+
+```typescript
+// ❌ WRONG — always advances
+return {
+  messages: [new HumanMessage(userReply)],
+  currentStep: 'next_step',
+};
+
+// ✅ RIGHT — state-aware advancement
+const hasProfile = state.brandVoiceProfile != null;
+const userSaidSkip = /skip|not now|later/i.test(userReply);
+const shouldAdvance = hasProfile || userSaidSkip;
+
+return {
+  messages: [new HumanMessage(userReply)],
+  ...(shouldAdvance ? { currentStep: 'completion' } : {}),
+};
+```
+
+### Interrupt Guards
+
+If a model node already advanced the step, the wait node should skip the interrupt:
+
+```typescript
+export async function waitNode(state: OnboardingStateType) {
+  // If previous node already advanced the step, skip interrupt
+  if (state.currentStep !== 'expected_step') {
+    return {};
+  }
+
+  const userReply = interrupt(...) as string;
+  return { messages: [new HumanMessage(userReply)] };
+}
+```
+
+## 6. Checkpointer & Persistence
+
+### Use PostgresSaver in Production
+
+The checkpointer MUST be `PostgresSaver` from `@langchain/langgraph-checkpoint-postgres`. Never use `MemorySaver`.
+
+```typescript
+import { PostgresSaver } from '@langchain/langgraph-checkpoint-postgres';
+
+let checkpointer: PostgresSaver | undefined;
+
+async function ensureCheckpointer() {
+  if (!checkpointer) {
+    checkpointer = PostgresSaver.fromConnString(process.env.DATABASE_URL!);
+    await checkpointer.setup();
+  }
+  return checkpointer;
+}
+```
+
+### Checkpointer Rules
+
+- **Lazy initialization**: Create checkpointer once, cache it
+- **Call `setup()` once**: Only on first creation
+- **Thread isolation**: Each user session gets unique `thread_id`
+- **No manual DB writes in nodes**: Let the checkpointer handle persistence
+
+### Graph Compilation
+
+```typescript
+async function compileGraph() {
+  const cp = await ensureCheckpointer();
+  return buildWorkflow().compile({ checkpointer: cp });
+}
+```
+
+## 7. Graph Structure
+
+### Build Pattern
+
+```typescript
+function buildWorkflow() {
+  return new StateGraph(OnboardingState)
+    .addNode('nodeA', nodeA)
+    .addNode('nodeB', nodeB)
+    .addEdge(START, 'nodeA')
+    .addConditionalEdges('nodeA', router, { nodeB: 'nodeB', nodeC: 'nodeC' })
+    .addEdge('nodeB', 'nodeA')  // tool loop back
+    .addEdge('nodeC', END);
+}
+```
+
+### Keep getGraphStructure() in Sync
+
+The `getGraphStructure()` function in `graph.ts` MUST reflect all nodes, edges, and conditionals. Update it every time the graph changes:
+
+```typescript
+export function getGraphStructure() {
+  return {
+    nodes: ['nodeA', 'nodeB', 'nodeC'],
+    edges: [[START, 'nodeA'], ['nodeB', 'nodeA'], ['nodeC', END]],
+    conditionals: [
+      { from: 'nodeA', router: 'router', routes: ['nodeB', 'nodeC'] },
+    ],
+  };
+}
+```
+
+## 8. Anti-Patterns
+
+| Anti-Pattern | Why It's Bad | Fix |
+|---|---|---|
+| **Unwired tool loops** | LLM calls tools but graph routes directly past them | Add `ToolNode` + conditional edge + loop-back edge |
+| **Unconditional step advancement in wait nodes** | Users can't have multi-turn conversations within a step | Check state before advancing `currentStep` |
+| **State mutation in nodes** | Breaks reducer merge logic, causes race conditions | Return new partial state objects |
+| **Side effects in nodes (DB writes)** | Breaks replay semantics, duplicates checkpointer work | Use checkpointer for state persistence |
+| **Blocking operations in nodes** | Blocks event loop, prevents parallelism | Use `interrupt()` + resume pattern |
+| **Side effects in routing functions** | Non-deterministic routing, breaks replay | Pure inspection only |
+| **God nodes** | Multiple responsibilities, hard to test/debug | Split into focused single-purpose nodes |
+| **Hardcoded `currentStep` in wait nodes** | Prevents multi-turn step conversations | State-aware advancement checks |
+| **Missing tool-loop guard** | Infinite tool-call loops burn tokens | `__tool_loop_iteration` counter + max 10 |
+| **Manual DB writes + checkpointer** | Double-write, inconsistent state | Choose one — use checkpointer |
+
+## 9. Debugging & Observability
+
+### Wrap All Nodes with Debug Traces
+
+```typescript
+const debugNode = withDebugTrace('nodeName', nodeFn);
+```
+
+### Required Logging in Agent Nodes
+
+Every agent node MUST log at entry and exit points using `createLogger`:
+
+```typescript
+const logger = createLogger({ correlationId: state.correlationId ?? 'unknown', userId: state.userId ?? 'unknown' });
+logger.info('nodeName: entering', { messageCount: state.messages.length });
+// ... work ...
+logger.info('nodeName: exiting', { result });
+```
+
+## 10. Checklist Before Committing Agent Changes
+
+- [ ] All new nodes use `Annotation.Root` state types
+- [ ] All tool-enabled steps have: model node + `ToolNode` + router + wait node + loop-back edge
+- [ ] All routing functions are pure (no mutation, no side effects)
+- [ ] All wait nodes check state before advancing `currentStep`
+- [ ] Tool-loop guards present with `__tool_loop_iteration` tracking
+- [ ] `getGraphStructure()` updated with new nodes/edges/conditionals
+- [ ] All nodes wrapped with `withDebugTrace`
+- [ ] No manual DB writes in node functions
+- [ ] No hardcoded colors, inline styles, or console.log in agent code

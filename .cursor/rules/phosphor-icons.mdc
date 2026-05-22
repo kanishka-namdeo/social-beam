@@ -1,0 +1,168 @@
+---
+alwaysApply: false
+---
+
+# Phosphor Icons
+
+**Trigger**: Auto-applied to all `.tsx` and `.ts` files importing from `@phosphor-icons/react`.
+
+## Package
+
+- **Version**: `@phosphor-icons/react` v2.1.10 (May 2025)
+- **Source**: [phosphoricons.com](https://phosphoricons.com) | [GitHub](https://github.com/phosphor-icons/react)
+- **Already in `package.json`** — do not reinstall.
+
+## Import Paths (Critical)
+
+The package has **three import paths**. Using the wrong one causes SSR/hydration errors.
+
+| Context | Import Path | Why |
+|---------|-------------|-----|
+| **Server Component** (no `"use client"`) | `@phosphor-icons/react/ssr` | SSR-safe; no React Context dependency |
+| **Client Component** (has `"use client"`) | `@phosphor-icons/react` | Full features; supports `IconContext` |
+| **Shadcn UI component files** | `@phosphor-icons/react` | UI components are client-side |
+
+### SSR vs CSR — The Rule
+
+```tsx
+// ✅ SERVER COMPONENT — use /ssr subpath
+// File: app/(dashboard)/dashboard/page.tsx  (no "use client")
+import { Sparkle, TrendUp } from "@phosphor-icons/react/ssr";
+
+// ✅ CLIENT COMPONENT — use main entry
+// File: components/dashboard/ai-insights-card.tsx  (has "use client")
+import { Sparkle, TrendUp } from "@phosphor-icons/react";
+
+// ✅ SHADCN UI FILE — use main entry (these are always client-side)
+// File: components/ui/dialog.tsx
+import { XIcon } from "@phosphor-icons/react";
+
+// ❌ NEVER use dist/ssr directly
+import { FishIcon } from "@phosphor-icons/react/dist/ssr";
+
+// ❌ NEVER use CSR import in a Server Component (causes hydration error)
+// File: app/(dashboard)/dashboard/page.tsx
+import { Sparkle } from "@phosphor-icons/react";
+```
+
+### Decision Checklist
+
+1. Does the file have `"use client"` at the top? → Use `@phosphor-icons/react`
+2. Is the file a Shadcn UI component in `components/ui/`? → Use `@phosphor-icons/react`
+3. Otherwise (Server Component, page, layout)? → Use `@phosphor-icons/react/ssr`
+
+## Icon Naming Convention
+
+### Exported Names
+
+Phosphor exports icons with **`Icon` suffix**. Always include the suffix.
+
+```tsx
+// ✅ CORRECT — Icon suffix
+import { HeartIcon, Sparkle, ArrowRight } from "@phosphor-icons/react/ssr";
+
+// Both forms are exported (with and without Icon suffix).
+// Prefer the Icon suffix for clarity and consistency.
+import { SparkleIcon, ArrowRightIcon } from "@phosphor-icons/react/ssr";
+```
+
+### Type Import
+
+When typing icon props or variables, import the `Icon` type from the **main entry** (not `/ssr`):
+
+```tsx
+import type { Icon } from "@phosphor-icons/react";
+
+const MyIcon: Icon = Sparkle;
+```
+
+## Props and Styling
+
+Icon components accept all standard SVG props plus Phosphor-specific props:
+
+| Prop | Type | Default | Usage |
+|------|------|---------|-------|
+| `size` | `number \| string` | `"1em"` | Height & width. Use Tailwind via `className="size-4"` |
+| `weight` | `"thin" \| "light" \| "regular" \| "bold" \| "fill" \| "duotone"` | `"regular"` | Icon style weight |
+| `color` | `string` | `"currentColor"` | Stroke/fill color. Use CSS variable tokens |
+| `mirrored` | `boolean` | `false` | Flip horizontally (RTL support) |
+| `alt` | `string` | — | Accessible alt text |
+
+### Styling via Tailwind
+
+```tsx
+// ✅ GOOD — Tailwind classes
+<SparkleIcon className="size-4 text-muted-foreground" weight="regular" />
+
+// ❌ BAD — inline styles for size/color
+<SparkleIcon style={{ width: 16, height: 16, color: '#888' }} />
+```
+
+### Color Tokens
+
+Use semantic CSS variables, not hardcoded hex values:
+
+```tsx
+// ✅ GOOD — semantic token
+<CheckCircleIcon className="size-4 text-success" />
+
+// ❌ BAD — hardcoded
+<CheckCircleIcon className="size-4" color="#22c55e" />
+```
+
+## Dynamic Icon Patterns
+
+When mapping icon names to components dynamically, import from the correct path and use a lookup:
+
+```tsx
+// Server component pattern
+import { House, PencilSimple, Calendar } from "@phosphor-icons/react/ssr";
+import type { Icon } from "@phosphor-icons/react";
+
+function getIcon(name: string): Icon {
+  switch (name) {
+    case "house": return House;
+    case "pencil-simple": return PencilSimple;
+    case "calendar": return Calendar;
+  }
+}
+
+// Usage
+const IconComponent = getIcon(item.icon);
+<IconComponent className="size-4" weight="regular" />
+```
+
+## Next.js Configuration
+
+The `next.config.ts` already has `optimizePackageImports` set via `serverExternalPackages`. Do not remove it. This ensures Next.js only bundles the icons actually used.
+
+```tsx
+// next.config.ts — already configured
+const nextConfig: NextConfig = {
+  serverExternalPackages: ["@phosphor-icons/react"],
+};
+```
+
+## Anti-Patterns to Avoid
+
+| Anti-Pattern | Problem | Fix |
+|-------------|---------|-----|
+| `import from "@phosphor-icons/react/dist/ssr"` | Non-standard path, may break in updates | Use `@phosphor-icons/react/ssr` |
+| CSR import in Server Component | Hydration mismatch, Context API unavailable in RSC | Use `/ssr` subpath |
+| SSR import in Client Component | Loses `IconContext` support | Use main entry |
+| Hardcoded `color` hex values | Breaks theme/dark mode | Use Tailwind color tokens |
+| Inline `style` for size | Ignores Tailwind scale | Use `className="size-N"` |
+| Importing all icons via `import * as Icon` | Prevents tree-shaking, bloats bundle | Import individual icons |
+| Missing `Icon` suffix on names | Inconsistent naming | Use `SparkleIcon` not `Sparkle` |
+
+## Verification
+
+Before committing changes involving phosphor-icons:
+
+- [ ] Server components import from `@phosphor-icons/react/ssr`
+- [ ] Client components import from `@phosphor-icons/react`
+- [ ] Shadcn UI components import from `@phosphor-icons/react`
+- [ ] No imports from `@phosphor-icons/react/dist/*`
+- [ ] No hardcoded hex/rgb colors on icon `color` prop
+- [ ] Icon sizes use Tailwind `className="size-N"` pattern
+- [ ] `pnpm run build` passes (no hydration errors)

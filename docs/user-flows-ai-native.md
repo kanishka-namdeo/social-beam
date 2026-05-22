@@ -73,7 +73,7 @@ This section maps each AI-native flow to the 2025-2026 user behavior research th
 3. **Missing Flow 7.9 (AI Transparency & Disclosure)**: 50% Gen Z unfollow AI accounts; 19.4% cite disclosure concern
 4. **Persona weighting incorrect**: Agency (59%) treated as tertiary; solopreneur (5.1%) over-weighted
 5. **Credit system friction**: Users frustrated by paying for revisions; needs free regeneration policy
-6. **Section numbering**: Sections 14, 16, 15 are out of order (Decision Framework at 16, Post-MVP at 15)
+6. **Section numbering**: Sections 14, 15, 16 are now correctly ordered (Decision Framework at 15, Post-MVP at 16 with proper 16.x sub-headings)
 
 ---
 
@@ -983,55 +983,55 @@ Following Mantlr's decision framework (2026), this section maps required AI-nati
 
 ## 16. Post-MVP Flows (Updated)
 
-### 15.1 AI Content Repurposing Engine
+### 16.1 AI Content Repurposing Engine
 - Upload a long-form asset (blog post, video transcript, podcast transcript).
 - AI generates 25-40 social posts across platforms.
 - Content calendar auto-populated with repurposed content.
 - User reviews and approves the content plan.
 
-### 15.2 Social Listening
+### 16.2 Social Listening
 - Keyword monitoring with AI sentiment analysis.
 - Trend detection and competitor tracking.
 - Crisis alerts: AI detects sudden sentiment shifts and alerts user.
 - Influencer identification based on engagement and relevance.
 
-### 15.3 Unified Inbox
+### 16.3 Unified Inbox
 - All messages, comments, and mentions in one stream.
 - **AI triage**: Categorizes incoming messages by urgency, sentiment, and topic.
 - **AI response drafting**: Generates suggested replies using brand voice.
 - Saved replies and auto-response rules.
 - Message tagging and assignment/routing for team accounts.
 
-### 15.4 Bulk Scheduling
+### 16.4 Bulk Scheduling
 - CSV upload with AI Autolist distribution.
 - AI validates CSV content and flags issues.
 - Bulk selection and batch actions.
 - AI suggests optimal distribution pattern over time.
 
-### 15.5 Cross-Platform Content Adaptation
+### 16.5 Cross-Platform Content Adaptation
 - Write once; AI auto-adapts formatting, limits, hashtags, and times.
 - Platform-specific media recommendations.
 - A/B test variant generation.
 
-### 15.6 Social Commerce
+### 16.6 Social Commerce
 - Product catalog sync (Shopify/WooCommerce).
 - AI generates product-focused social posts.
 - Shoppable post scheduling and social-to-purchase analytics.
 
-### 15.7 Reporting & Export
+### 16.7 Reporting & Export
 - Custom report builder with AI narrative generation.
 - White-labeled reports.
 - Automated scheduled reports and PDF export.
 - AI executive summaries for stakeholder communications.
 
-### 15.8 Team Collaboration
+### 16.8 Team Collaboration
 - Role-based permissions with AI workflow awareness.
 - Multi-step approval workflows: AI generates → Editor edits → Approver approves → Publish.
 - Internal comments on drafts.
 - Team activity logs including AI actions.
 - AI brand voice per client/workspace.
 
-### 15.9 AI Video Content Generation
+### 16.9 AI Video Content Generation
 - Upload long-form video → AI creates platform-specific clips.
 - Auto-captioning and subtitle generation.
 - Thumbnail optimization per platform.

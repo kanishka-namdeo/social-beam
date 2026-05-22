@@ -16,16 +16,25 @@ alwaysApply: true
 | Product Vision | `docs/tool-vision-and-market-research.md` | Before planning new features — understand AI-native positioning, target users, monetization |
 | User Flows | `docs/user-flows-ai-native.md` | Before implementing screen interactions — step-by-step user journeys | Before implementing AI features — agent patterns, brand voice, credit system |
 
+## Competitor Intelligence
+
+| Doc | Path | When to Read |
+|-----|------|--------------|
+| Buffer Feature Mapping | `docs/competitor-analysis/buffer-features-mapping.md` | When sccheduling features also requested by Buffer users — see vote counts and demand signals |
+| Buffer Feasibility Analysis | `docs/competitor-analysis/buffer-features-feasibility-2026.md` | Before planning any video, Instagram, LinkedIn, TikTok, or YouTube feature — verify API constraints and limitations |
+
 ## Usage Rules
 
 1. **DESIGN.md** → Follow existing page blueprints when they match your feature. For new pages, propose changes consistent with the established design language.
 
-2. **mvp-scope.md** → Do not implement features marked "out of scope" for MVP. If uncertain, check the explicit out-of-scope section first.
+2. **mvp-scope.md** → Do not implement features marked "out of scope" for MVP. If uncertain, check the explicit out-of-scope section first. Check the "Phase 2 Additions" section for feasibility-verified feature priorities from competitor demand analysis.
 
 3. **tool-vision-and-market-research.md** → Align feature proposals with the AI-native vision (AI as default, not optional add-on) and credit-based monetization model.
 
 4. **user-flows-ai-native.md** → Match existing user flow patterns before inventing new interaction models.
 
+5. **Competitor intelligence** → Before proposing a feature that exists in Buffer/Hootsuite/Later, check the Buffer feature mapping for vote counts and feasibility status. If a feature is marked "NOT FEASIBLE via API", do not plan a full implementation — scope to what the platform APIs actually allow.
+
 ## Priority Order
 
-MVP scope > Design system > User flows > Vision. Scope boundaries are the hard constraint; everything else is guidance.
+MVP scope > Competitor feasibility > Design system > User flows > Vision. Scope boundaries and API constraints are the hard constraints; everything else is guidance.

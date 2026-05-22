@@ -1096,8 +1096,8 @@ Wants: Free multi-account scheduling, AI content generation, white-label reports
 ```
 ┌─────────────────────────────────────────────────────┐
 │                    Frontend Layer                     │
-│  Expo (React Native + TypeScript) + shadcn/ui         │
-│  iOS, Android, and Web from a single codebase         │
+│  Next.js 16 (App Router) + React 19 + shadcn/ui       │
+│  Web application (mobile native apps: Phase 3)        │
 └─────────────────────────────────────────────────────┘
                           │
 ┌─────────────────────────────────────────────────────┐
@@ -1121,8 +1121,8 @@ Wants: Free multi-account scheduling, AI content generation, white-label reports
 
 | Decision | Recommendation | Rationale |
 |----------|----------------|-----------|
-| **Frontend** | Expo + React Native + TypeScript | Cross-platform iOS/Android/Web, shadcn/ui component library, unified mobile+web from single codebase |
-| **Backend** | Node.js/TypeScript or Go | TypeScript for full-stack type safety across Expo frontend and API services |
+| **Frontend** | Next.js 16 + React 19 + TypeScript | Web-first MVP with SSR/SSG, React Server Components, shadcn/ui (web), Tailwind CSS v4. Mobile native apps (Expo/React Native) deferred to Phase 3. |
+| **Backend** | Node.js/TypeScript or Go | TypeScript for full-stack type safety across Next.js frontend and API services |
 | **Database** | PostgreSQL + Redis | Relational data + caching |
 | **Queue System** | Redis/Bull or AWS SQS | Job scheduling at scale |
 | **AI Integration** | Multiple LLM providers | Avoid vendor lock-in |
@@ -1131,9 +1131,11 @@ Wants: Free multi-account scheduling, AI content generation, white-label reports
 | **Analytics** | ClickHouse or TimescaleDB | Time-series analytics at scale |
 | **Real-time** | WebSockets / Server-Sent Events | Live inbox, notifications |
 
-**Architecture Decision: Expo + shadcn/ui**
+**Architecture Decision: Next.js 16 + shadcn/ui (Web-First)**
 
-Using Expo enables shipping iOS, Android, and web from a single React Native codebase, eliminating the need to maintain separate web and mobile codebases. shadcn/ui provides a consistent, accessible component system across all platforms. This unified approach reduces development effort, ensures design consistency, and allows the team to iterate on features once and deploy everywhere.
+The MVP uses Next.js 16 (App Router) with React Server Components for server-rendered pages and client components where interactivity is needed. shadcn/ui (web, radix-sera style) provides accessible, themeable component primitives with Tailwind CSS v4 for styling. This approach prioritizes rapid web development and avoids the complexity of cross-platform React Native during the validation phase.
+
+Mobile native apps (iOS/Android via Expo/React Native) are scoped for Phase 3 once the web platform achieves product-market fit. The web-first strategy allows faster iteration on AI features and platform integrations without maintaining separate mobile codebases.
 
 ### 12.3 Social Platform API Strategy
 
@@ -1238,7 +1240,7 @@ Using Expo enables shipping iOS, Android, and web from a single React Native cod
 - [ ] Build custom report builder with white-label options for AI Agency tier
 - [ ] Launch AI Agency tier ($149/mo): multi-brand voices, white-label AI reports
 - [ ] Integrate Threads, Google Business Profile
-- [ ] Polish Expo app for iOS, Android, and web (responsive layouts, platform-specific optimizations)
+- [ ] Begin scoping mobile native app (Expo/React Native) for Phase 3
 - [ ] Begin "Migrate From Buffer/Hootsuite" import campaigns
 
 ### Phase 3: Scale (Months 7-12)

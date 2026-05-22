@@ -56,6 +56,7 @@ Execute all applicable research in parallel:
 - **Context7**: Query version-specific APIs for each library
 - **WebSearch**: "[library] best practices 2025 2026"
 - **WebFetch**: Top 3 official documentation URLs
+- **Competitor Feasibility**: For social platform features (Instagram, TikTok, Facebook, LinkedIn, YouTube), check `docs/competitor-analysis/buffer-features-feasibility-2026.md` for pre-verified API constraints and limitations
 
 > **Research thoroughly regardless of perceived complexity**: Even seemingly minor changes may have implications worth understanding. Validate assumptions with documentation.
 

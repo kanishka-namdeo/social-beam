@@ -1,0 +1,235 @@
+"use client";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Image, Play, CalendarDots, Copy, Trash } from "@phosphor-icons/react";
+import { cn } from "@/lib/utils";
+import type { PostItem, MediaItem } from "./types";
+
+interface PostPreviewDialogProps {
+  open: boolean;
+  post: PostItem | null;
+  onClose: () => void;
+  onEdit: (postId: string) => void;
+  onDelete: (postId: string) => Promise<void>;
+  onDuplicate: (postId: string) => Promise<void>;
+}
+
+const statusConfig: Record<string, { label: string; className: string }> = {
+  DRAFT: { label: "Draft", className: "bg-post-draft/15 text-post-draft" },
+  SCHEDULED: { label: "Scheduled", className: "bg-post-queued/15 text-post-queued" },
+  PUBLISHING: { label: "Publishing", className: "bg-post-publishing/15 text-post-publishing" },
+  PUBLISHED: { label: "Published", className: "bg-post-published/15 text-post-published" },
+  FAILED: { label: "Failed", className: "bg-post-failed/15 text-post-failed" },
+};
+
+const platformColors: Record<string, string> = {
+  instagram: "bg-chart-1",
+  facebook: "bg-chart-2",
+  x: "bg-chart-3",
+  linkedin: "bg-chart-4",
+  tiktok: "bg-chart-5",
+  pinterest: "bg-chart-6",
+};
+
+export function PostPreviewDialog({
+  open,
+  post,
+  onClose,
+  onEdit,
+  onDelete,
+  onDuplicate,
+}: PostPreviewDialogProps) {
+  if (!post) return null;
+
+  const cfg = statusConfig[post.status] ?? statusConfig.DRAFT;
+  const mediaItems: MediaItem[] = post.media ?? [];
+
+  const handleDelete = async () => {
+    await onDelete(post.id);
+    onClose();
+  };
+
+  const handleDuplicate = async () => {
+    await onDuplicate(post.id);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <div className="flex items-start gap-3">
+            <div className="flex-1">
+              <DialogTitle className="text-lg">{post.title ?? "Untitled Post"}</DialogTitle>
+              <DialogDescription className="mt-1 flex flex-wrap items-center gap-2">
+                <Badge
+                  variant="outline"
+                  className={cn("normal-case gap-1", cfg.className)}
+                >
+                  <CalendarDots weight="bold" className="size-3" />
+                  {cfg.label}
+                </Badge>
+                {post.scheduledAt && (
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(post.scheduledAt).toLocaleString()}
+                  </span>
+                )}
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+
+        <Separator />
+
+        {/* Target platforms */}
+        <div className="space-y-2">
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            Target Platforms
+          </span>
+          <div className="flex flex-wrap gap-2">
+          {post.platforms.map((p) => (
+            <span
+              key={p.platform}
+              className={cn(
+                "flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1 text-xs",
+              )}
+            >
+              <span
+                className={cn(
+                  "size-2.5 rounded-full",
+                  platformColors[p.platform] ?? "bg-muted",
+                )}
+              />
+              {p.platform.charAt(0).toUpperCase() + p.platform.slice(1)}
+                <Badge
+                  variant="outline"
+                  className="text-[0.5rem] normal-case px-1 py-0"
+                >
+                  {p.status.toLowerCase()}
+                </Badge>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Content preview */}
+        {post.content && (
+          <div className="space-y-2">
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Content
+            </span>
+            <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-foreground whitespace-pre-wrap max-h-48 overflow-y-auto">
+              {post.content}
+            </div>
+          </div>
+        )}
+
+        {/* Media */}
+        {mediaItems.length > 0 && (
+          <div className="space-y-2">
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Media ({mediaItems.length})
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              {mediaItems.map((media, i) => (
+                <div
+                  key={i}
+                  className="relative group aspect-video rounded-lg border border-border bg-card overflow-hidden"
+                >
+                  {media.type === "image" ? (
+                    <img
+                      src={media.url}
+                      alt={`Media ${i + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-card">
+                      <div className="flex flex-col items-center gap-1 text-muted-foreground">
+                        <Play weight="fill" className="size-8" />
+                        <span className="text-xs">Video</span>
+                      </div>
+                    </div>
+                  )}
+                  <div className="absolute top-1.5 left-1.5">
+                    <Badge
+                      variant="secondary"
+                      className="text-[0.5rem] normal-case px-1 py-0 gap-1"
+                    >
+                      {media.type === "image" ? (
+                        <Image className="size-3" />
+                      ) : (
+                        <Play className="size-3" />
+                      )}
+                      {media.type}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Confidence */}
+        {post.confidence && (
+          <div className="space-y-2">
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              AI Confidence
+            </span>
+            <div>
+              <Badge
+                variant="outline"
+                className={cn(
+                  "normal-case",
+                  post.confidence === "HIGH" && "text-ai-confidence-high border-ai-confidence-high",
+                  post.confidence === "MEDIUM" && "text-ai-confidence-medium border-ai-confidence-medium",
+                  post.confidence === "LOW" && "text-ai-confidence-low border-ai-confidence-low",
+                )}
+              >
+                {post.confidence.toLowerCase()}
+              </Badge>
+            </div>
+          </div>
+        )}
+
+        <Separator />
+
+        {/* Actions */}
+        <div className="flex items-center gap-2 justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-destructive hover:bg-destructive/10"
+            onClick={handleDelete}
+          >
+            <Trash weight="bold" className="size-3.5" />
+            Delete
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={handleDuplicate}
+          >
+            <Copy weight="bold" className="size-3.5" />
+            Duplicate
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => onEdit(post.id)}
+          >
+            Edit Post
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

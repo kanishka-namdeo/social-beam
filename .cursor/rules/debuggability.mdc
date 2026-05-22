@@ -1,0 +1,153 @@
+---
+alwaysApply: true
+---
+# Debuggability & Centralized Logging
+
+All code MUST use the centralized Pino logger. No exceptions.
+
+## Logger
+
+Import from `@/lib/logger` (global) or `@/lib/agent/logging` (agent nodes needing correlation context):
+
+```typescript
+import { logger } from '@/lib/logger';
+import { createLogger } from '@/lib/agent/logging';
+```
+
+`lib/logger.ts` provides a singleton Pino logger with:
+- `logger.info(msg, data?)` — business events
+- `logger.warn(msg, data?)` — recoverable issues
+- `logger.error(msg, data?)` — failures
+- `logger.debug(msg, data?)` — flow tracing
+- `logger.fatal(msg, data?)` — unrecoverable
+- `logger.child(bindings)` — contextual sub-logger
+
+`createLogger({ correlationId, userId })` returns a Pino child pre-bound to the request context.
+
+## NEVER Use console.* Directly
+
+`console.log`, `console.error`, `console.warn`, `console.debug` are forbidden in production code. The `instrumentation.ts` file patches these at runtime, but source code must always use the logger.
+
+## Required Logging Points
+
+### API Routes (`app/api/**/route.ts`)
+
+Every route handler MUST log:
+1. Request start with correlation ID
+2. Success outcome
+3. Failure outcome (in catch block)
+
+```typescript
+export async function POST(req: Request) {
+  const requestId = crypto.randomUUID();
+  const log = logger.child({ requestId });
+
+  try {
+    log.info('api.request.start', { method: 'POST', path: '/api/resource' });
+    // ... business logic ...
+    log.info('api.request.success', { resourceId: result.id });
+    return NextResponse.json({ data: result });
+  } catch (error) {
+    log.error('api.request.error', { error: String(error) });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+```
+
+### Agent Tools (`lib/agent/tools/*.ts`)
+
+Every tool function MUST log:
+1. Invocation (debug level) with input identifiers
+2. Completion (info level) with outcome
+3. Error (error level) with context
+
+```typescript
+export const saveAudienceTool = tool(
+  async (input: unknown) => {
+    const parsed = SaveAudienceSchema.parse(input);
+    logger.debug('tool.save_audience.invoke', { workspaceId: parsed.workspaceId });
+    try {
+      // ... tool logic ...
+      logger.info('tool.save_audience.success', { workspaceId: parsed.workspaceId });
+      return JSON.stringify({ success: true });
+    } catch (err) {
+      logger.error('tool.save_audience.error', { workspaceId: parsed.workspaceId, error: String(err) });
+      return JSON.stringify({ error: `Failed: ${err}` });
+    }
+  },
+  // ... tool config
+);
+```
+
+### Database Operations (`lib/db/*.ts`)
+
+Every write operation MUST log:
+1. Operation type with entity ID
+2. Success or failure
+
+```typescript
+export async function updateSessionStep(userId: string, step: string) {
+  logger.debug('db.onboarding.step_updated', { userId, step });
+  return prisma.onboardingSession.update({
+    where: { userId },
+    data: { currentStep: step },
+  });
+}
+```
+
+### Middleware
+
+Every redirect decision MUST be logged with path and reason.
+
+## Log Level Discipline
+
+| Level | When to Use | Examples |
+|-------|------------|----------|
+| `debug` | Flow tracing, internal steps | "auth_url_generated", "step_updated" |
+| `info` | Business events, state changes | "user_created", "session_start", "tool.success" |
+| `warn` | Recoverable issues, degraded state | "unsupported_platform", "missing_client_id" |
+| `error` | Failures that break expected flow | "token_exchange_failed", "persist_failed" |
+| `fatal` | Unrecoverable, service-down | "db_connection_lost", "encryption_key_missing" |
+
+## Correlation IDs
+
+All logs from a single request chain must share a correlation ID or request ID. Use `logger.child({ requestId, userId })` to bind context once, then reuse the child logger throughout.
+
+## Security Constraints
+
+NEVER log:
+- Passwords (plain or hashed)
+- Access tokens, refresh tokens, or OAuth codes
+- Client secrets or encryption keys
+- Full request bodies (may contain credentials)
+- Encrypted token values
+
+When logging OAuth or auth operations, log only:
+- Platform name
+- Success/failure status
+- HTTP status codes
+- User IDs (not tokens)
+
+## Error Handler Requirements
+
+Every catch block MUST:
+1. Log the error with `logger.error()`
+2. Include context (entity IDs, operation name)
+3. Never swallow errors silently (no empty catch blocks)
+
+```typescript
+// BAD — swallows error
+catch (err) {
+  // do nothing
+}
+
+// BAD — no context
+catch (err) {
+  logger.error('something failed');
+}
+
+// GOOD — structured with context
+catch (err) {
+  logger.error('tool.fetch_posts.error', { platform, accountId, error: String(err) });
+}
+```
