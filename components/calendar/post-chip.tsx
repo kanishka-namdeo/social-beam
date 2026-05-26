@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
-import { DotsSixVertical, CalendarDots, CheckCircle, WarningCircle, Spinner, Image, DotsThreeVertical } from "@phosphor-icons/react";
+import { DotsSixVertical, CalendarDots, CheckCircle, WarningCircle, Spinner, Image, DotsThreeVertical } from "@phosphor-icons/react/ssr";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,7 +28,7 @@ interface PostChipProps {
   compact?: boolean;
   hasMedia?: boolean;
   onPreview?: (postId: string) => void;
-  onDelete?: (postId: string) => Promise<void>;
+  onDelete?: (postId: string) => void;
   onDuplicate?: (postId: string) => Promise<void>;
   showActions?: boolean;
 }
@@ -41,31 +41,31 @@ const statusConfig: Record<string, {
 }> = {
   DRAFT: {
     label: "Draft",
-    className: "bg-post-draft/15 text-post-draft",
-    borderColor: "border-l-post-draft",
+    className: "bg-post-draft/10 text-post-draft",
+    borderColor: "border-l-post-draft/20",
   },
   SCHEDULED: {
     label: "Scheduled",
-    className: "bg-post-queued/15 text-post-queued",
-    borderColor: "border-l-post-queued",
+    className: "bg-post-queued/10 text-post-queued",
+    borderColor: "border-l-post-queued/20",
     icon: <CalendarDots weight="bold" className="size-3" />,
   },
   PUBLISHING: {
     label: "Publishing",
-    className: "bg-post-publishing/15 text-post-publishing",
-    borderColor: "border-l-post-publishing",
+    className: "bg-post-publishing/10 text-post-publishing",
+    borderColor: "border-l-post-publishing/20",
     icon: <Spinner weight="bold" className="size-3 animate-spin" />,
   },
   PUBLISHED: {
     label: "Published",
-    className: "bg-post-published/15 text-post-published",
-    borderColor: "border-l-post-published",
+    className: "bg-post-published/10 text-post-published",
+    borderColor: "border-l-post-published/20",
     icon: <CheckCircle weight="bold" className="size-3" />,
   },
   FAILED: {
     label: "Failed",
-    className: "bg-post-failed/15 text-post-failed",
-    borderColor: "border-l-post-failed",
+    className: "bg-post-failed/10 text-post-failed",
+    borderColor: "border-l-post-failed/20",
     icon: <WarningCircle weight="bold" className="size-3" />,
   },
 };
@@ -158,7 +158,7 @@ export function PostChip({
       onPointerUp={handlePointerUp}
       style={style}
       className={cn(
-        "group relative flex items-center gap-1.5 rounded-md border border-border border-l-[3px] bg-card px-2 py-1 text-xs transition-shadow hover:shadow-sm cursor-pointer",
+        "group relative flex items-center gap-1.5 rounded-md border border-border/30 border-l-[3px] bg-card px-2 py-1 text-xs transition-colors hover:bg-muted/50 cursor-pointer",
         cfg.borderColor,
         isDragging && "opacity-50 shadow-md",
       )}
@@ -176,7 +176,7 @@ export function PostChip({
       </span>
       {hasMedia && (
         <span className="text-muted-foreground/70" title="Has media">
-          <Image className="size-3" weight="fill" />
+          <Image className="size-3" weight="fill" alt="" />
         </span>
       )}
       {timeStr && (
@@ -232,7 +232,7 @@ export function PostChip({
       onPointerUp={handlePointerUp}
       style={style}
       className={cn(
-        "group relative flex flex-col gap-1 rounded-md border border-border border-l-[3px] bg-card p-2 transition-shadow hover:shadow-sm cursor-pointer",
+        "group relative flex flex-col gap-1 rounded-md border border-border/30 border-l-[3px] bg-card p-2 transition-colors hover:bg-muted/50 cursor-pointer",
         cfg.borderColor,
         isDragging && "opacity-50 shadow-md",
       )}
@@ -251,7 +251,7 @@ export function PostChip({
         </span>
         {hasMedia && (
           <span className="text-muted-foreground/70" title="Has media">
-            <Image className="size-4" weight="fill" />
+            <Image className="size-4" weight="fill" alt="" />
           </span>
         )}
         {showActions && (
@@ -292,7 +292,7 @@ export function PostChip({
         )}
         <Badge
           variant="outline"
-          className={cn("text-[0.625rem] gap-0.5 normal-case px-1.5 py-0", cfg.className)}
+          className={cn("text-[0.625rem] gap-0.5 normal-case rounded-md px-1.5 py-0", cfg.className)}
         >
           {cfg.icon}
           {cfg.label}

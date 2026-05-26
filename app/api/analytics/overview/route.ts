@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 
-export async function GET(req: Request) {
+export async function GET() {
   const requestId = crypto.randomUUID();
   const log = logger.child({ requestId });
 

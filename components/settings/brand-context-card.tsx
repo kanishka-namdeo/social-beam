@@ -1,0 +1,551 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { BrandContextInlineEdit } from "./brand-context-inline-edit";
+import { BrandContextHistory } from "./brand-context-history";
+import { BrandContextImportExport } from "./brand-context-import-export";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Sparkle,
+  Users,
+  Target,
+  Megaphone,
+  CheckCircle,
+  Warning,
+  Clock,
+  Trash,
+  ArrowCounterClockwise,
+  Globe,
+  PencilSimple,
+} from "@phosphor-icons/react/ssr";
+
+interface PlatformContext {
+  id: string;
+  platform: string;
+  platformTone: string | null;
+  postingCadence: string | null;
+  visualStyle: string | null;
+  engagementStyle: string | null;
+  contentMix: unknown;
+  hashtagStrategy: unknown;
+  platformRules: string[];
+}
+
+interface BrandContextData {
+  id: string;
+  workspaceId: string;
+  businessName: string | null;
+  tagline: string | null;
+  websiteUrl: string | null;
+  industry: string | null;
+  productDesc: string | null;
+  tonePreset: string | null;
+  voiceDescription: string | null;
+  bannedWords: string[];
+  audienceType: string | null;
+  demographics: unknown;
+  interests: string[];
+  painPoints: string[];
+  competitors: string[];
+  goals: string[];
+  trainingStatus: string;
+  lastTrainedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  platformContexts: PlatformContext[];
+}
+
+interface BrandContextCardProps {
+  brandContext: BrandContextData;
+}
+
+const statusBadgeConfig: Record<string, { variant: "default" | "secondary" | "outline"; icon: React.ReactNode; label: string; className: string }> = {
+  trained: {
+    variant: "default",
+    icon: <CheckCircle className="size-3" weight="fill" />,
+    label: "Trained",
+    className: "bg-success/10 text-success border-success/20",
+  },
+  needs_refresh: {
+    variant: "outline",
+    icon: <Warning className="size-3" weight="fill" />,
+    label: "Needs Refresh",
+    className: "bg-warning/10 text-warning border-warning/20",
+  },
+  untrained: {
+    variant: "secondary",
+    icon: <Clock className="size-3" />,
+    label: "Untrained",
+    className: "bg-muted text-muted-foreground",
+  },
+};
+
+export function BrandContextCard({ brandContext }: BrandContextCardProps) {
+  const router = useRouter();
+  const [deleting, setDeleting] = useState(false);
+  const [reanalyzing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+
+  const status = brandContext.trainingStatus;
+  const badgeConfig = statusBadgeConfig[status] ?? statusBadgeConfig.untrained;
+
+  async function handleDelete() {
+    if (!confirm("Delete brand context? This cannot be undone.")) return;
+    setDeleting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/brand-context", { method: "DELETE" });
+      if (!res.ok) {
+        const json = await res.json();
+        setError(json.error ?? "Failed to delete brand context.");
+        return;
+      }
+      router.refresh();
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  async function handleSaveEdits(edits: Record<string, unknown>) {
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/brand-context", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(edits),
+      });
+      if (!res.ok) {
+        const json = await res.json();
+        setError(json.error ?? "Failed to save edits.");
+        return;
+      }
+      setEditing(false);
+      router.refresh();
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function handleReanalyze() {
+    router.push("/settings/brand");
+  }
+
+  if (editing) {
+    return (
+      <BrandContextInlineEdit
+        draft={brandContext as unknown as Record<string, unknown>}
+        platforms={Object.fromEntries(brandContext.platformContexts.map((pc) => [pc.platform, pc]))}
+        onSave={handleSaveEdits}
+        onCancel={() => setEditing(false)}
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header card */}
+      <Card>
+        <CardHeader>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Sparkle className="size-5 text-brand" weight="fill" />
+                Brand Identity
+              </CardTitle>
+              <CardDescription>
+                Core brand profile extracted from your website.
+              </CardDescription>
+            </div>
+            <Badge variant={badgeConfig.variant} className={cn(badgeConfig.className)}>
+              {badgeConfig.icon}
+              {badgeConfig.label}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {brandContext.businessName && (
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Business Name
+                </p>
+                <p className="text-sm font-medium text-foreground">
+                  {brandContext.businessName}
+                </p>
+              </div>
+            )}
+            {brandContext.industry && (
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Industry
+                </p>
+                <p className="text-sm text-foreground">
+                  {brandContext.industry}
+                </p>
+              </div>
+            )}
+            {brandContext.tagline && (
+              <div className="space-y-1 sm:col-span-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Tagline
+                </p>
+                <p className="text-sm text-foreground">
+                  {brandContext.tagline}
+                </p>
+              </div>
+            )}
+            {brandContext.websiteUrl && (
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Website
+                </p>
+                <a
+                  href={brandContext.websiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-brand hover:underline"
+                >
+                  {brandContext.websiteUrl}
+                </a>
+              </div>
+            )}
+          </div>
+
+          {brandContext.lastTrainedAt && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Clock className="size-3.5" />
+              Last trained {new Date(brandContext.lastTrainedAt).toLocaleString()}
+            </div>
+          )}
+
+          <Separator />
+
+          <div className="flex flex-wrap gap-3">
+            <Button
+              variant="outline"
+              onClick={handleReanalyze}
+              disabled={reanalyzing || saving}
+              className="min-h-10"
+            >
+              <ArrowCounterClockwise className={cn("size-4", reanalyzing && "animate-spin")} />
+              {reanalyzing ? "Re-analyzing..." : "Re-analyze"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setEditing(true)}
+              disabled={saving}
+              className="min-h-10"
+            >
+              <PencilSimple className="size-4" />
+              Edit
+            </Button>
+            <BrandContextImportExport brandContext={{ id: brandContext.id, businessName: brandContext.businessName }} />
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deleting || saving}
+              className="min-h-10"
+            >
+              <Trash className="size-4" />
+              {deleting ? "Deleting..." : "Delete"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Competitors section */}
+      {brandContext.competitors.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Target className="size-5 text-brand" weight="fill" />
+              Competitors
+            </CardTitle>
+            <CardDescription>
+              Competitor accounts to monitor.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-1.5">
+              {brandContext.competitors.map((competitor) => (
+                <Badge
+                  key={competitor}
+                  variant="outline"
+                  className="text-xs normal-case tracking-normal"
+                >
+                  {competitor}
+                </Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Voice section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Megaphone className="size-5 text-brand" weight="fill" />
+            Voice &amp; Tone
+          </CardTitle>
+          <CardDescription>
+            How your brand communicates across platforms.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {brandContext.tonePreset && (
+            <div className="space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Tone Preset
+              </p>
+              <Badge variant="outline" className="normal-case tracking-normal">
+                {brandContext.tonePreset}
+              </Badge>
+            </div>
+          )}
+          {brandContext.voiceDescription && (
+            <div className="space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Voice Description
+              </p>
+              <p className="text-sm text-foreground">
+                {brandContext.voiceDescription}
+              </p>
+            </div>
+          )}
+          {brandContext.bannedWords.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Banned Words
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {brandContext.bannedWords.map((word) => (
+                  <Badge
+                    key={word}
+                    variant="destructive"
+                    className="text-xs normal-case tracking-normal"
+                  >
+                    {word}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Audience section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Users className="size-5 text-brand" weight="fill" />
+            Audience
+          </CardTitle>
+          <CardDescription>
+            Target audience profile and interests.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {brandContext.audienceType && (
+            <div className="space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Audience Type
+              </p>
+              <Badge variant="outline" className="normal-case tracking-normal">
+                {brandContext.audienceType}
+              </Badge>
+            </div>
+          )}
+          {brandContext.interests.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Interests
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {brandContext.interests.map((interest) => (
+                  <Badge
+                    key={interest}
+                    variant="secondary"
+                    className="text-xs normal-case tracking-normal"
+                  >
+                    {interest}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+          {brandContext.painPoints.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Pain Points
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {brandContext.painPoints.map((point) => (
+                  <Badge
+                    key={point}
+                    variant="outline"
+                    className="text-xs normal-case tracking-normal"
+                  >
+                    {point}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Goals section */}
+      {brandContext.goals.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Target className="size-5 text-brand" weight="fill" />
+              Goals
+            </CardTitle>
+            <CardDescription>
+              Brand objectives and content strategy targets.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-1.5">
+              {brandContext.goals.map((goal) => (
+                <Badge
+                  key={goal}
+                  variant="outline"
+                  className="text-xs normal-case tracking-normal"
+                >
+                  {goal}
+                </Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Platform contexts */}
+      {brandContext.platformContexts.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Globe className="size-5 text-brand" weight="fill" />
+              Platform Contexts
+            </CardTitle>
+            <CardDescription>
+              Platform-specific tone, cadence, and content strategy.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Accordion type="single" collapsible className="w-full">
+              {brandContext.platformContexts.map((pc) => (
+                <AccordionItem key={pc.id} value={pc.platform}>
+                  <AccordionTrigger className="text-sm font-medium capitalize">
+                    {pc.platform}
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {pc.platformTone && (
+                        <div className="space-y-1">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Tone
+                          </p>
+                          <Badge variant="outline" className="normal-case tracking-normal">
+                            {pc.platformTone}
+                          </Badge>
+                        </div>
+                      )}
+                      {pc.postingCadence && (
+                        <div className="space-y-1">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Cadence
+                          </p>
+                          <p className="text-sm text-foreground">
+                            {pc.postingCadence}
+                          </p>
+                        </div>
+                      )}
+                      {pc.visualStyle && (
+                        <div className="space-y-1 sm:col-span-2">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Visual Style
+                          </p>
+                          <p className="text-sm text-foreground">
+                            {pc.visualStyle}
+                          </p>
+                        </div>
+                      )}
+                      {pc.engagementStyle && (
+                        <div className="space-y-1 sm:col-span-2">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Engagement Style
+                          </p>
+                          <p className="text-sm text-foreground">
+                            {pc.engagementStyle}
+                          </p>
+                        </div>
+                      )}
+                      {pc.platformRules.length > 0 && (
+                        <div className="space-y-2 sm:col-span-2">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Platform Rules
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {pc.platformRules.map((rule, i) => (
+                              <Badge
+                                key={i}
+                                variant="outline"
+                                className="text-xs normal-case tracking-normal"
+                              >
+                                {rule}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Version History */}
+      <BrandContextHistory />
+
+      {error && (
+        <Alert variant="destructive">
+          <Warning className="size-4" weight="fill" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+    </div>
+  );
+}

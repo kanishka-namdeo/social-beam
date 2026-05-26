@@ -53,7 +53,7 @@ export function EmojiPicker({ onInsert }: EmojiPickerProps) {
         align="start"
         className="w-64 p-2"
       >
-        <div className="grid grid-cols-9 gap-0.5">
+        <div className="grid grid-cols-7 sm:grid-cols-9 gap-0.5">
           {COMMON_EMOJIS.map((emoji, i) => (
             <button
               key={i}

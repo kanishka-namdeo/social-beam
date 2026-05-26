@@ -8,7 +8,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Sparkle, Hamburger } from "@phosphor-icons/react";
+import { Sparkle, Hamburger } from "@phosphor-icons/react/ssr";
 
 const navLinks = [
   { label: "Features", href: "#features" },

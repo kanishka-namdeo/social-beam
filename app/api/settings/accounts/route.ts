@@ -22,16 +22,29 @@ export async function GET() {
     const accounts = await prisma.connectedAccount.findMany({
       where: { workspaceId },
       select: {
-        id: true,
         platform: true,
+        platformUsername: true,
+        avatarUrl: true,
         status: true,
-        createdAt: true,
+        lastSyncedAt: true,
+        tokenExpiry: true,
       },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { lastSyncedAt: 'desc' },
     });
 
-    log.info('settings.accounts.list.success', { workspaceId, count: accounts.length });
-    return NextResponse.json({ data: accounts });
+    const enrichedAccounts = accounts.map((account) => {
+      const isExpired = account.tokenExpiry !== null && account.tokenExpiry < new Date();
+      return {
+        platform: account.platform,
+        platformUsername: account.platformUsername ?? undefined,
+        avatarUrl: account.avatarUrl ?? undefined,
+        status: isExpired ? 'expired' : account.status,
+        lastSyncedAt: account.lastSyncedAt?.toISOString() ?? undefined,
+      };
+    });
+
+    log.info('settings.accounts.list.success', { workspaceId, count: enrichedAccounts.length });
+    return NextResponse.json({ accounts: enrichedAccounts });
   } catch (err) {
     logger.error('settings.accounts.list.exception', { error: String(err) });
     return NextResponse.json({ error: 'Failed to list connected accounts' }, { status: 500 });

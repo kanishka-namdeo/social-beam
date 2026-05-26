@@ -2,8 +2,176 @@ import { tool } from '@langchain/core/tools';
 import { ChatOpenAI } from '@langchain/openai';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
+import type { Prisma } from '@/app/generated/prisma';
 import { logger } from '@/lib/logger';
 
+const SaveBrandContextSchema = z.object({
+  workspaceId: z.string().describe('The workspace ID to save brand context for'),
+  businessName: z.string().optional().describe('Business/brand name'),
+  tagline: z.string().optional().describe('Brand tagline'),
+  websiteUrl: z.string().optional().describe('Brand website URL'),
+  industry: z.string().optional().describe('Industry category'),
+  productDesc: z.string().optional().describe('Product/service description (2-3 sentences)'),
+  tonePreset: z.string().optional().describe('Brand tone preset'),
+  voiceDescription: z.string().optional().describe('Free-form brand voice description'),
+  bannedWords: z.array(z.string()).optional().describe('Words/phrases never to use'),
+  voiceExamples: z.array(z.object({
+    text: z.string(),
+    source: z.string().optional(),
+  })).optional().describe('Sample posts or voice examples'),
+  audienceType: z.string().optional().describe('b2b | b2c | both'),
+  demographics: z.record(z.string(), z.unknown()).optional().describe('Audience demographics'),
+  interests: z.array(z.string()).optional().describe('Topics the audience cares about'),
+  painPoints: z.array(z.string()).optional().describe('Problems the brand solves'),
+  competitors: z.array(z.string()).optional().describe('Competitor names/accounts'),
+  goals: z.array(z.string()).optional().describe('Business goals: awareness, leads, sales, community, thought_leadership'),
+});
+
+const GetBrandContextSchema = z.object({
+  workspaceId: z.string().describe('The workspace ID to query brand context for'),
+});
+
+export const saveBrandContextTool = tool(
+  async (input: unknown) => {
+    const start = Date.now();
+    const parsed = SaveBrandContextSchema.parse(input);
+    const { workspaceId, ...data } = parsed;
+
+    logger.debug('tool.invoke', { toolName: 'save_brand_context', workspaceId });
+
+    try {
+      await prisma.brandContext.upsert({
+        where: { workspaceId },
+        create: {
+          workspaceId,
+          ...data,
+          voiceExamples: data.voiceExamples as Prisma.InputJsonValue | undefined,
+          demographics: data.demographics as Prisma.InputJsonValue | undefined,
+          trainingStatus: 'trained',
+          lastTrainedAt: new Date(),
+        },
+        update: {
+          ...data,
+          voiceExamples: data.voiceExamples as Prisma.InputJsonValue | undefined,
+          demographics: data.demographics as Prisma.InputJsonValue | undefined,
+          trainingStatus: 'trained',
+          lastTrainedAt: new Date(),
+        },
+      });
+
+      logger.info('tool.complete', { toolName: 'save_brand_context', workspaceId, duration: Date.now() - start });
+      return JSON.stringify({ success: true, message: 'Brand context saved' });
+    } catch (err) {
+      logger.error('tool.error', { toolName: 'save_brand_context', workspaceId, error: String(err) });
+      return JSON.stringify({ error: `Failed to save brand context: ${err}` });
+    }
+  },
+  {
+    name: 'save_brand_context',
+    description: 'Save the brand context profile for a workspace. Used during onboarding brand context training.',
+    schema: SaveBrandContextSchema,
+  }
+);
+
+export const getBrandContextTool = tool(
+  async (input: unknown) => {
+    const start = Date.now();
+    const { workspaceId } = GetBrandContextSchema.parse(input);
+
+    logger.debug('tool.invoke', { toolName: 'get_brand_context', workspaceId });
+
+    try {
+      const context = await prisma.brandContext.findUnique({
+        where: { workspaceId },
+        include: { platformContexts: true },
+      });
+
+      if (!context) {
+        logger.info('tool.complete', { toolName: 'get_brand_context', workspaceId, duration: Date.now() - start, found: false });
+        return JSON.stringify({ context: null, message: 'No brand context found' });
+      }
+
+      logger.info('tool.complete', { toolName: 'get_brand_context', workspaceId, duration: Date.now() - start, found: true });
+      return JSON.stringify({ context });
+    } catch (err) {
+      logger.error('tool.error', { toolName: 'get_brand_context', workspaceId, error: String(err) });
+      return JSON.stringify({ error: `Failed to get brand context: ${err}` });
+    }
+  },
+  {
+    name: 'get_brand_context',
+    description: 'Retrieve the saved brand context for a workspace, including platform contexts.',
+    schema: GetBrandContextSchema,
+  }
+);
+
+const SavePlatformContextSchema = z.object({
+  workspaceId: z.string().describe('The workspace ID'),
+  platform: z.string().describe('Platform name: instagram, facebook, x, linkedin, tiktok, pinterest'),
+  platformTone: z.string().optional().describe('How tone shifts on this platform'),
+  contentMix: z.record(z.string(), z.unknown()).optional().describe('Content mix percentages'),
+  postingCadence: z.string().optional().describe('Posting frequency'),
+  hashtagStrategy: z.record(z.string(), z.unknown()).optional().describe('Hashtag strategy config'),
+  visualStyle: z.string().optional().describe('Visual style for this platform'),
+  engagementStyle: z.string().optional().describe('Engagement style for this platform'),
+  platformRules: z.array(z.string()).optional().describe('Platform-specific rules'),
+});
+
+export const savePlatformContextTool = tool(
+  async (input: unknown) => {
+    const start = Date.now();
+    const parsed = SavePlatformContextSchema.parse(input);
+    const { workspaceId, platform, ...data } = parsed;
+
+    logger.debug('tool.invoke', { toolName: 'save_platform_context', workspaceId, platform });
+
+    try {
+      const brandContext = await prisma.brandContext.findUnique({
+        where: { workspaceId },
+        select: { id: true },
+      });
+
+      if (!brandContext) {
+        logger.warn('tool.complete', { toolName: 'save_platform_context', workspaceId, platform, duration: Date.now() - start, found: false });
+        return JSON.stringify({ error: 'No brand context found for this workspace' });
+      }
+
+      await prisma.platformContext.upsert({
+        where: {
+          brandContextId_platform: {
+            brandContextId: brandContext.id,
+            platform,
+          },
+        },
+        create: {
+          brandContextId: brandContext.id,
+          platform,
+          ...data,
+          contentMix: data.contentMix as Prisma.InputJsonValue | undefined,
+          hashtagStrategy: data.hashtagStrategy as Prisma.InputJsonValue | undefined,
+        },
+        update: {
+          ...data,
+          contentMix: data.contentMix as Prisma.InputJsonValue | undefined,
+          hashtagStrategy: data.hashtagStrategy as Prisma.InputJsonValue | undefined,
+        },
+      });
+
+      logger.info('tool.complete', { toolName: 'save_platform_context', workspaceId, platform, duration: Date.now() - start });
+      return JSON.stringify({ success: true, message: `Platform context saved for ${platform}` });
+    } catch (err) {
+      logger.error('tool.error', { toolName: 'save_platform_context', workspaceId, platform, error: String(err) });
+      return JSON.stringify({ error: `Failed to save platform context: ${err}` });
+    }
+  },
+  {
+    name: 'save_platform_context',
+    description: 'Save platform-specific context for a workspace. Requires brand context to exist first.',
+    schema: SavePlatformContextSchema,
+  }
+);
+
+// Deprecated: kept for backward compatibility during transition
 const SaveBrandVoiceSchema = z.object({
   workspaceId: z.string().describe('The workspace ID to save brand voice for'),
   tonePreset: z.enum(['professional', 'casual', 'witty', 'educational', 'inspirational', 'bold']).optional().describe('Preset brand tone'),
@@ -19,6 +187,7 @@ const GetBrandVoiceSchema = z.object({
   workspaceId: z.string().describe('The workspace ID to query brand voice for'),
 });
 
+/** @deprecated Use saveBrandContextTool instead */
 export const saveBrandVoiceTool = tool(
   async (input: unknown) => {
     const start = Date.now();
@@ -58,6 +227,7 @@ export const saveBrandVoiceTool = tool(
   }
 );
 
+/** @deprecated Use getBrandContextTool instead */
 export const getBrandVoiceTool = tool(
   async (input: unknown) => {
     const start = Date.now();

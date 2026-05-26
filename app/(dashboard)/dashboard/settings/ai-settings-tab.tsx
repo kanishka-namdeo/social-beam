@@ -1,25 +1,18 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Gear } from '@phosphor-icons/react';
+import { Sparkle } from '@phosphor-icons/react';
 
 export function AiSettingsTab() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">AI Settings</CardTitle>
-        <CardDescription>
-          Configure AI guardrails, autonomy levels, and safety filters.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border p-8 text-center">
-          <Gear className="size-8 text-muted-foreground" weight="light" />
-          <p className="text-sm text-muted-foreground">
-            AI Settings configuration is coming soon.
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border p-12 text-center">
+      <Sparkle className="size-8 text-muted-foreground mb-3" weight="light" />
+      <p className="text-sm font-medium text-foreground">AI settings use defaults</p>
+      <p className="text-xs text-muted-foreground mt-1 max-w-sm">
+        Customize AI behavior like tone, content length, and brand voice adherence. Changes apply immediately.
+      </p>
+      <p className="text-xs text-muted-foreground mt-2 text-muted-foreground/60">
+        Configuration coming soon.
+      </p>
+    </div>
   );
 }

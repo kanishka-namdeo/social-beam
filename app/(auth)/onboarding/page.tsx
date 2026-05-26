@@ -523,6 +523,19 @@ export default function OnboardingPage() {
         `width=${width},height=${height},left=${left},top=${top}`
       );
 
+      if (!popup) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content: `Popup was blocked by your browser. Please allow popups for SocialBeam and try again, or open this link manually: ${authUrl}`,
+            timestamp: new Date(),
+          },
+        ]);
+        return;
+      }
+
       const poll = setInterval(() => {
         if (popup?.closed) {
           clearInterval(poll);
@@ -636,7 +649,7 @@ export default function OnboardingPage() {
 
         <div className="mx-auto mt-8 grid w-full max-w-2xl gap-4 md:grid-cols-3">
           <Card
-            className="cursor-pointer transition-colors hover:border-primary"
+            className="cursor-pointer transition-all hover:border-primary hover-lift"
             onClick={() => handleGoal('plan')}
             role="button"
             tabIndex={0}
@@ -652,7 +665,7 @@ export default function OnboardingPage() {
           </Card>
 
           <Card
-            className="cursor-pointer transition-colors hover:border-primary"
+            className="cursor-pointer transition-all hover:border-primary hover-lift"
             onClick={() => handleGoal('write')}
             role="button"
             tabIndex={0}
@@ -668,7 +681,7 @@ export default function OnboardingPage() {
           </Card>
 
           <Card
-            className="cursor-pointer transition-colors hover:border-primary"
+            className="cursor-pointer transition-all hover:border-primary hover-lift"
             onClick={() => handleGoal('connect')}
             role="button"
             tabIndex={0}
@@ -692,22 +705,22 @@ export default function OnboardingPage() {
       <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12">
         <Card className="w-full max-w-md border">
           <CardHeader className="text-center">
-            <CheckCircle className="mx-auto size-12 text-green-600 dark:text-green-400" weight="duotone" />
+            <CheckCircle className="mx-auto size-12 text-success" weight="duotone" />
             <CardTitle className="mt-3 text-xl">Setup complete!</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-center text-sm text-muted-foreground">Your workspace is ready. Here&apos;s what&apos;s set up:</p>
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
-                <CheckCircle className="size-4 text-green-600 dark:text-green-400" weight="fill" />
+                <CheckCircle className="size-4 text-success" weight="fill" />
                 <span>Workspace created</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="size-4 text-green-600 dark:text-green-400" weight="fill" />
+                <CheckCircle className="size-4 text-success" weight="fill" />
                 <span>Goals configured</span>
               </div>
               <div className="flex items-center gap-2">
-                <Sparkle className="size-4 text-purple-500" weight="fill" />
+                <Sparkle className="size-4 text-brand" weight="fill" />
                 <span>AI assistant ready</span>
               </div>
             </div>
@@ -735,36 +748,36 @@ export default function OnboardingPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Progress tracker */}
-      <div className="border-b bg-card px-4 py-3">
+      <div className="border-b border-t-4 border-t-brand/50 bg-card px-4 py-3">
         <div className="mx-auto max-w-2xl">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-1 overflow-x-auto">
             {ONBOARDING_STEPS.map((step, idx) => {
               const isComplete = idx < stepIndex;
               const isCurrent = idx === stepIndex;
               return (
-                <div key={step.id} className="flex flex-1 items-center">
-                  <div className="flex flex-col items-center gap-1">
+                <div key={step.id} className="flex flex-1 min-w-0 items-center">
+                  <div className="flex flex-col items-center gap-0.5 sm:gap-1">
                     <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-colors ${
+                      className={`flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full border-2 transition-colors ${
                         isComplete
-                          ? 'border-green-600 bg-green-600 text-white dark:border-green-400 dark:bg-green-400'
+                          ? 'border-success bg-success text-white'
                           : isCurrent
                             ? 'border-primary bg-primary text-primary-foreground'
                             : 'border-border text-muted-foreground'
                       }`}
                     >
                       {isComplete ? (
-                        <CheckCircle className="size-5" weight="fill" />
+                        <CheckCircle className="size-4 sm:size-5" weight="fill" />
                       ) : isCurrent ? (
-                        <Circle className="size-5 animate-pulse" weight="fill" />
+                        <Circle className="size-4 sm:size-5 animate-pulse" weight="fill" />
                       ) : (
-                        <Circle className="size-5" weight="light" />
+                        <Circle className="size-4 sm:size-5" weight="light" />
                       )}
                     </div>
                     <span
                       className={`hidden text-xs font-medium md:block ${
                         isComplete
-                          ? 'text-green-600 dark:text-green-400'
+                          ? 'text-success'
                           : isCurrent
                             ? 'text-primary'
                             : 'text-muted-foreground'
@@ -775,8 +788,8 @@ export default function OnboardingPage() {
                   </div>
                   {idx < ONBOARDING_STEPS.length - 1 && (
                     <div
-                      className={`h-0.5 flex-1 ${
-                        idx < stepIndex ? 'bg-green-600 dark:bg-green-400' : 'bg-border'
+                      className={`h-0.5 sm:h-1 flex-1 ${
+                        idx < stepIndex ? 'bg-success' : 'bg-border'
                       }`}
                     />
                   )}
@@ -794,8 +807,8 @@ export default function OnboardingPage() {
           {oauthStatus && (
             <div className={`rounded-lg border p-3 text-sm ${
               oauthStatus.success
-                ? 'border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-200'
-                : 'border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200'
+                ? 'border-success/30 bg-success/5 text-success dark:border-success/50 dark:bg-success/10'
+                : 'border-destructive/30 bg-destructive/5 text-destructive dark:border-destructive/50 dark:bg-destructive/10'
             }`}>
               {oauthStatus.success
                 ? `Successfully connected ${oauthStatus.platform}!`
@@ -853,7 +866,7 @@ export default function OnboardingPage() {
                 )}
 
                 {message.completed && (
-                  <div className="mt-2 flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                  <div className="mt-2 flex items-center gap-1 text-xs text-success">
                     <CheckCircle className="h-3 w-3" weight="fill" />
                     Complete
                   </div>

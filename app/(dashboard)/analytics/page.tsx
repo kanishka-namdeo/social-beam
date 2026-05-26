@@ -14,15 +14,16 @@ import { PostFrequencyChart } from "@/components/analytics/post-frequency-chart"
 import { OptimalTimesRecommendations } from "@/components/analytics/optimal-times-recommendations";
 import { PeriodSelector } from "@/components/analytics/period-selector";
 import type { HeatmapSlot } from "@/components/analytics/types";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ChartBar, TrendUp, Users, Eye, Cursor } from "@phosphor-icons/react/ssr";
+import { HintTooltip } from "@/components/ui/hint-tooltip";
+import { cn } from "@/lib/utils";
+import { subDays } from "@/lib/utils/dates";
 
 const VALID_PERIODS = [7, 30, 90] as const;
 const DEFAULT_PERIOD = 30;
-
-function subDays(date: Date, days: number): Date {
-  const d = new Date(date);
-  d.setDate(d.getDate() - days);
-  return d;
-}
 
 export default async function AnalyticsPage({ searchParams }: { searchParams: Promise<{ period?: string }> }) {
   const session = await auth();
@@ -282,18 +283,106 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   const totalAllEngagements = currentPosts.reduce((s, p) => s + currentAnalytics.filter((a) => a.postId === p.id).reduce((es, a) => es + a.likes + a.comments + a.shares, 0), 0);
   const engagementPerFollower = totalFollowers > 0 ? totalAllEngagements / totalFollowers : 0;
 
+  if (currentAnalytics.length === 0 && currentPosts.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col gap-4">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+            Analytics
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Track performance across all your social platforms.
+          </p>
+        </div>
+        <div className="mx-auto max-w-2xl space-y-6">
+          <Card>
+            <CardContent className="pt-6 text-center space-y-4">
+              <ChartBar className="mx-auto mb-2 size-12 text-muted-foreground" weight="light" />
+              <CardTitle className="text-lg">No data for this period</CardTitle>
+              <CardDescription className="mt-2">
+                Try selecting a different date range or check back after publishing more posts.
+              </CardDescription>
+              <Button className="mt-2" asChild>
+                <a href="/compose">Compose a post</a>
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Worked example preview */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Eye className="size-4 text-brand" weight="fill" />
+                Here&apos;s what you&apos;ll see
+              </CardTitle>
+              <CardDescription>
+                A preview of your analytics dashboard once posts go live.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <MockMetricCard
+                  icon={<Eye className="size-5" weight="fill" />}
+                  label="Impressions"
+                  value="12.4k"
+                  change="+18%"
+                  positive
+                />
+                <MockMetricCard
+                  icon={<Cursor className="size-5" weight="fill" />}
+                  label="Engagements"
+                  value="847"
+                  change="+12%"
+                  positive
+                />
+                <MockMetricCard
+                  icon={<Users className="size-5" weight="fill" />}
+                  label="Net Followers"
+                  value="+124"
+                  change="+8%"
+                  positive
+                />
+                <MockMetricCard
+                  icon={<TrendUp className="size-5" weight="fill" />}
+                  label="Engagement Rate"
+                  value="6.8%"
+                  change="+2.1%"
+                  positive
+                />
+              </div>
+              <div className="mt-6 rounded-lg bg-muted/50 p-4">
+                <p className="text-xs font-medium text-muted-foreground mb-2">Top post this week</p>
+                <div className="flex items-center gap-3">
+                  <Badge variant="outline" className="text-xs">Instagram</Badge>
+                  <span className="text-sm text-foreground truncate">&ldquo;5 tips for better social media engagement&rdquo;</span>
+                  <span className="ml-auto text-xs text-muted-foreground tabular-nums">3.2k views</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             Analytics
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Track performance across all your social platforms over the last {periodDays} days.
           </p>
         </div>
-        <PeriodSelector currentPeriod={periodDays} />
+        <div className="flex items-center gap-3">
+          <HintTooltip
+            hint="Tip: Engagement rate = (likes + comments + shares) / followers. Higher rates mean better algorithmic reach"
+            icon="info"
+          />
+          <PeriodSelector currentPeriod={periodDays} />
+        </div>
       </div>
 
       {/* Metric Cards */}
@@ -343,6 +432,23 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
           heatmapData={heatmapSlots}
           platformMetrics={platformMetrics}
         />
+      </div>
+    </div>
+  );
+}
+
+function MockMetricCard({ icon, label, value, change, positive }: { icon: React.ReactNode; label: string; value: string; change: string; positive: boolean }) {
+  return (
+    <div className="rounded-lg border border-border bg-card p-4 text-left">
+      <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-1">
+        {icon}
+        <span>{label}</span>
+      </div>
+      <div className="flex items-end justify-between">
+        <span className="text-2xl font-semibold text-foreground">{value}</span>
+        <span className={cn("text-xs font-medium tabular-nums", positive ? "text-success" : "text-destructive")}>
+          {change}
+        </span>
       </div>
     </div>
   );

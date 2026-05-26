@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, GearSix } from '@phosphor-icons/react';
+import { CheckCircle, XCircle, GearSix, Code } from '@phosphor-icons/react';
 import { platformIcon, PLATFORM_DISPLAY_NAMES } from '@/lib/oauth/platform-icons';
 import { OauthAppConfigDialog } from './components/oauth-app-config-dialog';
 
@@ -57,6 +57,18 @@ export function DeveloperAppsTab({ initialApps }: DeveloperAppsTabProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
+          {!apps.some((a) => a.isConfigured) && (
+            <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border p-8 text-center">
+              <Code className="size-8 text-muted-foreground" weight="light" />
+              <p className="text-sm font-medium text-foreground">No developer apps configured yet</p>
+              <p className="text-xs text-muted-foreground max-w-sm">
+                Connect third-party services to enhance your social media management. You&apos;ll need to create OAuth apps on each platform.
+              </p>
+              <Button variant="outline" size="sm" onClick={() => apps[0] && setConfiguringPlatform(apps[0].platform)}>
+                Configure your first app
+              </Button>
+            </div>
+          )}
           {apps.map((app) => {
             const displayName = PLATFORM_DISPLAY_NAMES[app.platform] ?? app.platform;
 

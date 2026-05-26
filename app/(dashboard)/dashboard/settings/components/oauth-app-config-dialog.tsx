@@ -52,9 +52,8 @@ const PLATFORM_HELP: Record<string, { url: string; steps: string[] }> = {
     steps: [
       'Go to developer.linkedin.com and create a new app',
       'Under "Products", add "Sign In with LinkedIn" using OpenID Connect',
-      'Add "r_liteprofile" and "w_member_social" to authorized redirect URLs',
       'Copy your Client ID and Client Secret from the Auth tab',
-      'Set your redirect URL under OAuth 2.0 settings',
+      'Set your redirect URL under OAuth 2.0 settings (must match your app callback URL)',
     ],
   },
   tiktok: {
@@ -172,13 +171,13 @@ export function OauthAppConfigDialog({ open, platform, isConfigured, onClose, on
 
         <div className="space-y-4">
           {error && (
-            <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+            <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive" role="alert">
               {error}
             </div>
           )}
 
           <div className="space-y-2">
-            <Label htmlFor={`client-id-${platform}`}>Client ID</Label>
+            <Label htmlFor={`client-id-${platform}`} className="text-sm font-medium">Client ID</Label>
             <Input
               id={`client-id-${platform}`}
               value={clientId}
@@ -186,11 +185,12 @@ export function OauthAppConfigDialog({ open, platform, isConfigured, onClose, on
               placeholder="Enter your Client ID"
               autoComplete="off"
               spellCheck={false}
+              className="border-border focus-within:border-brand"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={`client-secret-${platform}`}>Client Secret</Label>
+            <Label htmlFor={`client-secret-${platform}`} className="text-sm font-medium">Client Secret</Label>
             <Input
               id={`client-secret-${platform}`}
               type="password"
@@ -199,6 +199,7 @@ export function OauthAppConfigDialog({ open, platform, isConfigured, onClose, on
               placeholder="Enter your Client Secret"
               autoComplete="off"
               spellCheck={false}
+              className="border-border focus-within:border-brand"
             />
           </div>
 

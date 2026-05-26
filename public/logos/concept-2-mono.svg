@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor">
+  <!-- Monochrome S-orbital -->
+  <path d="M22 10C22 6.5 19.5 5 16 5C12.5 5 9 8 9 12C9 16 12 16 16 16C20 16 23 17 23 20C23 23.5 20 27 16 27C12.5 27 10 25.5 10 22" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+  <circle cx="22" cy="10" r="2" opacity="0.5"/>
+  <circle cx="10" cy="22" r="2" opacity="0.3"/>
+  <circle cx="14" cy="9" r="1.2" opacity="0.6"/>
+</svg>

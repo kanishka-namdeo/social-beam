@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Code, Key, ChartBar, CalendarCheck, Lock, ArrowRight } from "@phosphor-icons/react/ssr";
+import { Code, Key, ChartBar, CalendarCheck, Lock } from "@phosphor-icons/react/ssr";
 import { LandingPageShell } from "@/components/landing/landing-page-shell";
 
 export const metadata: Metadata = {

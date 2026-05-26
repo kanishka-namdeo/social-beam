@@ -9,7 +9,7 @@ interface MonthViewProps {
   posts: PostItem[];
   onDateClick?: (date: Date) => void;
   onPreview?: (postId: string) => void;
-  onDelete?: (postId: string) => Promise<void>;
+  onDelete?: (postId: string) => void;
   onDuplicate?: (postId: string) => Promise<void>;
 }
 
@@ -44,7 +44,7 @@ export function MonthView({ currentDate, posts, onDateClick, onPreview, onDelete
   return (
     <div className="space-y-2">
       {/* Day name headers */}
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-px">
         {DAY_NAMES.map((name) => (
           <div
             key={name}
@@ -56,10 +56,11 @@ export function MonthView({ currentDate, posts, onDateClick, onPreview, onDelete
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-px">
         {gridDays.map((dayDate) => {
           const isCurrentMonth = isSameMonth(dayDate, currentDate);
           const isToday = isSameDay(dayDate, today);
+          const isWeekend = dayDate.getDay() === 0 || dayDate.getDay() === 6;
           const dayPosts = postsByDate.get(dayDate.toDateString()) ?? [];
 
           return (
@@ -68,6 +69,7 @@ export function MonthView({ currentDate, posts, onDateClick, onPreview, onDelete
               date={dayDate}
               isCurrentMonth={isCurrentMonth}
               isToday={isToday}
+              isWeekend={isWeekend}
               posts={dayPosts}
               onDateClick={onDateClick}
               onPreview={onPreview}

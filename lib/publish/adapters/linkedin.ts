@@ -74,34 +74,38 @@ async function createPost(
 ): Promise<string> {
   logger.debug('linkedin.post.create.start', { authorUrn, mediaCategory });
 
-  const specificContent: Record<string, unknown> = {
-    shareCommentary: { text },
-    shareMediaCategory: mediaCategory,
+  // Build the new Posts API payload
+  const body: Record<string, unknown> = {
+    author: authorUrn,
+    commentary: text,
+    visibility: 'PUBLIC',
+    distribution: {
+      feedDistribution: 'MAIN_FEED',
+      targetEntities: [],
+      thirdPartyDistributionChannels: [],
+    },
+    lifecycleState: 'PUBLISHED',
+    isReshareDisabledByAuthor: false,
   };
 
-  if (mediaUrn) {
-    specificContent.media = [
-      {
-        status: 'READY',
-        description: { text: '' },
-        media: mediaUrn,
-        title: { text: '' },
-      },
-    ];
+  // Add media content if provided
+  if (mediaUrn && mediaCategory !== 'NONE') {
+    if (mediaCategory === 'IMAGE') {
+      body.content = {
+        media: {
+          id: mediaUrn,
+        },
+      };
+    } else if (mediaCategory === 'VIDEO') {
+      body.content = {
+        media: {
+          id: mediaUrn,
+        },
+      };
+    }
   }
 
-  const body = {
-    author: authorUrn,
-    lifecycleState: 'PUBLISHED',
-    specificContent: {
-      'com.linkedin.ugc.ShareContent': specificContent,
-    },
-    visibility: {
-      'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC',
-    },
-  };
-
-  const response = await fetch(`${BASE_URL}/rest/ugcPosts`, {
+  const response = await fetch(`${BASE_URL}/rest/posts`, {
     method: 'POST',
     headers: authHeader(accessToken),
     body: JSON.stringify(body),
@@ -112,25 +116,32 @@ async function createPost(
     throw new Error(`Post creation failed (${response.status}): ${errorBody}`);
   }
 
-  const data = await response.json() as Record<string, unknown>;
-  const shareUrn = data?.id as string | undefined;
-  if (!shareUrn) {
-    throw new Error('Post creation succeeded but no share URN returned');
+  // The post ID is returned in the x-restli-id header
+  const postUrn = response.headers.get('x-restli-id');
+  if (!postUrn) {
+    // Fallback: try to parse from response body
+    const data = await response.json() as Record<string, unknown>;
+    const id = data?.id as string | undefined;
+    if (!id) {
+      throw new Error('Post creation succeeded but no post URN returned');
+    }
+    logger.info('linkedin.post.create.success', { postUrn: id });
+    return id;
   }
 
-  logger.info('linkedin.post.create.success', { shareUrn });
-  return shareUrn;
+  logger.info('linkedin.post.create.success', { postUrn });
+  return postUrn;
 }
 
-function extractShareId(shareUrn: string): string {
-  // URN format: urn:li:share:123456789
-  const parts = shareUrn.split(':');
+function extractPostId(postUrn: string): string {
+  // URN format: urn:li:share:123456789 or urn:li:ugcPost:123456789
+  const parts = postUrn.split(':');
   return parts[parts.length - 1];
 }
 
-function buildExternalUrl(shareUrn: string): string {
-  const shareId = extractShareId(shareUrn);
-  return `https://www.linkedin.com/feed/update/urn:li:share:${shareId}`;
+function buildExternalUrl(postUrn: string): string {
+  // LinkedIn post URLs use the share URN format
+  return `https://www.linkedin.com/feed/update/${postUrn}`;
 }
 
 export function createLinkedinAdapter(personId: string): PlatformAdapter {
@@ -148,7 +159,7 @@ export function createLinkedinAdapter(personId: string): PlatformAdapter {
         const text = platformOverride?.content ?? payload.content;
         const mediaUrls = platformOverride?.mediaUrls ?? payload.mediaUrls;
 
-        let shareUrn: string;
+        let postUrn: string;
 
         if (mediaUrls.length > 0) {
           const firstMediaUrl = mediaUrls[0];
@@ -156,21 +167,21 @@ export function createLinkedinAdapter(personId: string): PlatformAdapter {
 
           if (isVideo) {
             const videoUrn = await uploadVideo(firstMediaUrl, accessToken);
-            shareUrn = await createPost(authorUrn, text, accessToken, 'VIDEO', videoUrn);
+            postUrn = await createPost(authorUrn, text, accessToken, 'VIDEO', videoUrn);
           } else {
             // Default to image for image-like extensions or unknown
             const imageUrn = await uploadImage(firstMediaUrl, accessToken);
-            shareUrn = await createPost(authorUrn, text, accessToken, 'IMAGE', imageUrn);
+            postUrn = await createPost(authorUrn, text, accessToken, 'IMAGE', imageUrn);
           }
         } else {
-          shareUrn = await createPost(authorUrn, text, accessToken, 'NONE');
+          postUrn = await createPost(authorUrn, text, accessToken, 'NONE');
         }
 
         const result: PlatformPublishResult = {
           platform: 'linkedin',
           success: true,
-          externalId: extractShareId(shareUrn),
-          externalUrl: buildExternalUrl(shareUrn),
+          externalId: extractPostId(postUrn),
+          externalUrl: buildExternalUrl(postUrn),
         };
 
         log.info('linkedin.publish.success', { externalId: result.externalId });

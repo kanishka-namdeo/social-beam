@@ -19,7 +19,7 @@ const ENV_VAR_MAP: Record<string, { clientId: string; clientSecret: string }> = 
 export async function resolveCredentials(
   userId: string,
   platform: string,
-): Promise<{ clientId: string; clientSecret: string } | null> {
+): Promise<{ clientId: string; clientSecret: string; source: 'database' | 'env' } | null> {
   const normalizedPlatform = platform.toLowerCase();
 
   // Try user-configured credentials first
@@ -31,8 +31,14 @@ export async function resolveCredentials(
     try {
       const clientId = decryptToken(userApp.clientId);
       const clientSecret = decryptToken(userApp.clientSecret);
-      logger.debug('oauth.credentials.resolved_from_user_config', { userId, platform: normalizedPlatform });
-      return { clientId, clientSecret };
+      const maskedId = clientId.slice(0, 4) + '…' + clientId.slice(-4);
+      logger.info('oauth.credentials.resolved_from_user_config', {
+        userId,
+        platform: normalizedPlatform,
+        clientIdMasked: maskedId,
+        source: 'database',
+      });
+      return { clientId, clientSecret, source: 'database' as const };
     } catch {
       logger.error('oauth.credentials.decrypt_failed', { userId, platform: normalizedPlatform });
       // Fall through to env vars
@@ -45,8 +51,13 @@ export async function resolveCredentials(
     const clientId = process.env[envVars.clientId] ?? '';
     const clientSecret = process.env[envVars.clientSecret] ?? '';
     if (clientId && clientSecret) {
-      logger.debug('oauth.credentials.resolved_from_env', { platform: normalizedPlatform });
-      return { clientId, clientSecret };
+      const maskedId = clientId.slice(0, 4) + '…' + clientId.slice(-4);
+      logger.info('oauth.credentials.resolved_from_env', {
+        platform: normalizedPlatform,
+        clientIdMasked: maskedId,
+        source: 'env',
+      });
+      return { clientId, clientSecret, source: 'env' as const };
     }
   }
 

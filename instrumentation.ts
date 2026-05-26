@@ -13,5 +13,9 @@ export async function register() {
     // Start Reddit trending cron job
     const { startRedditTrendingCron } = await import('./lib/cron/reddit-trending');
     startRedditTrendingCron();
+
+    // Start brand learning cron job
+    const { startBrandLearningCron } = await import('./lib/cron/brand-learning');
+    startBrandLearningCron();
   }
 }

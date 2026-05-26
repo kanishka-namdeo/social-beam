@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Three floating diamond/layer shapes  growing energy -->
+  <path d="M16 4L24 12L16 20L8 12Z" fill="#FF7759" opacity="0.3"/>
+  <path d="M16 8L22 14L16 20L10 14Z" fill="#FF7759" opacity="0.55"/>
+  <path d="M16 12L20 16L16 20L12 16Z" fill="#FF7759"/>
+  <!-- Small accent: upward arrow suggesting growth -->
+  <path d="M16 22V28M14 25L16 28L18 25" stroke="#FF7759" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+</svg>

@@ -18,6 +18,9 @@ LLM-based coding agents exhibit reproducible reasoning failures. These guardrail
 | **Tool hallucination** | Invents non-existent tool function names | Calls fail silently or produce garbage |
 | **Context bloat** | Reads entire files when snippets would suffice; loads generated/lock files | Premature context compression, lost relevant context |
 | **Serial drip-feeding** | One file read per turn across 10+ turns instead of batching | 10x+ turns for tasks that should take 2-3 |
+| **Phantom assumptions** | Cites files/screenshots as available data without verifying they exist on disk | Analysis built on nonexistent evidence, wasted turns chasing ghosts |
+| **Fragmented debug dispatch** | Chains 3+ narrow subagent calls for one bug instead of one comprehensive dispatch | 3x token burn, delayed resolution, lost context between dispatches |
+| **Unchecked subagent conclusions** | Presents subagent findings as fact without independent verification | Propagates errors, misdiagnoses root cause |
 
 Sources: [qwen-code #2863](https://github.com/QwenLM/qwen-code/issues/2863), [opencode #22142](https://github.com/anomalyco/opencode/issues/22142), [Qwen3 #1817](https://github.com/QwenLM/Qwen3/issues/1817), [Qwen3.6 #15](https://github.com/QwenLM/Qwen3.6/issues/15), [qwen-code #4089](https://github.com/QwenLM/qwen-code/issues/4089)
 
@@ -144,6 +147,72 @@ Agents claim to have performed actions (run a command, read a file, checked a va
 
 ---
 
+## Rule 7: Escalation Protocol for Empty Results
+
+### Problem
+After 2+ consecutive tool calls returning empty/no-results for the same query, agents repeat the same search with slightly different patterns instead of switching strategy. Observed: 9 Glob calls across 18 turns for the same missing screenshots.
+
+### Guardrails
+
+**Escalate after 2 empty results, not retry**: When a tool returns empty/no-results for the same query, switch to a fundamentally different approach on the next turn. Do not retry with minor pattern variations.
+
+```
+Turn 1: Glob "**/*.png" → empty
+Turn 2: Shell "Get-ChildItem -Recurse -Directory" → check if directories exist
+Turn 3: State what you've tried, what's blocking, ask user for direction
+```
+
+**No 4th retry of same search**: If you have made 3 tool-call turns searching for the same thing, you must either (a) state the conclusion ("files don't exist"), or (b) ask the user. No 4th attempt with another pattern variant.
+
+**File existence verification**: When documentation, README files, or code comments reference files by name (screenshots, config files, assets), verify they exist on disk with Glob or Shell before citing them as data sources in your analysis or recommendations.
+
+---
+
+## Rule 8: Comprehensive Debug Dispatch
+
+### Problem
+Agents chain 3+ narrow subagent calls for overlapping investigations of the same bug (e.g., "debug OAuth" → "verify DB credentials" → "trace error point"). Each subagent re-discovers context the previous one already had.
+
+### Guardrails
+
+**One subagent per bug, not per hypothesis**: When debugging a single issue with multiple potential root causes, dispatch ONE subagent with ALL hypotheses to investigate. Do not chain sequential subagents for overlapping investigations.
+
+**Include all context in one dispatch**: The subagent prompt must include:
+- The full error description
+- All files already investigated
+- All hypotheses to test
+- What has already been ruled out
+
+**Do not narrow scope after a broad dispatch**: If you already sent "debug OAuth" to a subagent, do not send "verify DB credentials" as a follow-up — it is a subset.
+
+---
+
+## Rule 9: Verify Subagent Conclusions
+
+### Problem
+Agents accept subagent diagnostic conclusions as established fact without independent verification. When the subagent is wrong (which happens), the parent agent propagates the error to the user.
+
+### Guardrails
+
+**Independently verify at least one key claim**: When a subagent returns a diagnostic conclusion or factual claim, verify at least one key finding using your own tool calls (Read, Grep, Shell) before presenting it to the user as established fact.
+
+**Distinguish "subagent says" from "verified"**: If you present a subagent finding without verifying it, label it as such: "The subagent identified X as the likely cause (not yet independently verified)."
+
+---
+
+## Rule 10: Third-Party API Diagnosis Requires Current Research
+
+### Problem
+Agents diagnose third-party API errors (OAuth providers, cloud services, platform APIs) based on training data alone, producing wrong diagnoses (e.g., claiming LinkedIn doesn't support `openid` scope when it does).
+
+### Guardrails
+
+**Research before recommending API changes**: When the user reports an error from a third-party service, run WebSearch/WebFetch against current documentation before proposing any code changes. Never recommend changing scopes, credentials, endpoints, or parameters based on training data alone.
+
+**Label uncertainty**: If you haven't verified against current docs, label your diagnosis: "This is based on my training data — let me verify against current documentation."
+
+---
+
 ## Decision Tree: Before Every Tool Call
 
 ```
@@ -172,6 +241,10 @@ Before ending turn:
 | **Serial drip-feeding** | Reads 1 file per turn for 10 turns | Read all needed files in 1 turn |
 | **Context bloat** | Reads entire 500-line file when 10 lines are relevant | Read with line ranges or grep |
 | **False verification** | "The code looks correct" without running typecheck/lint | Run actual verification commands |
+| **Phantom assumptions** | Cites "88 screenshots" as data without verifying files exist | Glob/Shell check before citing referenced files |
+| **Fragmented debug** | Dispatches 3 subagents for one bug instead of 1 comprehensive | One subagent with all hypotheses |
+| **Blind subagent trust** | Presents subagent diagnosis as fact without verification | Independently verify at least one key claim |
+| **Stale API knowledge** | Recommends OAuth scope changes based on training data | WebSearch/WebFetch current docs first |
 
 ---
 
@@ -184,3 +257,6 @@ These guardrails override general behavioral tendencies:
 3. **Never repeat verified checks** — progress > re-verification
 4. **Always batch independent operations** — efficiency > caution
 5. **Never claim results without evidence** — truth > confidence
+6. **Escalate after 2 empty results** — strategy switch > retry
+7. **One subagent per bug** — comprehensive dispatch > fragmented narrow scopes
+8. **Research before API changes** — current docs > training memory

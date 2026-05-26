@@ -82,3 +82,38 @@ export type RedditSubredditConfig = Prisma.RedditSubredditConfigModel
  * 
  */
 export type RedditTrendingPost = Prisma.RedditTrendingPostModel
+/**
+ * Model BrandContext
+ * 
+ */
+export type BrandContext = Prisma.BrandContextModel
+/**
+ * Model BrandContextVersion
+ * 
+ */
+export type BrandContextVersion = Prisma.BrandContextVersionModel
+/**
+ * Model PlatformContext
+ * 
+ */
+export type PlatformContext = Prisma.PlatformContextModel
+/**
+ * Model AiCreditBalance
+ * 
+ */
+export type AiCreditBalance = Prisma.AiCreditBalanceModel
+/**
+ * Model BrandLearningSignal
+ * 
+ */
+export type BrandLearningSignal = Prisma.BrandLearningSignalModel
+/**
+ * Model BrandFieldState
+ * 
+ */
+export type BrandFieldState = Prisma.BrandFieldStateModel
+/**
+ * Model MediaAsset
+ * 
+ */
+export type MediaAsset = Prisma.MediaAssetModel

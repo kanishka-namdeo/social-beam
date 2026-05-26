@@ -218,8 +218,42 @@ Below is the revised user flows document with AI-native flows integrated. New fl
 ### 1.2 Log In
 *(unchanged)*
 
-### 1.3 Sign Out
-*(unchanged)*
+### 1.3 Sign Out [IMPLEMENTED]
+
+**Trigger**: User clicks avatar (desktop) or hamburger menu (mobile) → selects "Sign Out".
+
+**Desktop Flow**:
+1. User clicks their avatar (initial button) in the top-right header
+2. DropdownMenu opens showing:
+   - User name (truncated if long)
+   - User email (truncated if long, muted text)
+   - Separator
+   - "Sign Out" button (destructive variant, with SignOut icon)
+3. User clicks "Sign Out"
+4. `signOut({ callbackUrl: '/login' })` from `next-auth/react` is called
+5. NextAuth clears the session cookie and redirects to `/login`
+6. Proxy detects no session on `/login` and passes through (correct behavior)
+7. If user tries to navigate to `/dashboard` after logout, proxy redirects back to `/login`
+
+**Mobile Flow**:
+1. User taps hamburger icon (List icon) to open Sheet
+2. Sheet slides in from left showing nav items
+3. Separator appears below nav items
+4. Bottom bar shows user name (left) and "Sign Out" button (right, destructive styling)
+5. User taps "Sign Out"
+6. Same signOut call and redirect as desktop flow
+
+**Security**:
+- Hardcoded `callbackUrl: '/login'` — no user-controlled redirect URLs (prevents open redirect)
+- JWT cookie cleared by NextAuth's signOut handler
+- No sensitive data stored in JWT (only `id` and `workspaceId`)
+- Post-logout, protected routes are enforced by proxy redirect
+
+**Error States**:
+- Network failure during signOut: user remains on page, no forced redirect
+- Session already expired: signOut still clears cookie and redirects
+
+**Component**: `components/dashboard/user-menu.tsx` (desktop), `components/dashboard/mobile-menu.tsx` (mobile)
 
 ### 1.4 First-Run Onboarding — Goal-First [AI-REDESIGNED]
 

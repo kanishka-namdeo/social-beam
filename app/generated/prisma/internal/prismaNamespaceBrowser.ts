@@ -63,7 +63,14 @@ export const ModelName = {
   BrandVoice: 'BrandVoice',
   UserOAuthApp: 'UserOAuthApp',
   RedditSubredditConfig: 'RedditSubredditConfig',
-  RedditTrendingPost: 'RedditTrendingPost'
+  RedditTrendingPost: 'RedditTrendingPost',
+  BrandContext: 'BrandContext',
+  BrandContextVersion: 'BrandContextVersion',
+  PlatformContext: 'PlatformContext',
+  AiCreditBalance: 'AiCreditBalance',
+  BrandLearningSignal: 'BrandLearningSignal',
+  BrandFieldState: 'BrandFieldState',
+  MediaAsset: 'MediaAsset'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -259,6 +266,7 @@ export const RedditTrendingPostScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
   subreddit: 'subreddit',
+  postId: 'postId',
   title: 'title',
   url: 'url',
   author: 'author',
@@ -269,10 +277,138 @@ export const RedditTrendingPostScalarFieldEnum = {
   relevanceReason: 'relevanceReason',
   isActionable: 'isActionable',
   topicTags: 'topicTags',
-  suggestedAction: 'suggestedAction'
+  suggestedAction: 'suggestedAction',
+  sentiment: 'sentiment',
+  riskLevel: 'riskLevel',
+  riskReason: 'riskReason',
+  dismissedAt: 'dismissedAt',
+  actedOnAt: 'actedOnAt',
+  analysisCostCredits: 'analysisCostCredits'
 } as const
 
 export type RedditTrendingPostScalarFieldEnum = (typeof RedditTrendingPostScalarFieldEnum)[keyof typeof RedditTrendingPostScalarFieldEnum]
+
+
+export const BrandContextScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  businessName: 'businessName',
+  tagline: 'tagline',
+  websiteUrl: 'websiteUrl',
+  industry: 'industry',
+  productDesc: 'productDesc',
+  tonePreset: 'tonePreset',
+  voiceDescription: 'voiceDescription',
+  bannedWords: 'bannedWords',
+  voiceExamples: 'voiceExamples',
+  audienceType: 'audienceType',
+  demographics: 'demographics',
+  interests: 'interests',
+  painPoints: 'painPoints',
+  competitors: 'competitors',
+  goals: 'goals',
+  trainingStatus: 'trainingStatus',
+  lastTrainedAt: 'lastTrainedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BrandContextScalarFieldEnum = (typeof BrandContextScalarFieldEnum)[keyof typeof BrandContextScalarFieldEnum]
+
+
+export const BrandContextVersionScalarFieldEnum = {
+  id: 'id',
+  brandContextId: 'brandContextId',
+  snapshot: 'snapshot',
+  changeReason: 'changeReason',
+  platformSnapshot: 'platformSnapshot',
+  createdAt: 'createdAt'
+} as const
+
+export type BrandContextVersionScalarFieldEnum = (typeof BrandContextVersionScalarFieldEnum)[keyof typeof BrandContextVersionScalarFieldEnum]
+
+
+export const PlatformContextScalarFieldEnum = {
+  id: 'id',
+  brandContextId: 'brandContextId',
+  platform: 'platform',
+  platformTone: 'platformTone',
+  contentMix: 'contentMix',
+  postingCadence: 'postingCadence',
+  hashtagStrategy: 'hashtagStrategy',
+  visualStyle: 'visualStyle',
+  engagementStyle: 'engagementStyle',
+  platformRules: 'platformRules',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PlatformContextScalarFieldEnum = (typeof PlatformContextScalarFieldEnum)[keyof typeof PlatformContextScalarFieldEnum]
+
+
+export const AiCreditBalanceScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  balance: 'balance',
+  tier: 'tier',
+  totalSpent: 'totalSpent',
+  lastRefillAt: 'lastRefillAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AiCreditBalanceScalarFieldEnum = (typeof AiCreditBalanceScalarFieldEnum)[keyof typeof AiCreditBalanceScalarFieldEnum]
+
+
+export const BrandLearningSignalScalarFieldEnum = {
+  id: 'id',
+  brandContextId: 'brandContextId',
+  signalType: 'signalType',
+  fieldName: 'fieldName',
+  direction: 'direction',
+  magnitude: 'magnitude',
+  confidence: 'confidence',
+  sourcePostId: 'sourcePostId',
+  metadata: 'metadata',
+  applied: 'applied',
+  createdAt: 'createdAt'
+} as const
+
+export type BrandLearningSignalScalarFieldEnum = (typeof BrandLearningSignalScalarFieldEnum)[keyof typeof BrandLearningSignalScalarFieldEnum]
+
+
+export const BrandFieldStateScalarFieldEnum = {
+  id: 'id',
+  brandContextId: 'brandContextId',
+  fieldName: 'fieldName',
+  currentValue: 'currentValue',
+  confidence: 'confidence',
+  stability: 'stability',
+  signalCount: 'signalCount',
+  lastUpdated: 'lastUpdated'
+} as const
+
+export type BrandFieldStateScalarFieldEnum = (typeof BrandFieldStateScalarFieldEnum)[keyof typeof BrandFieldStateScalarFieldEnum]
+
+
+export const MediaAssetScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  originalName: 'originalName',
+  mimeType: 'mimeType',
+  fileSize: 'fileSize',
+  width: 'width',
+  height: 'height',
+  storagePath: 'storagePath',
+  publicUrl: 'publicUrl',
+  status: 'status',
+  variants: 'variants',
+  tags: 'tags',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MediaAssetScalarFieldEnum = (typeof MediaAssetScalarFieldEnum)[keyof typeof MediaAssetScalarFieldEnum]
 
 
 export const SortOrder = {

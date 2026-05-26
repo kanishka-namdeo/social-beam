@@ -396,7 +396,14 @@ export const ModelName = {
   BrandVoice: 'BrandVoice',
   UserOAuthApp: 'UserOAuthApp',
   RedditSubredditConfig: 'RedditSubredditConfig',
-  RedditTrendingPost: 'RedditTrendingPost'
+  RedditTrendingPost: 'RedditTrendingPost',
+  BrandContext: 'BrandContext',
+  BrandContextVersion: 'BrandContextVersion',
+  PlatformContext: 'PlatformContext',
+  AiCreditBalance: 'AiCreditBalance',
+  BrandLearningSignal: 'BrandLearningSignal',
+  BrandFieldState: 'BrandFieldState',
+  MediaAsset: 'MediaAsset'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -412,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "workspace" | "post" | "postPlatform" | "analyticsSnapshot" | "followerSnapshot" | "userProfile" | "connectedAccount" | "onboardingSession" | "brandVoice" | "userOAuthApp" | "redditSubredditConfig" | "redditTrendingPost"
+    modelProps: "user" | "workspace" | "post" | "postPlatform" | "analyticsSnapshot" | "followerSnapshot" | "userProfile" | "connectedAccount" | "onboardingSession" | "brandVoice" | "userOAuthApp" | "redditSubredditConfig" | "redditTrendingPost" | "brandContext" | "brandContextVersion" | "platformContext" | "aiCreditBalance" | "brandLearningSignal" | "brandFieldState" | "mediaAsset"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1378,6 +1385,524 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BrandContext: {
+      payload: Prisma.$BrandContextPayload<ExtArgs>
+      fields: Prisma.BrandContextFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BrandContextFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BrandContextFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextPayload>
+        }
+        findFirst: {
+          args: Prisma.BrandContextFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BrandContextFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextPayload>
+        }
+        findMany: {
+          args: Prisma.BrandContextFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextPayload>[]
+        }
+        create: {
+          args: Prisma.BrandContextCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextPayload>
+        }
+        createMany: {
+          args: Prisma.BrandContextCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BrandContextCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextPayload>[]
+        }
+        delete: {
+          args: Prisma.BrandContextDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextPayload>
+        }
+        update: {
+          args: Prisma.BrandContextUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextPayload>
+        }
+        deleteMany: {
+          args: Prisma.BrandContextDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BrandContextUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BrandContextUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextPayload>[]
+        }
+        upsert: {
+          args: Prisma.BrandContextUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextPayload>
+        }
+        aggregate: {
+          args: Prisma.BrandContextAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBrandContext>
+        }
+        groupBy: {
+          args: Prisma.BrandContextGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BrandContextGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BrandContextCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BrandContextCountAggregateOutputType> | number
+        }
+      }
+    }
+    BrandContextVersion: {
+      payload: Prisma.$BrandContextVersionPayload<ExtArgs>
+      fields: Prisma.BrandContextVersionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BrandContextVersionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextVersionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BrandContextVersionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextVersionPayload>
+        }
+        findFirst: {
+          args: Prisma.BrandContextVersionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextVersionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BrandContextVersionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextVersionPayload>
+        }
+        findMany: {
+          args: Prisma.BrandContextVersionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextVersionPayload>[]
+        }
+        create: {
+          args: Prisma.BrandContextVersionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextVersionPayload>
+        }
+        createMany: {
+          args: Prisma.BrandContextVersionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BrandContextVersionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextVersionPayload>[]
+        }
+        delete: {
+          args: Prisma.BrandContextVersionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextVersionPayload>
+        }
+        update: {
+          args: Prisma.BrandContextVersionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextVersionPayload>
+        }
+        deleteMany: {
+          args: Prisma.BrandContextVersionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BrandContextVersionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BrandContextVersionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextVersionPayload>[]
+        }
+        upsert: {
+          args: Prisma.BrandContextVersionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandContextVersionPayload>
+        }
+        aggregate: {
+          args: Prisma.BrandContextVersionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBrandContextVersion>
+        }
+        groupBy: {
+          args: Prisma.BrandContextVersionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BrandContextVersionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BrandContextVersionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BrandContextVersionCountAggregateOutputType> | number
+        }
+      }
+    }
+    PlatformContext: {
+      payload: Prisma.$PlatformContextPayload<ExtArgs>
+      fields: Prisma.PlatformContextFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PlatformContextFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformContextPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PlatformContextFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformContextPayload>
+        }
+        findFirst: {
+          args: Prisma.PlatformContextFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformContextPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PlatformContextFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformContextPayload>
+        }
+        findMany: {
+          args: Prisma.PlatformContextFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformContextPayload>[]
+        }
+        create: {
+          args: Prisma.PlatformContextCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformContextPayload>
+        }
+        createMany: {
+          args: Prisma.PlatformContextCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PlatformContextCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformContextPayload>[]
+        }
+        delete: {
+          args: Prisma.PlatformContextDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformContextPayload>
+        }
+        update: {
+          args: Prisma.PlatformContextUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformContextPayload>
+        }
+        deleteMany: {
+          args: Prisma.PlatformContextDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PlatformContextUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PlatformContextUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformContextPayload>[]
+        }
+        upsert: {
+          args: Prisma.PlatformContextUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformContextPayload>
+        }
+        aggregate: {
+          args: Prisma.PlatformContextAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePlatformContext>
+        }
+        groupBy: {
+          args: Prisma.PlatformContextGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PlatformContextGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PlatformContextCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PlatformContextCountAggregateOutputType> | number
+        }
+      }
+    }
+    AiCreditBalance: {
+      payload: Prisma.$AiCreditBalancePayload<ExtArgs>
+      fields: Prisma.AiCreditBalanceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AiCreditBalanceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiCreditBalancePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AiCreditBalanceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiCreditBalancePayload>
+        }
+        findFirst: {
+          args: Prisma.AiCreditBalanceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiCreditBalancePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AiCreditBalanceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiCreditBalancePayload>
+        }
+        findMany: {
+          args: Prisma.AiCreditBalanceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiCreditBalancePayload>[]
+        }
+        create: {
+          args: Prisma.AiCreditBalanceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiCreditBalancePayload>
+        }
+        createMany: {
+          args: Prisma.AiCreditBalanceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AiCreditBalanceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiCreditBalancePayload>[]
+        }
+        delete: {
+          args: Prisma.AiCreditBalanceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiCreditBalancePayload>
+        }
+        update: {
+          args: Prisma.AiCreditBalanceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiCreditBalancePayload>
+        }
+        deleteMany: {
+          args: Prisma.AiCreditBalanceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AiCreditBalanceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AiCreditBalanceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiCreditBalancePayload>[]
+        }
+        upsert: {
+          args: Prisma.AiCreditBalanceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiCreditBalancePayload>
+        }
+        aggregate: {
+          args: Prisma.AiCreditBalanceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAiCreditBalance>
+        }
+        groupBy: {
+          args: Prisma.AiCreditBalanceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AiCreditBalanceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AiCreditBalanceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AiCreditBalanceCountAggregateOutputType> | number
+        }
+      }
+    }
+    BrandLearningSignal: {
+      payload: Prisma.$BrandLearningSignalPayload<ExtArgs>
+      fields: Prisma.BrandLearningSignalFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BrandLearningSignalFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandLearningSignalPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BrandLearningSignalFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandLearningSignalPayload>
+        }
+        findFirst: {
+          args: Prisma.BrandLearningSignalFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandLearningSignalPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BrandLearningSignalFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandLearningSignalPayload>
+        }
+        findMany: {
+          args: Prisma.BrandLearningSignalFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandLearningSignalPayload>[]
+        }
+        create: {
+          args: Prisma.BrandLearningSignalCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandLearningSignalPayload>
+        }
+        createMany: {
+          args: Prisma.BrandLearningSignalCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BrandLearningSignalCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandLearningSignalPayload>[]
+        }
+        delete: {
+          args: Prisma.BrandLearningSignalDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandLearningSignalPayload>
+        }
+        update: {
+          args: Prisma.BrandLearningSignalUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandLearningSignalPayload>
+        }
+        deleteMany: {
+          args: Prisma.BrandLearningSignalDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BrandLearningSignalUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BrandLearningSignalUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandLearningSignalPayload>[]
+        }
+        upsert: {
+          args: Prisma.BrandLearningSignalUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandLearningSignalPayload>
+        }
+        aggregate: {
+          args: Prisma.BrandLearningSignalAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBrandLearningSignal>
+        }
+        groupBy: {
+          args: Prisma.BrandLearningSignalGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BrandLearningSignalGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BrandLearningSignalCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BrandLearningSignalCountAggregateOutputType> | number
+        }
+      }
+    }
+    BrandFieldState: {
+      payload: Prisma.$BrandFieldStatePayload<ExtArgs>
+      fields: Prisma.BrandFieldStateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BrandFieldStateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandFieldStatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BrandFieldStateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandFieldStatePayload>
+        }
+        findFirst: {
+          args: Prisma.BrandFieldStateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandFieldStatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BrandFieldStateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandFieldStatePayload>
+        }
+        findMany: {
+          args: Prisma.BrandFieldStateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandFieldStatePayload>[]
+        }
+        create: {
+          args: Prisma.BrandFieldStateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandFieldStatePayload>
+        }
+        createMany: {
+          args: Prisma.BrandFieldStateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BrandFieldStateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandFieldStatePayload>[]
+        }
+        delete: {
+          args: Prisma.BrandFieldStateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandFieldStatePayload>
+        }
+        update: {
+          args: Prisma.BrandFieldStateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandFieldStatePayload>
+        }
+        deleteMany: {
+          args: Prisma.BrandFieldStateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BrandFieldStateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BrandFieldStateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandFieldStatePayload>[]
+        }
+        upsert: {
+          args: Prisma.BrandFieldStateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandFieldStatePayload>
+        }
+        aggregate: {
+          args: Prisma.BrandFieldStateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBrandFieldState>
+        }
+        groupBy: {
+          args: Prisma.BrandFieldStateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BrandFieldStateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BrandFieldStateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BrandFieldStateCountAggregateOutputType> | number
+        }
+      }
+    }
+    MediaAsset: {
+      payload: Prisma.$MediaAssetPayload<ExtArgs>
+      fields: Prisma.MediaAssetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MediaAssetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaAssetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MediaAssetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaAssetPayload>
+        }
+        findFirst: {
+          args: Prisma.MediaAssetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaAssetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MediaAssetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaAssetPayload>
+        }
+        findMany: {
+          args: Prisma.MediaAssetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaAssetPayload>[]
+        }
+        create: {
+          args: Prisma.MediaAssetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaAssetPayload>
+        }
+        createMany: {
+          args: Prisma.MediaAssetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MediaAssetCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaAssetPayload>[]
+        }
+        delete: {
+          args: Prisma.MediaAssetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaAssetPayload>
+        }
+        update: {
+          args: Prisma.MediaAssetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaAssetPayload>
+        }
+        deleteMany: {
+          args: Prisma.MediaAssetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MediaAssetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MediaAssetUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaAssetPayload>[]
+        }
+        upsert: {
+          args: Prisma.MediaAssetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaAssetPayload>
+        }
+        aggregate: {
+          args: Prisma.MediaAssetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMediaAsset>
+        }
+        groupBy: {
+          args: Prisma.MediaAssetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MediaAssetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MediaAssetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MediaAssetCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1594,6 +2119,7 @@ export const RedditTrendingPostScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
   subreddit: 'subreddit',
+  postId: 'postId',
   title: 'title',
   url: 'url',
   author: 'author',
@@ -1604,10 +2130,138 @@ export const RedditTrendingPostScalarFieldEnum = {
   relevanceReason: 'relevanceReason',
   isActionable: 'isActionable',
   topicTags: 'topicTags',
-  suggestedAction: 'suggestedAction'
+  suggestedAction: 'suggestedAction',
+  sentiment: 'sentiment',
+  riskLevel: 'riskLevel',
+  riskReason: 'riskReason',
+  dismissedAt: 'dismissedAt',
+  actedOnAt: 'actedOnAt',
+  analysisCostCredits: 'analysisCostCredits'
 } as const
 
 export type RedditTrendingPostScalarFieldEnum = (typeof RedditTrendingPostScalarFieldEnum)[keyof typeof RedditTrendingPostScalarFieldEnum]
+
+
+export const BrandContextScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  businessName: 'businessName',
+  tagline: 'tagline',
+  websiteUrl: 'websiteUrl',
+  industry: 'industry',
+  productDesc: 'productDesc',
+  tonePreset: 'tonePreset',
+  voiceDescription: 'voiceDescription',
+  bannedWords: 'bannedWords',
+  voiceExamples: 'voiceExamples',
+  audienceType: 'audienceType',
+  demographics: 'demographics',
+  interests: 'interests',
+  painPoints: 'painPoints',
+  competitors: 'competitors',
+  goals: 'goals',
+  trainingStatus: 'trainingStatus',
+  lastTrainedAt: 'lastTrainedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BrandContextScalarFieldEnum = (typeof BrandContextScalarFieldEnum)[keyof typeof BrandContextScalarFieldEnum]
+
+
+export const BrandContextVersionScalarFieldEnum = {
+  id: 'id',
+  brandContextId: 'brandContextId',
+  snapshot: 'snapshot',
+  changeReason: 'changeReason',
+  platformSnapshot: 'platformSnapshot',
+  createdAt: 'createdAt'
+} as const
+
+export type BrandContextVersionScalarFieldEnum = (typeof BrandContextVersionScalarFieldEnum)[keyof typeof BrandContextVersionScalarFieldEnum]
+
+
+export const PlatformContextScalarFieldEnum = {
+  id: 'id',
+  brandContextId: 'brandContextId',
+  platform: 'platform',
+  platformTone: 'platformTone',
+  contentMix: 'contentMix',
+  postingCadence: 'postingCadence',
+  hashtagStrategy: 'hashtagStrategy',
+  visualStyle: 'visualStyle',
+  engagementStyle: 'engagementStyle',
+  platformRules: 'platformRules',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PlatformContextScalarFieldEnum = (typeof PlatformContextScalarFieldEnum)[keyof typeof PlatformContextScalarFieldEnum]
+
+
+export const AiCreditBalanceScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  balance: 'balance',
+  tier: 'tier',
+  totalSpent: 'totalSpent',
+  lastRefillAt: 'lastRefillAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AiCreditBalanceScalarFieldEnum = (typeof AiCreditBalanceScalarFieldEnum)[keyof typeof AiCreditBalanceScalarFieldEnum]
+
+
+export const BrandLearningSignalScalarFieldEnum = {
+  id: 'id',
+  brandContextId: 'brandContextId',
+  signalType: 'signalType',
+  fieldName: 'fieldName',
+  direction: 'direction',
+  magnitude: 'magnitude',
+  confidence: 'confidence',
+  sourcePostId: 'sourcePostId',
+  metadata: 'metadata',
+  applied: 'applied',
+  createdAt: 'createdAt'
+} as const
+
+export type BrandLearningSignalScalarFieldEnum = (typeof BrandLearningSignalScalarFieldEnum)[keyof typeof BrandLearningSignalScalarFieldEnum]
+
+
+export const BrandFieldStateScalarFieldEnum = {
+  id: 'id',
+  brandContextId: 'brandContextId',
+  fieldName: 'fieldName',
+  currentValue: 'currentValue',
+  confidence: 'confidence',
+  stability: 'stability',
+  signalCount: 'signalCount',
+  lastUpdated: 'lastUpdated'
+} as const
+
+export type BrandFieldStateScalarFieldEnum = (typeof BrandFieldStateScalarFieldEnum)[keyof typeof BrandFieldStateScalarFieldEnum]
+
+
+export const MediaAssetScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  originalName: 'originalName',
+  mimeType: 'mimeType',
+  fileSize: 'fileSize',
+  width: 'width',
+  height: 'height',
+  storagePath: 'storagePath',
+  publicUrl: 'publicUrl',
+  status: 'status',
+  variants: 'variants',
+  tags: 'tags',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MediaAssetScalarFieldEnum = (typeof MediaAssetScalarFieldEnum)[keyof typeof MediaAssetScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1891,6 +2545,13 @@ export type GlobalOmitConfig = {
   userOAuthApp?: Prisma.UserOAuthAppOmit
   redditSubredditConfig?: Prisma.RedditSubredditConfigOmit
   redditTrendingPost?: Prisma.RedditTrendingPostOmit
+  brandContext?: Prisma.BrandContextOmit
+  brandContextVersion?: Prisma.BrandContextVersionOmit
+  platformContext?: Prisma.PlatformContextOmit
+  aiCreditBalance?: Prisma.AiCreditBalanceOmit
+  brandLearningSignal?: Prisma.BrandLearningSignalOmit
+  brandFieldState?: Prisma.BrandFieldStateOmit
+  mediaAsset?: Prisma.MediaAssetOmit
 }
 
 /* Types for Logging */

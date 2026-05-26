@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Dark mode spark  lighter coral with dark cutout -->
+  <circle cx="16" cy="16" r="11" fill="#FF9580"/>
+  <path d="M18 8L12 18H16L14 26L22 14H18L20 8Z" fill="#1a1a1a" opacity="0.95"/>
+</svg>

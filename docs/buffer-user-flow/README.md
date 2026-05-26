@@ -2,7 +2,7 @@
 
 Comprehensive user flow documentation for Buffer's web application, captured through systematic UI analysis. This documentation serves as a reference for understanding Buffer's UX patterns, interaction models, and feature implementation details to inform the development of Social Beam.
 
-**Last Updated**: 2026-05-21
+**Last Updated**: 2026-05-26
 **Status**: Active
 **Account**: kanishkanamdeo@hotmail.com — "My Organization" (Dubai, UTC+4)
 
@@ -26,129 +26,75 @@ This documentation captures Buffer's end-to-end user flows to:
 docs/buffer-user-flow/
 ├── README.md                          # This file — master index and overview
 ├── shared/                            # Screenshots not specific to a single flow
-│   └── 01-community-page.png
+│   ├── 01-community-page.png
+│   ├── 02-community-engagement.png
+│   ├── 03-add-channel-dialog.png
+│   ├── 04-empty-state.png
+│   ├── 05-filter-dialog.png
+│   ├── 07-view-streak-popup.png
+│   ├── 08-mobile-schedule.png
+│   ├── 09-mobile-ideas.png
+│   ├── 10-mobile-insights.png
+│   ├── 11-approvals-upgrade-gate.png
+│   ├── 12-feedback-dialog.png
+│   ├── 13-sidebar-collapsed.png
+│   └── 14-sidebar-expanded.png
 ├── flow-01-auth-onboarding/           # Authentication & onboarding flows
 │   ├── flow.md
 │   └── screenshots/
 │       ├── 01-login-page.png
-│       ├── 02-email-entry.png
-│       ├── 03-authentication.png
-│       ├── 04-dashboard-redirect.png
-│       └── 05-welcome-checklist.png
+│       └── 03-welcome-checklist.png
 ├── flow-02-dashboard-home/            # Dashboard landing & home view
 │   ├── flow.md
 │   └── screenshots/
-│       ├── 01-dashboard-overview.png
-│       ├── 02-dashboard-content.png
-│       ├── 03-quick-action-create.png
-│       └── 04-sidebar-navigation.png
+│       ├── 01-community-tab.png
+│       └── 02-community-filters.png
 ├── flow-03-post-creation/             # Post compose, ideation & AI assistant
 │   ├── flow.md
 │   └── screenshots/
-│       ├── 01-compose-blank.png
-│       ├── 02-platform-select.png
-│       ├── 03-text-entry.png
-│       ├── 04-media-attach.png
-│       ├── 05-platform-variations.png
-│       ├── 06-draft-saved.png
-│       ├── 07-ai-panel-open.png
-│       ├── 08-ai-generating.png
-│       ├── 09-ai-inserted.png
-│       ├── 10-ideas-board.png
-│       ├── 11-new-idea.png
-│       └── 12-idea-to-post.png
+│       ├── 01-ideas-board.png
+│       ├── 02-ai-assistant.png
+│       ├── 03-compose-interface.png
+│       ├── 04-templates.png
+│       ├── 05-new-post-dialog.png
+│       ├── 07-media-upload.png
+│       ├── 08-feeds-tab.png
+│       └── 09-generate-ideas-dialog.png
 ├── flow-04-scheduling/                # Time slot selection & queue management
 │   ├── flow.md
 │   └── screenshots/
-│       ├── 01-schedule-trigger.png
-│       ├── 02-available-slots.png
-│       ├── 03-slot-selection.png
-│       ├── 04-schedule-confirm.png
-│       ├── 05-queue-view.png
-│       ├── 06-queue-loaded.png
-│       ├── 07-queue-reorder.png
-│       ├── 08-add-to-queue.png
-│       ├── 09-queue-edit.png
-│       ├── 10-recurring-setup.png
-│       ├── 11-recurring-pattern.png
-│       └── 12-recurring-confirm.png
+│       ├── 01-schedule-list-view.png
+│       ├── 01-schedule-queue.png
+│       ├── 02-queue-management.png
+│       └── 03-more-actions-menu.png
 ├── flow-05-analytics/                 # Analytics, insights & recommendations
 │   ├── flow.md
 │   └── screenshots/
-│       ├── 01-insights-overview.png
-│       ├── 02-metrics-summary.png
-│       ├── 03-date-filter.png
-│       ├── 04-platform-analytics.png
-│       ├── 05-post-analytics.png
-│       ├── 06-post-detail.png
-│       ├── 07-engagement-breakdown.png
-│       ├── 08-cross-platform.png
-│       ├── 09-audience-chart.png
-│       ├── 10-growth-trends.png
-│       ├── 11-content-types.png
-│       ├── 12-recommendations.png
-│       ├── 13-suggestions.png
-│       └── 14-apply-recommendation.png
+│       ├── 01-insights-dashboard.png
+│       ├── 02-post-performance.png
+│       ├── 03-insights-beta.png
+│       ├── 04-date-range-filter.png
+│       └── 05-metric-cards.png
 ├── flow-06-calendar/                  # Calendar view & queue management
 │   ├── flow.md
 │   └── screenshots/
-│       ├── 01-queue-view.png
-│       ├── 02-calendar-view.png
-│       ├── 03-date-detail.png
-│       ├── 04-drag-reschedule.png
-│       ├── 05-weekly-overview.png
-│       ├── 06-view-toggle.png
-│       ├── 07-period-nav.png
-│       ├── 08-today-button.png
-│       ├── 09-platform-filter.png
-│       ├── 10-queue-list.png
-│       ├── 11-queue-reorder.png
-│       ├── 12-move-to-drafts.png
-│       └── 13-duplicate-post.png
+│       ├── 01-calendar-queue-view.png
+│       ├── 02-drafts-view.png
+│       └── 03-calendar-view.png
 ├── flow-07-settings/                  # Account, channels & organization settings
 │   ├── flow.md
 │   └── screenshots/
-│       ├── 01-avatar-dropdown.png
-│       ├── 02-settings-page.png
-│       ├── 03-connected-accounts.png
-│       ├── 04-account-statuses.png
-│       ├── 05-reconnect-linkedin.png
-│       ├── 06-settings-saved.png
-│       ├── 07-add-channel.png
-│       ├── 08-platform-select.png
-│       ├── 09-oauth-flow.png
-│       ├── 10-channel-connected.png
-│       ├── 11-disconnect-confirm.png
-│       ├── 12-linkedin-error.png
-│       ├── 13-reconnect-trigger.png
-│       ├── 14-linkedin-oauth.png
-│       ├── 15-linkedin-restored.png
-│       ├── 16-profile-view.png
-│       ├── 17-profile-edit.png
-│       ├── 18-organization-view.png
-│       └── 19-organization-edit.png
+│       ├── 01-connected-channels.png
+│       ├── 02-organization-settings.png
+│       ├── 03-profile-settings.png
+│       ├── 04-channel-specific-settings.png
+│       ├── 05-settings-navigation.png
+│       ├── 06-channel-settings.png
+│       └── 07-organization-menu.png
 ├── flow-08-publishing/                # Publishing execution & sent history
 │   ├── flow.md
 │   └── screenshots/
-│       ├── 01-publish-trigger.png
-│       ├── 02-publish-execution.png
-│       ├── 03-published-status.png
-│       ├── 04-sent-tab.png
-│       ├── 05-view-on-platform.png
-│       ├── 06-queue-check.png
-│       ├── 07-token-check.png
-│       ├── 08-content-format.png
-│       ├── 09-api-response.png
-│       ├── 10-status-recorded.png
-│       ├── 11-publish-fail.png
-│       ├── 12-failed-status.png
-│       ├── 13-failure-notification.png
-│       ├── 14-retry-publish.png
-│       ├── 15-reconnect-redirect.png
-│       ├── 16-sent-list.png
-│       ├── 17-sent-filter.png
-│       ├── 18-sent-detail.png
-│       └── 19-sent-export.png
+│       └── 01-sent-posts.png
 ```
 
 ---
@@ -256,7 +202,19 @@ NN-descriptive-name.png
 
 Screenshots in the `shared/` directory are not specific to a single flow and may be referenced across multiple flows. The `shared/` directory contains:
 
-- `01-community-page.png` — Community page (not yet documented in a dedicated flow)
+- `01-community-page.png` — Community page
+- `02-community-engagement.png` — Community engagement view
+- `03-add-channel-dialog.png` — Add channel dialog
+- `04-empty-state.png` — Empty state placeholder
+- `05-filter-dialog.png` — Filter dialog
+- `07-view-streak-popup.png` — View streak popup
+- `08-mobile-schedule.png` — Mobile schedule view
+- `09-mobile-ideas.png` — Mobile ideas view
+- `10-mobile-insights.png` — Mobile insights view
+- `11-approvals-upgrade-gate.png` — Approvals upgrade gate
+- `12-feedback-dialog.png` — Feedback dialog
+- `13-sidebar-collapsed.png` — Collapsed sidebar
+- `14-sidebar-expanded.png` — Expanded sidebar
 
 ---
 
@@ -264,16 +222,16 @@ Screenshots in the `shared/` directory are not specific to a single flow and may
 
 | # | Flow | Priority | Screenshots | Key Topics |
 |---|------|----------|-------------|------------|
-| 1 | [Authentication & Onboarding](flow-01-auth-onboarding/flow.md) | P0 | 5 | Login, registration, OAuth, welcome checklist, empty/error/loading states |
-| 2 | [Dashboard & Home](flow-02-dashboard-home/flow.md) | P0 | 4 | Dashboard landing, activity summary, quick actions, sidebar navigation |
-| 3 | [Post Creation & Ideation](flow-03-post-creation/flow.md) | P0 | 12 | Compose interface, platform targeting, media attachment, AI assistant, ideas board |
-| 4 | [Scheduling & Publishing](flow-04-scheduling/flow.md) | P0 | 12 | Time slot selection, queue management, recurring posts, timezone handling |
-| 5 | [Analytics & Insights](flow-05-analytics/flow.md) | P1 | 14 | Performance metrics, post analytics, audience growth, AI recommendations |
-| 6 | [Calendar & Queue Management](flow-06-calendar/flow.md) | P0 | 13 | Calendar views, drag-and-drop, week/month/list views, queue operations |
-| 7 | [Settings & Account Management](flow-07-settings/flow.md) | P0 | 19 | Connected accounts, OAuth reconnection, profile, organization, error recovery |
-| 8 | [Publishing & Channel Management](flow-08-publishing/flow.md) | P0 | 19 | Publishing pipeline, status lifecycle, failed publishing, sent history |
+| 1 | [Authentication & Onboarding](flow-01-auth-onboarding/flow.md) | P0 | 2 | Login page, welcome checklist |
+| 2 | [Dashboard & Home](flow-02-dashboard-home/flow.md) | P0 | 2 | Community tab, community filters |
+| 3 | [Post Creation & Ideation](flow-03-post-creation/flow.md) | P0 | 8 | Ideas board, AI assistant, compose interface, templates, new post dialog, media upload, feeds tab, generate ideas dialog |
+| 4 | [Scheduling & Publishing](flow-04-scheduling/flow.md) | P0 | 4 | Schedule list view, queue view, queue management, more actions menu |
+| 5 | [Analytics & Insights](flow-05-analytics/flow.md) | P1 | 5 | Insights dashboard, post performance, insights beta, date range filter, metric cards |
+| 6 | [Calendar & Queue Management](flow-06-calendar/flow.md) | P0 | 3 | Calendar queue view, drafts view, calendar view |
+| 7 | [Settings & Account Management](flow-07-settings/flow.md) | P0 | 7 | Connected channels, organization settings, profile settings, channel-specific settings, settings navigation, channel settings, organization menu |
+| 8 | [Publishing & Channel Management](flow-08-publishing/flow.md) | P0 | 1 | Sent posts view |
 
-**Total**: 8 documented flows, 88 screenshots
+**Total**: 8 documented flows, 32 flow screenshots + 13 shared = 45 total
 
 ---
 
@@ -370,5 +328,14 @@ If account configuration changes (new channels connected, timezone change, etc.)
 
 - All timestamps and schedules in screenshots reflect Dubai timezone (UTC+4)
 - The LinkedIn connection error documented in Flow 7.1 and Flow 8.1 is a known OAuth token expiry issue
-- Flow 5 (Analytics) is marked P1 — it was not fully explored during the initial capture session (welcome checklist item "View analytics" was incomplete)
-- The Community section has a shared screenshot but no dedicated flow documentation yet
+- Flow 5 (Analytics) is marked P1 — partial capture (5 screenshots covering dashboard, post performance, metric cards, date range filter, and insights beta)
+- Many flows have fewer screenshots than originally planned — gaps exist where flows were scoped but not fully captured. Key gaps:
+  - **Flow 1**: Missing registration, email entry, dashboard redirect
+  - **Flow 2**: Missing dashboard overview, quick actions, sidebar navigation
+  - **Flow 3**: Missing platform variations, draft states, AI generating/inserted states, idea-to-post flow
+  - **Flow 4**: Missing schedule trigger, available slots, recurring post setup
+  - **Flow 6**: Missing drag-and-drop, view toggle, period navigation, queue reorder, platform filter
+  - **Flow 7**: Missing OAuth flow, disconnect/reconnect flows, LinkedIn error recovery, profile edit, organization edit
+  - **Flow 8**: Missing publish trigger, execution, failed/retry states, sent detail/export
+- The Community section has shared screenshots but no dedicated flow documentation yet
+- The `shared/` directory has 13 screenshots including mobile views and sidebar states

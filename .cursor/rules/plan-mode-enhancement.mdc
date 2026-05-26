@@ -60,6 +60,16 @@ Execute all applicable research in parallel:
 
 > **Research thoroughly regardless of perceived complexity**: Even seemingly minor changes may have implications worth understanding. Validate assumptions with documentation.
 
+### 4. Verify Referenced Files Exist
+
+When documentation, READMEs, or code comments reference files by name (screenshots, config files, assets, data files), verify they exist on disk with Glob or Shell before citing them as available data in your plan or analysis. Do not assume referenced files exist.
+
+```
+Documentation says "88 screenshots" → Glob "**/*.png" first
+Code references "config.json" → Glob "config.json" first
+README mentions "data.csv" → Shell "ls data.csv" first
+```
+
 ### 3. Synthesize Findings
 - Compare Context7 APIs with web best practices
 - Note breaking changes between versions

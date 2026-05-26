@@ -48,7 +48,7 @@ export function ProfileAnalysisCard({
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Brand Tone
               </p>
-              <Badge variant="default" className="text-xs normal-case tracking-normal">
+              <Badge variant="default" className="text-xs">
                 {tone}
               </Badge>
             </div>
@@ -60,7 +60,7 @@ export function ProfileAnalysisCard({
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {Object.entries(postTypes).map(([type, value]) => (
-                  <Badge key={type} variant="outline" className="text-xs normal-case tracking-normal">
+                  <Badge key={type} variant="outline" className="text-xs">
                     {type}: {typeof value === "number" ? `${value}%` : String(value)}
                   </Badge>
                 ))}

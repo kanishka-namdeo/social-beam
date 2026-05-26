@@ -1,7 +1,9 @@
 import { auth } from "@/lib/auth";
 import { isOnboardingComplete } from "@/lib/db/onboarding";
 import { redirect } from "next/navigation";
-import LandingPage from "@/components/landing";
+import { LandingNav } from "@/components/landing/landing-nav";
+import { LandingFooterCta } from "@/components/landing/landing-footer-cta";
+import LandingContent from "@/components/landing";
 
 export default async function Home() {
   const session = await auth();
@@ -12,5 +14,13 @@ export default async function Home() {
     }
     redirect("/onboarding");
   }
-  return <LandingPage />;
+  return (
+    <div className="min-h-screen bg-background">
+      <LandingNav />
+      <main>
+        <LandingContent />
+      </main>
+      <LandingFooterCta />
+    </div>
+  );
 }

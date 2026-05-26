@@ -10,7 +10,7 @@ import {
   LinkedinLogo,
   TiktokLogo,
   PinterestLogo,
-} from "@phosphor-icons/react";
+} from "@phosphor-icons/react/ssr";
 import { cn } from "@/lib/utils";
 
 const platformIcons: Record<string, React.ReactNode> = {

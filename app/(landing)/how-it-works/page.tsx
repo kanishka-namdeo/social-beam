@@ -63,7 +63,7 @@ export default function HowItWorksPage() {
       }}
     >
       <div className="max-w-4xl mx-auto space-y-8">
-        {steps.map((step, index) => {
+        {steps.map((step) => {
           const Icon = step.icon;
           return (
             <Card key={step.number} className="border-border">

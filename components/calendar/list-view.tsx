@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Image, MagnifyingGlass, CalendarDots, ArrowsDownUp, CheckCircle, WarningCircle, Spinner } from "@phosphor-icons/react";
+import { Image, MagnifyingGlass, CalendarDots, ArrowsDownUp, CheckCircle, WarningCircle, Spinner } from "@phosphor-icons/react/ssr";
 import type { PostItem } from "./types";
 
 interface ListViewProps {
@@ -31,27 +31,27 @@ type SortDir = "asc" | "desc";
 const statusConfig: Record<string, { label: string; className: string; icon: React.ReactNode }> = {
   DRAFT: {
     label: "Draft",
-    className: "bg-post-draft/15 text-post-draft",
+    className: "bg-post-draft/10 text-post-draft border-post-draft/20",
     icon: <CalendarDots weight="bold" className="size-3" />,
   },
   SCHEDULED: {
     label: "Scheduled",
-    className: "bg-post-queued/15 text-post-queued",
+    className: "bg-post-queued/10 text-post-queued border-post-queued/20",
     icon: <CalendarDots weight="bold" className="size-3" />,
   },
   PUBLISHING: {
     label: "Publishing",
-    className: "bg-post-publishing/15 text-post-publishing",
+    className: "bg-post-publishing/10 text-post-publishing border-post-publishing/20",
     icon: <Spinner weight="bold" className="size-3 animate-spin" />,
   },
   PUBLISHED: {
     label: "Published",
-    className: "bg-post-published/15 text-post-published",
+    className: "bg-post-published/10 text-post-published border-post-published/20",
     icon: <CheckCircle weight="bold" className="size-3" />,
   },
   FAILED: {
     label: "Failed",
-    className: "bg-post-failed/15 text-post-failed",
+    className: "bg-post-failed/10 text-post-failed border-post-failed/20",
     icon: <WarningCircle weight="bold" className="size-3" />,
   },
 };
@@ -182,7 +182,7 @@ export function ListView({
       </div>
 
       {/* Table */}
-      <div className="border border-border rounded-lg overflow-hidden">
+      <div className="rounded-lg border border-border overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -225,7 +225,7 @@ export function ListView({
                   <TableRow key={post.id} className="cursor-pointer" onClick={() => onPreview(post.id)}>
                     <TableCell>
                       {post.media && post.media.length > 0 && (
-                        <Image className="size-4 text-muted-foreground" weight="fill" />
+                        <Image className="size-4 text-muted-foreground" weight="fill" alt="" />
                       )}
                     </TableCell>
                     <TableCell>

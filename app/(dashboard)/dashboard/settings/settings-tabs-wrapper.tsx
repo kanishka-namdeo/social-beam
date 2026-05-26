@@ -43,34 +43,34 @@ export function SettingsTabsWrapper({ initialTab, connectedAccounts, oauthStatus
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
-        <p className="text-muted-foreground mt-1">
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Settings</h1>
+        <p className="text-sm text-muted-foreground">
           Manage your account, connected platforms, and preferences.
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList variant="line">
-          <TabsTrigger value="accounts">Accounts</TabsTrigger>
-          <TabsTrigger value="developer">Developer Apps</TabsTrigger>
-          <TabsTrigger value="brand">Brand Voice</TabsTrigger>
-          <TabsTrigger value="ai">AI Settings</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="h-10">
+          <TabsTrigger value="accounts" className="data-[state=active]:text-brand data-[state=active]:border-brand border-b-2 border-transparent">Accounts</TabsTrigger>
+          <TabsTrigger value="developer" className="data-[state=active]:text-brand data-[state=active]:border-brand border-b-2 border-transparent">Developer Apps</TabsTrigger>
+          <TabsTrigger value="brand" className="data-[state=active]:text-brand data-[state=active]:border-brand border-b-2 border-transparent">Brand Voice</TabsTrigger>
+          <TabsTrigger value="ai" className="data-[state=active]:text-brand data-[state=active]:border-brand border-b-2 border-transparent">AI Settings</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="accounts" className="mt-6">
+        <TabsContent value="accounts">
           <AccountsTab connectedAccounts={connectedAccounts} oauthStatus={oauthStatus} />
         </TabsContent>
 
-        <TabsContent value="developer" className="mt-6">
+        <TabsContent value="developer">
           <DeveloperAppsTab initialApps={developerApps} />
         </TabsContent>
 
-        <TabsContent value="brand" className="mt-6">
+        <TabsContent value="brand">
           <BrandVoiceTab />
         </TabsContent>
 
-        <TabsContent value="ai" className="mt-6">
+        <TabsContent value="ai">
           <AiSettingsTab />
         </TabsContent>
       </Tabs>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Solid circle with beam cutout (negative space dual-read) -->
+  <circle cx="16" cy="16" r="11" fill="#FF7759"/>
+  <!-- Beam/lightning bolt cutout using the background color -->
+  <path d="M18 8L12 18H16L14 26L22 14H18L20 8Z" fill="white" opacity="0.95"/>
+</svg>
