@@ -13,6 +13,7 @@ const composeSchema = z.object({
     .array(z.enum(PLATFORMS))
     .min(1, "At least one platform is required"),
   scheduledAt: z.string().datetime().optional(),
+  action: z.enum(["draft", "publish", "schedule"]).optional(),
 });
 
 export async function POST(req: Request) {
@@ -57,7 +58,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { title, content, platforms, scheduledAt } = parsed.data;
+    const { title, content, platforms, scheduledAt, action } = parsed.data;
 
     // Validate all requested platforms are connected
     const unconnected = platforms.filter((p) => !connectedPlatformSet.has(p));
@@ -71,7 +72,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const status = scheduledAt != null ? "SCHEDULED" : "DRAFT";
+    const status = action === "publish" ? "SCHEDULED" : action === "schedule" ? "SCHEDULED" : "DRAFT";
 
     const post = await prisma.post.create({
       data: {

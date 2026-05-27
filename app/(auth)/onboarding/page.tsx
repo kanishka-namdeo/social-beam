@@ -7,11 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 import {
   Robot, User, PaperPlaneTilt, CheckCircle, Circle, Spinner,
   ShareNetwork, PencilSimple, Calendar, Bug, CaretDown, CaretRight,
-  Warning, Coins, Sparkle, SignOut,
+  Warning, Coins, Sparkle, SignOut, WarningCircle,
 } from '@phosphor-icons/react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { renderOpenUIComponent, type OpenUICallbacks } from '@/lib/openui/library';
 
 interface Message {
@@ -523,6 +525,19 @@ export default function OnboardingPage() {
         `width=${width},height=${height},left=${left},top=${top}`
       );
 
+      if (!popup) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content: `Popup was blocked by your browser. Please allow popups for SocialBeam and try again, or open this link manually: ${authUrl}`,
+            timestamp: new Date(),
+          },
+        ]);
+        return;
+      }
+
       const poll = setInterval(() => {
         if (popup?.closed) {
           clearInterval(poll);
@@ -636,7 +651,7 @@ export default function OnboardingPage() {
 
         <div className="mx-auto mt-8 grid w-full max-w-2xl gap-4 md:grid-cols-3">
           <Card
-            className="cursor-pointer transition-colors hover:border-primary"
+            className="cursor-pointer transition-all hover:border-primary hover-lift"
             onClick={() => handleGoal('plan')}
             role="button"
             tabIndex={0}
@@ -652,7 +667,7 @@ export default function OnboardingPage() {
           </Card>
 
           <Card
-            className="cursor-pointer transition-colors hover:border-primary"
+            className="cursor-pointer transition-all hover:border-primary hover-lift"
             onClick={() => handleGoal('write')}
             role="button"
             tabIndex={0}
@@ -668,7 +683,7 @@ export default function OnboardingPage() {
           </Card>
 
           <Card
-            className="cursor-pointer transition-colors hover:border-primary"
+            className="cursor-pointer transition-all hover:border-primary hover-lift"
             onClick={() => handleGoal('connect')}
             role="button"
             tabIndex={0}
@@ -692,22 +707,22 @@ export default function OnboardingPage() {
       <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12">
         <Card className="w-full max-w-md border">
           <CardHeader className="text-center">
-            <CheckCircle className="mx-auto size-12 text-green-600 dark:text-green-400" weight="duotone" />
+            <CheckCircle className="mx-auto size-12 text-success" weight="duotone" />
             <CardTitle className="mt-3 text-xl">Setup complete!</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-center text-sm text-muted-foreground">Your workspace is ready. Here&apos;s what&apos;s set up:</p>
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
-                <CheckCircle className="size-4 text-green-600 dark:text-green-400" weight="fill" />
+                <CheckCircle className="size-4 text-success" weight="fill" />
                 <span>Workspace created</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="size-4 text-green-600 dark:text-green-400" weight="fill" />
+                <CheckCircle className="size-4 text-success" weight="fill" />
                 <span>Goals configured</span>
               </div>
               <div className="flex items-center gap-2">
-                <Sparkle className="size-4 text-purple-500" weight="fill" />
+                <Sparkle className="size-4 text-brand" weight="fill" />
                 <span>AI assistant ready</span>
               </div>
             </div>
@@ -735,48 +750,50 @@ export default function OnboardingPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Progress tracker */}
-      <div className="border-b bg-card px-4 py-3">
+      <div className="border-b border-t-2 border-t-brand/50 bg-card px-4 py-3">
         <div className="mx-auto max-w-2xl">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-1 overflow-x-auto">
             {ONBOARDING_STEPS.map((step, idx) => {
               const isComplete = idx < stepIndex;
               const isCurrent = idx === stepIndex;
               return (
-                <div key={step.id} className="flex flex-1 items-center">
-                  <div className="flex flex-col items-center gap-1">
+                <div key={step.id} className="flex flex-1 min-w-0 items-center">
+                  <div className="flex flex-col items-center gap-0.5 sm:gap-1">
                     <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-colors ${
+                      className={cn(
+                        'flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-sm border-2 transition-colors',
                         isComplete
-                          ? 'border-green-600 bg-green-600 text-white dark:border-green-400 dark:bg-green-400'
+                          ? 'border-success bg-success text-white'
                           : isCurrent
                             ? 'border-primary bg-primary text-primary-foreground'
-                            : 'border-border text-muted-foreground'
-                      }`}
+                            : 'border-border text-muted-foreground',
+                      )}
                     >
                       {isComplete ? (
-                        <CheckCircle className="size-5" weight="fill" />
+                        <CheckCircle className="size-4 sm:size-5" weight="fill" />
                       ) : isCurrent ? (
-                        <Circle className="size-5 animate-pulse" weight="fill" />
+                        <Circle className="size-4 sm:size-5 animate-pulse" weight="fill" />
                       ) : (
-                        <Circle className="size-5" weight="light" />
+                        <Circle className="size-4 sm:size-5" weight="light" />
                       )}
                     </div>
                     <span
-                      className={`hidden text-xs font-medium md:block ${
+                      className={cn(
+                        'hidden text-xs font-medium md:block',
                         isComplete
-                          ? 'text-green-600 dark:text-green-400'
+                          ? 'text-success'
                           : isCurrent
                             ? 'text-primary'
-                            : 'text-muted-foreground'
-                      }`}
+                            : 'text-muted-foreground',
+                      )}
                     >
                       {step.label}
                     </span>
                   </div>
                   {idx < ONBOARDING_STEPS.length - 1 && (
                     <div
-                      className={`h-0.5 flex-1 ${
-                        idx < stepIndex ? 'bg-green-600 dark:bg-green-400' : 'bg-border'
+                      className={`h-0.5 sm:h-1 flex-1 ${
+                        idx < stepIndex ? 'bg-success' : 'bg-border'
                       }`}
                     />
                   )}
@@ -792,15 +809,21 @@ export default function OnboardingPage() {
         <div className="mx-auto max-w-2xl space-y-4">
           {/* OAuth status */}
           {oauthStatus && (
-            <div className={`rounded-lg border p-3 text-sm ${
-              oauthStatus.success
-                ? 'border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-200'
-                : 'border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200'
-            }`}>
-              {oauthStatus.success
-                ? `Successfully connected ${oauthStatus.platform}!`
-                : `Failed to connect ${oauthStatus.platform}. Please try again.`}
-            </div>
+            oauthStatus.success ? (
+              <Alert className="border-success/30 bg-success/5">
+                <CheckCircle className="size-4" weight="bold" />
+                <AlertDescription className="text-success">
+                  Successfully connected {oauthStatus.platform}!
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <Alert variant="destructive">
+                <WarningCircle className="size-4" weight="bold" />
+                <AlertDescription>
+                  Failed to connect {oauthStatus.platform}. Please try again.
+                </AlertDescription>
+              </Alert>
+            )
           )}
 
           {/* TikTok audit banner */}
@@ -816,21 +839,23 @@ export default function OnboardingPage() {
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex gap-3 ${
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
+              className={cn(
+                'flex gap-3',
+                message.role === 'user' ? 'justify-end' : 'justify-start',
+              )}
             >
               {message.role === 'assistant' && (
                 <div className="flex min-h-10 min-w-10 items-center justify-center rounded-full bg-ai-surface">
-                  <Robot className={`size-5 ${isStreaming && !message.completed ? 'animate-pulse text-primary' : 'text-primary'}`} weight="duotone" />
+                  <Robot className={cn('size-5', isStreaming && !message.completed ? 'animate-pulse text-primary' : 'text-primary')} weight="duotone" />
                 </div>
               )}
               <div
-                className={`max-w-[80%] rounded-lg px-4 py-3 ${
+                className={cn(
+                  'max-w-[80%] rounded-md px-4 py-3',
                   message.role === 'user'
                     ? 'bg-primary text-primary-foreground'
-                    : 'bg-ai-surface text-ai-surface-foreground'
-                }`}
+                    : 'bg-ai-surface text-ai-surface-foreground',
+                )}
               >
                 <div className="whitespace-pre-wrap text-sm">
                   {message.content || (
@@ -853,7 +878,7 @@ export default function OnboardingPage() {
                 )}
 
                 {message.completed && (
-                  <div className="mt-2 flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                  <div className="mt-2 flex items-center gap-1 text-xs text-success">
                     <CheckCircle className="h-3 w-3" weight="fill" />
                     Complete
                   </div>
@@ -872,14 +897,14 @@ export default function OnboardingPage() {
       </div>
 
       {/* Input area */}
-      <div className="sticky bottom-0 border-t bg-background px-4 py-4">
-        <div className="mx-auto flex max-w-2xl gap-2">
+      <div className="sticky bottom-0 border-t bg-background px-4 py-3">
+        <div className="mx-auto flex max-w-2xl flex-col gap-3 sm:flex-row sm:items-center">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               handleSend();
             }}
-            className="flex gap-2 flex-1"
+            className="flex flex-1 gap-2"
           >
             <Input
               value={input}
@@ -887,6 +912,7 @@ export default function OnboardingPage() {
               placeholder={isInterrupted ? 'Reply to continue...' : 'Type your message...'}
               className="flex-1"
               disabled={isStreaming}
+              aria-label="Message input"
             />
             {isStreaming ? (
               <Button type="button" variant="destructive" onClick={handleStop}>
@@ -894,20 +920,25 @@ export default function OnboardingPage() {
                 Stop
               </Button>
             ) : (
-              <Button type="submit" disabled={!input.trim()}>
+              <Button type="submit" disabled={!input.trim()} aria-label="Send message">
                 <PaperPlaneTilt className="h-4 w-4" weight="bold" />
               </Button>
             )}
           </form>
-          <Button variant="ghost" size="sm" onClick={async () => {
-            try {
-              await fetch('/api/onboarding/skip', { method: 'POST' });
-              markOnboardingComplete();
-              router.push('/dashboard');
-            } catch {
-              router.push('/dashboard');
-            }
-          }} className="text-muted-foreground">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={async () => {
+              try {
+                await fetch('/api/onboarding/skip', { method: 'POST' });
+                markOnboardingComplete();
+                router.push('/dashboard');
+              } catch {
+                router.push('/dashboard');
+              }
+            }}
+            className="text-muted-foreground min-h-10"
+          >
             <SignOut className="mr-1 size-4" />
             Skip to Dashboard
           </Button>
@@ -927,7 +958,7 @@ export default function OnboardingPage() {
               {debugExpanded ? <CaretDown className="size-4" /> : <CaretRight className="size-4" />}
             </button>
             {debugExpanded && (
-              <div className="mt-2 space-y-1 rounded-md border bg-muted/50 p-3 font-mono text-xs">
+              <div className="mt-2 space-y-1 rounded-sm border bg-muted/50 p-3 font-mono text-xs">
                 <div className="flex gap-2">
                   <span className="text-muted-foreground">Step:</span>
                   <span>{currentStep}</span>

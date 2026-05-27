@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CalendarDots, ArrowRight } from "@phosphor-icons/react";
+import { CalendarDots, ArrowRight } from "@phosphor-icons/react/ssr";
 import { cn } from "@/lib/utils";
 
 interface ScheduledPost {
@@ -84,7 +84,7 @@ export function CalendarPreview({ posts }: CalendarPreviewProps) {
                     href={`/dashboard/compose?postId=${post.id}`}
                     className="group"
                   >
-                    <div className="rounded px-1.5 py-0.5 text-[0.625rem] font-medium truncate bg-brand/10 text-brand group-hover:bg-brand/20 transition-colors">
+                    <div className="rounded-md px-1.5 py-0.5 text-[0.625rem] font-medium truncate bg-brand/10 text-brand group-hover:bg-brand/20 transition-colors">
                       {post.title ?? "Untitled"}
                     </div>
                     <div className="flex gap-0.5 mt-0.5">

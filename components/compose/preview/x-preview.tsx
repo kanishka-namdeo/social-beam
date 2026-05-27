@@ -19,7 +19,7 @@ export function XPreview({ content, account }: XPreviewProps) {
 
   return (
     <div
-      className="w-full max-w-[550px] rounded-xl border border-border bg-card"
+      className="w-full max-w-[550px] rounded-lg border border-border bg-card"
       role="img"
       aria-label="X/Twitter post preview"
     >
@@ -27,16 +27,16 @@ export function XPreview({ content, account }: XPreviewProps) {
       <div className="flex items-start gap-3 p-4">
         <Avatar className="h-10 w-10">
           <AvatarImage src={avatarSrc} alt={displayName} />
-          <AvatarFallback className="bg-blue-500 text-sm font-semibold text-white">
-            {avatarFallback}
-          </AvatarFallback>
+        <AvatarFallback className="bg-preview-x text-sm font-semibold text-white">
+          {avatarFallback}
+        </AvatarFallback>
         </Avatar>
         <div className="flex-1">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm font-bold text-foreground">{displayName}</span>
+            <span className="text-sm font-semibold text-foreground">{displayName}</span>
             {account && (
               <svg
-                className="h-4 w-4 text-blue-500"
+                className="h-4 w-4 text-preview-x"
                 viewBox="0 0 24 24"
                 fill="currentColor"
               >
@@ -73,7 +73,8 @@ export function XPreview({ content, account }: XPreviewProps) {
         <div className="flex items-center justify-between">
           <button
             type="button"
-            className="flex items-center gap-1.5 text-muted-foreground hover:text-blue-500 transition-colors"
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-preview-x transition-colors"
+            aria-label="Reply"
           >
             <svg
               className="h-4 w-4"

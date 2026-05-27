@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Overlapping S and B shapes as friendly blobs -->
+  <!-- S blob -->
+  <circle cx="12" cy="12" r="7" fill="#FF7759" opacity="0.6"/>
+  <!-- B blob -->
+  <circle cx="20" cy="20" r="7" fill="#FF7759" opacity="0.4"/>
+  <!-- S curve path -->
+  <path d="M16 9C16 6.5 13.5 5.5 11.5 7C9.5 8.5 9.5 11.5 11.5 13C13.5 14.5 16.5 14.5 16.5 17C16.5 19.5 14 20.5 12 19" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <!-- B shape -->
+  <path d="M17 14V26C17 26 23 26 23 23C23 21 21 20 21 20C23 20 24 18 24 16C24 13 22 14 17 14Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

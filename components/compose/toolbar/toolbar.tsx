@@ -115,7 +115,7 @@ export function Toolbar({ editor }: ToolbarProps) {
 
   const buttonClass = (active: boolean = false) =>
     cn(
-      "h-8 w-8 p-0 rounded-md transition-colors",
+      "h-9 w-9 p-0 rounded-md transition-colors",
       active
         ? "text-foreground bg-muted"
         : "text-muted-foreground hover:text-foreground hover:bg-muted",

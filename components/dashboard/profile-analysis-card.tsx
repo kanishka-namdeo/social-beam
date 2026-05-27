@@ -45,22 +45,22 @@ export function ProfileAnalysisCard({
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {tone && (
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                 Brand Tone
               </p>
-              <Badge variant="default" className="text-xs normal-case tracking-normal">
+              <Badge variant="default" className="text-xs">
                 {tone}
               </Badge>
             </div>
           )}
           {postTypes && (
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                 Content Mix
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {Object.entries(postTypes).map(([type, value]) => (
-                  <Badge key={type} variant="outline" className="text-xs normal-case tracking-normal">
+                  <Badge key={type} variant="outline" className="text-xs">
                     {type}: {typeof value === "number" ? `${value}%` : String(value)}
                   </Badge>
                 ))}
@@ -69,7 +69,7 @@ export function ProfileAnalysisCard({
           )}
           {audience && (
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                 Audience
               </p>
               <p className="text-sm text-foreground">
@@ -81,7 +81,7 @@ export function ProfileAnalysisCard({
           )}
           {bio != null && bio.industry != null && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
             Industry
           </p>
           <p className="text-sm text-foreground">

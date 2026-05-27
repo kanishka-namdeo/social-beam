@@ -13,7 +13,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { TrendUp, TrendDown } from "@phosphor-icons/react";
+import { TrendUp, TrendDown } from "@phosphor-icons/react/ssr";
 import { cn } from "@/lib/utils";
 
 interface AudienceGrowthProps {

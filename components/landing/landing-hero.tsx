@@ -31,8 +31,8 @@ export function LandingHero() {
 
           <div className="relative">
             <div className="bg-gradient-to-br from-brand-soft to-ai-surface border border-border p-6 md:p-8">
-              <div className="bg-card border border-border p-4 space-y-4">
-                <div className="flex items-center gap-3">
+              <div className="bg-card border border-border p-4 space-y-4 rounded-md">
+                <div className="flex items-center gap-3" aria-hidden="true">
                   <div className="w-3 h-3 rounded-full bg-post-published" />
                   <div className="w-3 h-3 rounded-full bg-post-queued" />
                   <div className="w-3 h-3 rounded-full bg-post-draft" />

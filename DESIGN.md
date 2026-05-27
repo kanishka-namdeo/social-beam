@@ -1,7 +1,7 @@
 # SocialBeam — Design System
 
-> Version 1.0.0
-> Date: 2026-05-18
+> Version 1.1.0
+> Date: 2026-05-26
 > Status: Living document
 > Purpose: Canonical design intent for SocialBeam's Next.js 16 web application. All UI work must follow these blueprints.
 
@@ -75,12 +75,15 @@ Only 27% trust fully autonomous AI agents. All autonomous features default to of
 
 **Route**: `app/(dashboard)/calendar/page.tsx`
 
-**Layout**: Full-width container. Calendar views benefit from maximum screen real estate to display more days, events, and platform indicators simultaneously.
+**Layout**: Responsive split-panel layout. Desktop (1024px+) uses a resizable split panel: calendar grid on the left (65%), insights sidebar on the right (35%) with a draggable divider. Mobile/tablet (<1024px) uses a single full-width calendar panel with an insights toggle button in the toolbar that opens a slide-over Sheet. Calendar views benefit from maximum screen real estate to display more days, events, and platform indicators simultaneously.
 
-- Calendar view (month/week/day) with scheduled posts
+- Calendar view (month/week/day/list) with scheduled posts
+- Resizable split panel on desktop — users can adjust the calendar/insights ratio
+- Insights toggle via Sheet on mobile/tablet — preserves full calendar width on small screens
+- Insights sidebar: AI tip banner, content gap analysis (month view), posting frequency (month view), quick stats (week/day views)
 - AI-suggested time slots per platform with one-click accept or manual override
 - Content gap analysis: "You have 3 open slots this week — want me to fill them?"
-- Drag-and-drop rescheduling
+- Drag-and-drop rescheduling with keyboard support
 - AI Weekly Content Plan (Flow 4.7) with Intent Preview (10.77) and Autonomy Dial (10.78)
 
 ### 2.5 Analytics & Reporting

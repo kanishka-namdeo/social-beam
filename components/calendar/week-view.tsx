@@ -9,7 +9,7 @@ interface WeekViewProps {
   currentDate: Date;
   posts: PostItem[];
   onPreview?: (postId: string) => void;
-  onDelete?: (postId: string) => Promise<void>;
+  onDelete?: (postId: string) => void;
   onDuplicate?: (postId: string) => Promise<void>;
 }
 
@@ -26,7 +26,7 @@ export function WeekView({ currentDate, posts, onPreview, onDelete, onDuplicate 
   const today = new Date();
 
   return (
-    <div className="border border-border rounded-lg overflow-hidden">
+    <div className="rounded-md border border-border overflow-hidden">
       {/* Header row */}
       <div className="grid grid-cols-8 border-b border-border bg-muted/30">
         <div className="p-2 border-r border-border w-16" />
@@ -39,6 +39,7 @@ export function WeekView({ currentDate, posts, onPreview, onDelete, onDuplicate 
               className={cn(
                 "p-2 text-center border-r border-border last:border-r-0",
                 isToday && "bg-brand/10",
+                day.getDay() === 0 || day.getDay() === 6 ? "bg-muted/20" : "",
               )}
             >
               <div className="text-[0.625rem] font-semibold uppercase text-muted-foreground">
@@ -48,7 +49,7 @@ export function WeekView({ currentDate, posts, onPreview, onDelete, onDuplicate 
                 className={cn(
                   "text-lg font-semibold",
                   isToday
-                    ? "flex size-8 items-center justify-center rounded-full bg-brand text-brand-foreground mt-1 mx-auto"
+                    ? "flex size-8 items-center justify-center rounded-full bg-brand text-primary-foreground mt-1 mx-auto"
                     : "text-foreground mt-1",
                 )}
               >

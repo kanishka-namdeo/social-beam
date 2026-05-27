@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
-import { Sparkle, PencilSimple } from "@phosphor-icons/react";
+import { Sparkle, PencilSimple } from "@phosphor-icons/react/ssr";
 import { platformIcon } from "@/lib/oauth/platform-icons";
 import { StartingVerbs } from "./starting-verbs";
 
@@ -56,7 +56,7 @@ export function WorkedExampleEmptyState() {
 
       {/* Quick-Start Guide */}
       <div className="rounded-lg border bg-card p-4">
-        <h3 className="text-base font-semibold mb-3">Get started in 3 steps</h3>
+        <h3 className="text-base font-semibold text-foreground mb-3">Get started in 3 steps</h3>
         <div className="space-y-3">
           <div className="flex items-start gap-3">
             <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-semibold shrink-0">1</div>
@@ -84,7 +84,7 @@ export function WorkedExampleEmptyState() {
           <Button variant="default" size="sm" onClick={() => router.push('/onboarding')}>
             Complete Onboarding
           </Button>
-          <Button variant="outline" size="sm" onClick={() => router.push('/dashboard/settings?tab=accounts')}>
+          <Button variant="outline" size="sm" onClick={() => router.push('/settings?tab=accounts')}>
             Connect Accounts
           </Button>
         </div>
@@ -105,7 +105,7 @@ export function WorkedExampleEmptyState() {
           {samplePosts.map((post, index) => (
             <div
               key={index}
-              className="group rounded-lg border border-border p-3 hover:bg-muted/50 transition-colors cursor-pointer"
+              className="group rounded-lg border border-border p-3 hover:bg-muted/50 transition-colors"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-2.5 flex-1">
@@ -126,7 +126,12 @@ export function WorkedExampleEmptyState() {
                     </div>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                  onClick={() => router.push(`/compose?prompt=${encodeURIComponent(post.content)}`)}
+                >
                   <PencilSimple className="size-4 mr-1" weight="bold" />
                   Edit
                 </Button>

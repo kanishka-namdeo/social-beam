@@ -10,7 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Image, Play, CalendarDots, Copy, Trash } from "@phosphor-icons/react";
+import { Image, Play, CalendarDots, Copy, Trash } from "@phosphor-icons/react/ssr";
 import { cn } from "@/lib/utils";
 import type { PostItem, MediaItem } from "./types";
 
@@ -19,16 +19,16 @@ interface PostPreviewDialogProps {
   post: PostItem | null;
   onClose: () => void;
   onEdit: (postId: string) => void;
-  onDelete: (postId: string) => Promise<void>;
+  onDelete: (postId: string) => void;
   onDuplicate: (postId: string) => Promise<void>;
 }
 
 const statusConfig: Record<string, { label: string; className: string }> = {
-  DRAFT: { label: "Draft", className: "bg-post-draft/15 text-post-draft" },
-  SCHEDULED: { label: "Scheduled", className: "bg-post-queued/15 text-post-queued" },
-  PUBLISHING: { label: "Publishing", className: "bg-post-publishing/15 text-post-publishing" },
-  PUBLISHED: { label: "Published", className: "bg-post-published/15 text-post-published" },
-  FAILED: { label: "Failed", className: "bg-post-failed/15 text-post-failed" },
+  DRAFT: { label: "Draft", className: "bg-post-draft/10 text-post-draft border-post-draft/20" },
+  SCHEDULED: { label: "Scheduled", className: "bg-post-queued/10 text-post-queued border-post-queued/20" },
+  PUBLISHING: { label: "Publishing", className: "bg-post-publishing/10 text-post-publishing border-post-publishing/20" },
+  PUBLISHED: { label: "Published", className: "bg-post-published/10 text-post-published border-post-published/20" },
+  FAILED: { label: "Failed", className: "bg-post-failed/10 text-post-failed border-post-failed/20" },
 };
 
 const platformColors: Record<string, string> = {
@@ -53,8 +53,8 @@ export function PostPreviewDialog({
   const cfg = statusConfig[post.status] ?? statusConfig.DRAFT;
   const mediaItems: MediaItem[] = post.media ?? [];
 
-  const handleDelete = async () => {
-    await onDelete(post.id);
+  const handleDelete = () => {
+    onDelete(post.id);
     onClose();
   };
 
@@ -91,11 +91,11 @@ export function PostPreviewDialog({
         <Separator />
 
         {/* Target platforms */}
-        <div className="space-y-2">
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-            Target Platforms
-          </span>
-          <div className="flex flex-wrap gap-2">
+      <div className="space-y-3">
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          Target Platforms
+        </span>
+        <div className="flex flex-wrap gap-2">
           {post.platforms.map((p) => (
             <span
               key={p.platform}
@@ -165,7 +165,7 @@ export function PostPreviewDialog({
                       className="text-[0.5rem] normal-case px-1 py-0 gap-1"
                     >
                       {media.type === "image" ? (
-                        <Image className="size-3" />
+                        <Image className="size-3" alt="" />
                       ) : (
                         <Play className="size-3" />
                       )}

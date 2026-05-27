@@ -16,7 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { CalendarDots, WarningCircle, CheckCircle, Spinner } from "@phosphor-icons/react";
+import { CalendarDots, WarningCircle, CheckCircle, Spinner } from "@phosphor-icons/react/ssr";
 import { cn } from "@/lib/utils";
 
 interface PostPlatform {

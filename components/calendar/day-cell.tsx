@@ -1,7 +1,7 @@
 "use client";
 
 import { useDroppable } from "@dnd-kit/core";
-import { CalendarPlus } from "@phosphor-icons/react";
+import { CalendarPlus } from "@phosphor-icons/react/ssr";
 import { cn } from "@/lib/utils";
 import {
   SortableContext,
@@ -15,14 +15,15 @@ interface DayCellProps {
   date: Date;
   isCurrentMonth: boolean;
   isToday: boolean;
+  isWeekend?: boolean;
   posts: PostItem[];
   onDateClick?: (date: Date) => void;
   onPreview?: (postId: string) => void;
-  onDelete?: (postId: string) => Promise<void>;
+  onDelete?: (postId: string) => void;
   onDuplicate?: (postId: string) => Promise<void>;
 }
 
-export function DayCell({ date, isCurrentMonth, isToday, posts, onDateClick, onPreview, onDelete, onDuplicate }: DayCellProps) {
+export function DayCell({ date, isCurrentMonth, isToday, isWeekend = false, posts, onDateClick, onPreview, onDelete, onDuplicate }: DayCellProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: `day-${date.toISOString()}`,
     data: {
@@ -39,13 +40,15 @@ export function DayCell({ date, isCurrentMonth, isToday, posts, onDateClick, onP
     <div
       ref={setNodeRef}
       className={cn(
-        "relative flex min-h-[100px] flex-col rounded-lg border p-1.5 transition-colors",
+        "relative flex min-h-[100px] flex-col rounded-md border p-1.5 transition-colors duration-150",
         isCurrentMonth
           ? "border-border bg-card"
           : "border-dashed border-border/50 bg-muted/10",
-        isToday && "bg-brand/5 border-brand/30",
-        isOver && "bg-brand/10 border-brand ring-2 ring-brand/30",
-        showGapIndicator && "hover:bg-muted/30 cursor-pointer",
+        isToday && "bg-brand/10 border-brand/40",
+        isWeekend && !isToday && "bg-muted/20",
+        isOver && "border-brand border-2 border-dashed bg-brand/10",
+        !isOver && isCurrentMonth && "hover:bg-muted/50",
+        showGapIndicator && "cursor-pointer",
       )}
       onClick={() => {
         if (showGapIndicator && onDateClick) {
@@ -59,7 +62,7 @@ export function DayCell({ date, isCurrentMonth, isToday, posts, onDateClick, onP
           className={cn(
             "text-xs font-medium tabular-nums",
             isCurrentMonth ? "text-foreground" : "text-muted-foreground/50",
-            isToday && "flex size-5 items-center justify-center rounded-full bg-brand text-brand-foreground",
+            isToday && "flex size-5 items-center justify-center rounded-full bg-brand text-primary-foreground",
           )}
         >
           {date.getDate()}

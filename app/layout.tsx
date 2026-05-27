@@ -17,7 +17,13 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
+  metadataBase: new URL("https://socialbeam.ai"),
   title: {
     default: "SocialBeam — Free AI-Powered Social Media Scheduler",
     template: "%s | SocialBeam",
@@ -40,7 +46,7 @@ export const metadata: Metadata = {
     description: "Schedule unlimited posts across 10 accounts for free. AI writes, optimizes, and analyzes your content.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image.svg",
         width: 1200,
         height: 630,
         alt: "SocialBeam — AI-native social media management platform",
@@ -51,7 +57,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "SocialBeam — Free AI-Powered Social Media Scheduler",
     description: "Schedule unlimited posts across 10 accounts for free. AI writes, optimizes, and analyzes your content.",
-    images: ["/og-image.png"],
+    images: ["/og-image.svg"],
     creator: "@socialbeam",
   },
   robots: {
@@ -66,8 +72,8 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: "/favicon.ico",
-    apple: "/favicon.ico",
+    icon: "/favicon.svg",
+    apple: "/favicon.svg",
   },
   alternates: {
     canonical: "https://socialbeam.ai",

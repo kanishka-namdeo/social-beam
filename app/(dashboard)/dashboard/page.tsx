@@ -5,23 +5,20 @@ import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { ArrowRight, Sparkle, InstagramLogo, XLogo, LinkedinLogo, MetaLogo, TiktokLogo, PinterestLogo, Warning } from "@phosphor-icons/react/ssr";
+import { Sparkle, InstagramLogo, XLogo, LinkedinLogo, MetaLogo, TiktokLogo, PinterestLogo, ChartBar, GlobeHemisphereEast, PencilSimple, Calendar, MagnifyingGlass } from "@phosphor-icons/react/ssr";
 import { RecentPostsList } from "@/components/dashboard/recent-posts-list";
 import { AIInsightsCard } from "@/components/dashboard/ai-insights-card";
 import { CalendarPreview } from "@/components/dashboard/calendar-preview";
 import { AIStatusPanel } from "@/components/dashboard/ai-status-panel";
 import { StartingVerbs } from "@/components/dashboard/starting-verbs";
+import { AIComposePrompt } from "@/components/dashboard/ai-compose-prompt";
 import { WorkedExampleEmptyState } from "@/components/dashboard/worked-example-empty-state";
 import { ProfileAnalysisCard } from "@/components/dashboard/profile-analysis-card";
+import { OnboardingBanner } from "@/components/dashboard/onboarding-banner";
+import { ComposeInput } from "@/components/dashboard/compose-input";
 import { TrendingRadarCard } from "@/components/reddit/trending-radar-card";
-
-function subHours(date: Date, hours: number): Date {
-  const result = new Date(date);
-  result.setHours(result.getHours() - hours);
-  return result;
-}
+import { subHours } from "@/lib/utils/dates";
 
 const platformIcons: Record<string, React.ReactNode> = {
   instagram: <InstagramLogo className="size-5" weight="fill" />,
@@ -31,6 +28,8 @@ const platformIcons: Record<string, React.ReactNode> = {
   tiktok: <TiktokLogo className="size-5" weight="fill" />,
   pinterest: <PinterestLogo className="size-5" weight="fill" />,
 };
+
+const defaultPlatformIcon = <ChartBar className="size-5" weight="fill" />;
 
 const statusVariant: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   connected: "default",
@@ -58,7 +57,7 @@ function ProfileAnalysisContent({ profile }: { profile: { tone?: string | null; 
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {tone && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
             Brand Tone
           </p>
           <Badge variant="default" className="text-xs normal-case tracking-normal">
@@ -68,7 +67,7 @@ function ProfileAnalysisContent({ profile }: { profile: { tone?: string | null; 
       )}
       {postTypes && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
             Content Mix
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -82,7 +81,7 @@ function ProfileAnalysisContent({ profile }: { profile: { tone?: string | null; 
       )}
       {audience && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
             Audience
           </p>
           <p className="text-sm text-foreground">
@@ -94,7 +93,7 @@ function ProfileAnalysisContent({ profile }: { profile: { tone?: string | null; 
       )}
       {bio != null && bio.industry != null && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
             Industry
           </p>
           <p className="text-sm text-foreground">
@@ -287,6 +286,14 @@ export default async function DashboardPage() {
 
   const workspaceId = user?.workspaceId as string | undefined;
 
+  if (!workspaceId) {
+    return (
+      <div className="mx-auto max-w-3xl">
+        <WorkedExampleEmptyState />
+      </div>
+    );
+  }
+
   const [profile, connectedAccounts] = await Promise.all([
     prisma.userProfile.findUnique({ where: { workspaceId } }),
     prisma.connectedAccount.findMany({
@@ -310,29 +317,10 @@ export default async function DashboardPage() {
   const postCount = await prisma.post.count({ where: { workspaceId } });
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Onboarding incomplete banner */}
       {!onboardingDone && (
-        <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 p-4 text-sm">
-          <Warning className="size-5 text-warning mt-0.5 shrink-0" weight="fill" />
-          <div className="flex-1">
-            <p className="font-medium">Onboarding incomplete</p>
-            <p className="text-muted-foreground mt-1">
-              You haven&apos;t finished setting up your AI assistant. Complete onboarding for a personalized experience.
-            </p>
-            <div className="flex gap-2 mt-3">
-              <Button size="sm" onClick={() => window.location.href = '/onboarding'}>
-                Continue Onboarding
-              </Button>
-              <Button variant="outline" size="sm" onClick={async () => {
-                await fetch('/api/onboarding/skip', { method: 'POST' });
-                window.location.reload();
-              }}>
-                Skip
-              </Button>
-            </div>
-          </div>
-        </div>
+        <OnboardingBanner />
       )}
 
       {/* Greeting */}
@@ -345,9 +333,38 @@ export default async function DashboardPage() {
         </p>
       </div>
 
+      {/* Quick-action bar */}
+      <div className="flex flex-wrap gap-2">
+        <Button variant="outline" size="sm" asChild className="hover-scale">
+          <a href="/compose">
+            <PencilSimple className="mr-1.5 size-4" weight="bold" />
+            Compose
+          </a>
+        </Button>
+        <Button variant="outline" size="sm" asChild className="hover-scale">
+          <a href="/calendar">
+            <Calendar className="mr-1.5 size-4" weight="bold" />
+            Schedule
+          </a>
+        </Button>
+        <Button variant="outline" size="sm" asChild className="hover-scale">
+          <a href="/analytics">
+            <ChartBar className="mr-1.5 size-4" weight="bold" />
+            Analyze
+          </a>
+        </Button>
+        <Button variant="outline" size="sm" asChild className="hover-scale">
+          <a href="/reddit/trending">
+            <MagnifyingGlass className="mr-1.5 size-4" weight="bold" />
+            Research
+          </a>
+        </Button>
+      </div>
+
       {/* No posts yet */}
       {postCount === 0 ? (
         <div className="space-y-6">
+          <AIComposePrompt />
           <StartingVerbs />
           <Card>
             <CardHeader>
@@ -400,12 +417,13 @@ export default async function DashboardPage() {
         </CardHeader>
         <CardContent>
           {connectedAccounts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border p-8 text-center">
+            <div className="flex flex-col items-center justify-center gap-3 rounded-md border border-dashed border-border p-8 text-center">
+              <GlobeHemisphereEast className="size-8 text-muted-foreground" weight="light" />
               <p className="text-sm text-muted-foreground">
                 No accounts connected yet
               </p>
-              <Button variant="outline" size="sm">
-                Connect an Account
+              <Button variant="outline" size="sm" asChild>
+                <a href="/settings?tab=accounts">Connect an Account</a>
               </Button>
             </div>
           ) : (
@@ -413,11 +431,11 @@ export default async function DashboardPage() {
               {connectedAccounts.map((account: { id: string; platform: string; platformUserId: string; status: string }) => (
                 <div
                   key={account.id}
-                  className="flex items-center justify-between rounded-lg border border-border bg-card p-4"
+                  className="flex items-center justify-between rounded-md border border-border bg-card p-4 hover-lift"
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-muted-foreground" aria-hidden="true">
-                      {platformIcons[account.platform] ?? "🔗"}
+                      {platformIcons[account.platform] ?? defaultPlatformIcon}
                     </span>
                     <div>
                       <p className="text-sm font-medium capitalize text-foreground">
@@ -442,16 +460,7 @@ export default async function DashboardPage() {
       </Card>
 
       {/* Conversational Input */}
-      <div className="flex items-center gap-3">
-        <Input
-          placeholder="What do you want to post about?"
-          className="flex-1 text-base"
-        />
-        <Button variant="default" size="default">
-          Compose
-          <ArrowRight className="ml-1" weight="bold" />
-        </Button>
-      </div>
+      <ComposeInput />
     </div>
   );
 }

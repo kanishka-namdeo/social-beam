@@ -28,7 +28,29 @@ Context7 fails -> WebSearch -> WebFetch -> Browser -> Ask user
 
 ## Package Manager
 
-This project uses **pnpm**. Always use `pnpm` for installing dependencies and running scripts. Never use `npm` or `yarn`.
+This project uses **pnpm** exclusively. Always use `pnpm` for installing dependencies and running scripts. Never use `npm`, `yarn`, `bunx`, or `npx`.
+
+| Instead of | Use |
+|---|---|
+| `npx <tool>` | `pnpm dlx <tool>` |
+| `bunx <tool>` | `pnpm dlx <tool>` |
+| `npm install <pkg>` | `pnpm add <pkg>` |
+| `npm run <script>` | `pnpm run <script>` |
+| `yarn add <pkg>` | `pnpm add <pkg>` |
+
+## Icon Library Verification
+
+Before using any icon from an icon library (`@phosphor-icons/react`, `lucide-react`, etc.), verify the icon name exists by grepping the library's exports in `node_modules` or checking the official documentation. Do not assume icon names translate between libraries.
+
+```bash
+# Verify Phosphor icon exists before using it
+rg "export.*PanelRightOpen" node_modules/@phosphor-icons/react/
+```
+
+Common confusion points:
+- Phosphor uses `Sidebar`, not `PanelRightOpen`
+- Lucide uses `PanelRight`, not `Sidebar`
+- Icon names are case-sensitive and library-specific
 
 ## Verification Requirements
 

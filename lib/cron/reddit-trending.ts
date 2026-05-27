@@ -30,7 +30,13 @@ export function startRedditTrendingCron(): void {
       try {
         const posts = await scrapeSubreddit(config.subreddit, config.sortOrder);
         if (posts.length > 0) {
-          await processAndStoreTrendingPosts(config.workspaceId, posts);
+          await processAndStoreTrendingPosts(config.workspaceId, posts, (phase, counts) => {
+            logger.info("reddit.cron.progress", {
+              subreddit: config.subreddit,
+              phase,
+              ...counts,
+            });
+          });
         }
 
         await new Promise((resolve) => setTimeout(resolve, 3000 + Math.random() * 2000));

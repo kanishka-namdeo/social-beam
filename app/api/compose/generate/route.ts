@@ -1,0 +1,175 @@
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
+import { ChatOpenAI } from "@langchain/openai";
+import { loadBrandContextForAI } from "@/lib/ai/brand-context-loader";
+import { buildComposePrompts } from "@/lib/ai/compose-prompt-builder";
+import { logger } from "@/lib/logger";
+import { z } from "zod";
+
+const GenerateSchema = z.object({
+  prompt: z.string().min(1).max(2000),
+  platforms: z.array(z.string()).min(1).max(6),
+});
+
+const CREDIT_COST_PER_PLATFORM = 1;
+
+const model = new ChatOpenAI({
+  apiKey: process.env.OPENAI_API_KEY ?? process.env.API_KEY ?? "",
+  configuration: process.env.BASE_URL ? { baseURL: process.env.BASE_URL } : undefined,
+  modelName: process.env.MODEL ?? "qwen3.6-plus",
+  temperature: 0.8,
+});
+
+export async function POST(req: Request) {
+  const requestId = crypto.randomUUID();
+  const log = logger.child({ requestId });
+
+  try {
+    log.info("api.compose.generate.start", { method: "POST", path: "/api/compose/generate" });
+
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const user = session.user as { id?: string; workspaceId?: string };
+    const workspaceId = user.workspaceId;
+    if (!workspaceId) {
+      return NextResponse.json({ error: "No workspace" }, { status: 400 });
+    }
+
+    const body = await req.json();
+    const parsed = GenerateSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid request", details: parsed.error.flatten() }, { status: 400 });
+    }
+
+    const { prompt, platforms } = parsed.data;
+
+    let balance = await prisma.aiCreditBalance.findUnique({
+      where: { workspaceId },
+    });
+    if (!balance) {
+      balance = await prisma.aiCreditBalance.create({
+        data: { workspaceId, balance: 10 },
+      });
+    }
+
+    const totalCost = platforms.length * CREDIT_COST_PER_PLATFORM;
+    if (balance.balance < totalCost) {
+      log.warn("api.compose.generate.insufficient_credits", {
+        workspaceId,
+        balance: balance.balance,
+        required: totalCost,
+      });
+      return NextResponse.json(
+        { error: "Insufficient AI credits", balance: balance.balance, required: totalCost },
+        { status: 402 },
+      );
+    }
+
+    const brandCtx = await loadBrandContextForAI(workspaceId);
+    const prompts = buildComposePrompts(prompt, brandCtx, platforms);
+
+    log.info("api.compose.generate.prompts_built", {
+      workspaceId,
+      platformCount: platforms.length,
+      hasBrandContext: !!brandCtx,
+    });
+
+    const encoder = new TextEncoder();
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        const enqueue = (event: string, data: Record<string, unknown>) => {
+          const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+          controller.enqueue(encoder.encode(message));
+        };
+
+        try {
+          const results: Array<{ platform: string; content: string; charCount: number }> = [];
+
+          for (const p of prompts) {
+            enqueue("platform_start", { platform: p.platform });
+
+            try {
+              const response = await model.invoke([
+                { role: "system", content: p.systemPrompt },
+                { role: "user", content: p.userPrompt },
+              ]);
+
+              const content = typeof response.content === "string" ? response.content : String(response.content);
+              const trimmed = content.trim();
+
+              if (p.charLimit && trimmed.length > p.charLimit) {
+                const shortener = new ChatOpenAI({
+                  apiKey: process.env.OPENAI_API_KEY ?? process.env.API_KEY ?? "",
+                  configuration: process.env.BASE_URL ? { baseURL: process.env.BASE_URL } : undefined,
+                  modelName: process.env.MODEL ?? "qwen3.6-plus",
+                  temperature: 0.2,
+                });
+                const shortened = await shortener.invoke([
+                  { role: "system", content: `Shorten this post to fit within ${p.charLimit} characters while preserving the core message and tone.` },
+                  { role: "user", content: trimmed },
+                ]);
+                const shortenedContent = typeof shortened.content === "string" ? shortened.content.trim() : String(shortened.content).trim();
+                results.push({ platform: p.platform, content: shortenedContent, charCount: shortenedContent.length });
+              } else {
+                results.push({ platform: p.platform, content: trimmed, charCount: trimmed.length });
+              }
+
+              enqueue("platform_done", {
+                platform: p.platform,
+                content: results[results.length - 1].content,
+                charCount: results[results.length - 1].charCount,
+              });
+            } catch (err) {
+              log.error("api.compose.generate.platform_error", {
+                platform: p.platform,
+                error: String(err),
+              });
+              enqueue("platform_error", {
+                platform: p.platform,
+                error: "Failed to generate content for this platform",
+              });
+            }
+          }
+
+          await prisma.aiCreditBalance.update({
+            where: { workspaceId },
+            data: { balance: { decrement: totalCost } },
+          });
+
+          log.info("api.compose.generate.complete", {
+            workspaceId,
+            platformCount: results.length,
+            creditsUsed: totalCost,
+            hasBrandContext: !!brandCtx,
+          });
+
+          enqueue("complete", {
+            results,
+            totalCost,
+            hasBrandContext: !!brandCtx,
+          });
+        } catch (err) {
+          log.error("api.compose.generate.stream_error", { error: String(err) });
+          enqueue("error", { error: "Generation failed" });
+        } finally {
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      },
+    });
+  } catch (err) {
+    log.error("api.compose.generate.error", { error: String(err) });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}

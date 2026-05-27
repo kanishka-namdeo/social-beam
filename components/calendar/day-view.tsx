@@ -9,7 +9,7 @@ interface DayViewProps {
   currentDate: Date;
   posts: PostItem[];
   onPreview?: (postId: string) => void;
-  onDelete?: (postId: string) => Promise<void>;
+  onDelete?: (postId: string) => void;
   onDuplicate?: (postId: string) => Promise<void>;
 }
 
@@ -28,7 +28,7 @@ export function DayView({ currentDate, posts, onPreview, onDelete, onDuplicate }
   const isToday = currentDate.toDateString() === now.toDateString();
 
   return (
-    <div className="border border-border rounded-lg overflow-hidden">
+    <div className="rounded-lg border border-border overflow-hidden">
       {/* Header */}
       <div className="p-3 border-b border-border bg-muted/30">
         <div className="text-lg font-semibold text-foreground">
@@ -85,12 +85,12 @@ export function DayView({ currentDate, posts, onPreview, onDelete, onDuplicate }
         {/* Current time indicator */}
         {isToday && now.getHours() >= HOUR_START && now.getHours() <= HOUR_END && (
           <div
-            className="absolute left-20 right-0 h-px bg-red-500 z-20"
+            className="absolute left-20 right-0 h-px bg-destructive z-20"
             style={{
               top: `${((now.getHours() - HOUR_START) * 60 + now.getMinutes()) * (60 / 60) + 48}px`,
             }}
           >
-            <div className="absolute -left-1.5 -top-1.5 size-3 rounded-full bg-red-500" />
+            <div className="absolute -left-1.5 -top-1.5 size-3 rounded-full bg-destructive" />
           </div>
         )}
       </div>

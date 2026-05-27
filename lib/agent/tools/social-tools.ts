@@ -80,6 +80,18 @@ export const initiateOauthTool = tool(
     const redirectUri = encodeURIComponent(callbackUrl);
     const state = encodeURIComponent(JSON.stringify({ platform, userId, workspaceId, redirectTo }));
 
+    // Debug: log credential source and key OAuth params for troubleshooting
+    const clientIdMasked = credentials.clientId.slice(0, 4) + '…' + credentials.clientId.slice(-4);
+    logger.info('oauth.initiate.debug', {
+      platform,
+      clientIdMasked,
+      credentialSource: credentials.source,
+      authUrl: config.authUrl,
+      baseUrl,
+      redirectUriDecoded: callbackUrl,
+      scopes: config.scopes,
+    });
+
     let authUrl: string;
 
     if (platform.toLowerCase() === 'x') {

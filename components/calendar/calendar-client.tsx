@@ -15,10 +15,15 @@ import {
   CaretLeft,
   CaretRight,
   CalendarDots,
-  Sparkle,
   ListBullets,
+  Sidebar,
+  Spinner,
+  Warning,
+  X,
 } from "@phosphor-icons/react/ssr";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -26,6 +31,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { HintTooltip } from "@/components/ui/hint-tooltip";
+import {
+  Sheet,
+  SheetContent,
+} from "@/components/ui/sheet";
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
 import { addMonths, subMonths, addWeeks, subWeeks, addDays, subDays, format } from "date-fns";
 import { toast } from "sonner";
 import { MonthView } from "./month-view";
@@ -34,11 +50,38 @@ import { DayView } from "./day-view";
 import { ListView } from "./list-view";
 import { RescheduleDialog } from "./reschedule-dialog";
 import { PostPreviewDialog } from "./post-preview-dialog";
-import { ContentGapAnalysis } from "./content-gap-analysis";
-import { PostingFrequency } from "./posting-frequency";
+import { InsightsSidebar } from "./insights-sidebar";
 import type { PostItem } from "./types";
 
 type CalendarView = "month" | "week" | "day" | "list";
+
+function MonthErrorBanners({
+  errors,
+  onRetry,
+}: {
+  errors: Map<string, number>;
+  onRetry: (key: string) => void;
+}) {
+  return (
+    <>
+      {Array.from(errors.keys()).map((key) => {
+        const [yearStr, monthStr] = key.split("-");
+        const errorDate = new Date(Number(yearStr), Number(monthStr));
+        return (
+          <div key={key} className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm">
+            <Warning className="size-4 text-destructive shrink-0" weight="fill" />
+            <span className="text-destructive flex-1">
+              Failed to load posts for {format(errorDate, "MMMM yyyy")}.
+            </span>
+            <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => onRetry(key)}>
+              Retry
+            </Button>
+          </div>
+        );
+      })}
+    </>
+  );
+}
 
 interface CalendarClientProps {
   initialPosts: PostItem[];
@@ -56,8 +99,17 @@ export function CalendarClient({
   const [posts, setPosts] = useState<PostItem[]>(initialPosts);
   const [filterPlatform, setFilterPlatform] = useState<string>("all");
 
+  // Insights sidebar toggle (mobile/tablet)
+  const [insightsOpen, setInsightsOpen] = useState(false);
+
   // Track latest month fetch to avoid duplicate requests
   const lastFetchedMonthRef = useRef<string>(`${new Date(initialDate).getFullYear()}-${new Date(initialDate).getMonth()}`);
+
+  // Loading state for month navigation
+  const [monthLoading, setMonthLoading] = useState(false);
+
+  // Track fetch errors per month (key: "YYYY-M")
+  const [monthFetchErrors, setMonthFetchErrors] = useState<Map<string, number>>(new Map());
 
   // Reschedule dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -90,6 +142,7 @@ export function CalendarClient({
     const key = `${date.getFullYear()}-${date.getMonth()}`;
     if (key === lastFetchedMonthRef.current) return;
     lastFetchedMonthRef.current = key;
+    setMonthLoading(true);
 
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -98,9 +151,26 @@ export function CalendarClient({
       if (res.ok) {
         const data = await res.json();
         setPosts(data.posts);
+        setMonthFetchErrors((prev) => {
+          const next = new Map(prev);
+          next.delete(key);
+          return next;
+        });
+      } else {
+        setMonthFetchErrors((prev) => {
+          const next = new Map(prev);
+          next.set(key, (next.get(key) ?? 0) + 1);
+          return next;
+        });
       }
     } catch {
-      // Silent fail — keep existing posts
+      setMonthFetchErrors((prev) => {
+        const next = new Map(prev);
+        next.set(key, (next.get(key) ?? 0) + 1);
+        return next;
+      });
+    } finally {
+      setMonthLoading(false);
     }
   }, []);
 
@@ -116,6 +186,18 @@ export function CalendarClient({
       void fetchPostsForMonth(next);
       return next;
     });
+  }, [fetchPostsForMonth]);
+
+  const retryFailedMonth = useCallback((failedKey: string) => {
+    const [yearStr, monthStr] = failedKey.split("-");
+    const errorMonth = new Date(Number(yearStr), Number(monthStr));
+    setMonthFetchErrors((prev) => {
+      const next = new Map(prev);
+      next.delete(failedKey);
+      return next;
+    });
+    setCurrentDate(errorMonth);
+    void fetchPostsForMonth(errorMonth);
   }, [fetchPostsForMonth]);
 
   const goPrev = () => {
@@ -187,16 +269,26 @@ export function CalendarClient({
     );
   };
 
-  // Delete post
-  const handleDelete = async (postId: string) => {
-    const res = await fetch(`/api/calendar/posts?postId=${postId}`, { method: "DELETE" });
+  // Delete post — opens confirmation dialog
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [pendingDeletePostId, setPendingDeletePostId] = useState<string | null>(null);
+
+  const requestDelete = useCallback((postId: string) => {
+    setPendingDeletePostId(postId);
+    setDeleteDialogOpen(true);
+  }, []);
+
+  const confirmDelete = useCallback(async () => {
+    if (!pendingDeletePostId) return;
+    const res = await fetch(`/api/calendar/posts?postId=${pendingDeletePostId}`, { method: "DELETE" });
     if (!res.ok) {
       toast.error("Failed to delete post");
       return;
     }
-    setPosts((prev) => prev.filter((p) => p.id !== postId));
+    setPosts((prev) => prev.filter((p) => p.id !== pendingDeletePostId));
     toast.success("Post deleted");
-  };
+    setPendingDeletePostId(null);
+  }, [pendingDeletePostId]);
 
   // Duplicate post
   const handleDuplicate = async (postId: string) => {
@@ -256,90 +348,112 @@ export function CalendarClient({
       collisionDetection={closestCorners}
       onDragEnd={handleDragEnd}
     >
-      <div className="space-y-4">
-        {/* Toolbar */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Navigation */}
-          {view !== "list" && (
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon" onClick={goPrev} aria-label="Previous">
-                <CaretLeft className="size-4" />
-              </Button>
-              <Button variant="outline" size="sm" onClick={goToday}>
-                Today
-              </Button>
-              <Button variant="outline" size="icon" onClick={goNext} aria-label="Next">
-                <CaretRight className="size-4" />
-              </Button>
-            </div>
-          )}
-
-          {/* Current period label */}
-          <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-            <CalendarDots className="size-5 text-brand" weight="regular" />
-            {headerLabel()}
-          </h2>
-
-          {/* View selector */}
-          <div className="ml-auto flex items-center gap-2">
-            <Select value={view} onValueChange={(v) => setView(v as CalendarView)}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="month">Month</SelectItem>
-                <SelectItem value="week">Week</SelectItem>
-                <SelectItem value="day">Day</SelectItem>
-                <SelectItem value="list">List</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Platform filter */}
-            {connectedPlatforms.length > 0 && (
-              <Select value={filterPlatform} onValueChange={setFilterPlatform}>
-                <SelectTrigger className="w-36">
-                  <SelectValue placeholder="All platforms" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All platforms</SelectItem>
-                  {connectedPlatforms.map((p) => (
-                    <SelectItem key={p} value={p}>
-                      {p.charAt(0).toUpperCase() + p.slice(1)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+      {/* Toolbar — shared across all breakpoints */}
+      <div className="flex flex-wrap items-center gap-3">
+        <HintTooltip
+          hint="Tip: Drag posts to reschedule them. Drop on AI-suggested times (marked with *) for optimal engagement"
+          icon="info"
+        />
+        {/* Navigation */}
+        {view !== "list" && (
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon" onClick={goPrev} aria-label="Previous" disabled={monthLoading}>
+              <CaretLeft className="size-4" />
+            </Button>
+            <Button variant="outline" size="sm" onClick={goToday} disabled={monthLoading}>
+              Today
+            </Button>
+            <Button variant="outline" size="icon" onClick={goNext} aria-label="Next" disabled={monthLoading}>
+              <CaretRight className="size-4" />
+            </Button>
+            {monthLoading && (
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Spinner className="size-3 animate-spin" weight="bold" />
+                Loading...
+              </span>
             )}
           </div>
+        )}
+
+        {/* Current period label */}
+        <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+          <CalendarDots className="size-5 text-brand" weight="regular" />
+          {headerLabel()}
+          {(() => {
+            const currentKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
+            if (monthFetchErrors.has(currentKey)) {
+              return (
+                <Warning className="size-4 text-destructive" weight="fill" aria-label="Failed to load this month" />
+              );
+            }
+            return null;
+          })()}
+        </h2>
+
+        {/* View selector with Tabs — line variant */}
+        <div className="ml-auto flex items-center gap-2">
+          <Tabs value={view} onValueChange={(v) => setView(v as CalendarView)}>
+            <TabsList variant="line">
+              <TabsTrigger value="month">Month</TabsTrigger>
+              <TabsTrigger value="week">Week</TabsTrigger>
+              <TabsTrigger value="day">Day</TabsTrigger>
+              <TabsTrigger value="list">List</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          {/* Platform filter */}
+          {connectedPlatforms.length > 0 && (
+            <Select value={filterPlatform} onValueChange={setFilterPlatform}>
+              <SelectTrigger className="w-36">
+                <SelectValue placeholder="All platforms" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All platforms</SelectItem>
+                {connectedPlatforms.map((p) => (
+                  <SelectItem key={p} value={p}>
+                    {p.charAt(0).toUpperCase() + p.slice(1)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
+          {/* Insights toggle — mobile/tablet only */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="lg:hidden"
+            onClick={() => setInsightsOpen(!insightsOpen)}
+            aria-label={insightsOpen ? "Hide insights" : "Show insights"}
+            aria-expanded={insightsOpen}
+          >
+            {insightsOpen ? (
+              <X className="size-4" weight="regular" />
+            ) : (
+              <Sidebar className="size-4" weight="regular" />
+            )}
+          </Button>
         </div>
+      </div>
 
-        {/* AI tip — only for calendar views */}
-        {view !== "list" && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground bg-ai-surface/50 rounded-lg px-3 py-2">
-            <Sparkle className="size-3.5 text-brand" weight="fill" />
-            <span>Click any post to preview. Drag between days to reschedule. Empty days with a <CalendarDots className="size-3 inline" /> icon are AI-suggested posting opportunities.</span>
-          </div>
-        )}
+      {/* Spacer between toolbar and calendar content */}
+      <div className="h-4" />
 
-        {/* Content gap analysis — month view */}
-        {view === "month" && (
-          <ContentGapAnalysis
-            posts={filteredPosts}
-            onComposeForSlot={handleComposeForSlot}
-          />
-        )}
+      {/* Month fetch error banner */}
+      {monthFetchErrors.size > 0 && (
+        <MonthErrorBanners errors={monthFetchErrors} onRetry={retryFailedMonth} />
+      )}
 
-        {/* Posting frequency — month view */}
-        {view === "month" && <PostingFrequency posts={filteredPosts} />}
-
-        {/* Calendar content */}
+      {/* Mobile/tablet layout — single panel with Sheet */}
+      <div className="lg:hidden space-y-4">
+        {/* Calendar views */}
         {view === "month" && (
           <MonthView
             currentDate={currentDate}
             posts={filteredPosts}
             onDateClick={handleDateClick}
             onPreview={handlePreview}
-            onDelete={handleDelete}
+            onDelete={requestDelete}
             onDuplicate={handleDuplicate}
           />
         )}
@@ -348,7 +462,7 @@ export function CalendarClient({
             currentDate={currentDate}
             posts={filteredPosts}
             onPreview={handlePreview}
-            onDelete={handleDelete}
+            onDelete={requestDelete}
             onDuplicate={handleDuplicate}
           />
         )}
@@ -357,7 +471,7 @@ export function CalendarClient({
             currentDate={currentDate}
             posts={filteredPosts}
             onPreview={handlePreview}
-            onDelete={handleDelete}
+            onDelete={requestDelete}
             onDuplicate={handleDuplicate}
           />
         )}
@@ -370,7 +484,7 @@ export function CalendarClient({
           />
         )}
 
-        {/* Empty state */}
+        {/* Empty state — mobile/tablet */}
         {posts.length === 0 && view !== "list" && (
           <div className="rounded-lg border border-dashed border-border p-12 text-center">
             <CalendarDots className="mx-auto mb-4 size-12 text-muted-foreground/50" weight="thin" />
@@ -398,6 +512,110 @@ export function CalendarClient({
         )}
       </div>
 
+      {/* Desktop layout — split panels */}
+      <div className="hidden lg:flex flex-col h-dashboard">
+        <ResizablePanelGroup orientation="horizontal" className="flex-1">
+          <ResizablePanel defaultSize="65" minSize={40}>
+            <div className="h-full overflow-y-auto p-2 relative">
+              {monthLoading && (
+                <div className="absolute inset-0 z-10 bg-background/50 flex items-center justify-center rounded-lg">
+                  <Skeleton className="h-4 w-24 rounded-full" />
+                </div>
+              )}
+              {/* Calendar views */}
+              {view === "month" && (
+                <MonthView
+                  currentDate={currentDate}
+                  posts={filteredPosts}
+                  onDateClick={handleDateClick}
+                  onPreview={handlePreview}
+                  onDelete={requestDelete}
+                  onDuplicate={handleDuplicate}
+                />
+              )}
+              {view === "week" && (
+                <WeekView
+                  currentDate={currentDate}
+                  posts={filteredPosts}
+                  onPreview={handlePreview}
+                  onDelete={requestDelete}
+                  onDuplicate={handleDuplicate}
+                />
+              )}
+              {view === "day" && (
+                <DayView
+                  currentDate={currentDate}
+                  posts={filteredPosts}
+                  onPreview={handlePreview}
+                  onDelete={requestDelete}
+                  onDuplicate={handleDuplicate}
+                />
+              )}
+              {view === "list" && (
+                <ListView
+                  posts={filteredPosts}
+                  connectedPlatforms={connectedPlatforms}
+                  onPreview={handlePreview}
+                  onEdit={handleEdit}
+                />
+              )}
+
+              {/* Empty state — desktop */}
+              {posts.length === 0 && view !== "list" && (
+                <div className="rounded-lg border border-dashed border-border p-12 text-center">
+                  <CalendarDots className="mx-auto mb-4 size-12 text-muted-foreground/50" weight="thin" />
+                  <h3 className="text-base font-semibold text-foreground">No posts scheduled</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Create your first post to see it on the calendar.
+                  </p>
+                  <Button className="mt-4" onClick={() => (window.location.href = "/dashboard/compose")}>
+                    Compose a Post
+                  </Button>
+                </div>
+              )}
+
+              {posts.length === 0 && view === "list" && (
+                <div className="rounded-lg border border-dashed border-border p-12 text-center">
+                  <ListBullets className="mx-auto mb-4 size-12 text-muted-foreground/50" weight="thin" />
+                  <h3 className="text-base font-semibold text-foreground">No posts yet</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Start composing to see your posts here.
+                  </p>
+                  <Button className="mt-4" onClick={() => (window.location.href = "/dashboard/compose")}>
+                    Compose a Post
+                  </Button>
+                </div>
+              )}
+            </div>
+          </ResizablePanel>
+          <ResizableHandle
+            withHandle
+            aria-label="Resize panels"
+            className="min-h-[40px]"
+          />
+          <ResizablePanel defaultSize="35" minSize={20} collapsible>
+            <div className="h-full overflow-y-auto">
+              <InsightsSidebar
+                view={view}
+                filteredPosts={filteredPosts}
+                onComposeForSlot={handleComposeForSlot}
+              />
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
+
+      {/* Insights Sheet — mobile/tablet */}
+      <Sheet open={insightsOpen} onOpenChange={setInsightsOpen}>
+        <SheetContent side="right" className="w-80 sm:w-96 overflow-y-auto p-0">
+          <InsightsSidebar
+            view={view}
+            filteredPosts={filteredPosts}
+            onComposeForSlot={handleComposeForSlot}
+          />
+        </SheetContent>
+      </Sheet>
+
       {/* Reschedule dialog */}
       <RescheduleDialog
         open={dialogOpen}
@@ -422,8 +640,19 @@ export function CalendarClient({
           setPreviewPost(null);
         }}
         onEdit={handleEdit}
-        onDelete={handleDelete}
+        onDelete={requestDelete}
         onDuplicate={handleDuplicate}
+      />
+
+      {/* Delete confirmation dialog */}
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Delete post?"
+        description="This action cannot be undone. The post will be permanently removed."
+        onConfirm={confirmDelete}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
       />
     </DndContext>
   );

@@ -27,9 +27,9 @@ export function LandingSocialProof() {
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
-              <Card key={stat.value} className="border-border">
+              <Card key={stat.value} className="border-border hover-lift transition-shadow">
                 <CardContent className="p-6 flex items-start gap-4">
-                  <div className="p-3 bg-brand/10 text-brand">
+                  <div className="p-3 bg-brand/10 text-brand rounded-md shrink-0" aria-hidden="true">
                     <Icon className="w-6 h-6" />
                   </div>
                   <div>

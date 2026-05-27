@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ChartBar, CalendarDots, TrendUp, TrendDown } from "@phosphor-icons/react";
+import { ChartBar, CalendarDots, TrendUp, TrendDown } from "@phosphor-icons/react/ssr";
 import { cn } from "@/lib/utils";
 import { startOfWeek, endOfWeek, startOfMonth, isSameWeek, isSameMonth, eachDayOfInterval } from "date-fns";
 import type { PostItem } from "./types";
@@ -69,7 +69,7 @@ export function PostingFrequency({ posts }: PostingFrequencyProps) {
   const maxDaily = Math.max(...stats.dailyCounts.map((d) => d.count), 1);
 
   return (
-    <Card>
+    <Card className="rounded-lg">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

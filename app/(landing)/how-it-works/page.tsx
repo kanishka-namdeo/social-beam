@@ -63,16 +63,16 @@ export default function HowItWorksPage() {
       }}
     >
       <div className="max-w-4xl mx-auto space-y-8">
-        {steps.map((step, index) => {
+        {steps.map((step) => {
           const Icon = step.icon;
           return (
-            <Card key={step.number} className="border-border">
+            <Card key={step.number} className="border-border hover-lift transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-brand text-brand-soft font-bold text-lg shrink-0">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-brand text-brand-soft font-bold text-lg shrink-0" aria-hidden="true">
                     {step.number}
                   </div>
-                  <div className="p-3 bg-brand/10 text-brand">
+                  <div className="p-3 bg-brand/10 text-brand rounded-md shrink-0" aria-hidden="true">
                     <Icon className="w-6 h-6" />
                   </div>
                   <div>
@@ -87,7 +87,7 @@ export default function HowItWorksPage() {
                 <ul className="grid sm:grid-cols-2 gap-2">
                   {step.details.map((detail) => (
                     <li key={detail} className="flex items-center gap-2 text-sm text-foreground">
-                      <ArrowRight weight="bold" className="w-4 h-4 text-brand shrink-0" />
+                      <ArrowRight weight="bold" className="w-4 h-4 text-brand shrink-0" aria-hidden="true" />
                       {detail}
                     </li>
                   ))}
@@ -99,9 +99,9 @@ export default function HowItWorksPage() {
 
         <div className="text-center pt-8">
           <Link href="/register">
-            <Button size="lg" className="gap-2">
+            <Button size="lg" className="gap-2 hover-lift">
               Get Started Free
-              <ArrowRight weight="bold" className="w-4 h-4" />
+              <ArrowRight weight="bold" className="w-4 h-4" aria-hidden="true" />
             </Button>
           </Link>
         </div>

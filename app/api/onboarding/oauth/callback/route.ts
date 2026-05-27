@@ -99,7 +99,7 @@ export async function GET(req: NextRequest) {
 
     if (redirectTo === 'settings') {
       return NextResponse.redirect(
-        new URL(`/dashboard/settings?tab=accounts&oauth=success&platform=${platform}`, req.url)
+        new URL(`/settings?tab=accounts&oauth=success&platform=${platform}`, req.url)
       );
     }
 

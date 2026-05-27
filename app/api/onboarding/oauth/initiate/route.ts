@@ -10,7 +10,8 @@ export async function POST(req: NextRequest) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const { platform } = (await req.json()) as { platform?: string };
+    const body = (await req.json()) as { platform?: string; redirectTo?: string };
+    const { platform, redirectTo } = body;
     if (!platform) {
       return NextResponse.json({ error: 'Missing platform' }, { status: 400 });
     }
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
     const userId = session.user.id ?? '';
     const workspaceId = (session.user as { workspaceId?: string }).workspaceId ?? '';
 
-    const result = await initiateOauthTool.invoke({ platform, userId, workspaceId });
+    const result = await initiateOauthTool.invoke({ platform, userId, workspaceId, redirectTo });
     const parsed = JSON.parse(result as string) as Record<string, unknown>;
 
     if (parsed.error) {

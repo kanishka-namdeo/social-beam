@@ -1,10 +1,10 @@
 ﻿# SocialBeam — MVP Scope
 
-> Version 1.2.0
-> Date: 2026-05-21
+> Version 1.4.0
+> Date: 2026-05-25
 > Status: Living document
 > Purpose: Define what is in and out of scope for the MVP (Phase 1: Free Platform Foundation + Phase 2: AI Monetization Layer). See [tool-vision-and-market-research.md](tool-vision-and-market-research.md) for the full product vision and roadmap.
-> Updated: Priority adjustments based on Buffer feature demand analysis (664 suggestions mapped) and 2026 API feasibility verification. See [buffer-features-mapping.md](competitor-analysis/buffer-features-mapping.md) and [buffer-features-feasibility-2026.md](competitor-analysis/buffer-features-feasibility-2026.md).
+> Updated: Buffer screenshot analysis complete (10 screenshots across 2 flow folders: `flow-02-dashboard-home/screenshots/`, `flow-03-post-creation/screenshots/`). Visually verified: Community engagement tab, Ideas board with AI generation + conversion, inline AI actions (Rewrite/Shorten/Lengthen), post template library with categories, compose interface with post-type selector, content feeds (RSS/Blog/Podcast/YouTube), and media upload. Previous: text-based flow parity analysis from 8 flow docs.
 
 ---
 
@@ -53,10 +53,16 @@ The MVP covers **Phase 1 (Free Platform Foundation)** and **Phase 2 (AI Monetiza
 | Platform selector with badges | P0 | Per-platform selection for each post |
 | Multi-platform publishing from single compose | P0 | |
 | Platform-specific character limit validation | P0 | |
+| Inline AI actions (Rewrite/Shorten/Lengthen) | P0 | One-click post transformations directly in compose — confirmed from Buffer AI assistant screenshot |
+| Platform-specific content variations | P1 | Override text/media per platform from single compose (Buffer Flow 3.5) |
 | Accurate post previews | P0 | Must match actual platform rendering |
+| Post type selector (Post/Story/Reel) | P1 | Per-platform content type selection — confirmed from Buffer new post dialog screenshot |
 | Publish immediately | P0 | |
 | Schedule for later | P0 | |
 | Drafts | P1 | Save and resume |
+| Post templates library | P0 | Categorized reusable templates (Promotional, Educational, Engagement, Curated, Behind-the-scenes) — confirmed from Buffer Templates screenshot. Elevated from P1 to P0 given visual evidence of implementation simplicity. |
+| AI idea generation | P0 | Topic-based idea generation with tone selector (Casual/Professional/Humorous/Informative) and quantity control — confirmed from Buffer Generate Ideas dialog screenshot |
+| Idea-to-post conversion | P0 | Convert saved/AI-generated ideas to posts with one click — confirmed from Buffer Ideas Board screenshot |
 | Content Repurposing (Flow 3.11) | P1 | Adapt existing post for different platforms |
 | Thread scheduling (X/Twitter, LinkedIn) | P1 | |
 | First comment scheduling | P1 | For links/hashtags on Instagram |
@@ -70,6 +76,7 @@ The MVP covers **Phase 1 (Free Platform Foundation)** and **Phase 2 (AI Monetiza
 | AI-suggested posting times (Flow 4.7) | P0 | Best time to post based on audience data |
 | Post status badges (draft/scheduled/published/failed) | P0 | Use semantic tokens (`bg-post-*`) |
 | Content Queue (evergreen recycling) | P0 | Elevated from P1 — 383 votes on Buffer, core differentiator |
+| Duplicate post from queue/calendar | P1 | Quick copy with next-available-slot placement (Buffer Flow 6.13) |
 | Bulk upload via CSV | P1 | |
 | Account-wide search for posts, drafts & ideas | P1 | 155 votes on Buffer. Prevents lost scheduled posts. |
 
@@ -81,7 +88,11 @@ The MVP covers **Phase 1 (Free Platform Foundation)** and **Phase 2 (AI Monetiza
 | Engagement rate tracking | P0 | Per-post, per-platform, per-period |
 | Audience growth analytics | P0 | Follower growth over time |
 | AI Insights Engine | P0 | "What to do next" recommendations (not just charts) |
+| Post-level analytics with engagement breakdown | P0 | Likes, comments, shares, saves with trend indicators (Buffer Flow 5.7) |
+| Data freshness indicators | P1 | "Last updated" timestamp + stale data warning (Buffer Flow 5) |
 | Custom report builder | P1 | |
+| Sent posts history (filter/export) | P1 | Full audit log of published posts with platform links (Buffer Flow 8.4) |
+| Top posts by reach | P1 | Surfaces best-performing content visually with reach metrics — confirmed from Buffer Community tab screenshot |
 | Competitor benchmarking | P2 | Post-MVP |
 
 ### Dashboard & Home
@@ -91,6 +102,7 @@ The MVP covers **Phase 1 (Free Platform Foundation)** and **Phase 2 (AI Monetiza
 | Personalized dashboard | P0 | Quick actions, recent posts, AI insights summary |
 | AI activation empty states | P0 | Conversational input as primary CTA, not static button |
 | 7-day calendar preview | P0 | |
+| Community engagement tab | P1 | Cross-platform engagement metrics (reach, views, comments, shares), top posts by reach, platform filter chips — confirmed from Buffer Community tab screenshots |
 
 ### AI Agent Flows
 
@@ -105,6 +117,7 @@ The MVP covers **Phase 1 (Free Platform Foundation)** and **Phase 2 (AI Monetiza
 | Escalation Pathway (10.80) | P0 | Options-not-blockers on errors or low confidence |
 | AI Disclosure Badge (10.81) | P1 | Internal workflow indicator |
 | Agent command via Cmd+K | P1 | Natural language commands |
+| Tone presets for AI generation | P0 | Casual/Professional/Humorous/Informative — confirmed from Buffer Generate Ideas dialog screenshot |
 
 ### Settings & Configuration
 
@@ -124,6 +137,7 @@ The MVP covers **Phase 1 (Free Platform Foundation)** and **Phase 2 (AI Monetiza
 | Tag and search media | P1 | |
 | Platform dimension preview | P1 | |
 | Auto-resize/crop images & videos per platform | P0 | 259 votes on Buffer. Prevents posting failures from size limits. |
+| Content feeds aggregation | P1 | RSS/Blog/Podcast/YouTube feed sources with fetch, status tracking, and last-updated timestamps — confirmed from Buffer Feeds tab screenshot |
 
 ### Error & Edge Cases
 
@@ -199,6 +213,7 @@ These features were identified from Buffer's top suggestions and verified agains
 | **Calendar notes/blocks** | 215 | FEASIBLE | New `CalendarNote` entity. Blocked days prevent AI scheduling. |
 | **Rich text formatting in posts** | 171 | PARTIAL | Unicode workaround for Facebook. LinkedIn Posts API does not support bold/italic. Screen reader concern. |
 | **Instagram collaborator (pre-approved)** | 157 | PARTIAL | `collaborators` param in container creation works for pre-approved accounts only. **No full invite flow via API** — collaborator tagging must be pre-enabled. |
+| **Content templates library** | Buffer Flow 3 | FEASIBLE | Reusable compose templates for recurring content types. Matches Buffer's Templates tab. |
 
 #### NOT FEASIBLE via API
 
@@ -238,6 +253,7 @@ These features were identified from Buffer's top suggestions and verified agains
 
 | Source | Phase | Method | Notes |
 |--------|-------|--------|-------|
+| **RSS feeds** | P1 | RSS parsing (`rss-parser`) | Generic RSS/Blog/Podcast/YouTube feed aggregation — confirmed from Buffer Feeds tab screenshot |
 | **Substack** | Phase 2 | RSS feed (`{url}/feed`) | No API needed. Parse RSS → AI repurposing. |
 | Blog URLs (any) | MVP | URL scraping + AI | Content Repurposer (Flow 3.11) |
 
@@ -262,8 +278,9 @@ These features were identified from Buffer's top suggestions and verified agains
 
 ---
 
-*Document Version: 1.2.0*
-*Last Updated: 2026-05-21*
+*Document Version: 1.4.0*
+*Last Updated: 2026-05-25*
 *Derived from: [tool-vision-and-market-research.md](tool-vision-and-market-research.md) Sections 7, 8, 14*
 *Updated from: [buffer-features-mapping.md](competitor-analysis/buffer-features-mapping.md) — Buffer demand analysis*
 *Feasibility verified: [buffer-features-feasibility-2026.md](competitor-analysis/buffer-features-feasibility-2026.md) — 2026 API documentation*
+*Screenshot analysis: [flow-02-dashboard-home/screenshots/](buffer-user-flow/flow-02-dashboard-home/screenshots/) (2 screenshots: Community tab, Community filters), [flow-03-post-creation/screenshots/](buffer-user-flow/flow-03-post-creation/screenshots/) (8 screenshots: Ideas board, AI assistant, Compose, Templates, New post dialog, Media upload, Feeds tab, Generate ideas dialog)*

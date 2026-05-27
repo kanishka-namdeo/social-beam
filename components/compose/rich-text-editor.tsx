@@ -36,6 +36,8 @@ export function RichTextEditor({
         blockquote: false,
         code: false,
         horizontalRule: false,
+        underline: false,
+        link: false,
       }),
       Underline,
       TextAlign.configure({

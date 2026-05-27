@@ -1,6 +1,6 @@
 "use client";
 
-import { TrendUp, TrendDown, Eye, Heart, CursorClick, Users } from "@phosphor-icons/react";
+import { TrendUp, TrendDown, Eye, Heart, CursorClick, Users } from "@phosphor-icons/react/ssr";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { MetricCardData } from "@/lib/analytics/metric-cards-utils";

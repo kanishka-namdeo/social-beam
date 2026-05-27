@@ -9,19 +9,19 @@ const startingActions = [
     label: "Plan your week",
     description: "Generate 5-7 posts for the week",
     icon: CalendarDots,
-    href: "/dashboard/compose?mode=plan",
+    href: "/compose?mode=plan",
   },
   {
     label: "Write a post",
     description: "Start composing with AI assistance",
     icon: PencilSimple,
-    href: "/dashboard/compose",
+    href: "/compose",
   },
   {
     label: "Connect accounts",
     description: "Link your social media profiles",
     icon: LinkSimple,
-    href: "/dashboard/settings?tab=accounts",
+    href: "/settings?tab=accounts",
   },
 ];
 

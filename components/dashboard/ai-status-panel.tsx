@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Robot, Sparkle, Clock } from "@phosphor-icons/react";
+import { Robot, Sparkle, Clock } from "@phosphor-icons/react/ssr";
 import { useState } from "react";
 
 interface PendingReview {
@@ -23,7 +23,7 @@ export function AIStatusPanel({ agentActivity, pendingReviews }: AIStatusPanelPr
   const [command, setCommand] = useState("");
 
   return (
-    <Card className="border-ai-surface">
+    <Card className="border-ai-surface bg-ai-surface/50">
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
           <Robot className="size-5 text-brand" weight="fill" />
@@ -53,7 +53,7 @@ export function AIStatusPanel({ agentActivity, pendingReviews }: AIStatusPanelPr
           <>
             <Separator />
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <p className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
                 <Clock className="size-3.5" weight="bold" />
                 Pending Review ({pendingReviews.length})
               </p>
@@ -61,17 +61,17 @@ export function AIStatusPanel({ agentActivity, pendingReviews }: AIStatusPanelPr
                 {pendingReviews.map((review) => (
                   <div
                     key={review.id}
-                    className="flex items-center justify-between rounded-md bg-ai-surface px-3 py-2"
+                    className="flex items-center justify-between rounded-lg bg-ai-surface/80 px-3 py-2"
                   >
                     <div>
                       <p className="text-sm font-medium text-foreground">
                         {review.title}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-sm text-muted-foreground">
                         {review.platforms.join(" · ")} · {new Date(review.createdAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <Button variant="outline" size="xs">
+                    <Button variant="outline" size="sm">
                       Review
                     </Button>
                   </div>

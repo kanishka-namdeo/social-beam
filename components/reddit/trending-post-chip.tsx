@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ArrowSquareOut, ChatText, TrendUp } from "@phosphor-icons/react";
+import { ArrowSquareOut, ChatText, TrendUp } from "@phosphor-icons/react/ssr";
 import { cn } from "@/lib/utils";
 
 interface TrendingPostChipProps {
@@ -35,8 +35,8 @@ export function TrendingPostChip({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-lg border border-border p-3 hover:bg-muted/50 transition-colors",
-        isActionable && "border-ai-surface",
+        "flex items-center gap-3 rounded-lg border border-border bg-card p-3 hover:bg-muted/50 transition-colors",
+        isActionable && "border-ai-surface bg-ai-surface/30",
         className,
       )}
     >

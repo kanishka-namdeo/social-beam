@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
-import { Sparkle } from "@phosphor-icons/react";
+import { Sparkle } from "@phosphor-icons/react/ssr";
 import {
   Dialog,
   DialogContent,
@@ -108,6 +108,7 @@ export function RescheduleDialog({
               value={selectedTime}
               min={new Date().toISOString().slice(0, 16)}
               onChange={(e) => setSelectedTime(e.target.value)}
+              className="border-border focus-within:border-brand"
             />
           </div>
 
@@ -127,7 +128,7 @@ export function RescheduleDialog({
                       key={i}
                       type="button"
                       onClick={() => setSelectedTime(timeIso)}
-                      className="flex flex-col items-start rounded-md border border-border bg-card p-2 transition-colors hover:bg-muted text-left"
+                      className="flex flex-col items-start rounded-md border border-border/50 bg-card p-2 transition-colors hover:bg-muted hover:border-brand/50 text-left"
                     >
                       <span className="text-xs font-medium text-foreground">
                         {st.label}

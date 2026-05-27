@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Sparkle, CalendarDots, ArrowRight, Clock } from "@phosphor-icons/react";
+import { Sparkle, CalendarDots, ArrowRight, Clock } from "@phosphor-icons/react/ssr";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -62,7 +62,7 @@ export function ContentGapAnalysis({
   }
 
   return (
-    <Card className="border-ai-surface/50 bg-ai-surface/20">
+    <Card className="rounded-lg border-ai-surface/50 bg-ai-surface/20">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -100,7 +100,7 @@ export function ContentGapAnalysis({
               >
                 <div className="flex items-center gap-2">
                   <CalendarDots className="size-4 text-brand" weight="bold" />
-                  <span className="text-sm text-foreground">
+                  <span className="text-sm font-medium text-foreground">
                     {format(day.date, "EEEE, MMM d")}
                     {day.isToday && (
                       <Badge variant="secondary" className="ml-2 text-[0.6rem] normal-case">
@@ -110,18 +110,18 @@ export function ContentGapAnalysis({
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">
-                    {day.postCount} / {day.target} scheduled
-                  </span>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 text-xs gap-1 text-brand hover:bg-brand/10"
-                    onClick={() => onComposeForSlot(day.date)}
-                  >
-                    Fill gap
-                    <ArrowRight className="size-3" />
-                  </Button>
+                    <span className="text-xs text-muted-foreground">
+                      {day.postCount} / {day.target} scheduled
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 text-xs gap-1 text-brand hover:bg-brand/10 hover:text-brand"
+                      onClick={() => onComposeForSlot(day.date)}
+                    >
+                      Fill gap
+                      <ArrowRight className="size-3" />
+                    </Button>
                 </div>
               </div>
             ))}

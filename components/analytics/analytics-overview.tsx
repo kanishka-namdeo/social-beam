@@ -39,11 +39,11 @@ interface AnalyticsOverviewProps {
 }
 
 const chartColors = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-3)",
-  "var(--chart-4)",
-  "var(--chart-5)",
+  "hsl(var(--chart-1))",
+  "hsl(var(--chart-2))",
+  "hsl(var(--chart-3))",
+  "hsl(var(--chart-4))",
+  "hsl(var(--chart-5))",
 ];
 
 function CustomTooltipContent({ active, payload, label }: { active?: boolean; payload?: { value: number; name: string; color: string }[]; label?: string }) {
@@ -131,8 +131,22 @@ export function AnalyticsOverview({ timeSeries }: AnalyticsOverviewProps) {
             <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="date" className="text-xs" stroke="var(--muted-foreground)" />
-                <YAxis className="text-xs" stroke="var(--muted-foreground)" />
+                <XAxis
+                  dataKey="date"
+                  className="text-xs"
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  className="text-xs"
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(v) => (v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v.toString())}
+                />
                 <Tooltip content={<CustomTooltipContent />} />
                 <Area
                   type="monotone"
@@ -150,7 +164,10 @@ export function AnalyticsOverview({ timeSeries }: AnalyticsOverviewProps) {
                   fill={chartColors[1]}
                   fillOpacity={0.3}
                 />
-                <Legend />
+                <Legend
+                  wrapperStyle={{ fontSize: "12px" }}
+                  formatter={(value) => <span className="text-xs text-muted-foreground">{value}</span>}
+                />
               </AreaChart>
             </ResponsiveContainer>
           </TabsContent>
@@ -159,15 +176,30 @@ export function AnalyticsOverview({ timeSeries }: AnalyticsOverviewProps) {
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="date" className="text-xs" stroke="var(--muted-foreground)" />
-                <YAxis className="text-xs" stroke="var(--muted-foreground)" />
+                <XAxis
+                  dataKey="date"
+                  className="text-xs"
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  className="text-xs"
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(v) => (v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v.toString())}
+                />
                 <Tooltip content={<CustomTooltipContent />} />
                 <Line
                   type="monotone"
                   dataKey="impressions"
                   stroke={chartColors[2]}
-                  strokeWidth={2}
+                  strokeWidth={2.5}
                   dot={false}
+                  activeDot={{ r: 4 }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -177,8 +209,22 @@ export function AnalyticsOverview({ timeSeries }: AnalyticsOverviewProps) {
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={platformChartData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="date" className="text-xs" stroke="var(--muted-foreground)" />
-                <YAxis className="text-xs" stroke="var(--muted-foreground)" />
+                <XAxis
+                  dataKey="date"
+                  className="text-xs"
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  className="text-xs"
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(v) => (v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v.toString())}
+                />
                 <Tooltip content={<CustomTooltipContent />} />
                 {platforms.map((platform, idx) => (
                   <Line
@@ -186,12 +232,16 @@ export function AnalyticsOverview({ timeSeries }: AnalyticsOverviewProps) {
                     type="monotone"
                     dataKey={`${platform}_engagements`}
                     stroke={chartColors[idx % chartColors.length]}
-                    strokeWidth={2}
+                    strokeWidth={2.5}
                     dot={false}
+                    activeDot={{ r: 4 }}
                     name={platform.charAt(0).toUpperCase() + platform.slice(1)}
                   />
                 ))}
-                <Legend />
+                <Legend
+                  wrapperStyle={{ fontSize: "12px" }}
+                  formatter={(value) => <span className="text-xs text-muted-foreground">{value}</span>}
+                />
               </LineChart>
             </ResponsiveContainer>
           </TabsContent>

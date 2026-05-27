@@ -1,4 +1,3 @@
-import type { OnboardingStateType } from './state';
 import { logger as baseLogger, type AppLogger } from '@/lib/logger';
 
 // ---------------------------------------------------------------------------
@@ -28,20 +27,22 @@ export function clearTraceHistory(threadId: string): void {
   nodeTraces.delete(threadId);
 }
 
+type AnyAgentState = Record<string, unknown> & { currentStep?: string };
+
 /**
  * Wrap a node function with debug tracing: logs enter/exit, computes state diff,
  * tracks timing, and records trace history per thread.
  */
-export function withDebugTrace(
+export function withDebugTrace<S extends AnyAgentState>(
   nodeName: string,
-  nodeFn: (state: OnboardingStateType) => Promise<Partial<OnboardingStateType>> | Partial<OnboardingStateType>,
+  nodeFn: (state: S) => Promise<Partial<S>> | Partial<S>,
 ) {
   return async function tracedNode(
-    state: OnboardingStateType,
-  ): Promise<Partial<OnboardingStateType>> {
+    state: S,
+  ): Promise<Partial<S>> {
     const threadId = resolveThreadId(state);
-    const correlationId = state.correlationId ?? 'unknown';
-    const userId = state.userId ?? 'unknown';
+    const correlationId = String((state as Record<string, unknown>).correlationId ?? 'unknown');
+    const userId = String((state as Record<string, unknown>).userId ?? 'unknown');
 
     const logger: AppLogger = baseLogger.child({
       node: nodeName,
@@ -94,7 +95,7 @@ export function withDebugTrace(
       return {
         ...result,
         __debug_step_count: stepCount + 1,
-      };
+      } as Partial<S>;
     } catch (error) {
       const durationMs = Date.now() - startMs;
       entry.durationMs = durationMs;
@@ -113,13 +114,13 @@ export function withDebugTrace(
   };
 }
 
-function resolveThreadId(state: OnboardingStateType): string {
+function resolveThreadId(state: AnyAgentState): string {
   return (state as Record<string, unknown>).__langGraph_thread_id as string
     ?? (state as Record<string, unknown>).__thread_id as string
     ?? 'unknown';
 }
 
-function resolveStepCount(state: OnboardingStateType): number {
+function resolveStepCount(state: AnyAgentState): number {
   return ((state as Record<string, unknown>).__debug_step_count as number) ?? 0;
 }
 
@@ -184,13 +185,13 @@ function logStateDiff(logger: AppLogger, nodeName: string, diff: StateDiff): voi
 // Routing logger decorator
 // ---------------------------------------------------------------------------
 
-export function createRoutedRouter(
+export function createRoutedRouter<S extends AnyAgentState>(
   routerName: string,
-  originalRouter: (state: OnboardingStateType) => string,
-): (state: OnboardingStateType) => string {
-  return (state: OnboardingStateType): string => {
-    const correlationId = state.correlationId ?? 'unknown';
-    const userId = state.userId ?? 'unknown';
+  originalRouter: (state: S) => string,
+): (state: S) => string {
+  return (state: S): string => {
+    const correlationId = (state as Record<string, unknown>).correlationId ?? 'unknown';
+    const userId = (state as Record<string, unknown>).userId ?? 'unknown';
     const logger: AppLogger = baseLogger.child({ correlationId, userId });
 
     const route = originalRouter(state);
@@ -301,12 +302,12 @@ export interface ToolLoopGuard {
   stateKey: string;
 }
 
-export function createToolLoopGuard(config: ToolLoopGuard) {
-  return function guard(state: OnboardingStateType): boolean {
+export function createToolLoopGuard<S extends AnyAgentState>(config: ToolLoopGuard) {
+  return function guard(state: S): boolean {
     const iterationCount = ((state as Record<string, unknown>)[config.iterationKey] as number) ?? 0;
 
     if (iterationCount >= config.maxIterations) {
-      const correlationId = state.correlationId ?? 'unknown';
+      const correlationId = (state as Record<string, unknown>).correlationId ?? 'unknown';
       const logger: AppLogger = baseLogger.child({ correlationId });
       logger.warn('agent.tool_loop_guard_triggered', {
         iterations: iterationCount,
