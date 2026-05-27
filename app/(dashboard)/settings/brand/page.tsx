@@ -9,7 +9,11 @@ import { BrandOnboardingBannerClient } from "@/components/dashboard/brand-onboar
 import { BrandTestPanel } from "@/components/settings/brand-test-panel";
 import { BrandHealthPanel } from "@/components/settings/brand-health-panel";
 
-export default async function BrandSettingsPage() {
+export default async function BrandSettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ mode?: string; url?: string }>;
+}) {
   const session = await auth();
   if (!session?.user) {
     redirect("/login");
@@ -19,15 +23,19 @@ export default async function BrandSettingsPage() {
     redirect("/login");
   }
 
-  const [brandContext, connectedAccounts] = await Promise.all([
+  const [brandContext, connectedAccounts, resolvedSearchParams] = await Promise.all([
     getBrandContext(workspaceId),
     prisma.connectedAccount.findMany({
       where: { workspaceId, status: "connected" },
       select: { platform: true },
     }),
+    searchParams,
   ]);
 
   const connectedPlatforms = connectedAccounts.map((a) => a.platform);
+
+  const isReanalyzeMode = resolvedSearchParams.mode === "reanalyze";
+  const initialUrl = resolvedSearchParams.url ?? "";
 
   return (
     <div className="space-y-8">
@@ -42,7 +50,7 @@ export default async function BrandSettingsPage() {
         </p>
       </div>
 
-      {brandContext ? (
+      {brandContext && !isReanalyzeMode ? (
         <div className="space-y-6">
           <BrandContextCard brandContext={brandContext} />
           <BrandTestPanel connectedPlatforms={connectedPlatforms} />
@@ -52,7 +60,10 @@ export default async function BrandSettingsPage() {
       ) : (
         <div className="space-y-4">
           <BrandOnboardingBannerClient />
-          <BrandConversationalUI />
+          <BrandConversationalUI
+            initialUrl={initialUrl}
+            isReanalyzeMode={isReanalyzeMode}
+          />
         </div>
       )}
     </div>

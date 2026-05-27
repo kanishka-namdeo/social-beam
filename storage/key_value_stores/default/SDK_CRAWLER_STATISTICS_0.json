@@ -1,0 +1,50 @@
+{
+  "requestsFinished": 0,
+  "requestsFailed": 6,
+  "requestsRetries": 6,
+  "requestsFailedPerMinute": 127,
+  "requestsFinishedPerMinute": 0,
+  "requestMinDurationMillis": null,
+  "requestMaxDurationMillis": 0,
+  "requestTotalFailedDurationMillis": 20,
+  "requestTotalFinishedDurationMillis": 0,
+  "crawlerStartedAt": "2026-05-26T14:13:41.775Z",
+  "crawlerFinishedAt": "2026-05-26T14:13:44.352Z",
+  "statsPersistedAt": "2026-05-26T14:13:44.352Z",
+  "crawlerRuntimeMillis": 2814,
+  "crawlerLastStartTimestamp": 1779804821538,
+  "requestRetryHistogram": [
+    null,
+    null,
+    null,
+    6
+  ],
+  "statsId": 0,
+  "requestAvgFailedDurationMillis": 3,
+  "requestAvgFinishedDurationMillis": null,
+  "requestTotalDurationMillis": 20,
+  "requestsTotal": 6,
+  "requestsWithStatusCode": {},
+  "errors": {
+    "D:\\test_agent\\social-beam\\node_modules\\.pnpm\\@crawlee+browser-pool@3.16.0\\node_modules\\@crawlee\\browser-pool\\fingerprinting\\utils.js:22:31": {
+      "missing error code": {
+        "TypeError": {
+          "library.name is not a function": {
+            "count": 6
+          }
+        }
+      }
+    }
+  },
+  "retryErrors": {
+    "D:\\test_agent\\social-beam\\node_modules\\.pnpm\\@crawlee+browser-pool@3.16.0\\node_modules\\@crawlee\\browser-pool\\fingerprinting\\utils.js:22:31": {
+      "missing error code": {
+        "TypeError": {
+          "library.name is not a function": {
+            "count": 18
+          }
+        }
+      }
+    }
+  }
+}

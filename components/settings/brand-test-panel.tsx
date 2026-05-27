@@ -248,7 +248,7 @@ export function BrandTestPanel({ connectedPlatforms }: BrandTestPanelProps) {
         {(results.length > 0 || generatingPlatforms.size > 0) && (
           <div className="space-y-3">
             <Separator />
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Results</p>
+            <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">Results</p>
             {selectedPlatforms.map((platform) => {
               const result = results.find((r) => r.platform === platform);
               const isGenerating = generatingPlatforms.has(platform);

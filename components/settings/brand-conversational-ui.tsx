@@ -95,9 +95,14 @@ const DESCRIPTION_EXAMPLE =
 
 const MAX_DESCRIPTION_CHARS = 2000;
 
-export function BrandConversationalUI() {
+interface BrandConversationalUIProps {
+  initialUrl?: string;
+  isReanalyzeMode?: boolean;
+}
+
+export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConversationalUIProps) {
   const router = useRouter();
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(initialUrl ?? "");
   const [inputMode, setInputMode] = useState<"url" | "text">("url");
   const [brandDescription, setBrandDescription] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
@@ -126,6 +131,80 @@ export function BrandConversationalUI() {
   React.useEffect(() => {
     phaseRef.current = phase;
   }, [phase]);
+
+  // Auto-start analysis in re-analyze mode
+  const autoStartTriggered = React.useRef(false);
+
+  // Phase 1: set initial state for re-analyze (before paint)
+  React.useLayoutEffect(() => {
+    if (isReanalyzeMode && initialUrl && !autoStartTriggered.current) {
+      autoStartTriggered.current = true;
+      setUrl(initialUrl);
+    }
+  }, [isReanalyzeMode, initialUrl]);
+
+  // Phase 2: start the analysis after the state updates (deferred setState is OK)
+  React.useEffect(() => {
+    if (!autoStartTriggered.current || !initialUrl) return;
+    if (phase !== "idle") return;
+
+    // Defer setState via microtask to avoid cascading render warning
+    const id = setTimeout(() => {
+      setPhase("streaming");
+      setDraft({});
+      setPlatforms({});
+      setSamples([]);
+      setFindings([]);
+      setCurrentSubStep("");
+      setError(null);
+      setIsEditing(false);
+
+      streamingTimeoutRef.current = setTimeout(() => {
+        if (phaseRef.current === "streaming") {
+          setPhase("error");
+          setError("Analysis timed out. Please try again.");
+        }
+      }, 300_000);
+
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
+
+      void (async () => {
+        try {
+          const response = await fetch("/api/brand-context/stream", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ websiteUrl: initialUrl }),
+            signal: abortController.signal,
+          });
+
+          if (!response.ok) {
+            const json = await response.json().catch(() => ({ error: "Failed to start analysis" }));
+            throw new Error(json.error ?? "Failed to start analysis");
+          }
+
+          const reader = response.body?.getReader();
+          if (!reader) {
+            throw new Error("No readable stream");
+          }
+
+          await processStream(reader, abortController.signal);
+        } catch (err) {
+          if (err instanceof Error && err.name !== "AbortError") {
+            setError(err instanceof Error ? err.message : "Something went wrong");
+            setPhase("error");
+          }
+        } finally {
+          if (streamingTimeoutRef.current) {
+            clearTimeout(streamingTimeoutRef.current);
+          }
+          abortControllerRef.current = null;
+        }
+      })();
+    }, 0);
+
+    return () => clearTimeout(id);
+  }, [isReanalyzeMode, initialUrl, phase]);
 
   function getAnalysisSteps() {
     return inputMode === "url" ? URL_ANALYSIS_STEPS : TEXT_ANALYSIS_STEPS;
@@ -525,7 +604,7 @@ export function BrandConversationalUI() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                   {savedSummary.businessName && (
                     <div className="space-y-1">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                         Brand Identity
                       </p>
                       <p className="text-foreground font-medium">{savedSummary.businessName}</p>
@@ -533,7 +612,7 @@ export function BrandConversationalUI() {
                   )}
                   {savedSummary.tonePreset && (
                     <div className="space-y-1">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                         Voice
                       </p>
                       <Badge variant="outline" className="normal-case tracking-normal">
@@ -543,7 +622,7 @@ export function BrandConversationalUI() {
                   )}
                   {savedSummary.audienceType && (
                     <div className="space-y-1">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                         Audience
                       </p>
                       <Badge variant="secondary" className="normal-case tracking-normal">
@@ -552,7 +631,7 @@ export function BrandConversationalUI() {
                     </div>
                   )}
                   <div className="space-y-1">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                       Platform Strategies
                     </p>
                     <Badge variant="outline" className="normal-case tracking-normal">
@@ -626,10 +705,12 @@ export function BrandConversationalUI() {
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Sparkle className="size-5 text-brand" weight="fill" />
-            Tell me about your brand
+            {isReanalyzeMode ? "Re-analyzing your brand" : "Tell me about your brand"}
           </CardTitle>
           <CardDescription>
-            Share your website URL or describe your brand and I&apos;ll extract your brand voice, audience, and platform strategy automatically.
+            {isReanalyzeMode
+              ? "I'll crawl your site again and update your brand voice, audience, and platform strategy."
+              : "Share your website URL or describe your brand and I'll extract your brand voice, audience, and platform strategy automatically."}
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -24,7 +24,7 @@ export default function DashboardError({
     <div className="flex min-h-[60vh] items-center justify-center">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <Warning className="mx-auto size-12 text-warning" weight="fill" />
+          <Warning className="mx-auto size-12 text-destructive" weight="fill" />
           <CardTitle className="mt-3 text-xl">Something went wrong</CardTitle>
           <CardDescription>
             An unexpected error occurred while loading this page.

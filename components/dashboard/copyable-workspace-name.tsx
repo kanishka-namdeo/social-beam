@@ -1,6 +1,7 @@
 "use client";
 
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 interface CopyableWorkspaceNameProps {
   workspaceName: string;
@@ -17,12 +18,15 @@ export function CopyableWorkspaceName({ workspaceName }: CopyableWorkspaceNamePr
   };
 
   return (
-    <span
-      className="cursor-pointer text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+    <Button
+      variant="ghost"
+      size="sm"
+      className="h-auto px-2 py-1 text-sm font-medium text-muted-foreground hover:text-foreground"
       onClick={handleCopy}
       title="Click to copy workspace name"
+      aria-label={`Copy workspace name "${workspaceName}"`}
     >
       {workspaceName}
-    </span>
+    </Button>
   );
 }

@@ -45,7 +45,7 @@ export function ProfileAnalysisCard({
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {tone && (
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                 Brand Tone
               </p>
               <Badge variant="default" className="text-xs">
@@ -55,7 +55,7 @@ export function ProfileAnalysisCard({
           )}
           {postTypes && (
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                 Content Mix
               </p>
               <div className="flex flex-wrap gap-1.5">
@@ -69,7 +69,7 @@ export function ProfileAnalysisCard({
           )}
           {audience && (
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                 Audience
               </p>
               <p className="text-sm text-foreground">
@@ -81,7 +81,7 @@ export function ProfileAnalysisCard({
           )}
           {bio != null && bio.industry != null && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
             Industry
           </p>
           <p className="text-sm text-foreground">

@@ -38,15 +38,18 @@ export function OfflineIndicator() {
   if (status === "online") return null;
 
   return (
-    <Alert className="rounded-none border-x-0 border-t-0 border-b border-border bg-muted/50">
-      <WifiSlash className="size-4 text-muted-foreground" weight="bold" />
-      <AlertDescription className="text-muted-foreground">
+    <Alert
+      variant="destructive"
+      className="mx-auto max-w-3xl rounded-lg border-x border-t-0"
+    >
+      <WifiSlash className="size-4" weight="bold" />
+      <AlertDescription>
         {status === "offline"
-          ? "You're offline. Some features may not work until you're back online."
+          ? "You are offline. Some features may not work until you reconnect."
           : "Reconnecting..."}
       </AlertDescription>
       {status === "reconnecting" && (
-        <Spinner className="size-3 animate-spin text-muted-foreground" weight="bold" />
+        <Spinner className="size-3 animate-spin" weight="bold" />
       )}
     </Alert>
   );

@@ -57,7 +57,7 @@ function ProfileAnalysisContent({ profile }: { profile: { tone?: string | null; 
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {tone && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
             Brand Tone
           </p>
           <Badge variant="default" className="text-xs normal-case tracking-normal">
@@ -67,7 +67,7 @@ function ProfileAnalysisContent({ profile }: { profile: { tone?: string | null; 
       )}
       {postTypes && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
             Content Mix
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -81,7 +81,7 @@ function ProfileAnalysisContent({ profile }: { profile: { tone?: string | null; 
       )}
       {audience && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
             Audience
           </p>
           <p className="text-sm text-foreground">
@@ -93,7 +93,7 @@ function ProfileAnalysisContent({ profile }: { profile: { tone?: string | null; 
       )}
       {bio != null && bio.industry != null && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
             Industry
           </p>
           <p className="text-sm text-foreground">
@@ -417,7 +417,7 @@ export default async function DashboardPage() {
         </CardHeader>
         <CardContent>
           {connectedAccounts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border p-8 text-center">
+            <div className="flex flex-col items-center justify-center gap-3 rounded-md border border-dashed border-border p-8 text-center">
               <GlobeHemisphereEast className="size-8 text-muted-foreground" weight="light" />
               <p className="text-sm text-muted-foreground">
                 No accounts connected yet
@@ -431,7 +431,7 @@ export default async function DashboardPage() {
               {connectedAccounts.map((account: { id: string; platform: string; platformUserId: string; status: string }) => (
                 <div
                   key={account.id}
-                  className="flex items-center justify-between rounded-lg border border-border bg-card p-4"
+                  className="flex items-center justify-between rounded-md border border-border bg-card p-4 hover-lift"
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-muted-foreground" aria-hidden="true">

@@ -18,7 +18,7 @@ export function FacebookPreview({ content, account }: FacebookPreviewProps) {
 
   return (
     <div
-      className="w-full max-w-[500px] rounded-lg border border-border bg-card shadow-sm"
+      className="w-full max-w-[500px] rounded-md border border-border bg-card shadow-sm"
       role="img"
       aria-label="Facebook post preview"
     >

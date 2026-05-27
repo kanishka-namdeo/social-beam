@@ -124,7 +124,7 @@ export function BestTimesHeatmap({ data }: BestTimesHeatmapProps) {
         {/* Top recommended times */}
         {topSlots.length > 0 && (
           <div className="space-y-2 pt-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
               Recommended Posting Times
             </p>
             <div className="flex flex-wrap gap-2">

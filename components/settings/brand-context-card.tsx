@@ -101,7 +101,6 @@ const statusBadgeConfig: Record<string, { variant: "default" | "secondary" | "ou
 export function BrandContextCard({ brandContext }: BrandContextCardProps) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
-  const [reanalyzing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
@@ -152,7 +151,7 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
   }
 
   function handleReanalyze() {
-    router.push("/settings/brand");
+    router.push(`/settings/brand?mode=reanalyze&url=${encodeURIComponent(brandContext.websiteUrl ?? "")}`);
   }
 
   if (editing) {
@@ -191,7 +190,7 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
           <div className="grid gap-4 sm:grid-cols-2">
             {brandContext.businessName && (
               <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                   Business Name
                 </p>
                 <p className="text-sm font-medium text-foreground">
@@ -201,7 +200,7 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
             )}
             {brandContext.industry && (
               <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                   Industry
                 </p>
                 <p className="text-sm text-foreground">
@@ -211,7 +210,7 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
             )}
             {brandContext.tagline && (
               <div className="space-y-1 sm:col-span-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                   Tagline
                 </p>
                 <p className="text-sm text-foreground">
@@ -221,7 +220,7 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
             )}
             {brandContext.websiteUrl && (
               <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                   Website
                 </p>
                 <a
@@ -249,11 +248,11 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
             <Button
               variant="outline"
               onClick={handleReanalyze}
-              disabled={reanalyzing || saving}
+              disabled={saving}
               className="min-h-10"
             >
-              <ArrowCounterClockwise className={cn("size-4", reanalyzing && "animate-spin")} />
-              {reanalyzing ? "Re-analyzing..." : "Re-analyze"}
+              <ArrowCounterClockwise className="size-4" />
+              Re-analyze
             </Button>
             <Button
               variant="outline"
@@ -320,7 +319,7 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
         <CardContent className="space-y-4">
           {brandContext.tonePreset && (
             <div className="space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                 Tone Preset
               </p>
               <Badge variant="outline" className="normal-case tracking-normal">
@@ -330,7 +329,7 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
           )}
           {brandContext.voiceDescription && (
             <div className="space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                 Voice Description
               </p>
               <p className="text-sm text-foreground">
@@ -340,7 +339,7 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
           )}
           {brandContext.bannedWords.length > 0 && (
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                 Banned Words
               </p>
               <div className="flex flex-wrap gap-1.5">
@@ -373,7 +372,7 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
         <CardContent className="space-y-4">
           {brandContext.audienceType && (
             <div className="space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                 Audience Type
               </p>
               <Badge variant="outline" className="normal-case tracking-normal">
@@ -383,7 +382,7 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
           )}
           {brandContext.interests.length > 0 && (
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                 Interests
               </p>
               <div className="flex flex-wrap gap-1.5">
@@ -401,7 +400,7 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
           )}
           {brandContext.painPoints.length > 0 && (
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                 Pain Points
               </p>
               <div className="flex flex-wrap gap-1.5">
@@ -471,7 +470,7 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
                     <div className="grid gap-4 sm:grid-cols-2">
                       {pc.platformTone && (
                         <div className="space-y-1">
-                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                             Tone
                           </p>
                           <Badge variant="outline" className="normal-case tracking-normal">
@@ -481,7 +480,7 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
                       )}
                       {pc.postingCadence && (
                         <div className="space-y-1">
-                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                             Cadence
                           </p>
                           <p className="text-sm text-foreground">
@@ -491,7 +490,7 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
                       )}
                       {pc.visualStyle && (
                         <div className="space-y-1 sm:col-span-2">
-                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                             Visual Style
                           </p>
                           <p className="text-sm text-foreground">
@@ -501,7 +500,7 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
                       )}
                       {pc.engagementStyle && (
                         <div className="space-y-1 sm:col-span-2">
-                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                             Engagement Style
                           </p>
                           <p className="text-sm text-foreground">
@@ -511,7 +510,7 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
                       )}
                       {pc.platformRules.length > 0 && (
                         <div className="space-y-2 sm:col-span-2">
-                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                             Platform Rules
                           </p>
                           <div className="flex flex-wrap gap-1.5">

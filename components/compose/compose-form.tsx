@@ -178,6 +178,7 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
   // Track original AI-generated content for learning signal capture
   const aiGeneratedRef = useRef<Record<string, string>>({});
   const prevContentRef = useRef<string>("");
+  const learningCapturedRef = useRef<Record<string, boolean>>({});
 
   const captureEditLearningSignal = useCallback(async (platform: string, originalContent: string, editedContent: string) => {
     if (originalContent === editedContent || Math.abs(editedContent.length - originalContent.length) < 3) return;
@@ -189,7 +190,7 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
           originalContent,
           editedContent,
           platform,
-          signalType: "post_edit",
+          signalType: "post_edit_diff",
         }),
       });
     } catch {
@@ -200,10 +201,13 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
   const handleContentChange = useCallback((html: string, textContent: string) => {
     // Capture learning signal if editing AI-generated content
     const currentPlatform = selectedPlatforms[0];
-    if (currentPlatform && aiGeneratedRef.current[currentPlatform]) {
+    if (currentPlatform && aiGeneratedRef.current[currentPlatform] && !learningCapturedRef.current[currentPlatform]) {
       const original = aiGeneratedRef.current[currentPlatform];
-      if (prevContentRef.current !== textContent && prevContentRef.current === original) {
+      const charDiff = Math.abs(textContent.length - original.length);
+      const pctDiff = charDiff / Math.max(original.length, 1);
+      if (charDiff >= 50 || pctDiff >= 0.1) {
         captureEditLearningSignal(currentPlatform, original, textContent);
+        learningCapturedRef.current[currentPlatform] = true;
       }
     }
     setContentHtml(html);
@@ -215,6 +219,9 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
   const handleAiInsert = useCallback((platform: string, content: string) => {
     setContentText(content);
     setContentHtml(`<p>${content.replace(/\n/g, "<br/>")}</p>`);
+    aiGeneratedRef.current[platform] = content;
+    prevContentRef.current = "";
+    learningCapturedRef.current[platform] = false;
     if (!selectedPlatforms.includes(platform)) {
       setSelectedPlatforms((prev) => [...prev, platform]);
     }
@@ -429,11 +436,11 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
         </div>
 
         <div className="space-y-3">
-          <Label className="text-xs font-medium">
+          <p className="text-sm font-medium text-foreground">
             Platforms
-          </Label>
+          </p>
           {connectedPlatforms.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border p-6 text-center">
+            <div className="rounded-md border border-dashed border-border p-6 text-center">
               <p className="text-sm text-muted-foreground">
                 No accounts connected yet.{" "}
                 <a href="/settings?tab=accounts" className="text-brand underline underline-offset-2">
@@ -447,12 +454,13 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
               {connectedPlatforms.map((platform) => {
                 const isSelected = selectedPlatforms.includes(platform);
                 return (
-                  <button
+                  <Button
                     key={platform}
                     type="button"
+                    variant={isSelected ? "default" : "outline"}
                     onClick={() => togglePlatform(platform)}
                     className={cn(
-                      "flex items-center gap-3 rounded-lg border p-3 text-left transition-all duration-150 hover-scale",
+                      "flex min-h-10 items-center gap-3 rounded-md justify-start p-3 text-left transition-all duration-150 hover-scale",
                       isSelected
                         ? "border-brand bg-brand/5"
                         : "border-border hover:bg-muted",
@@ -469,7 +477,7 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
                     {isSelected && (
                       <Check className="size-4 text-brand animate-[scale-in_150ms_ease-out]" weight="bold" />
                     )}
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -489,9 +497,9 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-xs font-medium normal-case tracking-normal">
+            <p className="text-sm font-medium text-foreground normal-case tracking-normal">
               Media
-            </Label>
+            </p>
             <Button
               variant="outline"
               size="sm"
@@ -516,7 +524,7 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
                     onClick={() =>
                       setMediaAssets((prev) => prev.filter((a) => a.id !== asset.id))
                     }
-                    className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-background border border-border flex items-center justify-center hover:bg-destructive/10"
+                    className="absolute -top-1.5 -right-1.5 min-h-6 min-w-6 rounded-sm bg-background border border-border flex items-center justify-center hover:bg-destructive/10"
                     aria-label={`Remove ${asset.originalName}`}
                   >
                     <X className="size-3" weight="bold" />
@@ -537,11 +545,11 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
           connectedAccounts={connectedAccounts}
         />
 
-        <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
+        <div className="flex items-center justify-between rounded-md border border-border bg-card p-4">
           <div className="space-y-0.5">
-            <Label htmlFor="schedule-toggle" className="text-sm font-medium normal-case tracking-normal">
+            <p className="text-sm font-medium text-foreground normal-case tracking-normal">
               Schedule for later
-            </Label>
+            </p>
             <p className="text-xs text-muted-foreground">
               Pick a date and time to publish automatically.
             </p>
@@ -555,9 +563,9 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
 
         {scheduleEnabled && (
           <div className="space-y-2">
-            <Label htmlFor="schedule-datetime" className="text-xs font-medium normal-case tracking-normal">
+            <p className="text-sm font-medium text-foreground normal-case tracking-normal">
               Publish date & time
-            </Label>
+            </p>
             <div className="flex items-center gap-2">
               <Clock className="size-4 text-muted-foreground shrink-0" />
               <Input
@@ -631,10 +639,11 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
           )}
           <Button
             variant="ghost"
-            size="sm"
+            size="default"
             onClick={requestClear}
             disabled={isSubmitting}
             className="hover-scale"
+            aria-label="Clear form"
           >
             Clear
           </Button>

@@ -23,7 +23,7 @@ export function LandingNav() {
     <header className="sticky top-0 z-50 backdrop-blur bg-background/80 border-b border-border">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 text-foreground font-semibold text-lg">
-          <Sparkle weight="fill" className="w-6 h-6 text-brand" />
+          <Sparkle weight="fill" className="w-6 h-6 text-brand" aria-hidden="true" />
           SocialBeam
         </Link>
 
@@ -32,7 +32,7 @@ export function LandingNav() {
             <a
               key={link.href}
               href={link.href}
-              className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
+              className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm px-1 py-0.5"
             >
               {link.label}
             </a>
@@ -50,8 +50,8 @@ export function LandingNav() {
 
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu">
-              <Hamburger className="w-5 h-5" />
+            <Button variant="ghost" size="icon" className="md:hidden min-h-10 min-w-10" aria-label="Open menu">
+              <Hamburger className="w-5 h-5" aria-hidden="true" />
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="w-64">

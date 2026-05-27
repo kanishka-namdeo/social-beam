@@ -17,7 +17,7 @@ export function OnboardingBanner() {
       toast.info("Onboarding skipped. You can always complete it later in Settings.");
       router.refresh();
     } catch (error) {
-      console.error("onboarding_banner.skip_failed", error);
+      toast.error("Failed to skip onboarding. Redirecting...");
       router.push("/onboarding");
     } finally {
       setSkipping(false);

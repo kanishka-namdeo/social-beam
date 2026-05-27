@@ -80,7 +80,7 @@ export function BrandAnalyzerForm() {
           <div className="grid gap-4 sm:grid-cols-2">
             {brand.businessName && (
               <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                   Brand Name
                 </p>
                 <p className="text-sm font-medium text-foreground">
@@ -90,7 +90,7 @@ export function BrandAnalyzerForm() {
             )}
             {brand.industry && (
               <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                   Industry
                 </p>
                 <p className="text-sm text-foreground">

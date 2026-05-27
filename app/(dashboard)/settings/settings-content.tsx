@@ -135,25 +135,25 @@ function PlatformConnectButton({ platform, label }: { platform: string; label: s
   };
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <Button
-        variant="outline"
-        className="flex h-auto w-full flex-col items-center gap-2 p-4 text-center hover:bg-muted/50 transition-colors"
-        onClick={handleConnect}
-        disabled={connecting}
-      >
-        <span className="text-muted-foreground" aria-hidden="true">
-          {platformIcons[platform]}
-        </span>
-        <span className="text-sm font-medium text-foreground">{label}</span>
-        {connecting && (
-          <span className="text-xs text-muted-foreground">Connecting...</span>
-        )}
-      </Button>
-      {error && (
-        <p className="text-xs text-destructive text-center break-all px-1">{error}</p>
-      )}
-    </div>
+                  <div className="flex flex-col items-center gap-2">
+                    <Button
+                      variant="outline"
+                      className="flex h-auto w-full flex-col items-center gap-2 p-4 text-center hover:bg-accent/50 transition-colors"
+                      onClick={handleConnect}
+                      disabled={connecting}
+                    >
+                      <span className="text-muted-foreground" aria-hidden="true">
+                        {platformIcons[platform]}
+                      </span>
+                      <span className="text-sm font-medium text-foreground">{label}</span>
+                      {connecting && (
+                        <span className="text-xs text-muted-foreground">Connecting...</span>
+                      )}
+                    </Button>
+                    {error && (
+                      <p className="text-xs text-destructive text-center break-all px-1" role="alert">{error}</p>
+                    )}
+                  </div>
   );
 }
 
@@ -226,11 +226,11 @@ export function SettingsContent({
 
   return (
     <Tabs value={tab} onValueChange={setTab} className="space-y-6">
-      <TabsList className="h-10">
-        <TabsTrigger value="overview" className="data-[state=active]:text-brand data-[state=active]:border-brand border-b-2 border-transparent">Overview</TabsTrigger>
-        <TabsTrigger value="accounts" className="data-[state=active]:text-brand data-[state=active]:border-brand border-b-2 border-transparent">Connected Accounts</TabsTrigger>
-        <TabsTrigger value="ai" className="data-[state=active]:text-brand data-[state=active]:border-brand border-b-2 border-transparent">AI Guardrails</TabsTrigger>
-        <TabsTrigger value="navigation" className="data-[state=active]:text-brand data-[state=active]:border-brand border-b-2 border-transparent">Navigation</TabsTrigger>
+      <TabsList className="h-10 gap-1 bg-transparent p-0">
+        <TabsTrigger value="overview" className="data-[state=active]:bg-brand/10 data-[state=active]:text-brand rounded-md transition-all">Overview</TabsTrigger>
+        <TabsTrigger value="accounts" className="data-[state=active]:bg-brand/10 data-[state=active]:text-brand rounded-md transition-all">Connected Accounts</TabsTrigger>
+        <TabsTrigger value="ai" className="data-[state=active]:bg-brand/10 data-[state=active]:text-brand rounded-md transition-all">AI Guardrails</TabsTrigger>
+        <TabsTrigger value="navigation" className="data-[state=active]:bg-brand/10 data-[state=active]:text-brand rounded-md transition-all">Navigation</TabsTrigger>
       </TabsList>
 
       {tabLoading ? (
@@ -411,7 +411,7 @@ export function SettingsContent({
 
                 {/* Quick-connect CTAs */}
                 <div className="mt-6">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                  <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground mb-3">
                     Connect more platforms
                   </p>
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">

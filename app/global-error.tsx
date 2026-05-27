@@ -15,7 +15,11 @@ export default function GlobalError({
   useEffect(() => {
     // Report to error tracking in production
     if (process.env.NODE_ENV === "production") {
-      console.error("global-error:", error.digest, error.message);
+      fetch("/api/compose/error", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: error.message, digest: error.digest, page: "global" }),
+      }).catch(() => {});
     }
   }, [error]);
 

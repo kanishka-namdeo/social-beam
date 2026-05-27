@@ -29,7 +29,7 @@ export function MobileMenu({ navItems, userName }: MobileMenuProps) {
       </SheetTrigger>
       <SheetContent side="left" className="w-64 p-0">
         <div className="flex h-14 items-center border-b border-border px-5">
-          <Link href="/dashboard" className="text-sm font-semibold tracking-wider uppercase text-sidebar-foreground">
+          <Link href="/dashboard" className="text-sm font-semibold tracking-tight uppercase text-sidebar-foreground">
             SocialBeam
           </Link>
         </div>
@@ -41,12 +41,12 @@ export function MobileMenu({ navItems, userName }: MobileMenuProps) {
           <span className="text-sm font-medium text-muted-foreground truncate">
             {userName ?? "User"}
           </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSignOut}
-            className="text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer"
-          >
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleSignOut}
+          className="text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer min-h-10"
+        >
             <SignOut className="size-4 mr-1.5" />
             Sign Out
           </Button>

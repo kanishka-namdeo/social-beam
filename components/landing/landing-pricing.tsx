@@ -75,7 +75,7 @@ export function LandingPricing() {
           {tiers.map((tier) => (
             <Card
               key={tier.name}
-              className={`border-border flex flex-col ${tier.popular ? "ring-2 ring-brand" : ""}`}
+              className={`border-border flex flex-col hover-lift transition-shadow ${tier.popular ? "ring-2 ring-brand relative" : ""}`}
             >
               <CardHeader>
                 <div className="flex items-center gap-2 mb-2">
@@ -98,7 +98,7 @@ export function LandingPricing() {
                 <ul className="space-y-3">
                   {tier.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2 text-sm text-foreground">
-                      <Check weight="bold" className="w-4 h-4 text-brand mt-0.5 shrink-0" />
+                      <Check weight="bold" className="w-4 h-4 text-brand mt-0.5 shrink-0" aria-hidden="true" />
                       {feature}
                     </li>
                   ))}

@@ -55,7 +55,7 @@ function FooterColumn({
           <li key={link.href}>
             <Link
               href={link.href}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors min-h-10 flex items-center"
             >
               {link.label}
             </Link>
@@ -123,24 +123,24 @@ export function LandingFooterCta() {
           <div className="flex items-center gap-4">
             <Link
               href="https://x.com/socialbeam"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors min-h-10 min-w-10 flex items-center justify-center rounded-md hover:bg-accent"
               aria-label="X (Twitter)"
             >
-              <XLogo className="size-5" />
+              <XLogo className="size-5" aria-hidden="true" />
             </Link>
             <Link
               href="https://linkedin.com/company/socialbeam"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors min-h-10 min-w-10 flex items-center justify-center rounded-md hover:bg-accent"
               aria-label="LinkedIn"
             >
-              <LinkedinLogo className="size-5" />
+              <LinkedinLogo className="size-5" aria-hidden="true" />
             </Link>
             <Link
               href="https://github.com/socialbeam"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors min-h-10 min-w-10 flex items-center justify-center rounded-md hover:bg-accent"
               aria-label="GitHub"
             >
-              <GithubLogo className="size-5" />
+              <GithubLogo className="size-5" aria-hidden="true" />
             </Link>
           </div>
         </div>

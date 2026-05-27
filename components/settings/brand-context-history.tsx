@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,7 +25,7 @@ export function BrandContextHistory() {
   const [restoring, setRestoring] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchHistory = useCallback(async () => {
+  async function reloadHistory() {
     setLoading(true);
     setError(null);
     try {
@@ -40,11 +40,13 @@ export function BrandContextHistory() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }
 
+  /* eslint-disable react-hooks/set-state-in-effect -- safe: only fires on mount, setState is in async function */
   useEffect(() => {
-    void fetchHistory();
-  }, [fetchHistory]);
+    void reloadHistory();
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   async function handleRestore(versionId: string) {
     setRestoring(versionId);
@@ -63,7 +65,7 @@ export function BrandContextHistory() {
         description: "Previous version has been applied.",
       });
       router.refresh();
-      fetchHistory();
+      await reloadHistory();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to restore");
     } finally {

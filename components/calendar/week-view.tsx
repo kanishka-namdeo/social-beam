@@ -26,7 +26,7 @@ export function WeekView({ currentDate, posts, onPreview, onDelete, onDuplicate 
   const today = new Date();
 
   return (
-    <div className="rounded-lg border border-border overflow-hidden">
+    <div className="rounded-md border border-border overflow-hidden">
       {/* Header row */}
       <div className="grid grid-cols-8 border-b border-border bg-muted/30">
         <div className="p-2 border-r border-border w-16" />

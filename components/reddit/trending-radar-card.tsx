@@ -174,7 +174,7 @@ export function TrendingRadarCard({ posts, isLoading }: TrendingRadarCardProps) 
               </span>
               <span className="text-muted-foreground">{jobStatus.progress}%</span>
             </div>
-            <div className="h-1.5 w-full bg-brand/10 rounded-full overflow-hidden">
+            <div className="h-1.5 w-full bg-brand/10 rounded-sm overflow-hidden">
               <Progress value={jobStatus.progress} className="h-1.5 bg-brand/10" />
             </div>
             <p className="text-xs text-muted-foreground">
@@ -197,9 +197,8 @@ export function TrendingRadarCard({ posts, isLoading }: TrendingRadarCardProps) 
             </div>
             <div className="flex gap-2">
               <Button
-                variant="brand"
                 size="sm"
-                className="text-xs"
+                className="text-xs bg-brand text-brand-foreground hover:bg-brand/90"
                 onClick={() => handlePostAction(topTrend)}
               >
                 Create Post

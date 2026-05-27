@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
@@ -24,7 +24,6 @@ import {
   PencilSimple,
   ThumbsUp,
   ThumbsDown,
-  Trash,
   Robot,
   ChatText,
 } from "@phosphor-icons/react/ssr";
@@ -117,7 +116,7 @@ export function BrandLearningCard() {
   const [signalsPage, setSignalsPage] = useState(1);
   const [signalsTotal, setSignalsTotal] = useState(0);
 
-  const fetchSuggestions = useCallback(async () => {
+  async function loadSuggestions() {
     setLoading(true);
     setError(null);
     try {
@@ -133,9 +132,9 @@ export function BrandLearningCard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }
 
-  const fetchSignals = useCallback(async (page = 1) => {
+  async function loadSignals(page = 1) {
     setSignalsLoading(true);
     try {
       const res = await fetch(`/api/brand-context/signals?page=${page}&limit=10`);
@@ -149,12 +148,14 @@ export function BrandLearningCard() {
     } finally {
       setSignalsLoading(false);
     }
-  }, []);
+  }
 
+  /* eslint-disable react-hooks/set-state-in-effect -- safe: only fires on mount, setState is in async function */
   useEffect(() => {
-    void fetchSuggestions();
-    void fetchSignals();
-  }, [fetchSuggestions, fetchSignals]);
+    void loadSuggestions();
+    void loadSignals();
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   async function handleApply(fieldName: string, newValue: unknown) {
     setApplying(fieldName);
@@ -172,8 +173,8 @@ export function BrandLearningCard() {
       }
       setDismissed((prev) => new Set(prev).add(fieldName));
       router.refresh();
-      fetchSuggestions();
-      fetchSignals(signalsPage);
+      await loadSuggestions();
+      await loadSignals(signalsPage);
     } catch {
       setError("Network error. Please try again.");
     } finally {
@@ -402,7 +403,7 @@ export function BrandLearningCard() {
                         variant="outline"
                         size="sm"
                         disabled={signalsPage <= 1}
-                        onClick={() => fetchSignals(signalsPage - 1)}
+                        onClick={() => void loadSignals(signalsPage - 1)}
                       >
                         Previous
                       </Button>
@@ -410,7 +411,7 @@ export function BrandLearningCard() {
                         variant="outline"
                         size="sm"
                         disabled={signalsPage * 10 >= signalsTotal}
-                        onClick={() => fetchSignals(signalsPage + 1)}
+                        onClick={() => void loadSignals(signalsPage + 1)}
                       >
                         Next
                       </Button>

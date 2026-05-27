@@ -350,7 +350,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
                   positive
                 />
               </div>
-              <div className="mt-6 rounded-lg bg-muted/50 p-4">
+              <div className="mt-6 rounded-md bg-muted/50 p-4">
                 <p className="text-xs font-medium text-muted-foreground mb-2">Top post this week</p>
                 <div className="flex items-center gap-3">
                   <Badge variant="outline" className="text-xs">Instagram</Badge>
@@ -439,7 +439,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
 
 function MockMetricCard({ icon, label, value, change, positive }: { icon: React.ReactNode; label: string; value: string; change: string; positive: boolean }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-4 text-left">
+    <div className="rounded-md border border-border bg-card p-4 text-left hover-lift">
       <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-1">
         {icon}
         <span>{label}</span>

@@ -193,7 +193,7 @@ function InlineEditableField({
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-2">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
           {label}
         </p>
         <ConfidenceBadge level={confidence.level} reason={confidence.reason} />
@@ -557,7 +557,7 @@ export function BrandContextReview({
                 )}
                 {productDesc && (
                   <div className="space-y-1">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                       What You Do
                     </p>
                     <p className="text-sm text-foreground">{productDesc}</p>
@@ -600,7 +600,7 @@ export function BrandContextReview({
             <div className="grid gap-4 sm:grid-cols-2">
               {websiteUrl && (
                 <div className="space-y-1">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                     Website
                   </p>
                   <a
@@ -650,7 +650,7 @@ export function BrandContextReview({
               <div className="space-y-4">
                 {tonePreset && (
                   <div className="space-y-1">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                       Tone
                     </p>
                     <Badge variant="outline" className="normal-case tracking-normal">
@@ -660,7 +660,7 @@ export function BrandContextReview({
                 )}
                 {voiceDescription && (
                   <div className="space-y-1">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                       Voice
                     </p>
                     <p className="text-sm text-foreground">{voiceDescription}</p>
@@ -668,7 +668,7 @@ export function BrandContextReview({
                 )}
                 {bannedWords.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                       Banned Words
                     </p>
                     <div className="flex flex-wrap gap-1.5">
@@ -718,7 +718,7 @@ export function BrandContextReview({
               <div className="space-y-4">
                 {interests.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                       Interests
                     </p>
                     <div className="flex flex-wrap gap-1.5">
@@ -732,7 +732,7 @@ export function BrandContextReview({
                 )}
                 {painPoints.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                       Pain Points
                     </p>
                     <div className="flex flex-wrap gap-1.5">
@@ -746,7 +746,7 @@ export function BrandContextReview({
                 )}
                 {competitors.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                       Competitors
                     </p>
                     <div className="flex flex-wrap gap-1.5">
@@ -904,7 +904,7 @@ export function BrandContextReview({
                         <div className="grid gap-3 sm:grid-cols-2 text-sm">
                           {pc.platformTone && (
                             <div className="space-y-1">
-                              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                              <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                                 Tone
                               </p>
                               <Badge variant="outline" className="normal-case tracking-normal">
@@ -914,7 +914,7 @@ export function BrandContextReview({
                           )}
                           {pc.postingCadence && (
                             <div className="space-y-1">
-                              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                              <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                                 Cadence
                               </p>
                               <p className="text-foreground">{pc.postingCadence as string}</p>
@@ -922,7 +922,7 @@ export function BrandContextReview({
                           )}
                           {pc.visualStyle && (
                             <div className="space-y-1">
-                              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                              <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                                 Visual Style
                               </p>
                               <p className="text-foreground">{pc.visualStyle as string}</p>
@@ -930,7 +930,7 @@ export function BrandContextReview({
                           )}
                           {pc.engagementStyle && (
                             <div className="space-y-1 sm:col-span-2">
-                              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                              <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
                                 Engagement
                               </p>
                               <p className="text-foreground">{pc.engagementStyle as string}</p>

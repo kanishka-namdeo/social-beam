@@ -17,7 +17,7 @@ export function PinterestPreview({ content, title, account }: PinterestPreviewPr
   const avatarFallback = displayName.charAt(0).toUpperCase();
   return (
     <div
-      className="w-full max-w-[236px] overflow-hidden rounded-xl bg-card border border-border shadow-sm"
+      className="w-full max-w-[236px] overflow-hidden rounded-lg bg-card border border-border shadow-sm"
       role="img"
       aria-label="Pinterest pin preview"
     >

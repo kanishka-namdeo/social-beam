@@ -1,7 +1,7 @@
 # SocialBeam — Design System
 
-> Version 1.0.0
-> Date: 2026-05-18
+> Version 1.1.0
+> Date: 2026-05-26
 > Status: Living document
 > Purpose: Canonical design intent for SocialBeam's Next.js 16 web application. All UI work must follow these blueprints.
 

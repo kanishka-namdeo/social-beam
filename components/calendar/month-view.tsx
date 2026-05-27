@@ -48,7 +48,7 @@ export function MonthView({ currentDate, posts, onDateClick, onPreview, onDelete
         {DAY_NAMES.map((name) => (
           <div
             key={name}
-            className="py-1.5 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+            className="py-1.5 text-center text-xs font-semibold uppercase tracking-tight text-muted-foreground"
           >
             {name}
           </div>

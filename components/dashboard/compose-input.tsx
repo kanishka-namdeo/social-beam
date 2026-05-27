@@ -31,9 +31,9 @@ export function ComposeInput() {
         placeholder="What do you want to post about? Press Enter to compose..."
         className="text-base border-brand/20 bg-brand/5 focus-within:border-brand"
       />
-      <Button variant="default" size="default" onClick={handleCompose}>
+      <Button variant="default" size="sm" onClick={handleCompose} className="shrink-0">
         Compose
-        <ArrowRight className="ml-1" weight="bold" />
+        <ArrowRight className="ml-1 size-4" weight="bold" />
       </Button>
     </div>
   );

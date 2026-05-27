@@ -83,9 +83,9 @@ export default function ApiPage() {
           {apiFeatures.map((feature) => {
             const Icon = feature.icon;
             return (
-              <Card key={feature.title} className="border-border">
+              <Card key={feature.title} className="border-border hover-lift transition-shadow">
                 <CardHeader className="pb-3">
-                  <div className="p-3 bg-brand/10 text-brand w-fit mb-3">
+                  <div className="p-3 bg-brand/10 text-brand w-fit mb-3 rounded-md" aria-hidden="true">
                     <Icon className="w-6 h-6" />
                   </div>
                   <CardTitle className="text-lg text-foreground">{feature.title}</CardTitle>
@@ -106,7 +106,7 @@ export default function ApiPage() {
             <CardDescription>Schedule your first post via API in under a minute.</CardDescription>
           </CardHeader>
           <CardContent>
-            <pre className="bg-card border border-border rounded-lg p-4 overflow-x-auto text-sm text-foreground">
+            <pre className="bg-card border border-border rounded-lg p-4 overflow-x-auto text-sm text-foreground font-mono">
               <code>{codeExample}</code>
             </pre>
           </CardContent>

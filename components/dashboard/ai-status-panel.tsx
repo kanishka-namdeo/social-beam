@@ -71,7 +71,7 @@ export function AIStatusPanel({ agentActivity, pendingReviews }: AIStatusPanelPr
                         {review.platforms.join(" · ")} · {new Date(review.createdAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <Button variant="outline" size="xs">
+                    <Button variant="outline" size="sm">
                       Review
                     </Button>
                   </div>

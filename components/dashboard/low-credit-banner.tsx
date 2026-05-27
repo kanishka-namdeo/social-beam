@@ -42,7 +42,7 @@ export function LowCreditBanner() {
       <Button
         variant="ghost"
         size="sm"
-        className="h-6 w-6 p-0 text-destructive"
+        className="h-8 w-8 p-0 text-destructive shrink-0"
         onClick={handleDismiss}
         aria-label="Dismiss low credits warning"
       >
