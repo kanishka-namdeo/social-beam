@@ -2,9 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import {
   Envelope,
@@ -17,6 +14,7 @@ import {
   MapPin,
 } from "@phosphor-icons/react/ssr";
 import { LandingPageShell } from "@/components/landing/landing-page-shell";
+import { ContactForm } from "./contact-form";
 
 export const metadata: Metadata = {
   title: "Contact Us — SocialBeam",
@@ -38,40 +36,15 @@ export default function ContactPage() {
       <div className="max-w-4xl mx-auto space-y-12">
         <div className="grid gap-8 md:grid-cols-2">
           {/* Contact Form */}
-          <Card className="border-border">
+          <Card className="border-border rounded-sm">
             <CardHeader>
-              <CardTitle className="text-xl text-foreground">Send us a message</CardTitle>
+              <CardTitle className="text-xl text-foreground tracking-tight">Send us a message</CardTitle>
               <CardDescription className="text-muted-foreground">
                 Fill out the form below and we will get back to you as soon as possible.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
-                <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input id="name" placeholder="Your full name" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="you@example.com" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="subject">Subject</Label>
-                  <Input id="subject" placeholder="What is this about?" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="message">Message</Label>
-                  <Textarea
-                    id="message"
-                    placeholder="Tell us more..."
-                    rows={5}
-                  />
-                </div>
-                <Button type="submit" className="w-full gap-2">
-                  Send message
-                  <ArrowRight weight="bold" className="w-4 h-4" />
-                </Button>
-              </form>
+              <ContactForm />
             </CardContent>
           </Card>
 
@@ -81,10 +54,10 @@ export default function ContactPage() {
             <Card className="border-border">
               <CardHeader>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-lg bg-brand/10 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-sm bg-brand/10 flex items-center justify-center">
                     <Envelope className="w-5 h-5 text-brand" />
                   </div>
-                  <CardTitle className="text-base text-foreground">Email</CardTitle>
+                  <CardTitle className="text-base text-foreground tracking-tight">Email</CardTitle>
                 </div>
                 <CardDescription>
                   Reach us directly at{" "}
@@ -96,13 +69,13 @@ export default function ContactPage() {
             </Card>
 
             {/* Response Time */}
-            <Card className="border-border">
+            <Card className="border-border rounded-sm">
               <CardHeader>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-lg bg-brand/10 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-sm bg-brand/10 flex items-center justify-center">
                     <Clock className="w-5 h-5 text-brand" />
                   </div>
-                  <CardTitle className="text-base text-foreground">Response Time</CardTitle>
+                  <CardTitle className="text-base text-foreground tracking-tight">Response Time</CardTitle>
                 </div>
                 <CardContent className="pl-0 pt-0">
                   <div className="space-y-3 text-muted-foreground text-sm">
@@ -124,13 +97,13 @@ export default function ContactPage() {
             </Card>
 
             {/* Social Media */}
-            <Card className="border-border">
+            <Card className="border-border rounded-sm">
               <CardHeader>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-lg bg-brand/10 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-sm bg-brand/10 flex items-center justify-center">
                     <ChatCircleText className="w-5 h-5 text-brand" />
                   </div>
-                  <CardTitle className="text-base text-foreground">Follow Us</CardTitle>
+                  <CardTitle className="text-base text-foreground tracking-tight">Follow Us</CardTitle>
                 </div>
                 <CardContent className="pl-0 pt-0">
                   <div className="flex gap-3">
@@ -138,7 +111,7 @@ export default function ContactPage() {
                       href="https://twitter.com/socialbeam"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-brand hover:border-brand/50 transition-colors"
+                      className="w-10 h-10 rounded-sm border border-border flex items-center justify-center text-muted-foreground hover:text-brand hover:border-brand/50 transition-colors"
                       aria-label="Follow us on X (Twitter)"
                     >
                       <TwitterLogo className="w-5 h-5" />
@@ -147,7 +120,7 @@ export default function ContactPage() {
                       href="https://linkedin.com/company/socialbeam"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-brand hover:border-brand/50 transition-colors"
+                      className="w-10 h-10 rounded-sm border border-border flex items-center justify-center text-muted-foreground hover:text-brand hover:border-brand/50 transition-colors"
                       aria-label="Follow us on LinkedIn"
                     >
                       <LinkedinLogo className="w-5 h-5" />
@@ -156,7 +129,7 @@ export default function ContactPage() {
                       href="https://instagram.com/socialbeam"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-brand hover:border-brand/50 transition-colors"
+                      className="w-10 h-10 rounded-sm border border-border flex items-center justify-center text-muted-foreground hover:text-brand hover:border-brand/50 transition-colors"
                       aria-label="Follow us on Instagram"
                     >
                       <InstagramLogo className="w-5 h-5" />

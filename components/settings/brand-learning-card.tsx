@@ -318,7 +318,7 @@ export function BrandLearningCard() {
                 {signalsLoading && (
                   <div className="space-y-3">
                     {[...Array(3)].map((_, i) => (
-                      <div key={i} className="flex items-start gap-3 rounded-lg border bg-card p-3">
+                      <div key={i} className="flex items-start gap-3 rounded-sm border bg-card p-3">
                         <Skeleton className="size-4 rounded-full" />
                         <div className="flex-1 space-y-2">
                           <Skeleton className="h-4 w-32" />
@@ -344,7 +344,7 @@ export function BrandLearningCard() {
                       return (
                         <div
                           key={signal.id}
-                          className="flex items-start justify-between gap-3 rounded-lg border bg-card p-3"
+                          className="flex items-start justify-between gap-3 rounded-sm border bg-card p-3"
                         >
                           <div className="flex items-start gap-3 flex-1">
                             <div className="mt-0.5 text-muted-foreground">

@@ -8,6 +8,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { PostChip } from "./post-chip";
+import { useInvisibleAI } from "@/lib/invisible-ai-context";
 
 import type { PostItem } from "./types";
 
@@ -24,6 +25,7 @@ interface DayCellProps {
 }
 
 export function DayCell({ date, isCurrentMonth, isToday, isWeekend = false, posts, onDateClick, onPreview, onDelete, onDuplicate }: DayCellProps) {
+  const { config } = useInvisibleAI();
   const { setNodeRef, isOver } = useDroppable({
     id: `day-${date.toISOString()}`,
     data: {
@@ -40,13 +42,13 @@ export function DayCell({ date, isCurrentMonth, isToday, isWeekend = false, post
     <div
       ref={setNodeRef}
       className={cn(
-        "relative flex min-h-[100px] flex-col rounded-md border p-1.5 transition-colors duration-150",
+        "relative flex min-h-[120px] flex-col rounded-sm border border-border p-2 transition-colors duration-150",
         isCurrentMonth
-          ? "border-border bg-card"
+          ? "bg-card"
           : "border-dashed border-border/50 bg-muted/10",
-        isToday && "bg-brand/10 border-brand/40",
+        isToday && "bg-brand/10 border-l-2 border-l-brand",
         isWeekend && !isToday && "bg-muted/20",
-        isOver && "border-brand border-2 border-dashed bg-brand/10",
+        isOver && "border-2 border-dashed border-brand bg-brand/10",
         !isOver && isCurrentMonth && "hover:bg-muted/50",
         showGapIndicator && "cursor-pointer",
       )}
@@ -57,12 +59,12 @@ export function DayCell({ date, isCurrentMonth, isToday, isWeekend = false, post
       }}
     >
       {/* Date header */}
-      <div className="flex items-center justify-between mb-1">
+      <div className="flex items-center justify-between mb-1.5">
         <span
           className={cn(
             "text-xs font-medium tabular-nums",
             isCurrentMonth ? "text-foreground" : "text-muted-foreground/50",
-            isToday && "flex size-5 items-center justify-center rounded-full bg-brand text-primary-foreground",
+            isToday && "font-semibold text-brand",
           )}
         >
           {date.getDate()}
@@ -70,8 +72,8 @@ export function DayCell({ date, isCurrentMonth, isToday, isWeekend = false, post
         {showGapIndicator && (
           <span className="group/gap relative">
             <CalendarPlus className="size-3.5 text-brand/60" weight="bold" />
-            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover/gap:block z-50 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[0.625rem] text-background shadow-lg">
-              AI suggests posting here
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover/gap:block z-50 whitespace-nowrap rounded-sm bg-foreground px-2 py-1 text-[0.625rem] text-background shadow-lg">
+              {config.showAILabels ? "AI suggests posting here" : "Suggested slot"}
             </span>
           </span>
         )}
@@ -79,7 +81,7 @@ export function DayCell({ date, isCurrentMonth, isToday, isWeekend = false, post
 
       {/* Posts list */}
       <SortableContext items={posts.map((p) => p.id)} strategy={verticalListSortingStrategy}>
-        <div className="flex flex-col gap-1 flex-1 overflow-hidden">
+        <div className="flex flex-col gap-1.5 flex-1 overflow-hidden">
           {posts.map((post) => (
             <PostChip
               key={post.id}
@@ -101,7 +103,7 @@ export function DayCell({ date, isCurrentMonth, isToday, isWeekend = false, post
 
       {/* More indicator */}
       {posts.length > 3 && (
-        <span className="text-[0.625rem] text-muted-foreground mt-0.5 px-1">
+        <span className="text-xs text-muted-foreground mt-0.5 px-1">
           +{posts.length - 3} more
         </span>
       )}

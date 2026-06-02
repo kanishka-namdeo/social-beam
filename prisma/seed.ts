@@ -23,17 +23,18 @@ async function seedData(wsId: string, now: Date) {
   // Published posts
   const post1 = await prisma.post.create({
     data: {
+      id: crypto.randomUUID(),
       workspaceId: wsId,
       title: "New Summer Cold Brew Launch",
       content: { text: "Our summer cold brew is here!", media: [{ type: "image", url: "/images/summer-cold-brew.jpg" }] },
       status: PostStatus.PUBLISHED,
       confidence: ConfidenceLevel.HIGH,
       publishedAt: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
-      platforms: {
+      PostPlatform: {
         create: [
-          { platform: "instagram", content: "Summer just got a whole lot cooler. Our new Cold Brew collection drops today. Come taste the season. #ColdBrew #SummerVibes", mediaUrls: ["/images/summer-cold-brew.jpg"], status: PostStatus.PUBLISHED, externalId: "ig_post_001" },
-          { platform: "x", content: "Our new summer cold brew collection is live! Drop by and grab yours. #ColdBrew", status: PostStatus.PUBLISHED, externalId: "x_post_001" },
-          { platform: "linkedin", content: "We're excited to announce our summer cold brew collection — crafted from single-origin beans, cold-steeped for 24 hours. Visit us today.", status: PostStatus.PUBLISHED, externalId: "li_post_001" },
+          { id: crypto.randomUUID(), platform: "instagram", content: "Summer just got a whole lot cooler. Our new Cold Brew collection drops today. Come taste the season. #ColdBrew #SummerVibes", mediaUrls: ["/images/summer-cold-brew.jpg"], status: PostStatus.PUBLISHED, externalId: "ig_post_001" },
+          { id: crypto.randomUUID(), platform: "x", content: "Our new summer cold brew collection is live! Drop by and grab yours. #ColdBrew", status: PostStatus.PUBLISHED, externalId: "x_post_001" },
+          { id: crypto.randomUUID(), platform: "linkedin", content: "We're excited to announce our summer cold brew collection — crafted from single-origin beans, cold-steeped for 24 hours. Visit us today.", status: PostStatus.PUBLISHED, externalId: "li_post_001" },
         ],
       },
     },
@@ -41,15 +42,16 @@ async function seedData(wsId: string, now: Date) {
 
   const post2 = await prisma.post.create({
     data: {
+      id: crypto.randomUUID(),
       workspaceId: wsId,
       title: "Barista Behind the Scenes",
       content: { text: "Behind every great cup is a passionate barista", media: [{ type: "video", url: "/videos/barista-bts.mp4" }] },
       status: PostStatus.PUBLISHED,
       confidence: ConfidenceLevel.MEDIUM,
       publishedAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000),
-      platforms: {
+      PostPlatform: {
         create: [
-          { platform: "instagram", content: "Meet Sarah — our lead barista who's been perfecting latte art for 5 years. Every cup tells a story. Behind every great cup is a passionate barista. #BaristaLife #CoffeeArt", mediaUrls: ["/videos/barista-bts.mp4"], status: PostStatus.PUBLISHED, externalId: "ig_post_002" },
+          { id: crypto.randomUUID(), platform: "instagram", content: "Meet Sarah — our lead barista who's been perfecting latte art for 5 years. Every cup tells a story. Behind every great cup is a passionate barista. #BaristaLife #CoffeeArt", mediaUrls: ["/videos/barista-bts.mp4"], status: PostStatus.PUBLISHED, externalId: "ig_post_002" },
         ],
       },
     },
@@ -57,16 +59,17 @@ async function seedData(wsId: string, now: Date) {
 
   const post3 = await prisma.post.create({
     data: {
+      id: crypto.randomUUID(),
       workspaceId: wsId,
       title: "Weekend Brunch Special Announcement",
       content: { text: "This weekend only — Avocado Toast + Coffee combo", media: [] },
       status: PostStatus.PUBLISHED,
       confidence: ConfidenceLevel.HIGH,
       publishedAt: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
-      platforms: {
+      PostPlatform: {
         create: [
-          { platform: "instagram", content: "This weekend only: Avocado Toast + Any Coffee for $12. Tag your brunch buddy below. #WeekendBrunch #AvocadoToast", status: PostStatus.PUBLISHED, externalId: "ig_post_003" },
-          { platform: "facebook", content: "Join us this weekend for our special brunch combo! Avocado Toast + Any Coffee for just $12. See you there!", status: PostStatus.PUBLISHED, externalId: "fb_post_001" },
+          { id: crypto.randomUUID(), platform: "instagram", content: "This weekend only: Avocado Toast + Any Coffee for $12. Tag your brunch buddy below. #WeekendBrunch #AvocadoToast", status: PostStatus.PUBLISHED, externalId: "ig_post_003" },
+          { id: crypto.randomUUID(), platform: "facebook", content: "Join us this weekend for our special brunch combo! Avocado Toast + Any Coffee for just $12. See you there!", status: PostStatus.PUBLISHED, externalId: "fb_post_001" },
         ],
       },
     },
@@ -75,16 +78,17 @@ async function seedData(wsId: string, now: Date) {
   // Scheduled posts
   await prisma.post.create({
     data: {
+      id: crypto.randomUUID(),
       workspaceId: wsId,
       title: "Monday Motivation Quote",
       content: { text: "Monday motivation with coffee", media: [{ type: "image", url: "/images/monday-motivation.jpg" }] },
       status: PostStatus.SCHEDULED,
       confidence: ConfidenceLevel.HIGH,
       scheduledAt: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000),
-      platforms: {
+      PostPlatform: {
         create: [
-          { platform: "instagram", content: "Monday motivation: Life begins after coffee. What's your Monday goal? #MondayMotivation #CoffeeQuote", mediaUrls: ["/images/monday-motivation.jpg"], status: PostStatus.SCHEDULED },
-          { platform: "linkedin", content: "Monday motivation from the Brew & Bean team: Every great day starts with a great cup of coffee. What are you working towards this week?", status: PostStatus.SCHEDULED },
+          { id: crypto.randomUUID(), platform: "instagram", content: "Monday motivation: Life begins after coffee. What's your Monday goal? #MondayMotivation #CoffeeQuote", mediaUrls: ["/images/monday-motivation.jpg"], status: PostStatus.SCHEDULED },
+          { id: crypto.randomUUID(), platform: "linkedin", content: "Monday motivation from the Brew & Bean team: Every great day starts with a great cup of coffee. What are you working towards this week?", status: PostStatus.SCHEDULED },
         ],
       },
     },
@@ -92,17 +96,18 @@ async function seedData(wsId: string, now: Date) {
 
   await prisma.post.create({
     data: {
+      id: crypto.randomUUID(),
       workspaceId: wsId,
       title: "New Location Opening",
       content: { text: "We're opening our 3rd location downtown!", media: [] },
       status: PostStatus.SCHEDULED,
       confidence: ConfidenceLevel.MEDIUM,
       scheduledAt: new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000),
-      platforms: {
+      PostPlatform: {
         create: [
-          { platform: "instagram", content: "Big news! Brew & Bean #3 is opening downtown next month. Follow us for the grand date. New location, same great coffee.", status: PostStatus.SCHEDULED },
-          { platform: "facebook", content: "We're expanding! Our third Brew & Bean location is opening downtown. Stay tuned for the grand opening date!", status: PostStatus.SCHEDULED },
-          { platform: "linkedin", content: "We're thrilled to announce our third Brew & Bean location, opening in the heart of downtown. This expansion reflects the incredible support from our community.", status: PostStatus.SCHEDULED },
+          { id: crypto.randomUUID(), platform: "instagram", content: "Big news! Brew & Bean #3 is opening downtown next month. Follow us for the grand date. New location, same great coffee.", status: PostStatus.SCHEDULED },
+          { id: crypto.randomUUID(), platform: "facebook", content: "We're expanding! Our third Brew & Bean location is opening downtown. Stay tuned for the grand opening date!", status: PostStatus.SCHEDULED },
+          { id: crypto.randomUUID(), platform: "linkedin", content: "We're thrilled to announce our third Brew & Bean location, opening in the heart of downtown. This expansion reflects the incredible support from our community.", status: PostStatus.SCHEDULED },
         ],
       },
     },
@@ -111,14 +116,15 @@ async function seedData(wsId: string, now: Date) {
   // Draft post
   await prisma.post.create({
     data: {
+      id: crypto.randomUUID(),
       workspaceId: wsId,
       title: "Coffee Bean Origin Story",
       content: { text: "From farm to cup — the journey of our Ethiopian Yirgacheffe", media: [{ type: "carousel", url: "/images/bean-origin-1.jpg" }] },
       status: PostStatus.DRAFT,
       confidence: ConfidenceLevel.LOW,
-      platforms: {
+      PostPlatform: {
         create: [
-          { platform: "instagram", content: "From farm to cup: Our Ethiopian Yirgacheffe beans are sourced directly from smallholder farmers in the Yirgacheffe region...", mediaUrls: ["/images/bean-origin-1.jpg", "/images/bean-origin-2.jpg"], status: PostStatus.DRAFT },
+          { id: crypto.randomUUID(), platform: "instagram", content: "From farm to cup: Our Ethiopian Yirgacheffe beans are sourced directly from smallholder farmers in the Yirgacheffe region...", mediaUrls: ["/images/bean-origin-1.jpg", "/images/bean-origin-2.jpg"], status: PostStatus.DRAFT },
         ],
       },
     },
@@ -127,14 +133,15 @@ async function seedData(wsId: string, now: Date) {
   // Failed post
   await prisma.post.create({
     data: {
+      id: crypto.randomUUID(),
       workspaceId: wsId,
       title: "Flash Sale — Today Only",
       content: { text: "Flash sale! 50% off all pastries today!", media: [] },
       status: PostStatus.FAILED,
       confidence: ConfidenceLevel.MEDIUM,
-      platforms: {
+      PostPlatform: {
         create: [
-          { platform: "instagram", content: "Flash sale! 50% off all pastries today only. Don't miss out! #FlashSale #CoffeeAndPastries", status: PostStatus.FAILED, error: "Rate limit exceeded by Instagram API" },
+          { id: crypto.randomUUID(), platform: "instagram", content: "Flash sale! 50% off all pastries today only. Don't miss out! #FlashSale #CoffeeAndPastries", status: PostStatus.FAILED, error: "Rate limit exceeded by Instagram API" },
         ],
       },
     },
@@ -143,14 +150,15 @@ async function seedData(wsId: string, now: Date) {
   // Publishing post
   await prisma.post.create({
     data: {
+      id: crypto.randomUUID(),
       workspaceId: wsId,
       title: "Customer Spotlight: Best Latte Art",
       content: { text: "This week's best customer latte art", media: [{ type: "image", url: "/images/latte-art-spotlight.jpg" }] },
       status: PostStatus.PUBLISHING,
       confidence: ConfidenceLevel.HIGH,
-      platforms: {
+      PostPlatform: {
         create: [
-          { platform: "instagram", content: "This week's latte art spotlight goes to @jane_doe for this stunning rosetta! Keep tagging us in your coffee moments.", mediaUrls: ["/images/latte-art-spotlight.jpg"], status: PostStatus.PUBLISHING },
+          { id: crypto.randomUUID(), platform: "instagram", content: "This week's latte art spotlight goes to @jane_doe for this stunning rosetta! Keep tagging us in your coffee moments.", mediaUrls: ["/images/latte-art-spotlight.jpg"], status: PostStatus.PUBLISHING },
         ],
       },
     },
@@ -159,12 +167,12 @@ async function seedData(wsId: string, now: Date) {
   // Analytics Snapshots
   await prisma.analyticsSnapshot.createMany({
     data: [
-      { postId: post1.id, platform: "instagram", likes: 342, comments: 28, shares: 15, impressions: 4520, engagementRate: 0.085, snapshotAt: now },
-      { postId: post1.id, platform: "x", likes: 89, comments: 12, shares: 23, impressions: 2100, engagementRate: 0.059, snapshotAt: now },
-      { postId: post1.id, platform: "linkedin", likes: 156, comments: 19, shares: 8, impressions: 3200, engagementRate: 0.057, snapshotAt: now },
-      { postId: post2.id, platform: "instagram", likes: 521, comments: 45, shares: 32, impressions: 6200, engagementRate: 0.096, snapshotAt: now },
-      { postId: post3.id, platform: "instagram", likes: 278, comments: 31, shares: 19, impressions: 3800, engagementRate: 0.086, snapshotAt: now },
-      { postId: post3.id, platform: "facebook", likes: 145, comments: 22, shares: 12, impressions: 2800, engagementRate: 0.064, snapshotAt: now },
+      { id: crypto.randomUUID(), postId: post1.id, platform: "instagram", likes: 342, comments: 28, shares: 15, impressions: 4520, engagementRate: 0.085, snapshotAt: now },
+      { id: crypto.randomUUID(), postId: post1.id, platform: "x", likes: 89, comments: 12, shares: 23, impressions: 2100, engagementRate: 0.059, snapshotAt: now },
+      { id: crypto.randomUUID(), postId: post1.id, platform: "linkedin", likes: 156, comments: 19, shares: 8, impressions: 3200, engagementRate: 0.057, snapshotAt: now },
+      { id: crypto.randomUUID(), postId: post2.id, platform: "instagram", likes: 521, comments: 45, shares: 32, impressions: 6200, engagementRate: 0.096, snapshotAt: now },
+      { id: crypto.randomUUID(), postId: post3.id, platform: "instagram", likes: 278, comments: 31, shares: 19, impressions: 3800, engagementRate: 0.086, snapshotAt: now },
+      { id: crypto.randomUUID(), postId: post3.id, platform: "facebook", likes: 145, comments: 22, shares: 12, impressions: 2800, engagementRate: 0.064, snapshotAt: now },
     ],
   });
 
@@ -181,21 +189,24 @@ async function main() {
     console.log("No workspace found — creating one.");
     const user = await prisma.user.create({
       data: {
+        id: crypto.randomUUID(),
         email: "demo@socialbeam.app",
         name: "Demo User",
         password: "$2b$10$hashedpasswordplaceholder",
-        workspaces: {
+        Workspace: {
           create: {
+            id: crypto.randomUUID(),
             name: "Demo Workspace",
           },
         },
       },
-      include: { workspaces: true },
+      include: { Workspace: true },
     });
-    const ws = user.workspaces[0];
+    const ws = user.Workspace[0];
 
     await prisma.userProfile.create({
       data: {
+        id: crypto.randomUUID(),
         workspaceId: ws.id,
         bio: {
           name: "Brew & Bean Coffee Co.",
@@ -221,9 +232,9 @@ async function main() {
 
     await prisma.connectedAccount.createMany({
       data: [
-        { workspaceId: ws.id, platform: "instagram", platformUserId: "brewbean_ig", accessToken: "encrypted_token", refreshToken: "encrypted_refresh", status: "connected" },
-        { workspaceId: ws.id, platform: "x", platformUserId: "brewbean_x", accessToken: "encrypted_token", refreshToken: "encrypted_refresh", status: "connected" },
-        { workspaceId: ws.id, platform: "linkedin", platformUserId: "brewbean_li", accessToken: "encrypted_token", refreshToken: "encrypted_refresh", status: "connected" },
+        { id: crypto.randomUUID(), workspaceId: ws.id, platform: "instagram", platformUserId: "brewbean_ig", accessToken: "encrypted_token", refreshToken: "encrypted_refresh", status: "connected" },
+        { id: crypto.randomUUID(), workspaceId: ws.id, platform: "x", platformUserId: "brewbean_x", accessToken: "encrypted_token", refreshToken: "encrypted_refresh", status: "connected" },
+        { id: crypto.randomUUID(), workspaceId: ws.id, platform: "linkedin", platformUserId: "brewbean_li", accessToken: "encrypted_token", refreshToken: "encrypted_refresh", status: "connected" },
       ],
     });
 

@@ -15,6 +15,7 @@ const footerLinks = {
     { label: "Use Cases", href: "/use-cases" },
     { label: "API", href: "/api" },
     { label: "Status", href: "/status" },
+    { label: "Changelog", href: "/changelog" },
   ],
   platforms: [
     { label: "Instagram", href: "/platforms/instagram" },
@@ -24,19 +25,31 @@ const footerLinks = {
     { label: "TikTok", href: "/platforms/tiktok" },
     { label: "Pinterest", href: "/platforms/pinterest" },
   ],
-  alternatives: [
-    { label: "Buffer", href: "/alternatives/buffer" },
-    { label: "Hootsuite", href: "/alternatives/hootsuite" },
-    { label: "Sprout Social", href: "/alternatives/sprout-social" },
-    { label: "Later", href: "/alternatives/later" },
-    { label: "Metricool", href: "/alternatives/metricool" },
+  solutions: [
+    { label: "For Creators", href: "/use-cases" },
+    { label: "For Small Business", href: "/use-cases" },
+    { label: "For Agencies", href: "/use-cases" },
+    { label: "For Nonprofits", href: "/use-cases" },
   ],
-  company: [
+  resources: [
     { label: "Blog", href: "/blog" },
     { label: "Help Center", href: "/help" },
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Terms", href: "/terms" },
+    { label: "Community", href: "/community" },
+    { label: "Resources Hub", href: "/resources" },
+    { label: "Free Tools", href: "/free-tools" },
+    { label: "About", href: "/about" },
+    { label: "Careers", href: "/careers" },
+  ],
+  company: [
+    { label: "Alternatives", href: "/alternatives" },
     { label: "Contact", href: "/contact" },
+    { label: "Status", href: "/status" },
+    { label: "Changelog", href: "/changelog" },
+  ],
+  legal: [
+    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Terms of Service", href: "/terms" },
+    { label: "Cookie Policy", href: "/privacy" },
   ],
 };
 
@@ -52,7 +65,7 @@ function FooterColumn({
       <h3 className="text-sm font-semibold text-foreground">{title}</h3>
       <ul className="flex flex-col gap-2">
         {links.map((link) => (
-          <li key={link.href}>
+          <li key={`${link.href}-${link.label}`}>
             <Link
               href={link.href}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors min-h-10 flex items-center"
@@ -68,17 +81,17 @@ function FooterColumn({
 
 export function LandingFooterCta() {
   return (
-    <section className="py-20 bg-muted/30">
+    <section className="relative py-20 bg-gradient-to-b from-muted/30 to-muted/50 border-t border-border/50">
       <div className="container mx-auto px-4 text-center">
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+        <h2 className="text-3xl md:text-4xl font-semibold text-foreground mb-4 tracking-tight text-balance">
           Start managing social media smarter
         </h2>
-        <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
+        <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto leading-relaxed">
           Join thousands of marketers, founders, and creators who save hours
           every week with AI-powered scheduling.
         </p>
         <Link href="/register">
-          <Button size="lg" className="gap-2">
+          <Button size="lg" className="gap-2 rounded-sm">
             Get Started Free
             <ArrowRight weight="bold" className="w-4 h-4" />
           </Button>
@@ -86,7 +99,7 @@ export function LandingFooterCta() {
       </div>
 
       <footer className="container mx-auto px-4 mt-16 pt-8 border-t border-border">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 pb-8">
           <FooterColumn
             title="Product"
             links={footerLinks.product}
@@ -96,12 +109,20 @@ export function LandingFooterCta() {
             links={footerLinks.platforms}
           />
           <FooterColumn
-            title="Alternatives"
-            links={footerLinks.alternatives}
+            title="Solutions"
+            links={footerLinks.solutions}
+          />
+          <FooterColumn
+            title="Resources"
+            links={footerLinks.resources}
           />
           <FooterColumn
             title="Company"
             links={footerLinks.company}
+          />
+          <FooterColumn
+            title="Legal"
+            links={footerLinks.legal}
           />
         </div>
 
@@ -123,21 +144,21 @@ export function LandingFooterCta() {
           <div className="flex items-center gap-4">
             <Link
               href="https://x.com/socialbeam"
-              className="text-muted-foreground hover:text-foreground transition-colors min-h-10 min-w-10 flex items-center justify-center rounded-md hover:bg-accent"
+              className="text-muted-foreground hover:text-foreground transition-colors min-h-10 min-w-10 flex items-center justify-center rounded-sm hover:bg-accent"
               aria-label="X (Twitter)"
             >
               <XLogo className="size-5" aria-hidden="true" />
             </Link>
             <Link
               href="https://linkedin.com/company/socialbeam"
-              className="text-muted-foreground hover:text-foreground transition-colors min-h-10 min-w-10 flex items-center justify-center rounded-md hover:bg-accent"
+              className="text-muted-foreground hover:text-foreground transition-colors min-h-10 min-w-10 flex items-center justify-center rounded-sm hover:bg-accent"
               aria-label="LinkedIn"
             >
               <LinkedinLogo className="size-5" aria-hidden="true" />
             </Link>
             <Link
               href="https://github.com/socialbeam"
-              className="text-muted-foreground hover:text-foreground transition-colors min-h-10 min-w-10 flex items-center justify-center rounded-md hover:bg-accent"
+              className="text-muted-foreground hover:text-foreground transition-colors min-h-10 min-w-10 flex items-center justify-center rounded-sm hover:bg-accent"
               aria-label="GitHub"
             >
               <GithubLogo className="size-5" aria-hidden="true" />

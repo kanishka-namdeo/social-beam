@@ -1,16 +1,19 @@
-import { InstagramLogo, MetaLogo, XLogo, LinkedinLogo, TiktokLogo, PinterestLogo } from '@phosphor-icons/react/ssr';
+import { InstagramLogo, MetaLogo, XLogo, LinkedinLogo, TiktokLogo, PinterestLogo, ThreadsLogo, GoogleLogo, YoutubeLogo, ChatCircleText } from '@phosphor-icons/react/ssr';
 import type { ReactNode } from 'react';
+import { ALL_PLATFORMS, PLATFORM_DISPLAY_NAMES as RAW_PLATFORM_DISPLAY_NAMES, getIconComponent, getSupportedPlatforms as getRawSupportedPlatforms, isGoogleOAuthAvailable } from './platform-registry';
 
-export const PLATFORMS = ['instagram', 'facebook', 'x', 'linkedin', 'tiktok', 'pinterest'] as const;
+/** PLATFORMS list with Google Business/YouTube removed when env vars are missing. */
+export const PLATFORMS = isGoogleOAuthAvailable()
+  ? ALL_PLATFORMS
+  : ALL_PLATFORMS.filter((p) => p !== 'googleBusiness' && p !== 'youtube');
 
-export const PLATFORM_DISPLAY_NAMES: Record<string, string> = {
-  instagram: 'Instagram',
-  facebook: 'Facebook',
-  x: 'X / Twitter',
-  linkedin: 'LinkedIn',
-  tiktok: 'TikTok',
-  pinterest: 'Pinterest',
-};
+/** Re-export PLATFORM_DISPLAY_NAMES from registry for backwards compatibility. */
+export const PLATFORM_DISPLAY_NAMES = RAW_PLATFORM_DISPLAY_NAMES;
+
+/** Re-export getSupportedPlatforms from registry for backwards compatibility. */
+export function getSupportedPlatforms() {
+  return getRawSupportedPlatforms();
+}
 
 /**
  * Renders the platform icon at render time (not module init).
@@ -18,13 +21,18 @@ export const PLATFORM_DISPLAY_NAMES: Record<string, string> = {
  */
 export function platformIcon(platform: string): ReactNode {
   const size = 'size-5';
-  switch (platform) {
-    case 'instagram': return <InstagramLogo className={size} weight="fill" />;
-    case 'facebook': return <MetaLogo className={size} weight="fill" />;
-    case 'x': return <XLogo className={size} weight="fill" />;
-    case 'linkedin': return <LinkedinLogo className={size} weight="fill" />;
-    case 'tiktok': return <TiktokLogo className={size} weight="fill" />;
-    case 'pinterest': return <PinterestLogo className={size} weight="fill" />;
+  const componentName = getIconComponent(platform);
+  switch (componentName) {
+    case 'InstagramLogo': return <InstagramLogo className={size} weight="fill" />;
+    case 'MetaLogo': return <MetaLogo className={size} weight="fill" />;
+    case 'XLogo': return <XLogo className={size} weight="fill" />;
+    case 'LinkedinLogo': return <LinkedinLogo className={size} weight="fill" />;
+    case 'TiktokLogo': return <TiktokLogo className={size} weight="fill" />;
+    case 'PinterestLogo': return <PinterestLogo className={size} weight="fill" />;
+    case 'ThreadsLogo': return <ThreadsLogo className={size} weight="fill" />;
+    case 'GoogleLogo': return <GoogleLogo className={size} weight="fill" />;
+    case 'YoutubeLogo': return <YoutubeLogo className={size} weight="fill" />;
+    case 'BlueskyLogo': return <ChatCircleText className={size} weight="fill" />; // Bluesky not in Phosphor, use chat icon as fallback
     default: return null;
   }
 }
@@ -32,13 +40,18 @@ export function platformIcon(platform: string): ReactNode {
 /** Small variant used in badges and chips. */
 export function platformIconSm(platform: string): ReactNode {
   const size = 'size-3';
-  switch (platform) {
-    case 'instagram': return <InstagramLogo className={size} weight="fill" />;
-    case 'facebook': return <MetaLogo className={size} weight="fill" />;
-    case 'x': return <XLogo className={size} weight="fill" />;
-    case 'linkedin': return <LinkedinLogo className={size} weight="fill" />;
-    case 'tiktok': return <TiktokLogo className={size} weight="fill" />;
-    case 'pinterest': return <PinterestLogo className={size} weight="fill" />;
+  const componentName = getIconComponent(platform);
+  switch (componentName) {
+    case 'InstagramLogo': return <InstagramLogo className={size} weight="fill" />;
+    case 'MetaLogo': return <MetaLogo className={size} weight="fill" />;
+    case 'XLogo': return <XLogo className={size} weight="fill" />;
+    case 'LinkedinLogo': return <LinkedinLogo className={size} weight="fill" />;
+    case 'TiktokLogo': return <TiktokLogo className={size} weight="fill" />;
+    case 'PinterestLogo': return <PinterestLogo className={size} weight="fill" />;
+    case 'ThreadsLogo': return <ThreadsLogo className={size} weight="fill" />;
+    case 'GoogleLogo': return <GoogleLogo className={size} weight="fill" />;
+    case 'YoutubeLogo': return <YoutubeLogo className={size} weight="fill" />;
+    case 'BlueskyLogo': return <ChatCircleText className={size} weight="fill" />;
     default: return null;
   }
 }

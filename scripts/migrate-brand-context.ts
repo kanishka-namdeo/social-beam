@@ -62,6 +62,7 @@ async function main() {
 
       const brandContext = await prisma.brandContext.create({
         data: {
+          id: crypto.randomUUID(),
           workspaceId: profile.workspaceId,
           businessName: (bio.name as string) ?? null,
           industry: (bio.industry as string) ?? (bio.businessType as string) ?? null,
@@ -88,6 +89,7 @@ async function main() {
         for (const [platform, config] of Object.entries(perPlatform)) {
           await prisma.platformContext.create({
             data: {
+              id: crypto.randomUUID(),
               brandContextId: brandContext.id,
               platform,
               platformTone: config.tone ?? null,

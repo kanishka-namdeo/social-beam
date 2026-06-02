@@ -103,25 +103,27 @@ export default function PricingPage() {
           return (
             <Card
               key={tier.name}
-              className={`border-border flex flex-col ${
-                tier.popular ? "border-brand shadow-lg shadow-brand/10" : ""
+              className={`border-border rounded-sm flex flex-col hover-lift transition-shadow ${
+                tier.popular
+                  ? "border-l-2 border-l-brand shadow-lg shadow-brand/5"
+                  : ""
               }`}
             >
               {tier.popular && (
-                <div className="bg-brand text-center text-sm font-medium text-background py-1 rounded-t-lg">
+                <div className="bg-brand text-center text-sm font-medium text-background py-1">
                   Most Popular
                 </div>
               )}
               <CardHeader className={tier.popular ? "pt-6" : ""}>
-                <div className="p-3 bg-brand/10 text-brand w-fit mb-3">
+                <div className="p-3 bg-brand/10 text-brand w-fit mb-3 rounded-sm" aria-hidden="true">
                   <Icon className="w-6 h-6" />
                 </div>
-                <CardTitle className="text-xl text-foreground">{tier.name}</CardTitle>
+                <CardTitle className="text-xl text-foreground tracking-tight">{tier.name}</CardTitle>
                 <div className="flex items-baseline gap-1 mt-2">
-                  <span className="text-3xl font-bold text-foreground">{tier.price}</span>
+                  <span className="text-3xl font-semibold text-foreground">{tier.price}</span>
                   <span className="text-muted-foreground">{tier.period}</span>
                 </div>
-                <CardDescription className="text-muted-foreground mt-2">
+                <CardDescription className="text-muted-foreground mt-2 leading-relaxed">
                   {tier.description}
                 </CardDescription>
               </CardHeader>
@@ -136,7 +138,7 @@ export default function PricingPage() {
                 </ul>
                 <Link href={tier.ctaHref} className="block mt-6">
                   <Button
-                    className="w-full"
+                    className="w-full rounded-sm"
                     variant={tier.popular ? "default" : "outline"}
                   >
                     {tier.cta}

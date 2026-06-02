@@ -95,6 +95,18 @@ docs/buffer-user-flow/
 │   ├── flow.md
 │   └── screenshots/
 │       └── 01-sent-posts.png
+├── e2e-01-create-and-schedule-post/   # Complete E2E: login → compose → schedule → confirm
+│   ├── flow.md
+│   └── screenshots/                   # 22 screenshots
+├── e2e-02-manage-content-calendar/    # Complete E2E: login → schedule → calendar → tabs
+│   ├── flow.md
+│   └── screenshots/                   # 21 screenshots
+├── e2e-03-content-ideation-to-post/   # Complete E2E: login → ideas → AI → templates → feeds
+│   ├── flow.md
+│   └── screenshots/                   # 8 screenshots
+├── e2e-04-analytics-review/           # Complete E2E: login → insights → metrics → reporting
+│   ├── flow.md
+│   └── screenshots/                   # 6 screenshots
 ```
 
 ---
@@ -232,6 +244,19 @@ Screenshots in the `shared/` directory are not specific to a single flow and may
 | 8 | [Publishing & Channel Management](flow-08-publishing/flow.md) | P0 | 1 | Sent posts view |
 
 **Total**: 8 documented flows, 32 flow screenshots + 13 shared = 45 total
+
+---
+
+## End-to-End Flow Captures (E2E)
+
+Complete step-by-step user flow captures with screenshots taken from a live authenticated session.
+
+| # | Flow | Priority | Screenshots | Key Topics |
+|---|------|----------|-------------|------------|
+| E2E-01 | [Creating and Scheduling a Post](e2e-01-create-and-schedule-post/flow.md) | P0 | 22 | Login redirect, dashboard, compose dialog, channel selection, content entry, media upload, preview, scheduling, time slot picker, confirmation |
+| E2E-02 | [Managing the Content Calendar](e2e-02-manage-content-calendar/flow.md) | P0 | 21 | Login, schedule page, list view, calendar view, channel filter, time slot compose, week navigation, drafts tab, sent tab |
+| E2E-03 | [Content Ideation to Post](e2e-03-content-ideation-to-post/flow.md) | P0 | 8 | Login, ideas board, AI generation, templates, feeds |
+| E2E-04 | [Analytics Review and Reporting](e2e-04-analytics-review/flow.md) | P0 | 6 | Login, insights dashboard, date range filter, metrics, post performance, followers chart |
 
 ---
 

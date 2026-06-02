@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { EyeIcon, EyeSlashIcon, CheckCircleIcon, XCircleIcon, Spinner, Sparkle, WarningCircle } from '@phosphor-icons/react';
+import { EyeIcon, EyeSlashIcon, CheckCircleIcon, XCircleIcon, Spinner, Sparkle, WarningCircle } from '@phosphor-icons/react/ssr';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
@@ -118,25 +118,25 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-b from-brand/5 via-muted/10 to-background p-4">
-      {/* Branded header */}
-      <div className="absolute top-8 left-1/2 -translate-x-1/2 text-center">
-        <div className="flex items-center gap-2">
-          <Sparkle className="size-8 text-brand" weight="fill" />
-          <h1 className="text-2xl font-semibold text-brand">SocialBeam</h1>
+    <div className="relative flex w-full max-w-md flex-col">
+      {/* Branded header with enhanced spacing */}
+      <div className="mb-12 text-center">
+        <div className="inline-flex items-center gap-3 rounded-sm border border-border/40 bg-card/60 px-5 py-3 backdrop-blur-sm">
+          <Sparkle className="size-7 text-brand" weight="fill" />
+          <h1 className="text-xl font-bold tracking-tight text-foreground">SocialBeam</h1>
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">AI-powered social media management</p>
+        <p className="mt-3 text-sm text-muted-foreground">AI-powered social media management</p>
       </div>
 
-      <Card className="w-full max-w-md rounded-lg">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Create an account</CardTitle>
-          <CardDescription>Start managing your social media with AI</CardDescription>
+      <Card className="w-full rounded-sm border border-border/80 bg-card/80 shadow-[0_8px_32px_oklch(from_var(--foreground)_l_c_h_/_0.08),0_0_0_1px_oklch(from_var(--border)_l_c_h_/_0.5)] backdrop-blur-sm">
+        <CardHeader className="pb-6 pt-8 text-center">
+          <CardTitle className="text-xl sm:text-2xl font-semibold tracking-tight">Create an account</CardTitle>
+          <CardDescription className="mt-2 text-sm text-muted-foreground">Start managing your social media with AI</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-5">
+        <CardContent className="px-4 sm:px-8 pb-8 pt-6 space-y-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name" className="text-sm font-medium tracking-tight">Name</Label>
               <Input
                 id="name"
                 type="text"
@@ -145,10 +145,11 @@ export default function RegisterPage() {
                 placeholder="John Doe"
                 required
                 autoComplete="name"
+                className="rounded-sm border-border/60 bg-background/50 focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/20 transition-all"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-sm font-medium tracking-tight">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -159,6 +160,7 @@ export default function RegisterPage() {
                 autoComplete="email"
                 aria-invalid={!!emailError}
                 aria-describedby={emailError ? 'email-error' : undefined}
+                className="rounded-sm border-border/60 bg-background/50 focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/20 transition-all"
               />
               {emailError && (
                 <p id="email-error" className="text-destructive text-xs" role="alert" aria-live="polite">
@@ -167,7 +169,7 @@ export default function RegisterPage() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm font-medium tracking-tight">Password</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -183,7 +185,7 @@ export default function RegisterPage() {
                   }}
                   placeholder="Create a strong password"
                   required
-                  className="pr-10"
+                  className="rounded-sm border-border/60 bg-background/50 pr-10 focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/20 transition-all"
                   autoComplete="new-password"
                 />
                 <Button
@@ -191,7 +193,7 @@ export default function RegisterPage() {
                   variant="ghost"
                   size="icon"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 size-8"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 size-8 rounded-sm text-muted-foreground hover:text-foreground transition-colors"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -206,7 +208,7 @@ export default function RegisterPage() {
                   <Progress
                     value={(passwordStrength.score / 4) * 100}
                     className={cn(
-                      'h-1',
+                      'h-1 rounded-sm',
                       passwordStrength.score <= 1 && '[&>[data-slot=progress-indicator]]:bg-destructive',
                       passwordStrength.score === 2 && '[&>[data-slot=progress-indicator]]:bg-warning',
                       passwordStrength.score >= 3 && '[&>[data-slot=progress-indicator]]:bg-success',
@@ -238,7 +240,7 @@ export default function RegisterPage() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirm-password">Confirm Password</Label>
+              <Label htmlFor="confirm-password" className="text-sm font-medium tracking-tight">Confirm Password</Label>
               <div className="relative">
                 <Input
                   id="confirm-password"
@@ -247,7 +249,7 @@ export default function RegisterPage() {
                   onChange={(e) => handleConfirmPasswordChange(e.target.value)}
                   placeholder="Re-enter your password"
                   required
-                  className="pr-10"
+                  className="rounded-sm border-border/60 bg-background/50 pr-10 focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/20 transition-all"
                   autoComplete="new-password"
                   aria-invalid={!!confirmPasswordError}
                   aria-describedby={confirmPasswordError ? 'confirm-password-error' : undefined}
@@ -257,7 +259,7 @@ export default function RegisterPage() {
                   variant="ghost"
                   size="icon"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 size-8"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 size-8 rounded-sm text-muted-foreground hover:text-foreground transition-colors"
                   aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                 >
                   {showConfirmPassword ? (
@@ -274,12 +276,16 @@ export default function RegisterPage() {
               )}
             </div>
             {error && (
-              <Alert variant="destructive">
+              <Alert variant="destructive" className="rounded-sm">
                 <WarningCircle className="size-4" weight="bold" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full rounded-sm bg-brand text-white font-medium tracking-tight shadow-[0_2px_8px_oklch(from_var(--brand)_l_c_h_/_0.3)] transition-all hover:bg-brand/90 hover:shadow-[0_4px_12px_oklch(from_var(--brand)_l_c_h_/_0.4)] active:scale-[0.99]"
+              disabled={loading}
+            >
               {loading ? (
                 <>
                   <Spinner className="mr-2 h-4 w-4 animate-spin" weight="bold" />
@@ -294,16 +300,16 @@ export default function RegisterPage() {
           <div className="relative">
             <Separator className="absolute inset-0 top-1/2" />
             <div className="relative flex justify-center text-xs">
-              <span className="bg-card px-2 text-muted-foreground">or continue with</span>
+              <span className="bg-card px-3 text-muted-foreground">or continue with</span>
             </div>
           </div>
 
           <Button
             variant="outline"
-            className="w-full"
+            className="w-full gap-2 rounded-sm border-border/60 font-medium tracking-tight transition-all hover:bg-accent hover:border-border active:scale-[0.99]"
             onClick={() => signIn('google', { callbackUrl: '/onboarding' })}
           >
-            <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
               <path
                 fill="currentColor"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
@@ -326,7 +332,7 @@ export default function RegisterPage() {
 
           <p className="text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <Link href="/login" className="text-primary font-medium hover:underline">
+            <Link href="/login" className="text-brand font-medium transition-colors hover:text-brand/80 underline-offset-4 hover:underline">
               Sign in
             </Link>
           </p>

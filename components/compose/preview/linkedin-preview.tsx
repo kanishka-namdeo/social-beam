@@ -5,27 +5,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { renderRichText, truncateText } from "@/lib/compose/preview-helpers";
 import type { AccountInfo } from "./types";
+import { MediaPreview } from "./media-preview";
 
 interface LinkedInPreviewProps {
   content: string;
   account?: AccountInfo;
+  mediaUrls?: string[];
 }
 
 const LINKEDIN_MAX_VISIBLE_CHARS = 300;
 
-// LinkedIn-specific colors
-const LI = {
-  bg: "#ffffff",
-  border: "#e0e0e0",
-  text: "rgba(0,0,0,0.9)",
-  textSecondary: "rgba(0,0,0,0.6)",
-  textTertiary: "rgba(0,0,0,0.45)",
-  blue: "#0a66c2",
-  heart: "#df704d",
-  iconHover: "rgba(0,0,0,0.08)",
-} as const;
 
-export function LinkedInPreview({ content, account }: LinkedInPreviewProps) {
+export function LinkedInPreview({ content, account, mediaUrls }: LinkedInPreviewProps) {
   const [expanded, setExpanded] = useState(false);
   const { visible, hidden, needsTruncation } = truncateText(
     content,
@@ -41,44 +32,30 @@ export function LinkedInPreview({ content, account }: LinkedInPreviewProps) {
 
   return (
     <div
-      className="w-full max-w-[700px] rounded-lg"
-      style={{
-        backgroundColor: LI.bg,
-        border: `1px solid ${LI.border}`,
-      }}
+      className="w-full max-w-[700px] rounded-sm border bg-card"
       role="img"
       aria-label="LinkedIn post preview"
     >
       {/* Author Header */}
       <div className="flex items-start gap-3 p-4 pb-0">
-        <Avatar className="h-12 w-12 rounded-full" style={{ flexShrink: 0 }}>
+        <Avatar className="h-12 w-12 shrink-0 rounded-full">
           <AvatarImage src={avatarSrc} alt={displayName} />
           <AvatarFallback
-            className="text-sm font-semibold text-white"
-            style={{ backgroundColor: LI.blue }}
+            className="bg-preview-linkedin text-sm font-semibold text-white"
           >
             {avatarFallback}
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
-          <p
-            className="text-[14px] font-semibold leading-tight"
-            style={{ color: LI.text }}
-          >
+          <p className="text-sm font-semibold leading-tight text-foreground">
             {displayName}
           </p>
           {!account?.platformUsername && (
-            <p
-              className="text-[12px] leading-tight"
-              style={{ color: LI.textSecondary }}
-            >
+            <p className="text-xs leading-tight text-muted-foreground">
               Your headline goes here
             </p>
           )}
-          <div
-            className="mt-0.5 flex items-center gap-1 text-[12px]"
-            style={{ color: LI.textSecondary }}
-          >
+          <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
             <span>now</span>
             <span>·</span>
             {/* Globe/earth visibility icon */}
@@ -98,38 +75,22 @@ export function LinkedInPreview({ content, account }: LinkedInPreviewProps) {
       </div>
 
       {/* Post Body */}
-      <div
-        className="px-4"
-        style={{ paddingTop: 12, paddingBottom: 12 }}
-      >
+      <div className="px-4 py-3">
         {content.trim() === "" ? (
-          <p
-            className="text-[14px]"
-            style={{ color: LI.textSecondary }}
-          >
+          <p className="text-sm text-muted-foreground">
             Start writing and your post will appear here.
           </p>
         ) : (
           <>
-            <p
-              className="text-[14px] leading-[1.43] whitespace-pre-wrap break-words"
-              style={{ color: LI.text }}
-            >
+            <p className="text-sm leading-5 whitespace-pre-wrap break-words text-foreground">
               {renderRichText(visible)}
               {!showExpanded && needsTruncation && (
                 <span>
                   {" "}
-                  <span style={{ color: LI.textSecondary }}>...</span>
+                  <span className="text-muted-foreground">...</span>
                   <button
                     type="button"
-                    className="cursor-pointer bg-transparent underline-offset-2"
-                    style={{
-                      color: LI.blue,
-                      fontWeight: 600,
-                      fontSize: 14,
-                      padding: 0,
-                      lineHeight: "inherit",
-                    }}
+                    className="cursor-pointer bg-transparent font-semibold text-sm text-preview-linkedin underline-offset-2"
                     onClick={(e) => {
                       e.preventDefault();
                       setExpanded(true);
@@ -141,30 +102,17 @@ export function LinkedInPreview({ content, account }: LinkedInPreviewProps) {
               )}
             </p>
             {!showExpanded && hidden && (
-              <p
-                className="mt-1 text-[14px] leading-[1.43] whitespace-pre-wrap break-words"
-                style={{ color: LI.textSecondary }}
-              >
+              <p className="mt-1 text-sm leading-5 whitespace-pre-wrap break-words text-muted-foreground">
                 {renderRichText(hidden)}
               </p>
             )}
             {showExpanded && hidden && needsTruncation && (
               <div className="mt-1">
-                <p
-                  className="text-[14px] leading-[1.43] whitespace-pre-wrap break-words"
-                  style={{ color: LI.text }}
-                >
+                <p className="text-sm leading-5 whitespace-pre-wrap break-words text-foreground">
                   {renderRichText(hidden)}
                   <button
                     type="button"
-                    className="ml-1 cursor-pointer bg-transparent underline-offset-2"
-                    style={{
-                      color: LI.blue,
-                      fontWeight: 600,
-                      fontSize: 14,
-                      padding: 0,
-                      lineHeight: "inherit",
-                    }}
+                    className="ml-1 cursor-pointer bg-transparent font-semibold text-sm text-preview-linkedin underline-offset-2"
                     onClick={(e) => {
                       e.preventDefault();
                       setExpanded(false);
@@ -177,25 +125,26 @@ export function LinkedInPreview({ content, account }: LinkedInPreviewProps) {
             )}
           </>
         )}
+        {mediaUrls && mediaUrls.length > 0 && (
+          <MediaPreview mediaUrls={mediaUrls} className="mt-3" />
+        )}
       </div>
 
-      <Separator style={{ backgroundColor: LI.border, height: 1 }} />
+      <Separator className="bg-border" />
 
       {/* Engagement Bar */}
       <div className="px-4 pb-3 pt-2">
         {/* Reaction counts — left & right aligned on same baseline */}
-        <div className="flex items-center justify-between text-[12px]" style={{ color: LI.textTertiary, lineHeight: "20px" }}>
+        <div className="flex items-center justify-between text-xs leading-5 text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <div className="flex -space-x-1">
               <span
-                className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px]"
-                style={{ backgroundColor: LI.blue, lineHeight: 1 }}
+                className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-preview-linkedin text-[10px] leading-none"
               >
                 👍
               </span>
               <span
-                className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px]"
-                style={{ backgroundColor: LI.heart, lineHeight: 1 }}
+                className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-brand text-[10px] leading-none"
               >
                 ❤️
               </span>
@@ -210,21 +159,10 @@ export function LinkedInPreview({ content, account }: LinkedInPreviewProps) {
         </div>
 
         {/* Action Buttons — stacked icon+label, like real LinkedIn */}
-        <div className="mt-1 flex" style={{ gap: 0 }}>
+        <div className="mt-1 flex gap-0">
           <button
             type="button"
-            className="flex flex-1 flex-col items-center justify-center gap-0.5 rounded py-2 transition-colors"
-            style={{
-              color: LI.textSecondary,
-              fontWeight: 600,
-              fontSize: 12,
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = LI.iconHover)
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "transparent")
-            }
+            className="flex flex-1 flex-col items-center justify-center gap-0.5 rounded py-2 text-muted-foreground font-semibold text-xs transition-colors hover:bg-accent"
           >
             <svg
               className="h-5 w-5"
@@ -243,18 +181,7 @@ export function LinkedInPreview({ content, account }: LinkedInPreviewProps) {
           </button>
           <button
             type="button"
-            className="flex flex-1 flex-col items-center justify-center gap-0.5 rounded py-2 transition-colors"
-            style={{
-              color: LI.textSecondary,
-              fontWeight: 600,
-              fontSize: 12,
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = LI.iconHover)
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "transparent")
-            }
+            className="flex flex-1 flex-col items-center justify-center gap-0.5 rounded py-2 text-muted-foreground font-semibold text-xs transition-colors hover:bg-accent"
           >
             <svg
               className="h-5 w-5"
@@ -271,18 +198,7 @@ export function LinkedInPreview({ content, account }: LinkedInPreviewProps) {
           </button>
           <button
             type="button"
-            className="flex flex-1 flex-col items-center justify-center gap-0.5 rounded py-2 transition-colors"
-            style={{
-              color: LI.textSecondary,
-              fontWeight: 600,
-              fontSize: 12,
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = LI.iconHover)
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "transparent")
-            }
+            className="flex flex-1 flex-col items-center justify-center gap-0.5 rounded py-2 text-muted-foreground font-semibold text-xs transition-colors hover:bg-accent"
           >
             <svg
               className="h-5 w-5"
@@ -302,18 +218,7 @@ export function LinkedInPreview({ content, account }: LinkedInPreviewProps) {
           </button>
           <button
             type="button"
-            className="flex flex-1 flex-col items-center justify-center gap-0.5 rounded py-2 transition-colors"
-            style={{
-              color: LI.textSecondary,
-              fontWeight: 600,
-              fontSize: 12,
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = LI.iconHover)
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "transparent")
-            }
+            className="flex flex-1 flex-col items-center justify-center gap-0.5 rounded py-2 text-muted-foreground font-semibold text-xs transition-colors hover:bg-accent"
           >
             <svg
               className="h-5 w-5"

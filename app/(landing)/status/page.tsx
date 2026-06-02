@@ -80,7 +80,7 @@ export default function StatusPage() {
     >
       <div className="max-w-3xl mx-auto space-y-8">
         {allOperational && (
-          <div className="flex items-center gap-3 p-4 bg-success/10 border border-success/20 rounded-lg">
+          <div className="flex items-center gap-3 p-4 bg-success/10 border border-success/20 rounded-sm">
             <CheckCircle weight="fill" className="w-6 h-6 text-success" />
             <span className="text-foreground font-medium">All systems operational</span>
           </div>

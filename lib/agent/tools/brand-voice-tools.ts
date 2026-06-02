@@ -43,6 +43,7 @@ export const saveBrandContextTool = tool(
       await prisma.brandContext.upsert({
         where: { workspaceId },
         create: {
+          id: crypto.randomUUID(),
           workspaceId,
           ...data,
           voiceExamples: data.voiceExamples as Prisma.InputJsonValue | undefined,
@@ -83,7 +84,7 @@ export const getBrandContextTool = tool(
     try {
       const context = await prisma.brandContext.findUnique({
         where: { workspaceId },
-        include: { platformContexts: true },
+        include: { PlatformContext: true },
       });
 
       if (!context) {
@@ -144,6 +145,7 @@ export const savePlatformContextTool = tool(
           },
         },
         create: {
+          id: crypto.randomUUID(),
           brandContextId: brandContext.id,
           platform,
           ...data,
@@ -199,6 +201,7 @@ export const saveBrandVoiceTool = tool(
       await prisma.brandVoice.upsert({
         where: { workspaceId },
         create: {
+          id: crypto.randomUUID(),
           workspaceId,
           tonePreset,
           description,

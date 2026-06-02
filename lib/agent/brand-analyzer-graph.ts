@@ -8,6 +8,39 @@ import { sampleGeneratorNode } from './nodes/brand-sample-generator';
 import { contextWaitNode } from './nodes/brand-context-wait';
 import { contextSaverNode } from './nodes/brand-context-saver';
 import { withDebugTrace, createRoutedRouter } from './debug';
+import { withTimeout, NodeTimeoutError } from './timeout-guard';
+import { logger } from '@/lib/logger';
+import { AIMessage } from '@langchain/core/messages';
+
+// Per-node timeout values (ms)
+// contextCollectorNode has its own 90s timeout inside the node
+const BRAND_ANALYZER_TIMEOUT_MS = 120_000;
+const PLATFORM_ADAPTER_TIMEOUT_MS = 60_000;
+const SAMPLE_GENERATOR_TIMEOUT_MS = 30_000;
+
+/** Wrap a node with timeout that converts timeout errors into error-state returns */
+function withNodeTimeout(
+  label: string,
+  nodeFn: (state: BrandAnalyzerStateType) => Promise<Partial<BrandAnalyzerStateType>>,
+  timeoutMs: number,
+): (state: BrandAnalyzerStateType) => Promise<Partial<BrandAnalyzerStateType>> {
+  return async (state: BrandAnalyzerStateType): Promise<Partial<BrandAnalyzerStateType>> => {
+    try {
+      return await withTimeout(() => nodeFn(state), timeoutMs, label);
+    } catch (err) {
+      if (err instanceof NodeTimeoutError) {
+        logger.warn('agent.node_timeout', { node: label, timeoutMs });
+        return {
+          currentStep: 'error',
+          messages: [new AIMessage(
+            `Analysis took too long at step "${label}". This site may be too complex — try describing your brand instead.`,
+          )],
+        };
+      }
+      throw err;
+    }
+  };
+}
 
 let checkpointer: PostgresSaver | undefined;
 let checkpointerSetupComplete = false;
@@ -34,6 +67,11 @@ function buildBrandAnalyzerGraph() {
   const debugSampleGenerator = withDebugTrace('sampleGenerator', sampleGeneratorNode);
   const debugContextWait = withDebugTrace('contextWait', contextWaitNode);
   const debugContextSaver = withDebugTrace('contextSaver', contextSaverNode);
+
+  // Wrap LLM-based nodes with timeout guards
+  const timeoutBrandAnalyzer = withNodeTimeout('brandAnalyzer', debugBrandAnalyzer, BRAND_ANALYZER_TIMEOUT_MS);
+  const timeoutPlatformAdapter = withNodeTimeout('platformAdapter', debugPlatformAdapter, PLATFORM_ADAPTER_TIMEOUT_MS);
+  const timeoutSampleGenerator = withNodeTimeout('sampleGenerator', debugSampleGenerator, SAMPLE_GENERATOR_TIMEOUT_MS);
 
   // Router: after contextCollector, check for errors or proceed to analysis
   function routeAfterCollector(state: BrandAnalyzerStateType): string {
@@ -74,9 +112,9 @@ function buildBrandAnalyzerGraph() {
 
   return new StateGraph(BrandAnalyzerState)
     .addNode('contextCollector', debugContextCollector)
-    .addNode('brandAnalyzer', debugBrandAnalyzer)
-    .addNode('platformAdapter', debugPlatformAdapter)
-    .addNode('sampleGenerator', debugSampleGenerator)
+    .addNode('brandAnalyzer', timeoutBrandAnalyzer)
+    .addNode('platformAdapter', timeoutPlatformAdapter)
+    .addNode('sampleGenerator', timeoutSampleGenerator)
     .addNode('contextWait', debugContextWait)
     .addNode('contextSaver', debugContextSaver)
     .addNode('done', withDebugTrace('done', async () => ({})))
@@ -110,7 +148,10 @@ let graphPromise: ReturnType<typeof compileBrandAnalyzerGraph> | undefined;
 
 async function compileBrandAnalyzerGraph() {
   const cp = await ensureCheckpointer();
-  return buildBrandAnalyzerGraph().compile({ checkpointer: cp });
+  return buildBrandAnalyzerGraph().compile({
+    checkpointer: cp,
+    interruptBefore: ["contextWait"],
+  });
 }
 
 export async function getBrandAnalyzerGraph() {

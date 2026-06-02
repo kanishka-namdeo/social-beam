@@ -115,14 +115,14 @@ export function Toolbar({ editor }: ToolbarProps) {
 
   const buttonClass = (active: boolean = false) =>
     cn(
-      "h-9 w-9 p-0 rounded-md transition-colors",
+      "h-8 w-8 p-0 rounded-sm transition-colors",
       active
-        ? "text-foreground bg-muted"
+        ? "text-foreground bg-muted/80 border-l-[3px] border-l-brand rounded-l-none"
         : "text-muted-foreground hover:text-foreground hover:bg-muted",
     );
 
   return (
-    <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5">
+    <div className="flex flex-wrap items-center gap-1 px-2 py-1.5">
       {/* Bold */}
       <Button
         type="button"

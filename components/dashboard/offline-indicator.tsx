@@ -11,6 +11,7 @@ export function OfflineIndicator() {
 
   useEffect(() => {
     if (!navigator.onLine) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatus("offline");
     }
 
@@ -40,7 +41,7 @@ export function OfflineIndicator() {
   return (
     <Alert
       variant="destructive"
-      className="mx-auto max-w-3xl rounded-lg border-x border-t-0"
+      className="mx-auto max-w-3xl rounded-sm border-x border-t-0"
     >
       <WifiSlash className="size-4" weight="bold" />
       <AlertDescription>

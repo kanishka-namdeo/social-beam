@@ -198,7 +198,7 @@ export type BrandVoiceWhereInput = {
   perPlatform?: Prisma.JsonNullableFilter<"BrandVoice">
   createdAt?: Prisma.DateTimeFilter<"BrandVoice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BrandVoice"> | Date | string
-  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
 }
 
 export type BrandVoiceOrderByWithRelationInput = {
@@ -210,7 +210,7 @@ export type BrandVoiceOrderByWithRelationInput = {
   perPlatform?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  workspace?: Prisma.WorkspaceOrderByWithRelationInput
+  Workspace?: Prisma.WorkspaceOrderByWithRelationInput
 }
 
 export type BrandVoiceWhereUniqueInput = Prisma.AtLeast<{
@@ -225,7 +225,7 @@ export type BrandVoiceWhereUniqueInput = Prisma.AtLeast<{
   perPlatform?: Prisma.JsonNullableFilter<"BrandVoice">
   createdAt?: Prisma.DateTimeFilter<"BrandVoice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BrandVoice"> | Date | string
-  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
 }, "id" | "workspaceId">
 
 export type BrandVoiceOrderByWithAggregationInput = {
@@ -257,18 +257,18 @@ export type BrandVoiceScalarWhereWithAggregatesInput = {
 }
 
 export type BrandVoiceCreateInput = {
-  id?: string
+  id: string
   tonePreset?: string | null
   description?: string | null
   examples?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   perPlatform?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutBrandVoiceInput
+  Workspace: Prisma.WorkspaceCreateNestedOneWithoutBrandVoiceInput
 }
 
 export type BrandVoiceUncheckedCreateInput = {
-  id?: string
+  id: string
   workspaceId: string
   tonePreset?: string | null
   description?: string | null
@@ -286,7 +286,7 @@ export type BrandVoiceUpdateInput = {
   perPlatform?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBrandVoiceNestedInput
+  Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBrandVoiceNestedInput
 }
 
 export type BrandVoiceUncheckedUpdateInput = {
@@ -301,7 +301,7 @@ export type BrandVoiceUncheckedUpdateInput = {
 }
 
 export type BrandVoiceCreateManyInput = {
-  id?: string
+  id: string
   workspaceId: string
   tonePreset?: string | null
   description?: string | null
@@ -332,11 +332,6 @@ export type BrandVoiceUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type BrandVoiceNullableScalarRelationFilter = {
-  is?: Prisma.BrandVoiceWhereInput | null
-  isNot?: Prisma.BrandVoiceWhereInput | null
-}
-
 export type BrandVoiceCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
@@ -364,6 +359,11 @@ export type BrandVoiceMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type BrandVoiceNullableScalarRelationFilter = {
+  is?: Prisma.BrandVoiceWhereInput | null
+  isNot?: Prisma.BrandVoiceWhereInput | null
 }
 
 export type BrandVoiceCreateNestedOneWithoutWorkspaceInput = {
@@ -399,7 +399,7 @@ export type BrandVoiceUncheckedUpdateOneWithoutWorkspaceNestedInput = {
 }
 
 export type BrandVoiceCreateWithoutWorkspaceInput = {
-  id?: string
+  id: string
   tonePreset?: string | null
   description?: string | null
   examples?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -409,7 +409,7 @@ export type BrandVoiceCreateWithoutWorkspaceInput = {
 }
 
 export type BrandVoiceUncheckedCreateWithoutWorkspaceInput = {
-  id?: string
+  id: string
   tonePreset?: string | null
   description?: string | null
   examples?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -465,7 +465,7 @@ export type BrandVoiceSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   perPlatform?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["brandVoice"]>
 
 export type BrandVoiceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -477,7 +477,7 @@ export type BrandVoiceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   perPlatform?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["brandVoice"]>
 
 export type BrandVoiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -489,7 +489,7 @@ export type BrandVoiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   perPlatform?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["brandVoice"]>
 
 export type BrandVoiceSelectScalar = {
@@ -505,19 +505,19 @@ export type BrandVoiceSelectScalar = {
 
 export type BrandVoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "tonePreset" | "description" | "examples" | "perPlatform" | "createdAt" | "updatedAt", ExtArgs["result"]["brandVoice"]>
 export type BrandVoiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 export type BrandVoiceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 export type BrandVoiceIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 
 export type $BrandVoicePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "BrandVoice"
   objects: {
-    workspace: Prisma.$WorkspacePayload<ExtArgs>
+    Workspace: Prisma.$WorkspacePayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -922,7 +922,7 @@ readonly fields: BrandVoiceFieldRefs;
  */
 export interface Prisma__BrandVoiceClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

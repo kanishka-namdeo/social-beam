@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { logger } from "@/lib/logger";
+import { upsertBrandContext, getBrandContext, upsertPlatformContext } from "@/lib/db/brand-context";
 import { getBrandAnalyzerGraph } from "@/lib/agent/brand-analyzer-graph";
 import { HumanMessage } from "@langchain/core/messages";
 
@@ -34,132 +35,157 @@ export async function POST(req: Request) {
       );
     }
 
-    const { threadId, action, feedback, edits } = parsed.data;
+    const { threadId, action, edits } = parsed.data;
     const log = logger.child({ requestId });
     log.info("api.brand_resume.start", { threadId, action, workspaceId });
 
-    const graph = await getBrandAnalyzerGraph();
-    const encoder = new TextEncoder();
+    // For confirm/save_edits actions, save brand context directly from thread state
+    // and return an SSE stream so the client can transition to the "complete" phase.
+    if (action === "confirm" || action === "save_edits") {
+      const graph = await getBrandAnalyzerGraph();
+      const currentState = await graph.getState({ configurable: { thread_id: threadId } });
+      const stateValues = currentState.values as Record<string, unknown>;
+      const draft = stateValues?.brandContextDraft as Record<string, unknown> | undefined;
+      const platformDrafts = stateValues?.platformContextsDraft as Record<string, Record<string, unknown>> | undefined;
 
-    // Build the HumanMessage that resumes the graph
-    let userMessage: HumanMessage;
-    if (action === "confirm") {
-      userMessage = new HumanMessage(
-        "Looks right — please save this brand context.",
-      );
-    } else if (action === "feedback") {
-      userMessage = new HumanMessage(
-        feedback ?? "Please refine the brand context.",
-      );
-    } else {
-      // save_edits — user made inline edits
-      const editsSummary = edits
-        ? Object.entries(edits)
-            .map(([k, v]) => `${k}: ${typeof v === "object" ? JSON.stringify(v) : String(v)}`)
-            .join(", ")
-        : "No specific edits";
-      userMessage = new HumanMessage(
-        `I've made the following edits: ${editsSummary}. Please save the updated brand context.`,
-      );
-    }
+      if (!draft || Object.keys(draft).length === 0) {
+        log.warn("api.brand_resume.no_draft", { threadId });
+        return NextResponse.json(
+          { error: "No brand context data found. Please start a new analysis." },
+          { status: 400 },
+        );
+      }
 
-    // Check current state to determine if we should invoke or just update
-    const currentState = await graph.getState({ configurable: { thread_id: threadId } });
-    const stateValues = currentState.values as Record<string, unknown>;
-    const nextNodes = currentState.next as string[] | undefined;
-
-    const isInterrupted = Array.isArray(nextNodes) && nextNodes.includes("__interrupt__");
-
-    if (!isInterrupted) {
-      // Graph already finished, check if we need to re-run
-      log.warn("api.brand_resume.not_interrupted", { threadId, action });
-      return NextResponse.json(
-        { error: "This session has already completed. Please start a new analysis." },
-        { status: 400 },
-      );
-    }
-
-    const stream = new ReadableStream({
-      async start(controller) {
-        try {
-          // Use invoke for the resume — the graph picks up from the interrupt
-          await graph.invoke(
-            {
-              messages: [userMessage],
-              // For save_edits action, merge edits into the draft
-              ...(action === "save_edits" && edits
-                ? {
-                    brandContextDraft: {
-                      ...((stateValues?.brandContextDraft as Record<string, unknown>) ?? {}),
-                      ...edits,
-                    },
-                    userFeedback: "",
-                    userConfirmed: true,
-                    currentStep: "review",
-                  }
-                : {}),
-            },
-            { configurable: { thread_id: threadId } },
-          );
-
-          const finalState = await graph.getState({ configurable: { thread_id: threadId } });
-          const finalValues = finalState.values as Record<string, unknown>;
-
-          // Stream updated draft/platforms/samples if they changed
-          if (finalValues?.brandContextDraft) {
-            const draftData = `data: ${JSON.stringify({ draft: finalValues.brandContextDraft })}\n\n`;
-            controller.enqueue(encoder.encode(draftData));
+      const mergedEdits = action === "save_edits" && edits
+        ? {
+            ...draft,
+            ...edits,
+            bannedWords: edits.bannedWords ?? draft.bannedWords ?? [],
+            interests: edits.interests ?? draft.interests ?? [],
+            painPoints: edits.painPoints ?? draft.painPoints ?? [],
+            competitors: edits.competitors ?? draft.competitors ?? [],
+            goals: edits.goals ?? draft.goals ?? [],
+            voiceExamples: edits.voiceExamples ?? draft.voiceExamples ?? [],
           }
-          if (finalValues?.platformContextsDraft) {
-            const platformData = `data: ${JSON.stringify({ platforms: finalValues.platformContextsDraft })}\n\n`;
-            controller.enqueue(encoder.encode(platformData));
-          }
-          if (finalValues?.samplePosts) {
-            const samplesData = `data: ${JSON.stringify({ samples: finalValues.samplePosts })}\n\n`;
-            controller.enqueue(encoder.encode(samplesData));
-          }
+        : draft;
 
-          // Check if still interrupted (user wants more edits)
-          const finalNextNodes = finalState.next as string[] | undefined;
-          const stillInterrupted =
-            Array.isArray(finalNextNodes) && finalNextNodes.includes("__interrupt__");
+      const websiteUrlVal = mergedEdits.websiteUrl as string | undefined;
+      const urlForSave = websiteUrlVal && (websiteUrlVal.startsWith("http://") || websiteUrlVal.startsWith("https://")) ? websiteUrlVal : undefined;
 
-          if (stillInterrupted) {
-            const data = `data: ${JSON.stringify({
-              interrupted: true,
-              threadId,
-              draft: finalValues?.brandContextDraft ?? {},
-              platforms: finalValues?.platformContextsDraft ?? {},
-              samples: finalValues?.samplePosts ?? [],
-            })}\n\n`;
-            controller.enqueue(encoder.encode(data));
-          } else {
-            // Graph completed — saved successfully
-            log.info("api.brand_resume.saved", { threadId, workspaceId });
-            const savedData = `data: ${JSON.stringify({ saved: true, threadId })}\n\n`;
-            controller.enqueue(encoder.encode(savedData));
+      await upsertBrandContext(workspaceId, {
+        businessName: mergedEdits.businessName as string | undefined,
+        tagline: mergedEdits.tagline as string | undefined,
+        ...(urlForSave ? { websiteUrl: urlForSave } : {}),
+        industry: mergedEdits.industry as string | undefined,
+        productDesc: mergedEdits.productDesc as string | undefined,
+        tonePreset: mergedEdits.tonePreset as string | undefined,
+        voiceDescription: mergedEdits.voiceDescription as string | undefined,
+        bannedWords: (mergedEdits.bannedWords as string[]) ?? [],
+        voiceExamples: (mergedEdits.voiceExamples as Array<{ text: string; source?: string }>) ?? [],
+        audienceType: mergedEdits.audienceType as string | undefined,
+        demographics: mergedEdits.demographics as Record<string, unknown> | undefined,
+        interests: (mergedEdits.interests as string[]) ?? [],
+        painPoints: (mergedEdits.painPoints as string[]) ?? [],
+        competitors: (mergedEdits.competitors as string[]) ?? [],
+        goals: (mergedEdits.goals as string[]) ?? [],
+        trainingStatus: "trained",
+      });
+
+      if (platformDrafts && Object.keys(platformDrafts).length > 0) {
+        const brandCtx = await getBrandContext(workspaceId);
+        if (brandCtx) {
+          for (const [platform, pc] of Object.entries(platformDrafts)) {
+            await upsertPlatformContext(brandCtx.id, platform, {
+              platformTone: pc.platformTone as string | undefined,
+              contentMix: pc.contentMix as Record<string, unknown> | undefined,
+              postingCadence: pc.postingCadence as string | undefined,
+              hashtagStrategy: pc.hashtagStrategy as Record<string, unknown> | undefined,
+              visualStyle: pc.visualStyle as string | undefined,
+              engagementStyle: pc.engagementStyle as string | undefined,
+              platformRules: (pc.platformRules as string[]) ?? [],
+            });
           }
-
-          log.info("api.brand_resume.done", { correlationId: requestId, threadId, action });
-          const doneData = `data: ${JSON.stringify({ done: true, threadId })}\n\n`;
-          controller.enqueue(encoder.encode(doneData));
-          controller.close();
-        } catch (error) {
-          log.error("api.brand_resume.error", { error: String(error), threadId });
-          const errorData = `data: ${JSON.stringify({ error: "Resume failed" })}\n\n`;
-          controller.enqueue(encoder.encode(errorData));
-          controller.close();
         }
-      },
-    });
+      }
 
-    return new Response(stream, {
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-      },
-    });
+      log.info("api.brand_resume.saved", { threadId, workspaceId });
+
+      // Return SSE stream with saving → saved events so client transitions correctly
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        async start(controller) {
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ step: "saving", saving: true })}\n\n`));
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ saved: true })}\n\n`));
+          controller.close();
+        },
+      });
+
+      return new Response(stream, {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        },
+      });
+    }
+
+    // Feedback action — resume the graph with feedback as a human message and stream back
+    if (action === "feedback") {
+      log.info("api.brand_resume.feedback", { threadId, feedbackLength: parsed.data.feedback?.length });
+
+      const graph = await getBrandAnalyzerGraph();
+      const encoder = new TextEncoder();
+
+      const stream = new ReadableStream({
+        async start(controller) {
+          try {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ step: "streaming", subStep: "Processing feedback..." })}\n\n`));
+
+            const resumeStream = await graph.stream(
+              {
+                messages: [new HumanMessage(parsed.data.feedback ?? "")],
+                userFeedback: parsed.data.feedback ?? "",
+                userConfirmed: false,
+              },
+              {
+                configurable: { thread_id: threadId },
+                streamMode: "values",
+              },
+            );
+
+            for await (const stateValue of resumeStream) {
+              if (!stateValue || typeof stateValue !== "object") continue;
+              const output = stateValue as Record<string, unknown>;
+
+              if (output?.currentStep) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ step: output.currentStep })}\n\n`));
+              }
+
+              if (output?.brandContextDraft) {
+                const draft = output.brandContextDraft as Record<string, unknown>;
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ draft, interrupted: true, threadId })}\n\n`));
+              }
+            }
+
+            controller.close();
+          } catch (err) {
+            log.error("api.brand_resume.feedback_stream_error", { error: String(err) });
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: "Failed to process feedback" })}\n\n`));
+            controller.close();
+          }
+        },
+      });
+
+      return new Response(stream, {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        },
+      });
+    }
+
+    return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (err) {
     logger.error("api.request.error", { path: "/api/brand-context/resume", error: String(err) });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

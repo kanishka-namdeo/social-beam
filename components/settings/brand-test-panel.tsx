@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,10 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { Sparkle, Check, Spinner, ThumbsUp, ThumbsDown } from "@phosphor-icons/react/ssr";
-import { PLATFORM_DISPLAY_NAMES, platformIconSm } from "@/lib/oauth/platform-icons";
+import { PLATFORM_DISPLAY_NAMES, platformIconSm, getSupportedPlatforms } from "@/lib/oauth/platform-icons";
 import { cn } from "@/lib/utils";
 
-const AVAILABLE_PLATFORMS = ["x", "linkedin", "instagram", "facebook", "tiktok"];
+const AVAILABLE_PLATFORMS = getSupportedPlatforms().filter(p => p !== 'bluesky' && p !== 'googleBusiness' && p !== 'youtube');
 
 interface BrandTestPanelProps {
   connectedPlatforms: string[];
@@ -35,6 +35,16 @@ export function BrandTestPanel({ connectedPlatforms }: BrandTestPanelProps) {
   const [generatingPlatforms, setGeneratingPlatforms] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [generationElapsed, setGenerationElapsed] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
   const togglePlatform = (platform: string) => {
     setSelectedPlatforms((prev) =>
@@ -51,7 +61,7 @@ export function BrandTestPanel({ connectedPlatforms }: BrandTestPanelProps) {
     setError(null);
     setGenerationElapsed(0);
 
-    const interval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       setGenerationElapsed((prev) => prev + 1);
     }, 1000);
 
@@ -68,7 +78,7 @@ export function BrandTestPanel({ connectedPlatforms }: BrandTestPanelProps) {
         setError(errData.error ?? "Failed to generate samples");
         setIsTesting(false);
         setGeneratingPlatforms(new Set());
-        clearInterval(interval);
+        if (intervalRef.current) clearInterval(intervalRef.current);
         return;
       }
 
@@ -77,7 +87,7 @@ export function BrandTestPanel({ connectedPlatforms }: BrandTestPanelProps) {
         setError("Stream not available");
         setIsTesting(false);
         setGeneratingPlatforms(new Set());
-        clearInterval(interval);
+        if (intervalRef.current) clearInterval(intervalRef.current);
         return;
       }
 
@@ -125,14 +135,14 @@ export function BrandTestPanel({ connectedPlatforms }: BrandTestPanelProps) {
                 });
               } else if (eventType === "complete") {
                 setIsTesting(false);
-                clearInterval(interval);
+                if (intervalRef.current) clearInterval(intervalRef.current);
                 toast.success("Test samples generated", {
                   description: `${data.results?.length ?? 0} samples generated`,
                 });
               } else if (eventType === "error") {
                 setError(data.error ?? "Generation failed");
                 setIsTesting(false);
-                clearInterval(interval);
+                if (intervalRef.current) clearInterval(intervalRef.current);
                 setGeneratingPlatforms(new Set());
               }
             } catch {
@@ -145,7 +155,7 @@ export function BrandTestPanel({ connectedPlatforms }: BrandTestPanelProps) {
       toast.error("Failed to generate samples. Please try again.");
       setError("Network error occurred");
       setIsTesting(false);
-      clearInterval(interval);
+      if (intervalRef.current) clearInterval(intervalRef.current);
       setGeneratingPlatforms(new Set());
     }
   };
@@ -240,7 +250,7 @@ export function BrandTestPanel({ connectedPlatforms }: BrandTestPanelProps) {
         </Button>
 
         {error && (
-          <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
+          <div className="rounded-sm border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
             {error}
           </div>
         )}
@@ -254,7 +264,7 @@ export function BrandTestPanel({ connectedPlatforms }: BrandTestPanelProps) {
               const isGenerating = generatingPlatforms.has(platform);
 
               return (
-                <div key={platform} className="rounded-lg border border-border p-4 space-y-2">
+                <div key={platform} className="rounded-sm border border-border p-4 space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="text-muted-foreground">{platformIconSm(platform)}</span>
@@ -273,7 +283,7 @@ export function BrandTestPanel({ connectedPlatforms }: BrandTestPanelProps) {
 
                   {result && (
                     <>
-                      <div className="rounded-md bg-muted/50 p-3">
+                      <div className="rounded-sm bg-muted/50 p-3">
                         <p className="text-sm text-foreground whitespace-pre-wrap">{result.content}</p>
                       </div>
                       <div className="flex items-center gap-2 pt-1">

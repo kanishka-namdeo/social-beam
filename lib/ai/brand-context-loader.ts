@@ -49,7 +49,7 @@ export async function loadBrandContextForAI(workspaceId: string): Promise<BrandC
   const brandSummary = parts.join(" — ");
 
   const platforms: BrandContextForAI["platforms"] = {};
-  for (const pc of (ctx.platformContexts as PlatformContext[])) {
+  for (const pc of (ctx.PlatformContext as PlatformContext[])) {
     platforms[pc.platform] = {
       platformTone: pc.platformTone ?? undefined,
       contentMix: pc.contentMix ?? undefined,

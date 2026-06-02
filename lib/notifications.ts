@@ -1,5 +1,17 @@
 import { toast } from "sonner";
 
+function shouldShowAILabels(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const stored = localStorage.getItem("socialbeam-invisible-ai");
+    if (stored) {
+      const config = JSON.parse(stored);
+      return config.showAILabels ?? false;
+    }
+  } catch {}
+  return false;
+}
+
 /**
  * Centralized notification utilities for the SocialBeam app.
  * All toasts flow through this module to ensure consistent messaging,
@@ -89,12 +101,6 @@ export function notifyCalendarEventDeleted() {
   });
 }
 
-export function notifyCreditsRefilled(amount: number) {
-  toast.success("Credits refilled", {
-    description: `${amount} AI credits added to your balance.`,
-  });
-}
-
 export function notifyLoginSuccess() {
   toast.success("Welcome back!", {
     description: "You've been signed in successfully.",
@@ -158,13 +164,6 @@ export function notifyValidationError(field: string, message: string) {
   });
 }
 
-export function notifyCreditInsufficient() {
-  toast.error("Insufficient credits", {
-    description: "You've run out of AI credits. Contact support to refill.",
-    duration: 6000,
-  });
-}
-
 export function notifyPlatformLimitExceeded(platform: string) {
   toast.error(`${platform} limit reached`, {
     description: "You've hit the API rate limit. Try again in a few minutes.",
@@ -196,13 +195,6 @@ export function notifyUnsavedChanges() {
   toast.warning("Unsaved changes", {
     description: "You have unsaved content. Save before leaving.",
     duration: 4000,
-  });
-}
-
-export function notifyLowCredits(balance: number) {
-  toast.warning("Low AI credits", {
-    description: `You have ${balance} credits remaining.`,
-    duration: 5000,
   });
 }
 

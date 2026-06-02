@@ -27,7 +27,8 @@ export function PeriodFilters({ hours, subredditFilter }: PeriodFiltersProps) {
           size="sm"
           asChild
           className={cn(
-            hours === h && "bg-brand text-primary-foreground hover:bg-brand/90 hover:text-primary-foreground",
+            "rounded-sm transition-all",
+            hours === h && "bg-brand text-primary-foreground hover:bg-brand/90 hover:text-primary-foreground border-l-2 border-l-primary-foreground",
           )}
         >
           <Link href={`/reddit/trending?hours=${h}${subredditFilter ? `&subreddit=${subredditFilter}` : ""}`}>

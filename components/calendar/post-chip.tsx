@@ -71,12 +71,16 @@ const statusConfig: Record<string, {
 };
 
 const platformColors: Record<string, string> = {
-  instagram: "bg-chart-1",
-  facebook: "bg-chart-2",
-  x: "bg-chart-3",
-  linkedin: "bg-chart-4",
-  tiktok: "bg-chart-5",
-  pinterest: "bg-chart-6",
+  instagram: "bg-preview-instagram",
+  facebook: "bg-preview-facebook",
+  x: "bg-preview-x",
+  linkedin: "bg-preview-linkedin",
+  tiktok: "bg-preview-tiktok",
+  pinterest: "bg-preview-pinterest",
+  threads: "bg-preview-threads",
+  googleBusiness: "bg-preview-googleBusiness",
+  youtube: "bg-preview-youtube",
+  bluesky: "bg-preview-bluesky",
 };
 
 function PlatformDots({ platforms }: { platforms: PostPlatform[] }) {
@@ -86,7 +90,7 @@ function PlatformDots({ platforms }: { platforms: PostPlatform[] }) {
         <span
           key={p.platform}
           className={cn(
-            "size-2 rounded-full",
+            "size-2 rounded-sm",
             platformColors[p.platform] ?? "bg-muted",
           )}
           title={p.platform}
@@ -158,7 +162,7 @@ export function PostChip({
       onPointerUp={handlePointerUp}
       style={style}
       className={cn(
-        "group relative flex items-center gap-1.5 rounded-md border border-border/30 border-l-[3px] bg-card px-2 py-1 text-xs transition-colors hover:bg-muted/50 cursor-pointer",
+        "group relative flex items-center gap-1.5 rounded-sm border border-border/30 border-l-[3px] bg-card px-2.5 py-1.5 text-xs transition-all hover-lift hover:bg-muted/50 cursor-pointer",
         cfg.borderColor,
         isDragging && "opacity-50 shadow-md",
       )}
@@ -232,7 +236,7 @@ export function PostChip({
       onPointerUp={handlePointerUp}
       style={style}
       className={cn(
-        "group relative flex flex-col gap-1 rounded-md border border-border/30 border-l-[3px] bg-card p-2 transition-colors hover:bg-muted/50 cursor-pointer",
+        "group relative flex flex-col gap-1 rounded-sm border border-border/30 border-l-[3px] bg-card p-2 transition-all hover-lift hover:bg-muted/50 cursor-pointer",
         cfg.borderColor,
         isDragging && "opacity-50 shadow-md",
       )}
@@ -292,7 +296,7 @@ export function PostChip({
         )}
         <Badge
           variant="outline"
-          className={cn("text-[0.625rem] gap-0.5 normal-case rounded-md px-1.5 py-0", cfg.className)}
+          className={cn("text-[0.625rem] gap-0.5 normal-case rounded-sm px-1.5 py-0", cfg.className)}
         >
           {cfg.icon}
           {cfg.label}
@@ -302,7 +306,7 @@ export function PostChip({
             <span
               key={p.platform}
               className={cn(
-                "size-2 rounded-full",
+                "size-2 rounded-sm",
                 platformColors[p.platform] ?? "bg-muted",
               )}
             />

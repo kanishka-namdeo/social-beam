@@ -121,7 +121,7 @@ export function BrandQuickEditDialog({ open, onOpenChange, brandContext, onSave 
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 tracking-tight">
             <Sparkle className="size-5 text-brand" weight="fill" />
             Quick Edit Brand Voice
           </DialogTitle>

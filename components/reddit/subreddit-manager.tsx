@@ -213,7 +213,7 @@ export function SubredditManager() {
                     <Badge
                       key={s}
                       variant="outline"
-                      className="cursor-pointer hover:bg-brand/5 hover:border-brand/30 rounded-md"
+                      className="cursor-pointer hover:bg-brand/5 hover:border-brand/30 rounded-sm"
                       onClick={async () => {
                         try {
                           const res = await fetch("/api/reddit/subreddit", {
@@ -251,16 +251,16 @@ export function SubredditManager() {
               {[0, 1, 2].map((i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between rounded-md border border-border bg-card p-2.5"
+                  className="flex items-center justify-between rounded-sm border border-border bg-card p-2.5"
                 >
                   <div className="flex items-center gap-3">
-                    <Skeleton className="h-5 w-10 rounded-full" />
+                    <Skeleton className="h-5 w-10 rounded-sm" />
                     <div className="space-y-1.5">
                       <Skeleton className="h-4 w-32" />
                       <Skeleton className="h-3 w-20" />
                     </div>
                   </div>
-                  <Skeleton className="h-8 w-8 rounded-md" />
+                  <Skeleton className="h-8 w-8 rounded-sm" />
                 </div>
               ))}
             </div>
@@ -276,7 +276,7 @@ export function SubredditManager() {
                   {activeConfigs.map((cfg) => (
                     <div
                       key={cfg.id}
-                      className="flex items-center justify-between rounded-md border border-border bg-card p-2.5"
+                      className="flex items-center justify-between rounded-sm border border-border bg-card p-2.5"
                     >
                       <div className="flex items-center gap-3">
                         <Switch
@@ -311,7 +311,7 @@ export function SubredditManager() {
                   {inactiveConfigs.map((cfg) => (
                     <div
                       key={cfg.id}
-                      className="flex items-center justify-between rounded-md border border-border bg-muted/30 p-2.5 opacity-60"
+                      className="flex items-center justify-between rounded-sm border border-border bg-muted/30 p-2.5 opacity-60"
                     >
                       <div className="flex items-center gap-3">
                         <Switch

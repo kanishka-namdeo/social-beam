@@ -44,11 +44,11 @@ export function MonthView({ currentDate, posts, onDateClick, onPreview, onDelete
   return (
     <div className="space-y-2">
       {/* Day name headers */}
-      <div className="grid grid-cols-7 gap-px">
+      <div className="grid grid-cols-7 gap-1 rounded-sm overflow-hidden">
         {DAY_NAMES.map((name) => (
           <div
             key={name}
-            className="py-1.5 text-center text-xs font-semibold uppercase tracking-tight text-muted-foreground"
+            className="py-2 text-center text-xs font-medium uppercase tracking-tight text-muted-foreground"
           >
             {name}
           </div>
@@ -56,7 +56,7 @@ export function MonthView({ currentDate, posts, onDateClick, onPreview, onDelete
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-px">
+      <div className="grid grid-cols-7 gap-1 rounded-sm border border-border overflow-hidden">
         {gridDays.map((dayDate) => {
           const isCurrentMonth = isSameMonth(dayDate, currentDate);
           const isToday = isSameDay(dayDate, today);

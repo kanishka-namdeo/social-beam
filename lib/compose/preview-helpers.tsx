@@ -38,7 +38,7 @@ export function renderRichText(text: string): ReactNode[] {
         <a
           key={`ht-${item.start}`}
           href={`https://www.linkedin.com/feed/hashtag/?keywords=${encodeURIComponent(item.match[1])}`}
-          className="text-blue-600 hover:underline"
+          className="text-brand hover:underline"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -47,7 +47,7 @@ export function renderRichText(text: string): ReactNode[] {
       );
     } else {
       parts.push(
-        <span key={`mt-${item.start}`} className="text-blue-600">
+        <span key={`mt-${item.start}`} className="text-brand hover:underline">
           {item.match[0]}
         </span>,
       );

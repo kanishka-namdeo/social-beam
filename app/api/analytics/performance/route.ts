@@ -44,13 +44,13 @@ export async function GET(req: Request) {
         title: true,
         confidence: true,
         publishedAt: true,
-        platforms: {
+        PostPlatform: {
           select: {
             platform: true,
             status: true,
           },
         },
-        analytics: {
+        AnalyticsSnapshot: {
           select: {
             platform: true,
             likes: true,
@@ -79,12 +79,12 @@ export async function GET(req: Request) {
         confidenceGroups[conf] = { totalEngagements: 0, totalImpressions: 0, count: 0, avgEngagementRate: 0 };
       }
       const group = confidenceGroups[conf];
-      const engSum = post.analytics.reduce((s, a) => s + a.likes + a.comments + a.shares, 0);
-      const impSum = post.analytics.reduce((s, a) => s + a.impressions, 0);
+      const engSum = post.AnalyticsSnapshot.reduce((s, a) => s + a.likes + a.comments + a.shares, 0);
+      const impSum = post.AnalyticsSnapshot.reduce((s, a) => s + a.impressions, 0);
       group.totalEngagements += engSum;
       group.totalImpressions += impSum;
       group.count += 1;
-      group.avgEngagementRate += post.analytics.reduce((s, a) => s + (a.engagementRate ?? 0), 0);
+      group.avgEngagementRate += post.AnalyticsSnapshot.reduce((s, a) => s + (a.engagementRate ?? 0), 0);
     }
 
     const confidenceCorrelation = Object.entries(confidenceGroups).map(([level, data]) => ({
@@ -98,7 +98,7 @@ export async function GET(req: Request) {
     // Publishing reliability
     const platformPublishStats: Record<string, { total: number; published: number; failed: number; drafting: number }> = {};
     for (const post of posts) {
-      for (const pp of post.platforms) {
+      for (const pp of post.PostPlatform) {
         if (!platformPublishStats[pp.platform]) {
           platformPublishStats[pp.platform] = { total: 0, published: 0, failed: 0, drafting: 0 };
         }
@@ -120,9 +120,9 @@ export async function GET(req: Request) {
     }));
 
     // Overall success rate
-    const totalPublished = posts.reduce((s, p) => s + p.platforms.filter((pp) => pp.status === "PUBLISHED").length, 0);
-    const totalFailed = posts.reduce((s, p) => s + p.platforms.filter((pp) => pp.status === "FAILED").length, 0);
-    const totalPlatforms = posts.reduce((s, p) => s + p.platforms.length, 0);
+    const totalPublished = posts.reduce((s, p) => s + p.PostPlatform.filter((pp) => pp.status === "PUBLISHED").length, 0);
+    const totalFailed = posts.reduce((s, p) => s + p.PostPlatform.filter((pp) => pp.status === "FAILED").length, 0);
+    const totalPlatforms = posts.reduce((s, p) => s + p.PostPlatform.length, 0);
 
     // Post frequency & consistency
     const dailyPostCounts: Record<string, number> = {};
@@ -153,7 +153,7 @@ export async function GET(req: Request) {
 
     const totalFollowers = followerSnapshots.reduce((s, f) => s + (f._max.followers ?? 0), 0);
     const totalAllEngagements = posts.reduce(
-      (s, p) => s + p.analytics.reduce((es, a) => es + a.likes + a.comments + a.shares, 0),
+      (s, p) => s + p.AnalyticsSnapshot.reduce((es, a) => es + a.likes + a.comments + a.shares, 0),
       0
     );
     const engagementPerFollower = totalFollowers > 0 ? totalAllEngagements / totalFollowers : 0;

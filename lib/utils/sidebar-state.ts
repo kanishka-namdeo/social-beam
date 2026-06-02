@@ -1,19 +1,16 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
-export type SidebarVariant = "sidebar" | "floating";
 export type SidebarCollapsible = "offcanvas" | "icon" | "none";
 
 export interface SidebarConfig {
-  variant: SidebarVariant;
   collapsible: SidebarCollapsible;
 }
 
 const STORAGE_KEY = "sidebar-config";
 
 const DEFAULT_CONFIG: SidebarConfig = {
-  variant: "sidebar",
   collapsible: "offcanvas",
 };
 
@@ -24,7 +21,6 @@ function loadConfig(): SidebarConfig {
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<SidebarConfig>;
       return {
-        variant: parsed.variant ?? DEFAULT_CONFIG.variant,
         collapsible: parsed.collapsible ?? DEFAULT_CONFIG.collapsible,
       };
     }
@@ -44,7 +40,16 @@ function saveConfig(config: SidebarConfig): void {
 }
 
 export function useSidebarPreference() {
-  const [config, setConfig] = useState<SidebarConfig>(loadConfig);
+  // Always initialize with DEFAULT_CONFIG so SSR and hydration produce identical
+  // output. Reading from localStorage during initial state causes a mismatch
+  // because localStorage is unavailable on the server.
+  const [config, setConfig] = useState<SidebarConfig>(DEFAULT_CONFIG);
+
+  // Load persisted config after hydration
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setConfig(loadConfig());
+  }, []);
 
   const updateConfig = useCallback((updates: Partial<SidebarConfig>) => {
     setConfig((prev) => {
@@ -53,11 +58,6 @@ export function useSidebarPreference() {
       return next;
     });
   }, []);
-
-  const setVariant = useCallback(
-    (variant: SidebarVariant) => updateConfig({ variant }),
-    [updateConfig]
-  );
 
   const setCollapsible = useCallback(
     (collapsible: SidebarCollapsible) => updateConfig({ collapsible }),
@@ -77,7 +77,6 @@ export function useSidebarPreference() {
 
   return {
     config,
-    setVariant,
     setCollapsible,
     toggleCollapse,
     updateConfig,

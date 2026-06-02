@@ -274,7 +274,7 @@ export function TrendingTable({ posts, hours }: TrendingTableProps) {
         </CardHeader>
         <CardContent>
           {filteredAndSortedPosts.length === 0 && posts.length > 0 ? (
-            <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border p-12 text-center">
+            <div className="flex flex-col items-center justify-center gap-3 rounded-sm border border-dashed border-border p-12 text-center">
               <MagnifyingGlass className="size-8 text-muted-foreground" weight="light" />
               <p className="text-sm font-medium text-foreground">No trending posts match your filters</p>
               <p className="text-xs text-muted-foreground max-w-sm">
@@ -297,13 +297,13 @@ export function TrendingTable({ posts, hours }: TrendingTableProps) {
             </div>
           ) : (
             <>
-              <div className="rounded-lg border border-border">
+              <div className="rounded-sm border border-border">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[35%] text-xs font-medium text-muted-foreground">Post</TableHead>
-                      <TableHead className="text-xs font-medium text-muted-foreground">Subreddit</TableHead>
-                      <TableHead className="text-xs font-medium text-muted-foreground">
+                      <TableHead className="w-[35%] text-xs font-medium uppercase tracking-tight text-muted-foreground">Post</TableHead>
+                      <TableHead className="text-xs font-medium uppercase tracking-tight text-muted-foreground">Subreddit</TableHead>
+                      <TableHead className="text-xs font-medium uppercase tracking-tight text-muted-foreground">
                         <button
                           type="button"
                           className="flex items-center gap-1 hover:text-brand transition-colors"
@@ -321,15 +321,15 @@ export function TrendingTable({ posts, hours }: TrendingTableProps) {
                           )}
                         </button>
                       </TableHead>
-                      <TableHead className="text-xs font-medium text-muted-foreground">
+                      <TableHead className="text-xs font-medium uppercase tracking-tight text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <ChatText className="size-3.5" weight="bold" />
                           Comments
                         </span>
                       </TableHead>
-                      <TableHead className="text-xs font-medium text-muted-foreground">Sentiment</TableHead>
-                      <TableHead className="text-xs font-medium text-muted-foreground">Risk</TableHead>
-                      <TableHead className="text-xs font-medium text-muted-foreground">
+                      <TableHead className="text-xs font-medium uppercase tracking-tight text-muted-foreground">Sentiment</TableHead>
+                      <TableHead className="text-xs font-medium uppercase tracking-tight text-muted-foreground">Risk</TableHead>
+                      <TableHead className="text-xs font-medium uppercase tracking-tight text-muted-foreground">
                         <button
                           type="button"
                           className="flex items-center gap-1 hover:text-brand transition-colors"
@@ -418,7 +418,7 @@ export function TrendingTable({ posts, hours }: TrendingTableProps) {
                               getRelevanceBadgeClass(post.relevanceScore, isAiAnalysisFailed(post.relevanceReason)),
                             )}
                             title={isAiAnalysisFailed(post.relevanceReason)
-                              ? "AI analysis could not complete. Check your API configuration or credits."
+                              ? "AI analysis could not complete. Check your API configuration."
                               : undefined}
                           >
                             {getRelevanceLabel(post.relevanceScore, isAiAnalysisFailed(post.relevanceReason))}

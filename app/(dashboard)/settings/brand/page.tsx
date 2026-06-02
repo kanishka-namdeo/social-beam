@@ -63,6 +63,7 @@ export default async function BrandSettingsPage({
           <BrandConversationalUI
             initialUrl={initialUrl}
             isReanalyzeMode={isReanalyzeMode}
+            connectedPlatforms={connectedPlatforms}
           />
         </div>
       )}

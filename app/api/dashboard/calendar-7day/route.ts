@@ -31,7 +31,7 @@ export async function GET() {
       id: true,
       title: true,
       scheduledAt: true,
-      platforms: {
+      PostPlatform: {
         select: {
           platform: true,
         },
@@ -44,7 +44,7 @@ export async function GET() {
       id: p.id,
       title: p.title,
       scheduledAt: p.scheduledAt,
-      platforms: p.platforms.map((pp) => pp.platform),
+      platforms: p.PostPlatform.map((pp) => pp.platform),
     })),
   });
 }

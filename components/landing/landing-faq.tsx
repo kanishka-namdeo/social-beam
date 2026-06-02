@@ -14,11 +14,6 @@ const faqs = [
       "Yes. Schedule unlimited posts across 10 accounts with no credit card required. Free forever — no hidden limits or trials. AI features are optional upgrades.",
   },
   {
-    question: "What do AI credits do?",
-    answer:
-      "AI credits power content generation features like AI-written captions, hashtag suggestions, optimal posting time predictions, and engagement analysis. One credit generates roughly one post's worth of AI content.",
-  },
-  {
     question: "Which platforms are supported?",
     answer:
       "SocialBeam supports X (Twitter), LinkedIn, Instagram, Facebook, TikTok, Pinterest, and more. Connect up to 10 accounts on the free tier.",

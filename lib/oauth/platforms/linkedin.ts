@@ -3,17 +3,23 @@ import { logger } from '@/lib/logger';
 
 const API_BASE = 'https://api.linkedin.com/v2';
 
+// Approved OAuth scopes for the LinkedIn app:
+// openid, profile, email — Sign In with LinkedIn (OIDC)
+// w_member_social — create/update/delete posts, comments, and reactions
+const APPROVED_SCOPES = 'openid profile email w_member_social';
+
 export function getLinkedinAuthUrl(
   redirectUri: string,
   state: string,
   clientId: string,
 ): string {
   logger.debug('oauth.linkedin.auth_url_generated', { state });
+
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: clientId,
     redirect_uri: redirectUri,
-    scope: 'w_member_social openid profile',
+    scope: APPROVED_SCOPES,
     state,
   });
 

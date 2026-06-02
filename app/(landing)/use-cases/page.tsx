@@ -90,15 +90,15 @@ export default function UseCasesPage() {
         {useCases.map((useCase) => {
           const Icon = useCase.icon;
           return (
-            <Card key={useCase.title} className="border-border">
+            <Card key={useCase.title} className="border-border rounded-sm hover-lift transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-brand/10 text-brand">
+                  <div className="p-3 bg-brand/10 text-brand rounded-sm">
                     <Icon className="w-8 h-8" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl text-foreground">{useCase.title}</CardTitle>
-                    <CardDescription className="text-muted-foreground text-base mt-1">
+                    <CardTitle className="text-2xl text-foreground tracking-tight">{useCase.title}</CardTitle>
+                    <CardDescription className="text-muted-foreground text-base mt-1 leading-relaxed">
                       {useCase.description}
                     </CardDescription>
                   </div>
@@ -107,7 +107,7 @@ export default function UseCasesPage() {
               <CardContent>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <h3 className="text-sm font-semibold text-foreground mb-3">Key Features</h3>
+                    <h3 className="text-sm font-semibold text-foreground mb-3 tracking-tight">Key Features</h3>
                     <ul className="space-y-2">
                       {useCase.features.map((feature) => (
                         <li key={feature} className="flex items-start gap-2 text-sm text-foreground">
@@ -117,8 +117,8 @@ export default function UseCasesPage() {
                       ))}
                     </ul>
                   </div>
-                  <div className="flex flex-col justify-center items-center bg-muted/30 rounded-lg p-6">
-                    <p className="text-2xl font-bold text-brand">{useCase.stats}</p>
+                  <div className="flex flex-col justify-center items-center bg-muted/30 rounded-sm p-6">
+                    <p className="text-2xl font-semibold text-brand">{useCase.stats}</p>
                   </div>
                 </div>
               </CardContent>

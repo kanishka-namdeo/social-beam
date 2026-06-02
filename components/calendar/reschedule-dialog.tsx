@@ -128,7 +128,7 @@ export function RescheduleDialog({
                       key={i}
                       type="button"
                       onClick={() => setSelectedTime(timeIso)}
-                      className="flex flex-col items-start rounded-md border border-border/50 bg-card p-2 transition-colors hover:bg-muted hover:border-brand/50 text-left"
+                      className="flex flex-col items-start rounded-sm border border-border/50 bg-card p-2 transition-colors hover:bg-muted hover:border-brand/50 text-left"
                     >
                       <span className="text-xs font-medium text-foreground">
                         {st.label}

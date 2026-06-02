@@ -1,6 +1,5 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
 import { AnalyticsOverview } from "@/components/analytics/analytics-overview";
 import { AudienceGrowthChart } from "@/components/analytics/audience-growth-chart";
 import { ContentRankingTable } from "@/components/analytics/content-ranking-table";
@@ -29,8 +28,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   const session = await auth();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const user = session?.user as any;
-  const workspaceId = user?.workspaceId as string | undefined;
-  if (!workspaceId) redirect("/login");
+  const workspaceId = user?.workspaceId as string;
 
   const resolvedSearchParams = await searchParams;
   const periodDays = VALID_PERIODS.includes(Number(resolvedSearchParams?.period) as (typeof VALID_PERIODS)[number])
@@ -49,16 +47,18 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
     currentFollowersGrouped,
     previousFollowers,
     allFollowerSnapshots,
+    externalPostCount,
+    publishedPostCount,
   ] = await Promise.all([
     prisma.analyticsSnapshot.findMany({
-      where: { snapshotAt: { gte: currentStart }, post: { workspaceId } },
+      where: { snapshotAt: { gte: currentStart }, Post: { workspaceId } },
     }),
     prisma.analyticsSnapshot.findMany({
-      where: { snapshotAt: { gte: previousStart, lt: currentStart }, post: { workspaceId } },
+      where: { snapshotAt: { gte: previousStart, lt: currentStart }, Post: { workspaceId } },
     }),
     prisma.post.findMany({
       where: { workspaceId, publishedAt: { gte: currentStart } },
-      select: { id: true, title: true, publishedAt: true, confidence: true, platforms: { select: { platform: true, status: true } } },
+      select: { id: true, title: true, publishedAt: true, confidence: true, isExternal: true, PostPlatform: { select: { platform: true, status: true, postUrl: true, content: true } } },
     }),
     prisma.followerSnapshot.groupBy({
       by: ["platform"],
@@ -73,6 +73,12 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
     prisma.followerSnapshot.findMany({
       where: { workspaceId, snapshotAt: { gte: currentStart } },
       orderBy: { snapshotAt: "asc" },
+    }),
+    prisma.post.count({
+      where: { workspaceId, publishedAt: { gte: currentStart }, isExternal: true },
+    }),
+    prisma.post.count({
+      where: { workspaceId, publishedAt: { gte: currentStart }, isExternal: false },
     }),
   ]);
 
@@ -200,13 +206,19 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
       const postAnalytics = currentAnalytics.filter((a) => a.postId === post.id);
       const totalEng = postAnalytics.reduce((sum, a) => sum + a.likes + a.comments + a.shares, 0);
       const totalImp = postAnalytics.reduce((sum, a) => sum + a.impressions, 0);
+      // For posts with zero impressions (external/scraped), use raw engagement / 1000 as pseudo-rate
+      // This keeps them comparable with published posts' typical 0.01-0.10 engagement rates
+      const effectiveRate = totalImp > 0 ? totalEng / totalImp : totalEng / 1000;
       return {
-        id: post.id, title: post.title, platform: post.platforms[0]?.platform ?? "unknown",
-        engagementRate: totalImp > 0 ? totalEng / totalImp : 0, impressions: totalImp,
+        id: post.id, title: post.title, platform: post.PostPlatform[0]?.platform ?? "unknown",
+        engagementRate: effectiveRate, impressions: totalImp,
         likes: postAnalytics.reduce((sum, a) => sum + a.likes, 0),
         comments: postAnalytics.reduce((sum, a) => sum + a.comments, 0),
         shares: postAnalytics.reduce((sum, a) => sum + a.shares, 0),
         publishedAt: post.publishedAt?.toISOString() ?? null, rank: 0,
+        url: post.PostPlatform[0]?.postUrl ?? null,
+        isExternal: post.isExternal,
+        fullText: post.PostPlatform[0]?.content ?? null,
       };
     })
     .sort((a, b) => b.engagementRate - a.engagementRate);
@@ -249,7 +261,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   // Publishing reliability
   const platformPublishStats: Record<string, { total: number; published: number; failed: number }> = {};
   for (const post of currentPosts) {
-    for (const pp of post.platforms) {
+    for (const pp of post.PostPlatform) {
       if (!platformPublishStats[pp.platform]) platformPublishStats[pp.platform] = { total: 0, published: 0, failed: 0 };
       platformPublishStats[pp.platform].total += 1;
       if (pp.status === "PUBLISHED") platformPublishStats[pp.platform].published += 1;
@@ -309,9 +321,9 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
           </Card>
 
           {/* Worked example preview */}
-          <Card>
+          <Card className="rounded-sm border border-border">
             <CardHeader>
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <CardTitle className="text-sm font-medium tracking-tight text-muted-foreground flex items-center gap-2">
                 <Eye className="size-4 text-brand" weight="fill" />
                 Here&apos;s what you&apos;ll see
               </CardTitle>
@@ -320,7 +332,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
                 <MockMetricCard
                   icon={<Eye className="size-5" weight="fill" />}
                   label="Impressions"
@@ -350,12 +362,12 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
                   positive
                 />
               </div>
-              <div className="mt-6 rounded-md bg-muted/50 p-4">
-                <p className="text-xs font-medium text-muted-foreground mb-2">Top post this week</p>
+              <div className="mt-6 rounded-sm bg-muted/50 p-4">
+                <p className="text-xs font-medium tracking-tight text-muted-foreground mb-2">Top post this week</p>
                 <div className="flex items-center gap-3">
-                  <Badge variant="outline" className="text-xs">Instagram</Badge>
+                  <Badge variant="outline" className="rounded-sm text-xs">Instagram</Badge>
                   <span className="text-sm text-foreground truncate">&ldquo;5 tips for better social media engagement&rdquo;</span>
-                  <span className="ml-auto text-xs text-muted-foreground tabular-nums">3.2k views</span>
+                  <span className="ml-auto text-xs font-mono tabular-nums text-muted-foreground">3.2k views</span>
                 </div>
               </div>
             </CardContent>
@@ -375,6 +387,20 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
           <p className="text-sm text-muted-foreground">
             Track performance across all your social platforms over the last {periodDays} days.
           </p>
+          {(externalPostCount > 0 || publishedPostCount > 0) && (
+            <div className="mt-2 flex items-center gap-2 flex-wrap">
+              {publishedPostCount > 0 && (
+                <Badge variant="outline" className="rounded-sm text-xs">
+                  {publishedPostCount} published
+                </Badge>
+              )}
+              {externalPostCount > 0 && (
+                <Badge variant="secondary" className="rounded-sm text-xs">
+                  {externalPostCount} from platform
+                </Badge>
+              )}
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <HintTooltip
@@ -439,14 +465,14 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
 
 function MockMetricCard({ icon, label, value, change, positive }: { icon: React.ReactNode; label: string; value: string; change: string; positive: boolean }) {
   return (
-    <div className="rounded-md border border-border bg-card p-4 text-left hover-lift">
-      <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-1">
+    <div className="rounded-sm border border-border bg-card p-4 text-left hover-lift border-l-2 border-l-brand min-w-0">
+      <div className="flex items-center gap-2 text-xs font-medium tracking-tight text-muted-foreground mb-1 min-w-0">
         {icon}
-        <span>{label}</span>
+        <span className="truncate">{label}</span>
       </div>
-      <div className="flex items-end justify-between">
-        <span className="text-2xl font-semibold text-foreground">{value}</span>
-        <span className={cn("text-xs font-medium tabular-nums", positive ? "text-success" : "text-destructive")}>
+      <div className="flex items-end justify-between gap-1">
+        <span className="text-2xl font-semibold font-mono tabular-nums text-foreground">{value}</span>
+        <span className={cn("text-xs font-medium font-mono tabular-nums shrink-0", positive ? "text-success" : "text-destructive")}>
           {change}
         </span>
       </div>

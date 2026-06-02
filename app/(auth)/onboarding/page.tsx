@@ -9,9 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import {
-  Robot, User, PaperPlaneTilt, CheckCircle, Circle, Spinner,
+  Robot,User, PaperPlaneTilt, CheckCircle, Circle, Spinner,
   ShareNetwork, PencilSimple, Calendar, Bug, CaretDown, CaretRight,
-  Warning, Coins, Sparkle, SignOut, WarningCircle,
+  Warning, Sparkle, SignOut, WarningCircle,
 } from '@phosphor-icons/react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { renderOpenUIComponent, type OpenUICallbacks } from '@/lib/openui/library';
@@ -219,7 +219,6 @@ export default function OnboardingPage() {
     return false;
   });
   const [debugExpanded, setDebugExpanded] = useState(true);
-  const [creditBalance] = useState<number>(10);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const oauthChannelRef = useRef<BroadcastChannel | null>(null);
@@ -726,10 +725,6 @@ export default function OnboardingPage() {
                 <span>AI assistant ready</span>
               </div>
             </div>
-            <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm">
-              <Coins className="size-4 text-primary" weight="duotone" />
-              <span className="text-muted-foreground">You get <strong className="text-foreground">10 free credits</strong> to start using AI features</span>
-            </div>
             <div className="space-y-2 pt-2">
               <Button onClick={() => router.push('/dashboard')} className="w-full">
                 Go to Dashboard
@@ -810,9 +805,9 @@ export default function OnboardingPage() {
           {/* OAuth status */}
           {oauthStatus && (
             oauthStatus.success ? (
-              <Alert className="border-success/30 bg-success/5">
+              <Alert variant="success">
                 <CheckCircle className="size-4" weight="bold" />
-                <AlertDescription className="text-success">
+                <AlertDescription>
                   Successfully connected {oauthStatus.platform}!
                 </AlertDescription>
               </Alert>
@@ -986,10 +981,6 @@ export default function OnboardingPage() {
                 <div className="flex gap-2">
                   <span className="text-muted-foreground">Completed:</span>
                   <span>{messages.some((m) => m.completed) ? 'yes' : 'no'}</span>
-                </div>
-                <div className="flex gap-2">
-                  <span className="text-muted-foreground">Credits:</span>
-                  <span>{creditBalance}</span>
                 </div>
               </div>
             )}

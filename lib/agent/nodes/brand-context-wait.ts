@@ -27,17 +27,48 @@ export async function contextWaitNode(state: BrandAnalyzerStateType): Promise<Pa
   const userReply = interrupt({
     step: 'brand_context_review',
     question: 'review generated brand context',
-  }) as string;
+  });
 
-  logger.info('contextWaitNode: user reply received', { replyLength: userReply.length, reply: userReply.slice(0, 100) });
+  // Handle both string replies (direct graph resume) and structured objects (from API resume)
+  if (typeof userReply === 'object' && userReply !== null) {
+    const replyObj = userReply as Record<string, unknown>;
+    const isConfirmed = !!replyObj.userConfirmed;
+    const feedback = (replyObj.userFeedback ?? '') as string;
 
-  const lowerReply = userReply.toLowerCase();
+    if (isConfirmed) {
+      logger.info('contextWaitNode: confirmed via structured reply', { userId: state.userId });
+      return {
+        messages: [new AIMessage('Brand context confirmed and saved.')],
+        userConfirmed: true,
+        userFeedback: '',
+        currentStep: 'done',
+      };
+    }
+
+    // Feedback case from structured reply
+    logger.info('contextWaitNode: feedback via structured reply', { feedbackLength: feedback.length });
+    return {
+      messages: [
+        new HumanMessage(feedback),
+        new AIMessage(`Got it. I've noted your feedback: "${feedback}". Let me know when you're ready to re-review.`),
+      ],
+      userFeedback: feedback,
+      userConfirmed: false,
+      currentStep: 'review',
+    };
+  }
+
+  // String reply (original path — user typed a response)
+  const userReplyStr = String(userReply ?? '');
+  logger.info('contextWaitNode: user reply received', { replyLength: userReplyStr.length, reply: userReplyStr.slice(0, 100) });
+
+  const lowerReply = userReplyStr.toLowerCase();
   const isConfirmed = CONFIRM_KEYWORDS.some((keyword) => lowerReply.includes(keyword));
 
   if (isConfirmed) {
     logger.info('contextWaitNode: user confirmed brand context', { userId: state.userId });
     return {
-      messages: [new HumanMessage(userReply)],
+      messages: [new HumanMessage(userReplyStr)],
       userConfirmed: true,
       userFeedback: '',
       // Do NOT advance currentStep — the router decides based on userConfirmed
@@ -45,13 +76,13 @@ export async function contextWaitNode(state: BrandAnalyzerStateType): Promise<Pa
   }
 
   // User wants edits or has feedback
-  logger.info('contextWaitNode: user requested edits', { feedback: userReply.slice(0, 200) });
+  logger.info('contextWaitNode: user requested edits', { feedback: userReplyStr.slice(0, 200) });
   return {
     messages: [
-      new HumanMessage(userReply),
-      new AIMessage(`Got it. I've noted your feedback: "${userReply}". Let me know when you're ready to re-review or describe what changes you'd like.`),
+      new HumanMessage(userReplyStr),
+      new AIMessage(`Got it. I've noted your feedback: "${userReplyStr}". Let me know when you're ready to re-review or describe what changes you'd like.`),
     ],
-    userFeedback: userReply,
+    userFeedback: userReplyStr,
     userConfirmed: false,
     // Stay on review — the router will decide where to go next
     currentStep: 'review',

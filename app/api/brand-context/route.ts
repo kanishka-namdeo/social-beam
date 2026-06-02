@@ -89,7 +89,7 @@ export async function GET() {
       workspaceId,
       found: true,
       trainingStatus: context.trainingStatus,
-      platformCount: context.platformContexts?.length ?? 0,
+      platformCount: context.PlatformContext?.length ?? 0,
     });
     return NextResponse.json({ data: context });
   } catch (err) {

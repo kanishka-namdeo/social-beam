@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Spinner, Link as LinkIcon, Question } from '@phosphor-icons/react';
+import { Spinner, Link as LinkIcon, Question } from '@phosphor-icons/react/ssr';
 import { platformIcon, PLATFORM_DISPLAY_NAMES } from '@/lib/oauth/platform-icons';
 
 const PLATFORM_HELP: Record<string, { url: string; steps: string[] }> = {
@@ -72,6 +72,49 @@ const PLATFORM_HELP: Record<string, { url: string; steps: string[] }> = {
       'Under "Permissions", enable the scopes you need',
       'Copy your App ID and App Secret from the app dashboard',
       'Set your redirect URI under Redirect URLs',
+    ],
+  },
+  threads: {
+    url: 'https://developers.facebook.com/',
+    steps: [
+      'Configure your Meta developer app (same as Instagram/Facebook) to enable Threads',
+      'Go to developers.facebook.com and open your existing Meta app',
+      'Add "Threads" as a product under your app',
+      'Threads uses the same META_APP_ID and META_APP_SECRET credentials',
+      'No additional developer app needed — shares credentials with Meta',
+    ],
+  },
+  googleBusiness: {
+    url: 'https://console.cloud.google.com/',
+    steps: [
+      'Go to console.cloud.google.com and create a new project (or use existing)',
+      'Enable the "Google My Business API"',
+      'Go to APIs & Services > Credentials > Create OAuth 2.0 Client ID',
+      'Set Application type to "Web application"',
+      'Add your redirect URI under Authorized redirect URIs',
+      'Copy your Client ID and Client Secret',
+      'Note: One Google app covers both Google Business Profile and YouTube',
+    ],
+  },
+  youtube: {
+    url: 'https://console.cloud.google.com/',
+    steps: [
+      'Configure your Google developer app (same as Google Business) to enable YouTube',
+      'Go to console.cloud.google.com and open your existing Google project',
+      'Enable the "YouTube Data API v3"',
+      'YouTube uses the same GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET',
+      'No additional developer app needed — shares credentials with Google Business',
+    ],
+  },
+  bluesky: {
+    url: 'https://bsky.app/settings',
+    steps: [
+      'No developer app needed — Bluesky uses direct auth with handle and app password',
+      'Go to bsky.app/settings and scroll to "App Passwords"',
+      'Click "Add App Password" and give it a name (e.g., "SocialBeam")',
+      'Copy the generated app password',
+      'When connecting your account, enter your Bluesky handle (e.g., @you.bsky.social) and the app password',
+      'You can revoke this password anytime from settings',
     ],
   },
 };
@@ -156,13 +199,13 @@ export function OauthAppConfigDialog({ open, platform, isConfigured, onClose, on
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg rounded-sm">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <span className="text-muted-foreground">
               {platformIcon(platform)}
             </span>
-            <DialogTitle>Configure {displayName} App</DialogTitle>
+            <DialogTitle className="tracking-tight">Configure {displayName} App</DialogTitle>
           </div>
           <DialogDescription>
             Paste the Client ID and Client Secret from your {displayName} developer app.
@@ -171,13 +214,13 @@ export function OauthAppConfigDialog({ open, platform, isConfigured, onClose, on
 
         <div className="space-y-4">
           {error && (
-            <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive" role="alert">
+            <div className="rounded-sm border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive" role="alert">
               {error}
             </div>
           )}
 
           <div className="space-y-2">
-            <Label htmlFor={`client-id-${platform}`} className="text-sm font-medium">Client ID</Label>
+            <Label htmlFor={`client-id-${platform}`} className="text-sm font-medium tracking-tight">Client ID</Label>
             <Input
               id={`client-id-${platform}`}
               value={clientId}
@@ -185,12 +228,12 @@ export function OauthAppConfigDialog({ open, platform, isConfigured, onClose, on
               placeholder="Enter your Client ID"
               autoComplete="off"
               spellCheck={false}
-              className="border-border focus-within:border-brand"
+              className="rounded-sm border-border focus-within:border-brand"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={`client-secret-${platform}`} className="text-sm font-medium">Client Secret</Label>
+            <Label htmlFor={`client-secret-${platform}`} className="text-sm font-medium tracking-tight">Client Secret</Label>
             <Input
               id={`client-secret-${platform}`}
               type="password"
@@ -199,7 +242,7 @@ export function OauthAppConfigDialog({ open, platform, isConfigured, onClose, on
               placeholder="Enter your Client Secret"
               autoComplete="off"
               spellCheck={false}
-              className="border-border focus-within:border-brand"
+              className="rounded-sm border-border focus-within:border-brand"
             />
           </div>
 
@@ -238,14 +281,14 @@ export function OauthAppConfigDialog({ open, platform, isConfigured, onClose, on
         <DialogFooter className="gap-2">
           <div className="flex gap-2">
             {isConfigured && (
-              <Button variant="destructive" onClick={handleRemove} disabled={loading}>
+              <Button variant="destructive" className="rounded-sm" onClick={handleRemove} disabled={loading}>
                 Remove
               </Button>
             )}
-            <Button variant="outline" onClick={onClose} disabled={loading}>
+            <Button variant="outline" className="rounded-sm" onClick={onClose} disabled={loading}>
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={loading}>
+            <Button className="rounded-sm" onClick={handleSave} disabled={loading}>
               {loading ? (
                 <>
                   <Spinner className="mr-2 size-4 animate-spin" />

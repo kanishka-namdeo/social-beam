@@ -4,13 +4,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { renderRichText } from "@/lib/compose/preview-helpers";
 import type { AccountInfo } from "./types";
+import { MediaPreview } from "./media-preview";
 
 interface XPreviewProps {
   content: string;
   account?: AccountInfo;
+  mediaUrls?: string[];
 }
 
-export function XPreview({ content, account }: XPreviewProps) {
+export function XPreview({ content, account, mediaUrls }: XPreviewProps) {
   // Use account data or fall back to defaults
   const displayName = account?.platformUsername || "You";
   const handle = account?.platformUsername ? `@${account.platformUsername}` : "@yourhandle";
@@ -19,7 +21,7 @@ export function XPreview({ content, account }: XPreviewProps) {
 
   return (
     <div
-      className="w-full max-w-[550px] rounded-lg border border-border bg-card"
+      className="w-full max-w-[550px] rounded-sm border border-border bg-card"
       role="img"
       aria-label="X/Twitter post preview"
     >
@@ -60,6 +62,9 @@ export function XPreview({ content, account }: XPreviewProps) {
             {renderRichText(content)}
           </p>
         )}
+        {mediaUrls && mediaUrls.length > 0 && (
+          <MediaPreview mediaUrls={mediaUrls} className="mt-3 rounded-lg overflow-hidden border border-border" />
+        )}
       </div>
 
       <Separator className="bg-border" />
@@ -89,7 +94,7 @@ export function XPreview({ content, account }: XPreviewProps) {
           </button>
           <button
             type="button"
-            className="flex items-center gap-1.5 text-muted-foreground hover:text-green-500 transition-colors"
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-post-published transition-colors"
           >
             <svg
               className="h-4 w-4"
@@ -107,7 +112,7 @@ export function XPreview({ content, account }: XPreviewProps) {
           </button>
           <button
             type="button"
-            className="flex items-center gap-1.5 text-muted-foreground hover:text-red-500 transition-colors"
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-destructive transition-colors"
           >
             <svg
               className="h-4 w-4"
@@ -123,7 +128,7 @@ export function XPreview({ content, account }: XPreviewProps) {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              className="text-muted-foreground hover:text-blue-500 transition-colors"
+              className="text-muted-foreground hover:text-brand transition-colors"
             >
               <svg
                 className="h-4 w-4"
@@ -137,7 +142,7 @@ export function XPreview({ content, account }: XPreviewProps) {
             </button>
             <button
               type="button"
-              className="text-muted-foreground hover:text-blue-500 transition-colors"
+              className="text-muted-foreground hover:text-brand transition-colors"
             >
               <svg
                 className="h-4 w-4"

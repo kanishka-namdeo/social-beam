@@ -198,7 +198,7 @@ export type RedditSubredditConfigWhereInput = {
   isActive?: Prisma.BoolFilter<"RedditSubredditConfig"> | boolean
   createdAt?: Prisma.DateTimeFilter<"RedditSubredditConfig"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RedditSubredditConfig"> | Date | string
-  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
 }
 
 export type RedditSubredditConfigOrderByWithRelationInput = {
@@ -209,7 +209,7 @@ export type RedditSubredditConfigOrderByWithRelationInput = {
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  workspace?: Prisma.WorkspaceOrderByWithRelationInput
+  Workspace?: Prisma.WorkspaceOrderByWithRelationInput
 }
 
 export type RedditSubredditConfigWhereUniqueInput = Prisma.AtLeast<{
@@ -224,7 +224,7 @@ export type RedditSubredditConfigWhereUniqueInput = Prisma.AtLeast<{
   isActive?: Prisma.BoolFilter<"RedditSubredditConfig"> | boolean
   createdAt?: Prisma.DateTimeFilter<"RedditSubredditConfig"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RedditSubredditConfig"> | Date | string
-  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
 }, "id" | "workspaceId_subreddit">
 
 export type RedditSubredditConfigOrderByWithAggregationInput = {
@@ -254,17 +254,17 @@ export type RedditSubredditConfigScalarWhereWithAggregatesInput = {
 }
 
 export type RedditSubredditConfigCreateInput = {
-  id?: string
+  id: string
   subreddit: string
   sortOrder?: string
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutRedditSubredditConfigsInput
+  Workspace: Prisma.WorkspaceCreateNestedOneWithoutRedditSubredditConfigInput
 }
 
 export type RedditSubredditConfigUncheckedCreateInput = {
-  id?: string
+  id: string
   workspaceId: string
   subreddit: string
   sortOrder?: string
@@ -280,7 +280,7 @@ export type RedditSubredditConfigUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutRedditSubredditConfigsNestedInput
+  Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutRedditSubredditConfigNestedInput
 }
 
 export type RedditSubredditConfigUncheckedUpdateInput = {
@@ -294,7 +294,7 @@ export type RedditSubredditConfigUncheckedUpdateInput = {
 }
 
 export type RedditSubredditConfigCreateManyInput = {
-  id?: string
+  id: string
   workspaceId: string
   subreddit: string
   sortOrder?: string
@@ -320,16 +320,6 @@ export type RedditSubredditConfigUncheckedUpdateManyInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type RedditSubredditConfigListRelationFilter = {
-  every?: Prisma.RedditSubredditConfigWhereInput
-  some?: Prisma.RedditSubredditConfigWhereInput
-  none?: Prisma.RedditSubredditConfigWhereInput
-}
-
-export type RedditSubredditConfigOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
 }
 
 export type RedditSubredditConfigWorkspaceIdSubredditCompoundUniqueInput = {
@@ -365,6 +355,16 @@ export type RedditSubredditConfigMinOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type RedditSubredditConfigListRelationFilter = {
+  every?: Prisma.RedditSubredditConfigWhereInput
+  some?: Prisma.RedditSubredditConfigWhereInput
+  none?: Prisma.RedditSubredditConfigWhereInput
+}
+
+export type RedditSubredditConfigOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type RedditSubredditConfigCreateNestedManyWithoutWorkspaceInput = {
@@ -409,12 +409,8 @@ export type RedditSubredditConfigUncheckedUpdateManyWithoutWorkspaceNestedInput 
   deleteMany?: Prisma.RedditSubredditConfigScalarWhereInput | Prisma.RedditSubredditConfigScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type RedditSubredditConfigCreateWithoutWorkspaceInput = {
-  id?: string
+  id: string
   subreddit: string
   sortOrder?: string
   isActive?: boolean
@@ -423,7 +419,7 @@ export type RedditSubredditConfigCreateWithoutWorkspaceInput = {
 }
 
 export type RedditSubredditConfigUncheckedCreateWithoutWorkspaceInput = {
-  id?: string
+  id: string
   subreddit: string
   sortOrder?: string
   isActive?: boolean
@@ -471,7 +467,7 @@ export type RedditSubredditConfigScalarWhereInput = {
 }
 
 export type RedditSubredditConfigCreateManyWorkspaceInput = {
-  id?: string
+  id: string
   subreddit: string
   sortOrder?: string
   isActive?: boolean
@@ -516,7 +512,7 @@ export type RedditSubredditConfigSelect<ExtArgs extends runtime.Types.Extensions
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["redditSubredditConfig"]>
 
 export type RedditSubredditConfigSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -527,7 +523,7 @@ export type RedditSubredditConfigSelectCreateManyAndReturn<ExtArgs extends runti
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["redditSubredditConfig"]>
 
 export type RedditSubredditConfigSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -538,7 +534,7 @@ export type RedditSubredditConfigSelectUpdateManyAndReturn<ExtArgs extends runti
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["redditSubredditConfig"]>
 
 export type RedditSubredditConfigSelectScalar = {
@@ -553,19 +549,19 @@ export type RedditSubredditConfigSelectScalar = {
 
 export type RedditSubredditConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "subreddit" | "sortOrder" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["redditSubredditConfig"]>
 export type RedditSubredditConfigInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 export type RedditSubredditConfigIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 export type RedditSubredditConfigIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 
 export type $RedditSubredditConfigPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "RedditSubredditConfig"
   objects: {
-    workspace: Prisma.$WorkspacePayload<ExtArgs>
+    Workspace: Prisma.$WorkspacePayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -969,7 +965,7 @@ readonly fields: RedditSubredditConfigFieldRefs;
  */
 export interface Prisma__RedditSubredditConfigClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

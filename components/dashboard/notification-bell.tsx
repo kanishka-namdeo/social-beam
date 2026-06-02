@@ -101,14 +101,14 @@ export function NotificationBell() {
           {unreadCount > 0 && (
             <span
               className={cn(
-                "absolute right-1 top-1 min-w-[14px] rounded-full bg-destructive px-1 text-[10px] font-semibold text-white transition-all duration-200",
+                "absolute right-1 top-1 min-w-[14px] rounded-sm bg-destructive px-1 text-[10px] font-semibold text-white transition-all duration-200",
               )}
             >
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
           {unreadCount === 0 && hasNew && (
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-brand animate-pulse" />
+            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-sm bg-brand animate-pulse" />
           )}
         </Button>
       </DropdownMenuTrigger>
@@ -168,7 +168,7 @@ export function NotificationBell() {
                   <div className="flex items-start gap-2">
                     <span
                       className={cn(
-                        "mt-0.5 h-2 w-2 shrink-0 rounded-full",
+                        "mt-0.5 h-2 w-2 shrink-0 rounded-sm",
                         !notification.read ? "bg-brand" : "bg-transparent",
                         typeIconColor[notification.type],
                       )}

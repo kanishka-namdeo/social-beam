@@ -16,8 +16,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarDots, WarningCircle, CheckCircle, Spinner } from "@phosphor-icons/react/ssr";
 import { cn } from "@/lib/utils";
+import { useInvisibleAI } from "@/lib/invisible-ai-context";
 
 interface PostPlatform {
   platform: string;
@@ -50,12 +52,12 @@ const confidenceConfig: Record<string, { label: string; className: string }> = {
 };
 
 const platformColors: Record<string, string> = {
-  instagram: "bg-chart-1",
-  facebook: "bg-chart-2",
-  x: "bg-chart-3",
-  linkedin: "bg-chart-4",
-  tiktok: "bg-chart-5",
-  pinterest: "bg-chart-1",
+  instagram: "bg-preview-instagram",
+  facebook: "bg-preview-facebook",
+  x: "bg-preview-x",
+  linkedin: "bg-preview-linkedin",
+  tiktok: "bg-preview-tiktok",
+  pinterest: "bg-preview-pinterest",
 };
 
 interface RecentPostsListProps {
@@ -63,90 +65,112 @@ interface RecentPostsListProps {
 }
 
 export function RecentPostsList({ posts }: RecentPostsListProps) {
+  const { config } = useInvisibleAI();
+
   if (posts.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border p-8 text-center">
-        <p className="text-sm text-muted-foreground">No posts yet. Create your first post to get started.</p>
-      </div>
+      <Card className="h-full">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium tracking-tight text-foreground flex items-center gap-2">
+            <CalendarDots className="size-4" weight="bold" />
+            Recent Posts
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-sm border border-dashed border-border p-8 text-center">
+            <p className="text-sm text-muted-foreground">No posts yet. Create your first post to get started.</p>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="rounded-lg border border-border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Post</TableHead>
-            <TableHead>Platforms</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Confidence</TableHead>
-            <TableHead className="text-right">Date</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {posts.map((post) => {
-            const cfg = statusConfig[post.status] ?? statusConfig.DRAFT;
-            return (
-              <TableRow key={post.id} className="cursor-pointer hover:bg-muted/50">
-                <TableCell>
-                  <Link href={`/dashboard/compose?postId=${post.id}`} className="font-medium text-foreground hover:underline">
-                    {post.title ?? "Untitled"}
-                  </Link>
-                </TableCell>
-                <TableCell>
-                  <div className="flex gap-1.5">
-                    {post.platforms.map((p) => (
-                      <TooltipProvider key={p.platform}>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <span
-                              className={`size-2.5 rounded-full ${platformColors[p.platform] ?? "bg-muted"}`}
-                            />
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="text-xs capitalize">{p.platform}</p>
-                            {p.error && (
-                              <p className="mt-1 text-xs text-destructive">{p.error}</p>
-                            )}
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    ))}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant={cfg.variant}
-                    className={cn("text-xs gap-1", cfg.className)}
-                  >
-                    {cfg.icon}
-                    {cfg.label}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  {post.confidence && confidenceConfig[post.confidence] ? (
+    <Card className="h-full">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm font-medium tracking-tight text-foreground flex items-center gap-2">
+          <CalendarDots className="size-4" weight="bold" />
+          Recent Posts
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Post</TableHead>
+              <TableHead>Platforms</TableHead>
+              <TableHead>Status</TableHead>
+              {config.showConfidence && <TableHead>Confidence</TableHead>}
+              <TableHead className="text-right">Date</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {posts.map((post) => {
+              const cfg = statusConfig[post.status] ?? statusConfig.DRAFT;
+              return (
+                <TableRow key={post.id} className="cursor-pointer hover:bg-muted/50">
+                  <TableCell>
+                    <Link href={`/dashboard/compose?postId=${post.id}`} className="font-medium text-foreground hover:underline">
+                      {post.title ?? "Untitled"}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1.5">
+                      {post.platforms.map((p) => (
+                        <TooltipProvider key={p.platform}>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <span
+                                className={`size-2.5 rounded-sm ${platformColors[p.platform] ?? "bg-muted"}`}
+                              />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-xs capitalize">{p.platform}</p>
+                              {p.error && (
+                                <p className="mt-1 text-xs text-destructive">{p.error}</p>
+                              )}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell>
                     <Badge
-                      variant="outline"
-                      className={`text-xs ${confidenceConfig[post.confidence].className}`}
+                      variant={cfg.variant}
+                      className={cn("text-xs gap-1", cfg.className)}
                     >
-                      {confidenceConfig[post.confidence].label}
+                      {cfg.icon}
+                      {cfg.label}
                     </Badge>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">—</span>
+                  </TableCell>
+                  {config.showConfidence && (
+                    <TableCell>
+                      {post.confidence && confidenceConfig[post.confidence] ? (
+                        <Badge
+                          variant="outline"
+                          className={`text-xs ${confidenceConfig[post.confidence].className}`}
+                        >
+                          {confidenceConfig[post.confidence].label}
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
                   )}
-                </TableCell>
-                <TableCell className="text-right text-xs text-muted-foreground">
-                  {post.publishedAt
-                    ? new Date(post.publishedAt).toLocaleDateString()
-                    : post.scheduledAt
-                    ? new Date(post.scheduledAt).toLocaleDateString()
-                    : "—"}
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+                  <TableCell className="text-right text-xs text-muted-foreground">
+                    {post.publishedAt
+                      ? new Date(post.publishedAt).toLocaleDateString()
+                      : post.scheduledAt
+                      ? new Date(post.scheduledAt).toLocaleDateString()
+                      : "—"}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }

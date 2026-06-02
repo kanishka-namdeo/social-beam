@@ -3,13 +3,15 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { renderRichText } from "@/lib/compose/preview-helpers";
 import type { AccountInfo } from "./types";
+import { MediaPreview } from "./media-preview";
 
 interface TikTokPreviewProps {
   content: string;
   account?: AccountInfo;
+  mediaUrls?: string[];
 }
 
-export function TikTokPreview({ content, account }: TikTokPreviewProps) {
+export function TikTokPreview({ content, account, mediaUrls }: TikTokPreviewProps) {
   // Use account data or fall back to defaults
   const displayName = account?.platformUsername || "yourhandle";
   const handle = account?.platformUsername ? `@${account.platformUsername}` : "@yourhandle";
@@ -18,17 +20,23 @@ export function TikTokPreview({ content, account }: TikTokPreviewProps) {
 
   return (
     <div
-      className="w-full max-w-[390px] overflow-hidden rounded-xl bg-[#121212] text-white"
+      className="w-full max-w-[390px] overflow-hidden rounded-sm bg-preview-tiktok text-white"
       role="img"
       aria-label="TikTok post preview"
     >
-      {/* Video Placeholder */}
-      <div className="aspect-[9/16] w-full bg-[#1a1a1a] flex flex-col items-center justify-center gap-3">
-        <svg className="h-16 w-16 text-neutral-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <polygon points="5 3 19 12 5 21 5 3" />
-        </svg>
-        <span className="text-xs text-neutral-500">Video preview</span>
-      </div>
+      {/* Video/Media Placeholder */}
+      {mediaUrls && mediaUrls.length > 0 ? (
+        <div className="relative w-full">
+          <MediaPreview mediaUrls={mediaUrls} />
+        </div>
+      ) : (
+        <div className="aspect-[9/16] w-full bg-card/30 flex flex-col items-center justify-center gap-3">
+          <svg className="h-16 w-16 text-muted-foreground/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <polygon points="5 3 19 12 5 21 5 3" />
+          </svg>
+          <span className="text-xs text-muted-foreground">Video preview</span>
+        </div>
+      )}
 
       {/* Overlay Info */}
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 pt-12">
@@ -37,7 +45,7 @@ export function TikTokPreview({ content, account }: TikTokPreviewProps) {
           <div className="flex flex-col items-center gap-1">
             <Avatar className="h-10 w-10 border-2 border-white">
               <AvatarImage src={avatarSrc} alt={displayName} />
-              <AvatarFallback className="bg-[#fe2c55] text-xs font-bold text-white">{avatarFallback}</AvatarFallback>
+              <AvatarFallback className="bg-preview-tiktok text-xs font-bold text-white">{avatarFallback}</AvatarFallback>
             </Avatar>
           </div>
           <button type="button" className="flex flex-col items-center gap-1" aria-label="Like">
@@ -66,7 +74,7 @@ export function TikTokPreview({ content, account }: TikTokPreviewProps) {
         <div className="pr-16">
           <p className="text-sm font-bold">{handle}</p>
           {content.trim() === "" ? (
-            <p className="mt-1 text-xs text-neutral-300">
+            <p className="mt-1 text-xs text-muted-foreground/80">
               Write your caption here..
             </p>
           ) : (
@@ -75,12 +83,12 @@ export function TikTokPreview({ content, account }: TikTokPreviewProps) {
             </p>
           )}
           <div className="mt-2 flex items-center gap-2">
-            <svg className="h-3 w-3 text-neutral-400" viewBox="0 0 24 24" fill="currentColor">
+            <svg className="h-3 w-3 text-muted-foreground" viewBox="0 0 24 24" fill="currentColor">
               <path d="M9 18V5l12-2v13" />
               <circle cx="6" cy="18" r="3" />
               <circle cx="18" cy="16" r="3" />
             </svg>
-            <span className="text-xs text-neutral-400">Original Sound - {displayName}</span>
+            <span className="text-xs text-muted-foreground">Original Sound - {displayName}</span>
           </div>
         </div>
       </div>

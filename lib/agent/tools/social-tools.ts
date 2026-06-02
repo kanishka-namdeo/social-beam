@@ -7,9 +7,10 @@ import { logger } from '@/lib/logger';
 import { resolveCredentials } from '@/lib/oauth/credentials';
 import { encryptToken } from '@/lib/oauth/crypto';
 import { fetchAccountInfo } from '@/lib/oauth/account-info';
+import { getPlatform, isGooglePlatform } from '@/lib/oauth/platform-registry';
 
 const InitiateOauthSchema = z.object({
-  platform: z.string().describe('Platform name: instagram, facebook, x, linkedin, tiktok, or pinterest'),
+  platform: z.string().describe('Platform name: instagram, facebook, x, linkedin, tiktok, pinterest, threads, googleBusiness, youtube, or bluesky'),
   userId: z.string().describe('The authenticated user ID'),
   workspaceId: z.string().describe('The workspace ID to associate this account with'),
   redirectTo: z.string().optional().describe('Where to redirect after OAuth: onboarding (default) or settings'),
@@ -20,7 +21,7 @@ const CompleteOauthSchema = z.object({
   code: z.string().describe('Authorization code from the callback'),
   userId: z.string().describe('The authenticated user ID'),
   workspaceId: z.string().describe('The workspace ID to associate this account with'),
-  codeVerifier: z.string().optional().describe('PKCE code verifier (required for X/Twitter)'),
+  codeVerifier: z.string().optional().describe('PKCE code verifier (required for X/Twitter, Google Business, YouTube)'),
 });
 
 const ListPlatformsSchema = z.object({
@@ -28,32 +29,6 @@ const ListPlatformsSchema = z.object({
   workspaceId: z.string().describe('The workspace ID to query'),
 });
 
-const OAUTH_CONFIG: Record<string, { authUrl: string; scopes: string }> = {
-  instagram: {
-    authUrl: 'https://www.facebook.com/v22.0/dialog/oauth',
-    scopes: 'instagram_basic,instagram_content_publish,pages_read_engagement,pages_manage_posts',
-  },
-  facebook: {
-    authUrl: 'https://www.facebook.com/v22.0/dialog/oauth',
-    scopes: 'pages_manage_posts,pages_read_engagement,pages_manage_metadata',
-  },
-  x: {
-    authUrl: 'https://twitter.com/i/oauth2/authorize',
-    scopes: 'tweet.read tweet.write users.read offline.access',
-  },
-  linkedin: {
-    authUrl: 'https://www.linkedin.com/oauth/v2/authorization',
-    scopes: 'openid profile w_member_social',
-  },
-  tiktok: {
-    authUrl: 'https://www.tiktok.com/v2/auth/authorize/',
-    scopes: 'video.upload,user.info.basic',
-  },
-  pinterest: {
-    authUrl: 'https://www.pinterest.com/oauth/',
-    scopes: 'boards:read pins:read pins:write user_accounts:read',
-  },
-};
 
 export const initiateOauthTool = tool(
   async (input: unknown) => {
@@ -63,8 +38,12 @@ export const initiateOauthTool = tool(
 
     logger.debug('tool.invoke', { toolName: 'initiate_oauth', platform, userId });
 
-    const config = OAUTH_CONFIG[platform.toLowerCase()];
-    if (!config) {
+    // ─── DEBUG: Log OAuth initiation ──────────────────────────────────────
+    console.log('[OAUTH DEBUG] initiate_oauth called', { platform, userId, workspaceId, redirectTo });
+    // ──────────────────────────────────────────────────────────────────────
+
+    const platformConfig = getPlatform(platform);
+    if (!platformConfig) {
       logger.warn('tool.unsupported_platform', { toolName: 'initiate_oauth', platform });
       return JSON.stringify({ error: `Unsupported platform: ${platform}` });
     }
@@ -77,7 +56,7 @@ export const initiateOauthTool = tool(
 
     const baseUrl = process.env.AUTH_URL ?? 'http://localhost:3000';
     const callbackUrl = `${baseUrl}/api/onboarding/oauth/callback`;
-    const redirectUri = encodeURIComponent(callbackUrl);
+    const redirectUri = callbackUrl;
     const state = encodeURIComponent(JSON.stringify({ platform, userId, workspaceId, redirectTo }));
 
     // Debug: log credential source and key OAuth params for troubleshooting
@@ -86,10 +65,10 @@ export const initiateOauthTool = tool(
       platform,
       clientIdMasked,
       credentialSource: credentials.source,
-      authUrl: config.authUrl,
+      authUrl: platformConfig.authUrl,
       baseUrl,
       redirectUriDecoded: callbackUrl,
-      scopes: config.scopes,
+      scopes: platformConfig.scopes,
     });
 
     let authUrl: string;
@@ -99,12 +78,71 @@ export const initiateOauthTool = tool(
       const codeChallenge = await generateCodeChallenge(codeVerifier);
       const oauthState = JSON.stringify({ platform, userId, workspaceId, codeVerifier, redirectTo });
       const xState = encodeURIComponent(oauthState);
-      authUrl = `${config.authUrl}?response_type=code&client_id=${credentials.clientId}&redirect_uri=${redirectUri}&scope=${encodeURIComponent(config.scopes)}&state=${xState}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+      authUrl = `${platformConfig.authUrl}?response_type=code&client_id=${credentials.clientId}&redirect_uri=${redirectUri}&scope=${encodeURIComponent(platformConfig.scopes)}&state=${xState}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
       logger.info('tool.complete', { toolName: 'initiate_oauth', platform, duration: Date.now() - start });
       return JSON.stringify({ authUrl, platform });
     }
 
-    authUrl = `${config.authUrl}?response_type=code&client_id=${credentials.clientId}&redirect_uri=${redirectUri}&scope=${encodeURIComponent(config.scopes)}&state=${state}`;
+    if (isGooglePlatform(platform.toLowerCase())) {
+      const codeVerifier = generateCodeVerifier();
+      const codeChallenge = await generateCodeChallenge(codeVerifier);
+      const oauthState = JSON.stringify({ platform, userId, workspaceId, codeVerifier, redirectTo });
+      const googleState = encodeURIComponent(oauthState);
+      authUrl = `${platformConfig.authUrl}?response_type=code&client_id=${credentials.clientId}&redirect_uri=${redirectUri}&scope=${encodeURIComponent(platformConfig.scopes)}&state=${googleState}&code_challenge=${codeChallenge}&code_challenge_method=S256&access_type=offline&prompt=consent`;
+      logger.info('tool.complete', { toolName: 'initiate_oauth', platform, duration: Date.now() - start });
+      return JSON.stringify({ authUrl, platform });
+    }
+
+    authUrl = `${platformConfig.authUrl}?response_type=code&client_id=${credentials.clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(platformConfig.scopes)}&state=${state}`;
+
+    // ─── DEBUG: Log final auth URL and all parameters ────────────────────
+    console.log('[OAUTH DEBUG] === OAuth Auth URL Generated ===');
+    console.log('[OAUTH DEBUG] Platform:', platform);
+    console.log('[OAUTH DEBUG] Auth URL (full, exact):', authUrl);
+    console.log('[OAUTH DEBUG] Base URL (AUTH_URL env):', baseUrl);
+    console.log('[OAUTH DEBUG] Callback URL:', callbackUrl);
+    console.log('[OAUTH DEBUG] Redirect URI (raw):', redirectUri);
+    console.log('[OAUTH DEBUG] Redirect URI (in URL - encoded?):', redirectUri === encodeURIComponent(redirectUri) ? 'NO - raw value used' : 'NO - raw value used (contains special chars)');
+    console.log('[OAUTH DEBUG] Client ID (masked):', clientIdMasked);
+    console.log('[OAUTH DEBUG] Client ID (full):', credentials.clientId);
+    console.log('[OAUTH DEBUG] Credential source:', credentials.source);
+    console.log('[OAUTH DEBUG] Scopes (raw):', platformConfig.scopes);
+    console.log('[OAUTH DEBUG] Scopes (encoded in URL):', encodeURIComponent(platformConfig.scopes));
+    console.log('[OAUTH DEBUG] State (encoded):', state);
+    console.log('[OAUTH DEBUG] State (decoded):', decodeURIComponent(state));
+    console.log('[OAUTH DEBUG] Platform auth URL:', platformConfig.authUrl);
+    console.log('[OAUTH DEBUG] Requires PKCE:', platformConfig.requiresPkce);
+
+    // Parse the generated URL to show each query param individually
+    try {
+      const parsedUrl = new URL(authUrl);
+      console.log('[OAUTH DEBUG] Parsed query parameters:');
+      console.log('[OAUTH DEBUG]   response_type:', parsedUrl.searchParams.get('response_type'));
+      console.log('[OAUTH DEBUG]   client_id:', parsedUrl.searchParams.get('client_id'));
+      console.log('[OAUTH DEBUG]   redirect_uri:', parsedUrl.searchParams.get('redirect_uri'));
+      console.log('[OAUTH DEBUG]   redirect_uri (decoded):', decodeURIComponent(parsedUrl.searchParams.get('redirect_uri') || ''));
+      console.log('[OAUTH DEBUG]   scope:', parsedUrl.searchParams.get('scope'));
+      console.log('[OAUTH DEBUG]   scope (decoded):', decodeURIComponent(parsedUrl.searchParams.get('scope') || ''));
+      console.log('[OAUTH DEBUG]   state:', parsedUrl.searchParams.get('state')?.slice(0, 100) + '...');
+      console.log('[OAUTH DEBUG] Full URL for direct test:', authUrl);
+    } catch {
+      console.log('[OAUTH DEBUG] Could not parse auth URL (unexpected format)');
+    }
+    console.log('[OAUTH DEBUG] ============================================');
+    // ──────────────────────────────────────────────────────────────────────
+
+    // Parse the generated URL to show each query param individually
+    try {
+      const parsedUrl = new URL(authUrl);
+      const allParams = Array.from(parsedUrl.searchParams.entries());
+      console.log('\n===== FINAL AUTH URL =====');
+      console.log(authUrl);
+      console.log('\n===== PARSED QUERY PARAMETERS =====');
+      allParams.forEach(([key, value]) => {
+        console.log(`  ${key}: ${value}`);
+      });
+      console.log('===============================\n');
+    } catch {}
 
     logger.info('tool.complete', { toolName: 'initiate_oauth', platform, duration: Date.now() - start });
     return JSON.stringify({ authUrl, platform });
@@ -138,6 +176,9 @@ export async function exchangeCodeForTokens(
     linkedin: { url: 'https://www.linkedin.com/oauth/v2/accessToken', method: 'POST' },
     tiktok: { url: 'https://open.tiktokapis.com/v2/oauth/token/', method: 'POST' },
     pinterest: { url: 'https://api.pinterest.com/v5/oauth/token', method: 'POST' },
+    threads: { url: 'https://graph.facebook.com/v22.0/oauth/access_token', method: 'GET' },
+    googleBusiness: { url: 'https://oauth2.googleapis.com/token', method: 'POST' },
+    youtube: { url: 'https://oauth2.googleapis.com/token', method: 'POST' },
   };
 
   const tokenConfig = platformTokenUrls[platform.toLowerCase()];
@@ -192,6 +233,19 @@ export async function exchangeCodeForTokens(
         'Content-Type': 'application/x-www-form-urlencoded',
         Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
       },
+      body,
+    });
+  } else if (platform.toLowerCase() === 'googlebusiness' || platform.toLowerCase() === 'youtube') {
+    const body = new URLSearchParams({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: redirectUri,
+      client_id: clientId,
+      code_verifier: codeVerifier ?? '',
+    });
+    response = await fetch(tokenConfig.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body,
     });
   } else {
@@ -292,6 +346,7 @@ export async function persistConnectedAccount(params: {
         workspaceId_platform: { workspaceId, platform: platform.toLowerCase() },
       },
       create: {
+        id: crypto.randomUUID(),
         workspaceId,
         platform: platform.toLowerCase(),
         platformUserId,
@@ -341,7 +396,7 @@ export async function queryConnectedPlatforms(_userId: string, workspaceId: stri
 
   const connectedSet = new Map(accounts.map(a => [a.platform, a]));
 
-  const allPlatforms = ['instagram', 'facebook', 'x', 'linkedin', 'tiktok', 'pinterest'];
+  const allPlatforms = ['instagram', 'facebook', 'x', 'linkedin', 'tiktok', 'pinterest', 'threads', 'googleBusiness', 'youtube', 'bluesky'];
 
   return {
     platforms: allPlatforms.map(name => {

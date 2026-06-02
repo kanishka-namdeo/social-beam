@@ -110,7 +110,7 @@ function TagInput({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Add and press Enter"
-          className="min-h-10 border-border focus-within:border-brand"
+          className="rounded-sm min-h-10 border-border focus-within:border-brand"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
@@ -124,7 +124,7 @@ function TagInput({
           size="sm"
           onClick={handleAdd}
           disabled={!input.trim()}
-          className="min-h-10"
+          className="rounded-sm min-h-10"
         >
           <Plus className="size-4" />
         </Button>
@@ -168,11 +168,11 @@ export function BrandContextInlineEdit({
   const platformEntries = Object.entries(platforms) as [string, unknown][];
 
   return (
-    <Card className="border-brand/20">
+    <Card className="border-brand/20 rounded-sm">
       <CardHeader>
         <div className="flex items-start justify-between gap-3">
           <div>
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="text-base flex items-center gap-2 tracking-tight">
               <PencilSimple className="size-5 text-brand" weight="fill" />
               Edit Brand Context
             </CardTitle>
@@ -200,21 +200,21 @@ export function BrandContextInlineEdit({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="edit-businessName" className="text-sm font-medium">Brand Name</Label>
-              <Input
-                id="edit-businessName"
-                value={(edits.businessName as string) ?? ""}
-                onChange={(e) => setField("businessName", e.target.value)}
-                className="min-h-10 border-border focus-within:border-brand"
-              />
+                <Input
+                  id="edit-businessName"
+                  value={(edits.businessName as string) ?? ""}
+                  onChange={(e) => setField("businessName", e.target.value)}
+                  className="rounded-sm min-h-10 border-border focus-within:border-brand"
+                />
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-tagline" className="text-sm font-medium">Tagline</Label>
-              <Input
-                id="edit-tagline"
-                value={(edits.tagline as string) ?? ""}
-                onChange={(e) => setField("tagline", e.target.value)}
-                className="min-h-10 border-border focus-within:border-brand"
-              />
+                <Input
+                  id="edit-tagline"
+                  value={(edits.tagline as string) ?? ""}
+                  onChange={(e) => setField("tagline", e.target.value)}
+                  className="rounded-sm min-h-10 border-border focus-within:border-brand"
+                />
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-industry" className="text-sm font-medium">Industry</Label>
@@ -222,7 +222,7 @@ export function BrandContextInlineEdit({
                 value={(edits.industry as string) ?? ""}
                 onValueChange={(v) => setField("industry", v)}
               >
-                <SelectTrigger id="edit-industry" className="min-h-10 border-border focus-within:border-brand">
+                <SelectTrigger id="edit-industry" className="rounded-sm min-h-10 border-border focus-within:border-brand">
                   <SelectValue placeholder="Select industry" />
                 </SelectTrigger>
                 <SelectContent>
@@ -241,7 +241,7 @@ export function BrandContextInlineEdit({
                 type="url"
                 value={(edits.websiteUrl as string) ?? ""}
                 onChange={(e) => setField("websiteUrl", e.target.value)}
-                className="min-h-10 border-border focus-within:border-brand"
+                className="rounded-sm min-h-10 border-border focus-within:border-brand"
               />
             </div>
           </div>
@@ -251,7 +251,7 @@ export function BrandContextInlineEdit({
               id="edit-productDesc"
               value={(edits.productDesc as string) ?? ""}
               onChange={(e) => setField("productDesc", e.target.value)}
-              className="min-h-10 resize-none border-border focus-within:border-brand"
+              className="rounded-sm min-h-10 resize-none border-border focus-within:border-brand"
               rows={3}
             />
           </div>
@@ -272,7 +272,7 @@ export function BrandContextInlineEdit({
                 value={(edits.tonePreset as string) ?? ""}
                 onValueChange={(v) => setField("tonePreset", v)}
               >
-                <SelectTrigger id="edit-tonePreset" className="min-h-10 border-border focus-within:border-brand">
+                <SelectTrigger id="edit-tonePreset" className="rounded-sm min-h-10 border-border focus-within:border-brand">
                   <SelectValue placeholder="Select tone" />
                 </SelectTrigger>
                 <SelectContent>
@@ -291,7 +291,7 @@ export function BrandContextInlineEdit({
               id="edit-voiceDescription"
               value={(edits.voiceDescription as string) ?? ""}
               onChange={(e) => setField("voiceDescription", e.target.value)}
-              className="min-h-10 resize-none border-border focus-within:border-brand"
+              className="rounded-sm min-h-10 resize-none border-border focus-within:border-brand"
               rows={3}
             />
           </div>
@@ -326,7 +326,7 @@ export function BrandContextInlineEdit({
               value={(edits.audienceType as string) ?? ""}
               onValueChange={(v) => setField("audienceType", v)}
             >
-              <SelectTrigger id="edit-audienceType" className="min-h-10 border-border focus-within:border-brand">
+              <SelectTrigger id="edit-audienceType" className="rounded-sm min-h-10 border-border focus-within:border-brand">
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
@@ -452,11 +452,11 @@ export function BrandContextInlineEdit({
 
         {/* Save / Cancel */}
         <div className="flex gap-3 pt-2">
-          <Button onClick={handleSave} className="min-h-10">
+          <Button onClick={handleSave} className="rounded-sm min-h-10">
             <CheckCircle className="size-4" weight="fill" />
             Save Changes &amp; Confirm
           </Button>
-          <Button variant="outline" onClick={onCancel} className="min-h-10">
+          <Button variant="outline" onClick={onCancel} className="rounded-sm min-h-10">
             Cancel
           </Button>
         </div>

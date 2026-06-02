@@ -226,7 +226,7 @@ export type PlatformContextWhereInput = {
   platformRules?: Prisma.StringNullableListFilter<"PlatformContext">
   createdAt?: Prisma.DateTimeFilter<"PlatformContext"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PlatformContext"> | Date | string
-  brandContext?: Prisma.XOR<Prisma.BrandContextScalarRelationFilter, Prisma.BrandContextWhereInput>
+  BrandContext?: Prisma.XOR<Prisma.BrandContextScalarRelationFilter, Prisma.BrandContextWhereInput>
 }
 
 export type PlatformContextOrderByWithRelationInput = {
@@ -242,7 +242,7 @@ export type PlatformContextOrderByWithRelationInput = {
   platformRules?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  brandContext?: Prisma.BrandContextOrderByWithRelationInput
+  BrandContext?: Prisma.BrandContextOrderByWithRelationInput
 }
 
 export type PlatformContextWhereUniqueInput = Prisma.AtLeast<{
@@ -262,7 +262,7 @@ export type PlatformContextWhereUniqueInput = Prisma.AtLeast<{
   platformRules?: Prisma.StringNullableListFilter<"PlatformContext">
   createdAt?: Prisma.DateTimeFilter<"PlatformContext"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PlatformContext"> | Date | string
-  brandContext?: Prisma.XOR<Prisma.BrandContextScalarRelationFilter, Prisma.BrandContextWhereInput>
+  BrandContext?: Prisma.XOR<Prisma.BrandContextScalarRelationFilter, Prisma.BrandContextWhereInput>
 }, "id" | "brandContextId_platform">
 
 export type PlatformContextOrderByWithAggregationInput = {
@@ -302,7 +302,7 @@ export type PlatformContextScalarWhereWithAggregatesInput = {
 }
 
 export type PlatformContextCreateInput = {
-  id?: string
+  id: string
   platform: string
   platformTone?: string | null
   contentMix?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -313,11 +313,11 @@ export type PlatformContextCreateInput = {
   platformRules?: Prisma.PlatformContextCreateplatformRulesInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
-  brandContext: Prisma.BrandContextCreateNestedOneWithoutPlatformContextsInput
+  BrandContext: Prisma.BrandContextCreateNestedOneWithoutPlatformContextInput
 }
 
 export type PlatformContextUncheckedCreateInput = {
-  id?: string
+  id: string
   brandContextId: string
   platform: string
   platformTone?: string | null
@@ -343,7 +343,7 @@ export type PlatformContextUpdateInput = {
   platformRules?: Prisma.PlatformContextUpdateplatformRulesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  brandContext?: Prisma.BrandContextUpdateOneRequiredWithoutPlatformContextsNestedInput
+  BrandContext?: Prisma.BrandContextUpdateOneRequiredWithoutPlatformContextNestedInput
 }
 
 export type PlatformContextUncheckedUpdateInput = {
@@ -362,7 +362,7 @@ export type PlatformContextUncheckedUpdateInput = {
 }
 
 export type PlatformContextCreateManyInput = {
-  id?: string
+  id: string
   brandContextId: string
   platform: string
   platformTone?: string | null
@@ -511,7 +511,7 @@ export type PlatformContextUpdateplatformRulesInput = {
 }
 
 export type PlatformContextCreateWithoutBrandContextInput = {
-  id?: string
+  id: string
   platform: string
   platformTone?: string | null
   contentMix?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -525,7 +525,7 @@ export type PlatformContextCreateWithoutBrandContextInput = {
 }
 
 export type PlatformContextUncheckedCreateWithoutBrandContextInput = {
-  id?: string
+  id: string
   platform: string
   platformTone?: string | null
   contentMix?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -583,7 +583,7 @@ export type PlatformContextScalarWhereInput = {
 }
 
 export type PlatformContextCreateManyBrandContextInput = {
-  id?: string
+  id: string
   platform: string
   platformTone?: string | null
   contentMix?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -653,7 +653,7 @@ export type PlatformContextSelect<ExtArgs extends runtime.Types.Extensions.Inter
   platformRules?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["platformContext"]>
 
 export type PlatformContextSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -669,7 +669,7 @@ export type PlatformContextSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   platformRules?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["platformContext"]>
 
 export type PlatformContextSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -685,7 +685,7 @@ export type PlatformContextSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   platformRules?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["platformContext"]>
 
 export type PlatformContextSelectScalar = {
@@ -705,19 +705,19 @@ export type PlatformContextSelectScalar = {
 
 export type PlatformContextOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "brandContextId" | "platform" | "platformTone" | "contentMix" | "postingCadence" | "hashtagStrategy" | "visualStyle" | "engagementStyle" | "platformRules" | "createdAt" | "updatedAt", ExtArgs["result"]["platformContext"]>
 export type PlatformContextInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }
 export type PlatformContextIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }
 export type PlatformContextIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }
 
 export type $PlatformContextPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "PlatformContext"
   objects: {
-    brandContext: Prisma.$BrandContextPayload<ExtArgs>
+    BrandContext: Prisma.$BrandContextPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1126,7 +1126,7 @@ readonly fields: PlatformContextFieldRefs;
  */
 export interface Prisma__PlatformContextClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  brandContext<T extends Prisma.BrandContextDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BrandContextDefaultArgs<ExtArgs>>): Prisma.Prisma__BrandContextClient<runtime.Types.Result.GetResult<Prisma.$BrandContextPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  BrandContext<T extends Prisma.BrandContextDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BrandContextDefaultArgs<ExtArgs>>): Prisma.Prisma__BrandContextClient<runtime.Types.Result.GetResult<Prisma.$BrandContextPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

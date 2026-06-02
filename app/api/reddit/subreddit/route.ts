@@ -64,7 +64,7 @@ export async function POST(req: Request) {
 
     try {
       const config = await prisma.redditSubredditConfig.create({
-        data: { workspaceId, subreddit: normalized, sortOrder },
+        data: { id: crypto.randomUUID(), workspaceId, subreddit: normalized, sortOrder },
       });
       log.info("api.request.success", { subreddit: normalized });
       return NextResponse.json({ data: config }, { status: 201 });

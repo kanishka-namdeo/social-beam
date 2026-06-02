@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
   Card,
@@ -24,6 +25,16 @@ import {
 } from "@/components/ui/accordion";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
   Sparkle,
   Users,
   Target,
@@ -35,6 +46,7 @@ import {
   ArrowCounterClockwise,
   Globe,
   PencilSimple,
+  Camera,
 } from "@phosphor-icons/react/ssr";
 
 interface PlatformContext {
@@ -70,7 +82,7 @@ interface BrandContextData {
   lastTrainedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
-  platformContexts: PlatformContext[];
+  PlatformContext: PlatformContext[];
 }
 
 interface BrandContextCardProps {
@@ -104,6 +116,8 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
+  const [checkpointDialogOpen, setCheckpointDialogOpen] = useState(false);
+  const [checkpointReason, setCheckpointReason] = useState("");
 
   const status = brandContext.trainingStatus;
   const badgeConfig = statusBadgeConfig[status] ?? statusBadgeConfig.untrained;
@@ -154,11 +168,38 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
     router.push(`/settings/brand?mode=reanalyze&url=${encodeURIComponent(brandContext.websiteUrl ?? "")}`);
   }
 
+  async function handleCreateCheckpoint() {
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/brand-context/snapshot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ changeReason: checkpointReason || "manual_checkpoint" }),
+      });
+      if (!res.ok) {
+        const json = await res.json();
+        setError(json.error ?? "Failed to create checkpoint.");
+        return;
+      }
+      toast.success("Checkpoint created", {
+        description: "A snapshot of your current brand context has been saved.",
+      });
+      setCheckpointDialogOpen(false);
+      setCheckpointReason("");
+      router.refresh();
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   if (editing) {
     return (
       <BrandContextInlineEdit
         draft={brandContext as unknown as Record<string, unknown>}
-        platforms={Object.fromEntries(brandContext.platformContexts.map((pc) => [pc.platform, pc]))}
+        platforms={Object.fromEntries(brandContext.PlatformContext.map((pc) => [pc.platform, pc]))}
         onSave={handleSaveEdits}
         onCancel={() => setEditing(false)}
       />
@@ -168,11 +209,11 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
   return (
     <div className="space-y-6">
       {/* Header card */}
-      <Card>
+      <Card className="rounded-sm">
         <CardHeader>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <CardTitle className="text-base flex items-center gap-2">
+              <CardTitle className="text-base flex items-center gap-2 tracking-tight">
                 <Sparkle className="size-5 text-brand" weight="fill" />
                 Brand Identity
               </CardTitle>
@@ -249,7 +290,7 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
               variant="outline"
               onClick={handleReanalyze}
               disabled={saving}
-              className="min-h-10"
+              className="rounded-sm min-h-10"
             >
               <ArrowCounterClockwise className="size-4" />
               Re-analyze
@@ -258,17 +299,26 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
               variant="outline"
               onClick={() => setEditing(true)}
               disabled={saving}
-              className="min-h-10"
+              className="rounded-sm min-h-10"
             >
               <PencilSimple className="size-4" />
               Edit
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setCheckpointDialogOpen(true)}
+              disabled={saving}
+              className="rounded-sm min-h-10"
+            >
+              <Camera className="size-4" />
+              Checkpoint
             </Button>
             <BrandContextImportExport brandContext={{ id: brandContext.id, businessName: brandContext.businessName }} />
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={deleting || saving}
-              className="min-h-10"
+              className="rounded-sm min-h-10"
             >
               <Trash className="size-4" />
               {deleting ? "Deleting..." : "Delete"}
@@ -279,9 +329,9 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
 
       {/* Competitors section */}
       {brandContext.competitors.length > 0 && (
-        <Card>
+        <Card className="rounded-sm">
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="text-base flex items-center gap-2 tracking-tight">
               <Target className="size-5 text-brand" weight="fill" />
               Competitors
             </CardTitle>
@@ -306,9 +356,9 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
       )}
 
       {/* Voice section */}
-      <Card>
+      <Card className="rounded-sm">
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
+          <CardTitle className="text-base flex items-center gap-2 tracking-tight">
             <Megaphone className="size-5 text-brand" weight="fill" />
             Voice &amp; Tone
           </CardTitle>
@@ -359,9 +409,9 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
       </Card>
 
       {/* Audience section */}
-      <Card>
+      <Card className="rounded-sm">
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
+          <CardTitle className="text-base flex items-center gap-2 tracking-tight">
             <Users className="size-5 text-brand" weight="fill" />
             Audience
           </CardTitle>
@@ -421,9 +471,9 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
 
       {/* Goals section */}
       {brandContext.goals.length > 0 && (
-        <Card>
+        <Card className="rounded-sm">
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="text-base flex items-center gap-2 tracking-tight">
               <Target className="size-5 text-brand" weight="fill" />
               Goals
             </CardTitle>
@@ -448,10 +498,10 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
       )}
 
       {/* Platform contexts */}
-      {brandContext.platformContexts.length > 0 && (
-        <Card>
+      {brandContext.PlatformContext.length > 0 && (
+        <Card className="rounded-sm">
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="text-base flex items-center gap-2 tracking-tight">
               <Globe className="size-5 text-brand" weight="fill" />
               Platform Contexts
             </CardTitle>
@@ -461,7 +511,7 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
           </CardHeader>
           <CardContent>
             <Accordion type="single" collapsible className="w-full">
-              {brandContext.platformContexts.map((pc) => (
+              {brandContext.PlatformContext.map((pc) => (
                 <AccordionItem key={pc.id} value={pc.platform}>
                   <AccordionTrigger className="text-sm font-medium capitalize">
                     {pc.platform}
@@ -537,6 +587,47 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
 
       {/* Version History */}
       <BrandContextHistory />
+
+      {/* Checkpoint Dialog */}
+      <Dialog open={checkpointDialogOpen} onOpenChange={setCheckpointDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Camera className="size-5 text-brand" weight="fill" />
+              Create Version Checkpoint
+            </DialogTitle>
+            <DialogDescription>
+              Save a snapshot of your current brand context for future reference.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="checkpoint-reason">Reason (optional)</Label>
+            <Textarea
+              id="checkpoint-reason"
+              placeholder="e.g., Before Q2 campaign launch"
+              value={checkpointReason}
+              onChange={(e) => setCheckpointReason(e.target.value)}
+              className="resize-none"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setCheckpointDialogOpen(false); setCheckpointReason(""); }}>Cancel</Button>
+            <Button onClick={handleCreateCheckpoint} disabled={saving}>
+              {saving ? (
+                <>
+                  <Clock className="size-4 animate-spin mr-1.5" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Camera className="size-4 mr-1.5" weight="fill" />
+                  Create Checkpoint
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {error && (
         <Alert variant="destructive">

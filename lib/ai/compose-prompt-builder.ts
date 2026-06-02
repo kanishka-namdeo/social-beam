@@ -126,3 +126,26 @@ Ensure the post matches the brand voice and platform style described above.`;
 
   return prompts;
 }
+
+/**
+ * Variant modifier prompts for generating multiple suggestion variants.
+ * Each entry adds a modifier instruction to the base system prompt.
+ */
+export const VARIANT_MODIFIERS: Record<number, { label: string; modifier: string }> = {
+  0: { label: "Standard", modifier: "" },
+  1: { label: "Shorter", modifier: "Write this about 30% shorter. Be concise and punchy. Keep the core message intact." },
+  2: { label: "More Casual", modifier: "Use a casual, conversational tone. Relaxed but still professional." },
+  3: { label: "More Formal", modifier: "Use a more professional, formal tone. Structured and polished." },
+};
+
+/**
+ * Wrap a base system prompt with a variant modifier instruction.
+ * Returns the original prompt if the variant has no modifier (standard).
+ */
+export function buildVariantSystemPrompt(baseSystemPrompt: string, variantId: number): string {
+  const variant = VARIANT_MODIFIERS[variantId];
+  if (!variant || !variant.modifier) {
+    return baseSystemPrompt;
+  }
+  return `${baseSystemPrompt}\n\nAdditional Style: ${variant.modifier}`;
+}

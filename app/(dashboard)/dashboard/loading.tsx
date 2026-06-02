@@ -1,13 +1,15 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export default function DashboardLoading() {
   return (
     <div className="space-y-6">
       {/* Greeting */}
-      <div className="space-y-2">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-4 w-72" />
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-72" />
+        </div>
+        <Skeleton className="h-9 w-28" />
       </div>
 
       {/* Quick actions */}
@@ -17,95 +19,108 @@ export default function DashboardLoading() {
         ))}
       </div>
 
-      {/* AI Status Panel */}
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-5 w-40" />
-          <Skeleton className="h-4 w-64" />
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-4 w-full" />
-        </CardContent>
-      </Card>
+      {/* Widget grid skeleton — 4 column layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Quick Stats — full width */}
+        <div className="col-span-1 md:col-span-2 lg:col-span-4">
+          <div className="rounded-sm border border-border bg-card p-6">
+            <Skeleton className="h-5 w-24 mb-4" />
+            <div className="grid grid-cols-2 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <Skeleton className="size-5" />
+                  <Skeleton className="h-8 w-16" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
 
-      {/* Two-column grid */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Left column */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <Skeleton className="h-5 w-32" />
-            </CardHeader>
-            <CardContent className="space-y-3">
+        {/* Recent Posts */}
+        <div className="col-span-1 md:col-span-1 lg:col-span-2">
+          <div className="rounded-sm border border-border bg-card p-6 space-y-3">
+            <Skeleton className="h-5 w-28" />
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full" />
+            ))}
+          </div>
+        </div>
+
+        {/* Insights */}
+        <div className="col-span-1 md:col-span-1 lg:col-span-2">
+          <div className="rounded-sm border border-border bg-card p-6 space-y-3">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+          </div>
+        </div>
+
+        {/* Calendar Preview */}
+        <div className="col-span-1 md:col-span-1 lg:col-span-2">
+          <div className="rounded-sm border border-border bg-card p-6 space-y-3">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-32 w-full" />
+          </div>
+        </div>
+
+        {/* Trending Radar */}
+        <div className="col-span-1 md:col-span-1 lg:col-span-2">
+          <div className="rounded-sm border border-border bg-card p-6 space-y-3">
+            <Skeleton className="h-5 w-28" />
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-10 w-full" />
+            ))}
+          </div>
+        </div>
+
+        {/* Engagement Sparkline */}
+        <div className="col-span-1 md:col-span-1 lg:col-span-2">
+          <div className="rounded-sm border border-border bg-card p-6 space-y-3">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-28 w-full" />
+          </div>
+        </div>
+
+        {/* Posting Streak */}
+        <div className="col-span-1 md:col-span-1 lg:col-span-2">
+          <div className="rounded-sm border border-border bg-card p-6 space-y-3">
+            <Skeleton className="h-5 w-28" />
+            <Skeleton className="h-8 w-20" />
+            <Skeleton className="h-3 w-full" />
+          </div>
+        </div>
+
+        {/* Profile Analysis — full width */}
+        <div className="col-span-1 md:col-span-2 lg:col-span-4">
+          <div className="rounded-sm border border-border bg-card p-6 space-y-3">
+            <Skeleton className="h-5 w-36" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {Array.from({ length: 3 }).map((_, i) => (
                 <Skeleton key={i} className="h-12 w-full" />
               ))}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <Skeleton className="h-5 w-32" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-32 w-full" />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
-        {/* Right column */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <Skeleton className="h-5 w-32" />
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <Skeleton className="h-5 w-32" />
-            </CardHeader>
-            <CardContent className="space-y-3">
+        {/* Connected Accounts — full width */}
+        <div className="col-span-1 md:col-span-2 lg:col-span-4">
+          <div className="rounded-sm border border-border bg-card p-6 space-y-3">
+            <Skeleton className="h-5 w-40" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-10 w-full" />
-              ))}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Connected Accounts */}
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-5 w-40" />
-          <Skeleton className="h-4 w-52" />
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
-                <div className="flex items-center gap-3">
-                  <Skeleton className="size-8 rounded-full" />
+                <div key={i} className="flex items-center gap-3">
+                  <Skeleton className="size-8 rounded-sm" />
                   <div className="space-y-1">
                     <Skeleton className="h-4 w-24" />
                     <Skeleton className="h-3 w-16" />
                   </div>
                 </div>
-                <Skeleton className="h-5 w-20 rounded-full" />
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Compose Input */}
-      <Card>
-        <CardContent className="pt-6">
-          <Skeleton className="h-10 w-full" />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

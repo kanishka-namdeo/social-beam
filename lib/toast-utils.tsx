@@ -1,6 +1,18 @@
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
+function shouldShowAILabels(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const stored = localStorage.getItem("socialbeam-invisible-ai");
+    if (stored) {
+      const config = JSON.parse(stored);
+      return config.showAILabels ?? false;
+    }
+  } catch {}
+  return false;
+}
+
 export function toastWithUndo(
   message: string,
   undoAction: () => void,
@@ -47,30 +59,5 @@ export function toastSuccessUndo(
 export function toastWarning(message: string, description?: string) {
   toast.warning(message, {
     description,
-  });
-}
-
-export function toastLowCredit() {
-  toast.warning("AI credits critically low", {
-    description: "You have 3 or fewer credits remaining. Consider topping up.",
-    duration: 10000,
-  });
-}
-
-export function toastOutOfCredits() {
-  toast.error("No AI credits remaining", {
-    description: "You need credits to use AI features.",
-    duration: 10000,
-    action: (
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => {
-          window.location.href = "/dashboard/settings";
-        }}
-      >
-        Upgrade
-      </Button>
-    ),
   });
 }

@@ -20,16 +20,16 @@ export function PostingFrequency({ posts }: PostingFrequencyProps) {
     const published = posts.filter((p) => p.status === "PUBLISHED");
 
     // Current week stats
-    const weekStart = startOfWeek(today);
-    const weekEnd = endOfWeek(today);
-    const weekPosts = scheduled.filter((p) => p.scheduledAt && isSameWeek(new Date(p.scheduledAt), today));
+    const weekStart = startOfWeek(today, { weekStartsOn: 1 });
+    const weekEnd = endOfWeek(today, { weekStartsOn: 1 });
+    const weekPosts = scheduled.filter((p) => p.scheduledAt && isSameWeek(new Date(p.scheduledAt), today, { weekStartsOn: 1 }));
 
     // Current month stats
     const monthStart = startOfMonth(today);
     const monthPosts = scheduled.filter((p) => p.scheduledAt && isSameMonth(new Date(p.scheduledAt), monthStart));
 
     // Published this week
-    const weekPublished = published.filter((p) => p.publishedAt && isSameWeek(new Date(p.publishedAt), today));
+    const weekPublished = published.filter((p) => p.publishedAt && isSameWeek(new Date(p.publishedAt), today, { weekStartsOn: 1 }));
 
     // Daily distribution for current week
     const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
@@ -52,7 +52,7 @@ export function PostingFrequency({ posts }: PostingFrequencyProps) {
     prevWeekStart.setDate(prevWeekStart.getDate() - 7);
     const prevWeekEnd = new Date(weekEnd);
     prevWeekEnd.setDate(prevWeekEnd.getDate() - 7);
-    const prevWeekCount = posts.filter((p) => p.scheduledAt && p.status === "SCHEDULED" && isSameWeek(new Date(p.scheduledAt), prevWeekStart)).length;
+    const prevWeekCount = posts.filter((p) => p.scheduledAt && p.status === "SCHEDULED" && isSameWeek(new Date(p.scheduledAt), prevWeekStart, { weekStartsOn: 1 })).length;
 
     const weekDelta = weekPosts.length - prevWeekCount;
 
@@ -69,12 +69,12 @@ export function PostingFrequency({ posts }: PostingFrequencyProps) {
   const maxDaily = Math.max(...stats.dailyCounts.map((d) => d.count), 1);
 
   return (
-    <Card className="rounded-lg">
+    <Card className="rounded-sm border-border">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ChartBar className="size-5 text-muted-foreground" />
-            <CardTitle className="text-sm">Posting Frequency</CardTitle>
+            <CardTitle className="text-sm font-medium tracking-tight">Posting Frequency</CardTitle>
           </div>
           <Badge
             variant="outline"

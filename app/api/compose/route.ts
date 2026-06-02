@@ -14,6 +14,7 @@ const composeSchema = z.object({
     .min(1, "At least one platform is required"),
   scheduledAt: z.string().datetime().optional(),
   action: z.enum(["draft", "publish", "schedule"]).optional(),
+  mediaUrls: z.array(z.string().url()).optional(),
 });
 
 export async function POST(req: Request) {
@@ -58,7 +59,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { title, content, platforms, scheduledAt, action } = parsed.data;
+    const { title, content, platforms, scheduledAt, action, mediaUrls } = parsed.data;
 
     // Validate all requested platforms are connected
     const unconnected = platforms.filter((p) => !connectedPlatformSet.has(p));
@@ -76,22 +77,24 @@ export async function POST(req: Request) {
 
     const post = await prisma.post.create({
       data: {
+        id: crypto.randomUUID(),
         workspaceId: user.workspaceId,
         title,
         content: { text: content } as Prisma.InputJsonValue,
         status,
         scheduledAt: scheduledAt != null ? new Date(scheduledAt) : null,
-        platforms: {
+        PostPlatform: {
           create: platforms.map((platform) => ({
+            id: crypto.randomUUID(),
             platform,
             content,
-            mediaUrls: [],
+            mediaUrls: mediaUrls ?? [],
             status,
           })),
         },
       },
       include: {
-        platforms: { select: { id: true, platform: true } },
+        PostPlatform: { select: { id: true, platform: true } },
       },
     });
 
@@ -108,7 +111,7 @@ export async function POST(req: Request) {
           title: post.title,
           status: post.status,
           scheduledAt: post.scheduledAt,
-          platforms: (post as { platforms?: Array<{ id: string; platform: string }> }).platforms?.map((p: { id: string; platform: string }) => ({
+          platforms: (post as { PostPlatform?: Array<{ id: string; platform: string }> }).PostPlatform?.map((p: { id: string; platform: string }) => ({
             id: p.id,
             platform: p.platform,
           })) ?? [],

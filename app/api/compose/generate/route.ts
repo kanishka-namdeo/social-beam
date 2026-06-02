@@ -1,5 +1,4 @@
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { ChatOpenAI } from "@langchain/openai";
 import { loadBrandContextForAI } from "@/lib/ai/brand-context-loader";
@@ -11,8 +10,6 @@ const GenerateSchema = z.object({
   prompt: z.string().min(1).max(2000),
   platforms: z.array(z.string()).min(1).max(6),
 });
-
-const CREDIT_COST_PER_PLATFORM = 1;
 
 const model = new ChatOpenAI({
   apiKey: process.env.OPENAI_API_KEY ?? process.env.API_KEY ?? "",
@@ -45,28 +42,6 @@ export async function POST(req: Request) {
     }
 
     const { prompt, platforms } = parsed.data;
-
-    let balance = await prisma.aiCreditBalance.findUnique({
-      where: { workspaceId },
-    });
-    if (!balance) {
-      balance = await prisma.aiCreditBalance.create({
-        data: { workspaceId, balance: 10 },
-      });
-    }
-
-    const totalCost = platforms.length * CREDIT_COST_PER_PLATFORM;
-    if (balance.balance < totalCost) {
-      log.warn("api.compose.generate.insufficient_credits", {
-        workspaceId,
-        balance: balance.balance,
-        required: totalCost,
-      });
-      return NextResponse.json(
-        { error: "Insufficient AI credits", balance: balance.balance, required: totalCost },
-        { status: 402 },
-      );
-    }
 
     const brandCtx = await loadBrandContextForAI(workspaceId);
     const prompts = buildComposePrompts(prompt, brandCtx, platforms);
@@ -135,21 +110,14 @@ export async function POST(req: Request) {
             }
           }
 
-          await prisma.aiCreditBalance.update({
-            where: { workspaceId },
-            data: { balance: { decrement: totalCost } },
-          });
-
           log.info("api.compose.generate.complete", {
             workspaceId,
             platformCount: results.length,
-            creditsUsed: totalCost,
             hasBrandContext: !!brandCtx,
           });
 
           enqueue("complete", {
             results,
-            totalCost,
             hasBrandContext: !!brandCtx,
           });
         } catch (err) {

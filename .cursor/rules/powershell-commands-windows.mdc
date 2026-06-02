@@ -1,0 +1,109 @@
+---
+description: "On Windows, use native PowerShell cmdlets instead of Unix-style commands or bash aliases. Apply when running Shell commands on Windows. Covers file operations, search, navigation, and process management."
+alwaysApply: true
+---
+
+# PowerShell Commands on Windows
+
+**Trigger**: Always active on Windows (`win32`). Prefer native PowerShell cmdlets over Unix-style aliases.
+
+## Core Rule
+
+When the OS is Windows, use PowerShell cmdlets instead of Unix commands. The `Shell` tool runs PowerShell by default on Windows — use its native syntax.
+
+## Command Mapping
+
+| Unix Command | PowerShell Cmdlet |
+|---|---|
+| `ls` | `Get-ChildItem` |
+| `cat` | `Get-Content` |
+| `grep` | `Select-String` (or use `rg` / `ripgrep`) |
+| `find` | `Get-ChildItem -Recurse -Filter` |
+| `cp` | `Copy-Item` |
+| `mv` | `Move-Item` |
+| `rm` | `Remove-Item` |
+| `mkdir` | `New-Item -ItemType Directory` |
+| `touch` | `New-Item -ItemType File` |
+| `pwd` | `Get-Location` |
+| `cd` | `Set-Location` |
+| `echo` | `Write-Output` |
+| `head -n 5` | `Get-Content -TotalCount 5` |
+| `tail -n 5` | `Get-Content -Tail 5` |
+| `wc -l` | `Measure-Object -Line` |
+
+## File Search Patterns
+
+```powershell
+# ❌ BAD — Unix find
+find . -name "*.tsx" -type f
+
+# ✅ GOOD — PowerShell
+Get-ChildItem -Recurse -Filter "*.tsx" -File
+
+# ✅ ALSO GOOD — ripgrep (cross-platform, installed)
+rg --files -g "*.tsx"
+```
+
+## File Content Search
+
+```powershell
+# ❌ BAD — Unix grep
+grep -r "export.*function" src/
+
+# ✅ GOOD — Select-String
+Select-String -Path "src/**/*.ts" -Pattern "export.*function" -List
+
+# ✅ ALSO GOOD — ripgrep (preferred for code search)
+rg "export.*function" src/
+```
+
+## Directory Listing
+
+```powershell
+# ❌ BAD
+ls -la
+
+# ✅ GOOD
+Get-ChildItem -Force | Sort-Object LastWriteTime -Descending
+
+# ✅ ALSO GOOD — just use ls alias if simple listing suffices
+Get-ChildItem
+```
+
+## Multi-File Operations
+
+```powershell
+# ❌ BAD — Unix pipeline
+find . -name "*.log" -exec rm {} \;
+
+# ✅ GOOD — PowerShell pipeline
+Get-ChildItem -Recurse -Filter "*.log" | Remove-Item -Force
+```
+
+## When to Use Unix Commands Anyway
+
+Use Unix-style commands only when:
+
+1. **Cross-platform tools are installed**: `rg`, `fd`, `git`, `pnpm` — these work identically on Windows
+2. **Chained shell commands**: Use `&&` in PowerShell for sequential execution (PowerShell 7+ supports it)
+3. **Node/pnpm scripts**: Package.json scripts should remain cross-platform or use `pnpm dlx` wrappers
+
+## Path Handling
+
+```powershell
+# ❌ BAD — forward slashes in native cmdlets
+Get-ChildItem src/components
+
+# ✅ GOOD — PowerShell handles both, but be explicit with variables
+$path = Join-Path "src" "components"
+Get-ChildItem $path
+```
+
+## Anti-Patterns
+
+| Anti-Pattern | Correct Behavior |
+|---|---|
+| Using `cat file.txt` in PowerShell | Use `Get-Content file.txt` |
+| Using `ls -la` for detailed listing | Use `Get-ChildItem -Force` |
+| Using `grep pattern *.ts` | Use `Select-String` or `rg` |
+| Using `find . -name "*.ts"` | Use `Get-ChildItem -Recurse -Filter "*.ts"` |

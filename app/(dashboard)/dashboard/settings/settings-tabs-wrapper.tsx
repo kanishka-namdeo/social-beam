@@ -51,11 +51,11 @@ export function SettingsTabsWrapper({ initialTab, connectedAccounts, oauthStatus
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="h-10 gap-1 bg-transparent p-0">
-          <TabsTrigger value="accounts" className="data-[state=active]:bg-brand/10 data-[state=active]:text-brand rounded-md transition-all">Accounts</TabsTrigger>
-          <TabsTrigger value="developer" className="data-[state=active]:bg-brand/10 data-[state=active]:text-brand rounded-md transition-all">Developer Apps</TabsTrigger>
-          <TabsTrigger value="brand" className="data-[state=active]:bg-brand/10 data-[state=active]:text-brand rounded-md transition-all">Brand Voice</TabsTrigger>
-          <TabsTrigger value="ai" className="data-[state=active]:bg-brand/10 data-[state=active]:text-brand rounded-md transition-all">AI Settings</TabsTrigger>
+        <TabsList className="h-10 gap-0 bg-transparent p-0 border-b border-border">
+          <TabsTrigger value="accounts" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">Accounts</TabsTrigger>
+          <TabsTrigger value="developer" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">Developer Apps</TabsTrigger>
+          <TabsTrigger value="brand" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">Brand Voice</TabsTrigger>
+          <TabsTrigger value="ai" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">AI Settings</TabsTrigger>
         </TabsList>
 
         <TabsContent value="accounts">

@@ -198,7 +198,7 @@ export default function LaterComparisonPage() {
         <div className="grid md:grid-cols-3 gap-6">
           <Card className="border-border">
             <CardHeader>
-              <div className="w-8 h-8 rounded-full bg-brand text-background flex items-center justify-center font-bold text-sm mb-3">1</div>
+              <div className="w-8 h-8 rounded-sm bg-brand text-background flex items-center justify-center font-semibold text-sm mb-3">1</div>
               <CardTitle className="text-foreground">Export your Later calendar</CardTitle>
             </CardHeader>
             <CardContent>
@@ -209,7 +209,7 @@ export default function LaterComparisonPage() {
           </Card>
           <Card className="border-border">
             <CardHeader>
-              <div className="w-8 h-8 rounded-full bg-brand text-background flex items-center justify-center font-bold text-sm mb-3">2</div>
+              <div className="w-8 h-8 rounded-sm bg-brand text-background flex items-center justify-center font-semibold text-sm mb-3">2</div>
               <CardTitle className="text-foreground">Connect your accounts</CardTitle>
             </CardHeader>
             <CardContent>
@@ -220,7 +220,7 @@ export default function LaterComparisonPage() {
           </Card>
           <Card className="border-border">
             <CardHeader>
-              <div className="w-8 h-8 rounded-full bg-brand text-background flex items-center justify-center font-bold text-sm mb-3">3</div>
+              <div className="w-8 h-8 rounded-sm bg-brand text-background flex items-center justify-center font-semibold text-sm mb-3">3</div>
               <CardTitle className="text-foreground">Enable AI and publish</CardTitle>
             </CardHeader>
             <CardContent>

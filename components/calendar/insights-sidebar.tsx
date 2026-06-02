@@ -28,12 +28,12 @@ export function InsightsSidebar({
         <div
           role="status"
           aria-live="polite"
-          className="flex items-start gap-2 rounded-lg bg-ai-surface/50 px-3 py-2.5 text-xs text-muted-foreground"
+          className="glass-strong flex items-start gap-2 rounded-sm border border-border px-3 py-2.5 text-xs text-muted-foreground"
         >
           <Sparkle className="mt-0.5 size-3.5 shrink-0 text-brand" weight="fill" />
           <span>
             Click any post to preview. Drag between days to reschedule. Empty days with a{" "}
-            <CalendarDots className="size-3 inline" /> icon are AI-suggested posting
+            <CalendarDots className="size-3 inline" /> icon are suggested posting
             opportunities.
           </span>
         </div>
@@ -49,7 +49,7 @@ export function InsightsSidebar({
 
       {/* Empty state for sidebar when not month view and not list view */}
       {view !== "month" && view !== "list" && (
-        <Card className="rounded-lg">
+        <Card className="rounded-sm border-border">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">Quick Stats</CardTitle>
             <CardDescription className="text-muted-foreground">

@@ -43,12 +43,15 @@ export type ConnectedAccountMinAggregateOutputType = {
   refreshToken: string | null
   tokenExpiry: Date | null
   status: string | null
-  platformUsername: string | null
+  createdAt: Date | null
   avatarUrl: string | null
   followerCount: number | null
   lastRefreshAt: Date | null
   lastSyncedAt: Date | null
-  createdAt: Date | null
+  platformUsername: string | null
+  sourcePlatform: string | null
+  sessionCookie: string | null
+  cookieExpiry: Date | null
 }
 
 export type ConnectedAccountMaxAggregateOutputType = {
@@ -60,12 +63,15 @@ export type ConnectedAccountMaxAggregateOutputType = {
   refreshToken: string | null
   tokenExpiry: Date | null
   status: string | null
-  platformUsername: string | null
+  createdAt: Date | null
   avatarUrl: string | null
   followerCount: number | null
   lastRefreshAt: Date | null
   lastSyncedAt: Date | null
-  createdAt: Date | null
+  platformUsername: string | null
+  sourcePlatform: string | null
+  sessionCookie: string | null
+  cookieExpiry: Date | null
 }
 
 export type ConnectedAccountCountAggregateOutputType = {
@@ -77,12 +83,15 @@ export type ConnectedAccountCountAggregateOutputType = {
   refreshToken: number
   tokenExpiry: number
   status: number
-  platformUsername: number
+  createdAt: number
   avatarUrl: number
   followerCount: number
   lastRefreshAt: number
   lastSyncedAt: number
-  createdAt: number
+  platformUsername: number
+  sourcePlatform: number
+  sessionCookie: number
+  cookieExpiry: number
   _all: number
 }
 
@@ -104,12 +113,15 @@ export type ConnectedAccountMinAggregateInputType = {
   refreshToken?: true
   tokenExpiry?: true
   status?: true
-  platformUsername?: true
+  createdAt?: true
   avatarUrl?: true
   followerCount?: true
   lastRefreshAt?: true
   lastSyncedAt?: true
-  createdAt?: true
+  platformUsername?: true
+  sourcePlatform?: true
+  sessionCookie?: true
+  cookieExpiry?: true
 }
 
 export type ConnectedAccountMaxAggregateInputType = {
@@ -121,12 +133,15 @@ export type ConnectedAccountMaxAggregateInputType = {
   refreshToken?: true
   tokenExpiry?: true
   status?: true
-  platformUsername?: true
+  createdAt?: true
   avatarUrl?: true
   followerCount?: true
   lastRefreshAt?: true
   lastSyncedAt?: true
-  createdAt?: true
+  platformUsername?: true
+  sourcePlatform?: true
+  sessionCookie?: true
+  cookieExpiry?: true
 }
 
 export type ConnectedAccountCountAggregateInputType = {
@@ -138,12 +153,15 @@ export type ConnectedAccountCountAggregateInputType = {
   refreshToken?: true
   tokenExpiry?: true
   status?: true
-  platformUsername?: true
+  createdAt?: true
   avatarUrl?: true
   followerCount?: true
   lastRefreshAt?: true
   lastSyncedAt?: true
-  createdAt?: true
+  platformUsername?: true
+  sourcePlatform?: true
+  sessionCookie?: true
+  cookieExpiry?: true
   _all?: true
 }
 
@@ -242,12 +260,15 @@ export type ConnectedAccountGroupByOutputType = {
   refreshToken: string
   tokenExpiry: Date | null
   status: string
-  platformUsername: string | null
+  createdAt: Date
   avatarUrl: string | null
   followerCount: number | null
   lastRefreshAt: Date | null
   lastSyncedAt: Date | null
-  createdAt: Date
+  platformUsername: string | null
+  sourcePlatform: string | null
+  sessionCookie: string | null
+  cookieExpiry: Date | null
   _count: ConnectedAccountCountAggregateOutputType | null
   _avg: ConnectedAccountAvgAggregateOutputType | null
   _sum: ConnectedAccountSumAggregateOutputType | null
@@ -282,13 +303,16 @@ export type ConnectedAccountWhereInput = {
   refreshToken?: Prisma.StringFilter<"ConnectedAccount"> | string
   tokenExpiry?: Prisma.DateTimeNullableFilter<"ConnectedAccount"> | Date | string | null
   status?: Prisma.StringFilter<"ConnectedAccount"> | string
-  platformUsername?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"ConnectedAccount"> | Date | string
   avatarUrl?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
   followerCount?: Prisma.IntNullableFilter<"ConnectedAccount"> | number | null
   lastRefreshAt?: Prisma.DateTimeNullableFilter<"ConnectedAccount"> | Date | string | null
   lastSyncedAt?: Prisma.DateTimeNullableFilter<"ConnectedAccount"> | Date | string | null
-  createdAt?: Prisma.DateTimeFilter<"ConnectedAccount"> | Date | string
-  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  platformUsername?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
+  sourcePlatform?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
+  sessionCookie?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
+  cookieExpiry?: Prisma.DateTimeNullableFilter<"ConnectedAccount"> | Date | string | null
+  Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
 }
 
 export type ConnectedAccountOrderByWithRelationInput = {
@@ -300,13 +324,16 @@ export type ConnectedAccountOrderByWithRelationInput = {
   refreshToken?: Prisma.SortOrder
   tokenExpiry?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
-  platformUsername?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   followerCount?: Prisma.SortOrderInput | Prisma.SortOrder
   lastRefreshAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  workspace?: Prisma.WorkspaceOrderByWithRelationInput
+  platformUsername?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourcePlatform?: Prisma.SortOrderInput | Prisma.SortOrder
+  sessionCookie?: Prisma.SortOrderInput | Prisma.SortOrder
+  cookieExpiry?: Prisma.SortOrderInput | Prisma.SortOrder
+  Workspace?: Prisma.WorkspaceOrderByWithRelationInput
 }
 
 export type ConnectedAccountWhereUniqueInput = Prisma.AtLeast<{
@@ -322,13 +349,16 @@ export type ConnectedAccountWhereUniqueInput = Prisma.AtLeast<{
   refreshToken?: Prisma.StringFilter<"ConnectedAccount"> | string
   tokenExpiry?: Prisma.DateTimeNullableFilter<"ConnectedAccount"> | Date | string | null
   status?: Prisma.StringFilter<"ConnectedAccount"> | string
-  platformUsername?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"ConnectedAccount"> | Date | string
   avatarUrl?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
   followerCount?: Prisma.IntNullableFilter<"ConnectedAccount"> | number | null
   lastRefreshAt?: Prisma.DateTimeNullableFilter<"ConnectedAccount"> | Date | string | null
   lastSyncedAt?: Prisma.DateTimeNullableFilter<"ConnectedAccount"> | Date | string | null
-  createdAt?: Prisma.DateTimeFilter<"ConnectedAccount"> | Date | string
-  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  platformUsername?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
+  sourcePlatform?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
+  sessionCookie?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
+  cookieExpiry?: Prisma.DateTimeNullableFilter<"ConnectedAccount"> | Date | string | null
+  Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
 }, "id" | "workspaceId_platform">
 
 export type ConnectedAccountOrderByWithAggregationInput = {
@@ -340,12 +370,15 @@ export type ConnectedAccountOrderByWithAggregationInput = {
   refreshToken?: Prisma.SortOrder
   tokenExpiry?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
-  platformUsername?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   followerCount?: Prisma.SortOrderInput | Prisma.SortOrder
   lastRefreshAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
+  platformUsername?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourcePlatform?: Prisma.SortOrderInput | Prisma.SortOrder
+  sessionCookie?: Prisma.SortOrderInput | Prisma.SortOrder
+  cookieExpiry?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ConnectedAccountCountOrderByAggregateInput
   _avg?: Prisma.ConnectedAccountAvgOrderByAggregateInput
   _max?: Prisma.ConnectedAccountMaxOrderByAggregateInput
@@ -365,33 +398,39 @@ export type ConnectedAccountScalarWhereWithAggregatesInput = {
   refreshToken?: Prisma.StringWithAggregatesFilter<"ConnectedAccount"> | string
   tokenExpiry?: Prisma.DateTimeNullableWithAggregatesFilter<"ConnectedAccount"> | Date | string | null
   status?: Prisma.StringWithAggregatesFilter<"ConnectedAccount"> | string
-  platformUsername?: Prisma.StringNullableWithAggregatesFilter<"ConnectedAccount"> | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"ConnectedAccount"> | Date | string
   avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"ConnectedAccount"> | string | null
   followerCount?: Prisma.IntNullableWithAggregatesFilter<"ConnectedAccount"> | number | null
   lastRefreshAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ConnectedAccount"> | Date | string | null
   lastSyncedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ConnectedAccount"> | Date | string | null
-  createdAt?: Prisma.DateTimeWithAggregatesFilter<"ConnectedAccount"> | Date | string
+  platformUsername?: Prisma.StringNullableWithAggregatesFilter<"ConnectedAccount"> | string | null
+  sourcePlatform?: Prisma.StringNullableWithAggregatesFilter<"ConnectedAccount"> | string | null
+  sessionCookie?: Prisma.StringNullableWithAggregatesFilter<"ConnectedAccount"> | string | null
+  cookieExpiry?: Prisma.DateTimeNullableWithAggregatesFilter<"ConnectedAccount"> | Date | string | null
 }
 
 export type ConnectedAccountCreateInput = {
-  id?: string
+  id: string
   platform: string
   platformUserId: string
   accessToken: string
   refreshToken: string
   tokenExpiry?: Date | string | null
   status?: string
-  platformUsername?: string | null
+  createdAt?: Date | string
   avatarUrl?: string | null
   followerCount?: number | null
   lastRefreshAt?: Date | string | null
   lastSyncedAt?: Date | string | null
-  createdAt?: Date | string
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutConnectedAccountsInput
+  platformUsername?: string | null
+  sourcePlatform?: string | null
+  sessionCookie?: string | null
+  cookieExpiry?: Date | string | null
+  Workspace: Prisma.WorkspaceCreateNestedOneWithoutConnectedAccountInput
 }
 
 export type ConnectedAccountUncheckedCreateInput = {
-  id?: string
+  id: string
   workspaceId: string
   platform: string
   platformUserId: string
@@ -399,12 +438,15 @@ export type ConnectedAccountUncheckedCreateInput = {
   refreshToken: string
   tokenExpiry?: Date | string | null
   status?: string
-  platformUsername?: string | null
+  createdAt?: Date | string
   avatarUrl?: string | null
   followerCount?: number | null
   lastRefreshAt?: Date | string | null
   lastSyncedAt?: Date | string | null
-  createdAt?: Date | string
+  platformUsername?: string | null
+  sourcePlatform?: string | null
+  sessionCookie?: string | null
+  cookieExpiry?: Date | string | null
 }
 
 export type ConnectedAccountUpdateInput = {
@@ -415,13 +457,16 @@ export type ConnectedAccountUpdateInput = {
   refreshToken?: Prisma.StringFieldUpdateOperationsInput | string
   tokenExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followerCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastRefreshAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutConnectedAccountsNestedInput
+  platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cookieExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutConnectedAccountNestedInput
 }
 
 export type ConnectedAccountUncheckedUpdateInput = {
@@ -433,16 +478,19 @@ export type ConnectedAccountUncheckedUpdateInput = {
   refreshToken?: Prisma.StringFieldUpdateOperationsInput | string
   tokenExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followerCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastRefreshAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cookieExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type ConnectedAccountCreateManyInput = {
-  id?: string
+  id: string
   workspaceId: string
   platform: string
   platformUserId: string
@@ -450,12 +498,15 @@ export type ConnectedAccountCreateManyInput = {
   refreshToken: string
   tokenExpiry?: Date | string | null
   status?: string
-  platformUsername?: string | null
+  createdAt?: Date | string
   avatarUrl?: string | null
   followerCount?: number | null
   lastRefreshAt?: Date | string | null
   lastSyncedAt?: Date | string | null
-  createdAt?: Date | string
+  platformUsername?: string | null
+  sourcePlatform?: string | null
+  sessionCookie?: string | null
+  cookieExpiry?: Date | string | null
 }
 
 export type ConnectedAccountUpdateManyMutationInput = {
@@ -466,12 +517,15 @@ export type ConnectedAccountUpdateManyMutationInput = {
   refreshToken?: Prisma.StringFieldUpdateOperationsInput | string
   tokenExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followerCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastRefreshAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cookieExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type ConnectedAccountUncheckedUpdateManyInput = {
@@ -483,22 +537,15 @@ export type ConnectedAccountUncheckedUpdateManyInput = {
   refreshToken?: Prisma.StringFieldUpdateOperationsInput | string
   tokenExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followerCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastRefreshAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type ConnectedAccountListRelationFilter = {
-  every?: Prisma.ConnectedAccountWhereInput
-  some?: Prisma.ConnectedAccountWhereInput
-  none?: Prisma.ConnectedAccountWhereInput
-}
-
-export type ConnectedAccountOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
+  platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cookieExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type ConnectedAccountWorkspaceIdPlatformCompoundUniqueInput = {
@@ -515,12 +562,15 @@ export type ConnectedAccountCountOrderByAggregateInput = {
   refreshToken?: Prisma.SortOrder
   tokenExpiry?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  platformUsername?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   followerCount?: Prisma.SortOrder
   lastRefreshAt?: Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
+  platformUsername?: Prisma.SortOrder
+  sourcePlatform?: Prisma.SortOrder
+  sessionCookie?: Prisma.SortOrder
+  cookieExpiry?: Prisma.SortOrder
 }
 
 export type ConnectedAccountAvgOrderByAggregateInput = {
@@ -536,12 +586,15 @@ export type ConnectedAccountMaxOrderByAggregateInput = {
   refreshToken?: Prisma.SortOrder
   tokenExpiry?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  platformUsername?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   followerCount?: Prisma.SortOrder
   lastRefreshAt?: Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
+  platformUsername?: Prisma.SortOrder
+  sourcePlatform?: Prisma.SortOrder
+  sessionCookie?: Prisma.SortOrder
+  cookieExpiry?: Prisma.SortOrder
 }
 
 export type ConnectedAccountMinOrderByAggregateInput = {
@@ -553,16 +606,37 @@ export type ConnectedAccountMinOrderByAggregateInput = {
   refreshToken?: Prisma.SortOrder
   tokenExpiry?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  platformUsername?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   followerCount?: Prisma.SortOrder
   lastRefreshAt?: Prisma.SortOrder
   lastSyncedAt?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
+  platformUsername?: Prisma.SortOrder
+  sourcePlatform?: Prisma.SortOrder
+  sessionCookie?: Prisma.SortOrder
+  cookieExpiry?: Prisma.SortOrder
 }
 
 export type ConnectedAccountSumOrderByAggregateInput = {
   followerCount?: Prisma.SortOrder
+}
+
+export type ConnectedAccountListRelationFilter = {
+  every?: Prisma.ConnectedAccountWhereInput
+  some?: Prisma.ConnectedAccountWhereInput
+  none?: Prisma.ConnectedAccountWhereInput
+}
+
+export type ConnectedAccountOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type ConnectedAccountCreateNestedManyWithoutWorkspaceInput = {
@@ -607,44 +681,42 @@ export type ConnectedAccountUncheckedUpdateManyWithoutWorkspaceNestedInput = {
   deleteMany?: Prisma.ConnectedAccountScalarWhereInput | Prisma.ConnectedAccountScalarWhereInput[]
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type ConnectedAccountCreateWithoutWorkspaceInput = {
-  id?: string
+  id: string
   platform: string
   platformUserId: string
   accessToken: string
   refreshToken: string
   tokenExpiry?: Date | string | null
   status?: string
-  platformUsername?: string | null
+  createdAt?: Date | string
   avatarUrl?: string | null
   followerCount?: number | null
   lastRefreshAt?: Date | string | null
   lastSyncedAt?: Date | string | null
-  createdAt?: Date | string
+  platformUsername?: string | null
+  sourcePlatform?: string | null
+  sessionCookie?: string | null
+  cookieExpiry?: Date | string | null
 }
 
 export type ConnectedAccountUncheckedCreateWithoutWorkspaceInput = {
-  id?: string
+  id: string
   platform: string
   platformUserId: string
   accessToken: string
   refreshToken: string
   tokenExpiry?: Date | string | null
   status?: string
-  platformUsername?: string | null
+  createdAt?: Date | string
   avatarUrl?: string | null
   followerCount?: number | null
   lastRefreshAt?: Date | string | null
   lastSyncedAt?: Date | string | null
-  createdAt?: Date | string
+  platformUsername?: string | null
+  sourcePlatform?: string | null
+  sessionCookie?: string | null
+  cookieExpiry?: Date | string | null
 }
 
 export type ConnectedAccountCreateOrConnectWithoutWorkspaceInput = {
@@ -685,28 +757,34 @@ export type ConnectedAccountScalarWhereInput = {
   refreshToken?: Prisma.StringFilter<"ConnectedAccount"> | string
   tokenExpiry?: Prisma.DateTimeNullableFilter<"ConnectedAccount"> | Date | string | null
   status?: Prisma.StringFilter<"ConnectedAccount"> | string
-  platformUsername?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"ConnectedAccount"> | Date | string
   avatarUrl?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
   followerCount?: Prisma.IntNullableFilter<"ConnectedAccount"> | number | null
   lastRefreshAt?: Prisma.DateTimeNullableFilter<"ConnectedAccount"> | Date | string | null
   lastSyncedAt?: Prisma.DateTimeNullableFilter<"ConnectedAccount"> | Date | string | null
-  createdAt?: Prisma.DateTimeFilter<"ConnectedAccount"> | Date | string
+  platformUsername?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
+  sourcePlatform?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
+  sessionCookie?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
+  cookieExpiry?: Prisma.DateTimeNullableFilter<"ConnectedAccount"> | Date | string | null
 }
 
 export type ConnectedAccountCreateManyWorkspaceInput = {
-  id?: string
+  id: string
   platform: string
   platformUserId: string
   accessToken: string
   refreshToken: string
   tokenExpiry?: Date | string | null
   status?: string
-  platformUsername?: string | null
+  createdAt?: Date | string
   avatarUrl?: string | null
   followerCount?: number | null
   lastRefreshAt?: Date | string | null
   lastSyncedAt?: Date | string | null
-  createdAt?: Date | string
+  platformUsername?: string | null
+  sourcePlatform?: string | null
+  sessionCookie?: string | null
+  cookieExpiry?: Date | string | null
 }
 
 export type ConnectedAccountUpdateWithoutWorkspaceInput = {
@@ -717,12 +795,15 @@ export type ConnectedAccountUpdateWithoutWorkspaceInput = {
   refreshToken?: Prisma.StringFieldUpdateOperationsInput | string
   tokenExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followerCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastRefreshAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cookieExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type ConnectedAccountUncheckedUpdateWithoutWorkspaceInput = {
@@ -733,12 +814,15 @@ export type ConnectedAccountUncheckedUpdateWithoutWorkspaceInput = {
   refreshToken?: Prisma.StringFieldUpdateOperationsInput | string
   tokenExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followerCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastRefreshAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cookieExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type ConnectedAccountUncheckedUpdateManyWithoutWorkspaceInput = {
@@ -749,12 +833,15 @@ export type ConnectedAccountUncheckedUpdateManyWithoutWorkspaceInput = {
   refreshToken?: Prisma.StringFieldUpdateOperationsInput | string
   tokenExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followerCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastRefreshAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cookieExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -768,13 +855,16 @@ export type ConnectedAccountSelect<ExtArgs extends runtime.Types.Extensions.Inte
   refreshToken?: boolean
   tokenExpiry?: boolean
   status?: boolean
-  platformUsername?: boolean
+  createdAt?: boolean
   avatarUrl?: boolean
   followerCount?: boolean
   lastRefreshAt?: boolean
   lastSyncedAt?: boolean
-  createdAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  platformUsername?: boolean
+  sourcePlatform?: boolean
+  sessionCookie?: boolean
+  cookieExpiry?: boolean
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["connectedAccount"]>
 
 export type ConnectedAccountSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -786,13 +876,16 @@ export type ConnectedAccountSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   refreshToken?: boolean
   tokenExpiry?: boolean
   status?: boolean
-  platformUsername?: boolean
+  createdAt?: boolean
   avatarUrl?: boolean
   followerCount?: boolean
   lastRefreshAt?: boolean
   lastSyncedAt?: boolean
-  createdAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  platformUsername?: boolean
+  sourcePlatform?: boolean
+  sessionCookie?: boolean
+  cookieExpiry?: boolean
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["connectedAccount"]>
 
 export type ConnectedAccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -804,13 +897,16 @@ export type ConnectedAccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   refreshToken?: boolean
   tokenExpiry?: boolean
   status?: boolean
-  platformUsername?: boolean
+  createdAt?: boolean
   avatarUrl?: boolean
   followerCount?: boolean
   lastRefreshAt?: boolean
   lastSyncedAt?: boolean
-  createdAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  platformUsername?: boolean
+  sourcePlatform?: boolean
+  sessionCookie?: boolean
+  cookieExpiry?: boolean
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["connectedAccount"]>
 
 export type ConnectedAccountSelectScalar = {
@@ -822,29 +918,32 @@ export type ConnectedAccountSelectScalar = {
   refreshToken?: boolean
   tokenExpiry?: boolean
   status?: boolean
-  platformUsername?: boolean
+  createdAt?: boolean
   avatarUrl?: boolean
   followerCount?: boolean
   lastRefreshAt?: boolean
   lastSyncedAt?: boolean
-  createdAt?: boolean
+  platformUsername?: boolean
+  sourcePlatform?: boolean
+  sessionCookie?: boolean
+  cookieExpiry?: boolean
 }
 
-export type ConnectedAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "platform" | "platformUserId" | "accessToken" | "refreshToken" | "tokenExpiry" | "status" | "platformUsername" | "avatarUrl" | "followerCount" | "lastRefreshAt" | "lastSyncedAt" | "createdAt", ExtArgs["result"]["connectedAccount"]>
+export type ConnectedAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "platform" | "platformUserId" | "accessToken" | "refreshToken" | "tokenExpiry" | "status" | "createdAt" | "avatarUrl" | "followerCount" | "lastRefreshAt" | "lastSyncedAt" | "platformUsername" | "sourcePlatform" | "sessionCookie" | "cookieExpiry", ExtArgs["result"]["connectedAccount"]>
 export type ConnectedAccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 export type ConnectedAccountIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 export type ConnectedAccountIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 
 export type $ConnectedAccountPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ConnectedAccount"
   objects: {
-    workspace: Prisma.$WorkspacePayload<ExtArgs>
+    Workspace: Prisma.$WorkspacePayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -855,12 +954,15 @@ export type $ConnectedAccountPayload<ExtArgs extends runtime.Types.Extensions.In
     refreshToken: string
     tokenExpiry: Date | null
     status: string
-    platformUsername: string | null
+    createdAt: Date
     avatarUrl: string | null
     followerCount: number | null
     lastRefreshAt: Date | null
     lastSyncedAt: Date | null
-    createdAt: Date
+    platformUsername: string | null
+    sourcePlatform: string | null
+    sessionCookie: string | null
+    cookieExpiry: Date | null
   }, ExtArgs["result"]["connectedAccount"]>
   composites: {}
 }
@@ -1255,7 +1357,7 @@ readonly fields: ConnectedAccountFieldRefs;
  */
 export interface Prisma__ConnectedAccountClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1293,12 +1395,15 @@ export interface ConnectedAccountFieldRefs {
   readonly refreshToken: Prisma.FieldRef<"ConnectedAccount", 'String'>
   readonly tokenExpiry: Prisma.FieldRef<"ConnectedAccount", 'DateTime'>
   readonly status: Prisma.FieldRef<"ConnectedAccount", 'String'>
-  readonly platformUsername: Prisma.FieldRef<"ConnectedAccount", 'String'>
+  readonly createdAt: Prisma.FieldRef<"ConnectedAccount", 'DateTime'>
   readonly avatarUrl: Prisma.FieldRef<"ConnectedAccount", 'String'>
   readonly followerCount: Prisma.FieldRef<"ConnectedAccount", 'Int'>
   readonly lastRefreshAt: Prisma.FieldRef<"ConnectedAccount", 'DateTime'>
   readonly lastSyncedAt: Prisma.FieldRef<"ConnectedAccount", 'DateTime'>
-  readonly createdAt: Prisma.FieldRef<"ConnectedAccount", 'DateTime'>
+  readonly platformUsername: Prisma.FieldRef<"ConnectedAccount", 'String'>
+  readonly sourcePlatform: Prisma.FieldRef<"ConnectedAccount", 'String'>
+  readonly sessionCookie: Prisma.FieldRef<"ConnectedAccount", 'String'>
+  readonly cookieExpiry: Prisma.FieldRef<"ConnectedAccount", 'DateTime'>
 }
     
 

@@ -288,7 +288,7 @@ export type MediaAssetWhereInput = {
   tags?: Prisma.StringNullableListFilter<"MediaAsset">
   createdAt?: Prisma.DateTimeFilter<"MediaAsset"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MediaAsset"> | Date | string
-  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
 }
 
 export type MediaAssetOrderByWithRelationInput = {
@@ -306,7 +306,7 @@ export type MediaAssetOrderByWithRelationInput = {
   tags?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  workspace?: Prisma.WorkspaceOrderByWithRelationInput
+  Workspace?: Prisma.WorkspaceOrderByWithRelationInput
 }
 
 export type MediaAssetWhereUniqueInput = Prisma.AtLeast<{
@@ -327,7 +327,7 @@ export type MediaAssetWhereUniqueInput = Prisma.AtLeast<{
   tags?: Prisma.StringNullableListFilter<"MediaAsset">
   createdAt?: Prisma.DateTimeFilter<"MediaAsset"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MediaAsset"> | Date | string
-  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
 }, "id">
 
 export type MediaAssetOrderByWithAggregationInput = {
@@ -373,7 +373,7 @@ export type MediaAssetScalarWhereWithAggregatesInput = {
 }
 
 export type MediaAssetCreateInput = {
-  id?: string
+  id: string
   originalName: string
   mimeType: string
   fileSize: number
@@ -386,11 +386,11 @@ export type MediaAssetCreateInput = {
   tags?: Prisma.MediaAssetCreatetagsInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutMediaAssetsInput
+  Workspace: Prisma.WorkspaceCreateNestedOneWithoutMediaAssetInput
 }
 
 export type MediaAssetUncheckedCreateInput = {
-  id?: string
+  id: string
   workspaceId: string
   originalName: string
   mimeType: string
@@ -420,7 +420,7 @@ export type MediaAssetUpdateInput = {
   tags?: Prisma.MediaAssetUpdatetagsInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutMediaAssetsNestedInput
+  Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutMediaAssetNestedInput
 }
 
 export type MediaAssetUncheckedUpdateInput = {
@@ -441,7 +441,7 @@ export type MediaAssetUncheckedUpdateInput = {
 }
 
 export type MediaAssetCreateManyInput = {
-  id?: string
+  id: string
   workspaceId: string
   originalName: string
   mimeType: string
@@ -488,16 +488,6 @@ export type MediaAssetUncheckedUpdateManyInput = {
   tags?: Prisma.MediaAssetUpdatetagsInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type MediaAssetListRelationFilter = {
-  every?: Prisma.MediaAssetWhereInput
-  some?: Prisma.MediaAssetWhereInput
-  none?: Prisma.MediaAssetWhereInput
-}
-
-export type MediaAssetOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
 }
 
 export type MediaAssetCountOrderByAggregateInput = {
@@ -559,6 +549,25 @@ export type MediaAssetSumOrderByAggregateInput = {
   height?: Prisma.SortOrder
 }
 
+export type MediaAssetListRelationFilter = {
+  every?: Prisma.MediaAssetWhereInput
+  some?: Prisma.MediaAssetWhereInput
+  none?: Prisma.MediaAssetWhereInput
+}
+
+export type MediaAssetOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type MediaAssetCreatetagsInput = {
+  set: string[]
+}
+
+export type MediaAssetUpdatetagsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
 export type MediaAssetCreateNestedManyWithoutWorkspaceInput = {
   create?: Prisma.XOR<Prisma.MediaAssetCreateWithoutWorkspaceInput, Prisma.MediaAssetUncheckedCreateWithoutWorkspaceInput> | Prisma.MediaAssetCreateWithoutWorkspaceInput[] | Prisma.MediaAssetUncheckedCreateWithoutWorkspaceInput[]
   connectOrCreate?: Prisma.MediaAssetCreateOrConnectWithoutWorkspaceInput | Prisma.MediaAssetCreateOrConnectWithoutWorkspaceInput[]
@@ -601,17 +610,8 @@ export type MediaAssetUncheckedUpdateManyWithoutWorkspaceNestedInput = {
   deleteMany?: Prisma.MediaAssetScalarWhereInput | Prisma.MediaAssetScalarWhereInput[]
 }
 
-export type MediaAssetCreatetagsInput = {
-  set: string[]
-}
-
-export type MediaAssetUpdatetagsInput = {
-  set?: string[]
-  push?: string | string[]
-}
-
 export type MediaAssetCreateWithoutWorkspaceInput = {
-  id?: string
+  id: string
   originalName: string
   mimeType: string
   fileSize: number
@@ -627,7 +627,7 @@ export type MediaAssetCreateWithoutWorkspaceInput = {
 }
 
 export type MediaAssetUncheckedCreateWithoutWorkspaceInput = {
-  id?: string
+  id: string
   originalName: string
   mimeType: string
   fileSize: number
@@ -689,7 +689,7 @@ export type MediaAssetScalarWhereInput = {
 }
 
 export type MediaAssetCreateManyWorkspaceInput = {
-  id?: string
+  id: string
   originalName: string
   mimeType: string
   fileSize: number
@@ -769,7 +769,7 @@ export type MediaAssetSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   tags?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["mediaAsset"]>
 
 export type MediaAssetSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -787,7 +787,7 @@ export type MediaAssetSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   tags?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["mediaAsset"]>
 
 export type MediaAssetSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -805,7 +805,7 @@ export type MediaAssetSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   tags?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["mediaAsset"]>
 
 export type MediaAssetSelectScalar = {
@@ -827,19 +827,19 @@ export type MediaAssetSelectScalar = {
 
 export type MediaAssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "originalName" | "mimeType" | "fileSize" | "width" | "height" | "storagePath" | "publicUrl" | "status" | "variants" | "tags" | "createdAt" | "updatedAt", ExtArgs["result"]["mediaAsset"]>
 export type MediaAssetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 export type MediaAssetIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 export type MediaAssetIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 
 export type $MediaAssetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "MediaAsset"
   objects: {
-    workspace: Prisma.$WorkspacePayload<ExtArgs>
+    Workspace: Prisma.$WorkspacePayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1250,7 +1250,7 @@ readonly fields: MediaAssetFieldRefs;
  */
 export interface Prisma__MediaAssetClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

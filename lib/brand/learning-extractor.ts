@@ -102,7 +102,7 @@ export async function extractLearningSignals(params: {
 export async function persistLearningSignals(params: {
   brandContextId: string;
   signals: ExtractedSignal[];
-  signalType: 'post_edit_diff' | 'thumbs_up' | 'thumbs_down' | 'auto_detected' | 'user_feedback';
+  signalType: 'post_edit_diff' | 'thumbs_up' | 'thumbs_down' | 'auto_detected' | 'user_feedback' | 'modifier_transform';
   sourcePostId?: string;
   metadata?: Record<string, unknown>;
 }): Promise<number> {
@@ -111,6 +111,7 @@ export async function persistLearningSignals(params: {
   if (signals.length === 0) return 0;
 
   const records = signals.map((signal) => ({
+    id: crypto.randomUUID(),
     brandContextId,
     signalType,
     fieldName: signal.fieldName,

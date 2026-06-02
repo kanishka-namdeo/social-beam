@@ -34,13 +34,13 @@ function getHeatTextColor(value: number, max: number): string {
 export function BestTimesHeatmap({ data }: BestTimesHeatmapProps) {
   if (data.length === 0) {
     return (
-      <Card>
+      <Card className="rounded-sm border border-border">
         <CardHeader>
-          <CardTitle className="text-base">Best Times to Post</CardTitle>
+          <CardTitle className="text-base font-medium tracking-tight">Best Times to Post</CardTitle>
           <CardDescription>Engagement by day of week and hour</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground">
+          <div className="flex h-[200px] items-center justify-center rounded-sm border border-dashed border-border bg-muted/20 text-sm text-muted-foreground">
             No posting data available yet.
           </div>
         </CardContent>
@@ -67,9 +67,9 @@ export function BestTimesHeatmap({ data }: BestTimesHeatmapProps) {
   const topSlots = sortedSlots.slice(0, 5);
 
   return (
-    <Card>
+    <Card className="rounded-sm border border-border">
       <CardHeader>
-        <CardTitle className="text-base">Best Times to Post</CardTitle>
+        <CardTitle className="text-base font-medium tracking-tight">Best Times to Post</CardTitle>
         <CardDescription>Average engagement by day and hour</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -82,7 +82,7 @@ export function BestTimesHeatmap({ data }: BestTimesHeatmapProps) {
               {businessHours.map((hour) => (
                 <div
                   key={hour}
-                  className="flex-1 text-center text-[10px] text-muted-foreground"
+                  className="flex-1 text-center text-[10px] font-mono tabular-nums text-muted-foreground"
                 >
                   {hour}:00
                 </div>
@@ -104,12 +104,12 @@ export function BestTimesHeatmap({ data }: BestTimesHeatmapProps) {
                   return (
                     <div
                       key={hour}
-                      className={cn(
-                        "flex-1 h-7 rounded-sm flex items-center justify-center text-[10px] font-medium transition-colors",
-                        getHeatColor(value, maxEngagement),
-                        getHeatTextColor(value, maxEngagement),
-                        isTopSlot && "ring-2 ring-brand ring-offset-1 ring-offset-background"
-                      )}
+                  className={cn(
+                    "flex-1 h-7 rounded-none flex items-center justify-center text-[10px] font-mono tabular-nums font-medium transition-colors",
+                    getHeatColor(value, maxEngagement),
+                    getHeatTextColor(value, maxEngagement),
+                    isTopSlot && "ring-1 ring-brand ring-offset-1 ring-offset-background"
+                  )}
                       title={`${dayLabels[dayIdx]} ${hour}:00 — Avg engagement: ${value.toFixed(1)}`}
                     >
                       {value > 0 && value.toFixed(0)}
@@ -132,7 +132,7 @@ export function BestTimesHeatmap({ data }: BestTimesHeatmapProps) {
                 <Badge
                   key={i}
                   variant="default"
-                  className="text-xs normal-case tracking-normal gap-1"
+                  className="rounded-sm text-xs normal-case tracking-normal gap-1"
                 >
                   {dayLabels[slot.dayOfWeek]} {slot.hour}:00
                 </Badge>

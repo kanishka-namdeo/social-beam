@@ -77,7 +77,7 @@ export default function AlternativesPage() {
               <Card key={c.slug} className="border-border flex flex-col hover:border-brand/50 transition-colors">
                 <CardHeader>
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 bg-brand/10 rounded-lg">
+                    <div className="p-2 bg-brand/10 rounded-sm">
                       <Icon className="w-5 h-5 text-brand" />
                     </div>
                     <CardTitle className="text-lg text-foreground">{c.name}</CardTitle>
@@ -91,7 +91,7 @@ export default function AlternativesPage() {
                   <div className="space-y-2">
                     {c.painPoints.map((p) => (
                       <div key={p} className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span className="w-1.5 h-1.5 rounded-full bg-destructive shrink-0" />
+                        <span className="w-1.5 h-1.5 rounded-sm bg-destructive shrink-0" />
                         {p}
                       </div>
                     ))}

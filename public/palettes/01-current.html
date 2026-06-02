@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Current - Cool Blue-Gray Dark Mode</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* CURRENT: Cool Blue-Gray (hue 260) - Baseline */
+    :root {
+      --background: oklch(0.98 0.005 260);
+      --foreground: oklch(0.15 0.01 260);
+      --card: oklch(0.99 0.003 260);
+      --card-foreground: oklch(0.15 0.01 260);
+      --primary: oklch(0.60 0.22 38);
+      --primary-foreground: oklch(0.98 0.016 73.684);
+      --secondary: oklch(0.96 0.005 260);
+      --secondary-foreground: oklch(0.20 0.01 260);
+      --muted: oklch(0.95 0.005 260);
+      --muted-foreground: oklch(0.50 0.02 260);
+      --accent: oklch(0.95 0.008 260);
+      --accent-foreground: oklch(0.20 0.01 260);
+      --border: oklch(0.90 0.005 260);
+      --destructive: oklch(0.577 0.245 27.325);
+      --success: oklch(0.62 0.16 149);
+      --warning: oklch(0.68 0.18 80);
+      --info: oklch(0.70 0.18 230);
+      --brand: oklch(0.65 0.22 38);
+      --brand-soft: oklch(0.92 0.06 38);
+      --chart-1: oklch(0.65 0.18 180);
+      --chart-2: oklch(0.62 0.20 38);
+      --chart-3: oklch(0.65 0.18 250);
+      --chart-4: oklch(0.60 0.20 149);
+      --chart-5: oklch(0.65 0.22 300);
+      --chart-6: oklch(0.60 0.20 340);
+      --sidebar: oklch(0.98 0.003 260);
+      --sidebar-foreground: oklch(0.15 0.01 260);
+      --sidebar-border: oklch(0.90 0.005 260);
+      --sidebar-accent: oklch(0.95 0.008 260);
+      --sidebar-accent-foreground: oklch(0.20 0.01 260);
+      --sidebar-primary: oklch(0.62 0.22 38);
+    }
+    .dark {
+      --background: oklch(0.12 0.006 260);
+      --foreground: oklch(0.988 0.003 106.5);
+      --card: oklch(0.18 0.01 260);
+      --card-foreground: oklch(0.988 0.003 106.5);
+      --primary: oklch(0.68 0.20 38);
+      --primary-foreground: oklch(0.98 0.016 73.684);
+      --secondary: oklch(0.27 0.01 260);
+      --secondary-foreground: oklch(0.985 0 0);
+      --muted: oklch(0.24 0.008 260);
+      --muted-foreground: oklch(0.72 0.02 260);
+      --accent: oklch(0.27 0.015 260);
+      --accent-foreground: oklch(0.988 0.003 106.5);
+      --border: oklch(0.28 0.012 260);
+      --destructive: oklch(0.68 0.22 25);
+      --success: oklch(0.72 0.16 149);
+      --warning: oklch(0.82 0.16 85);
+      --info: oklch(0.80 0.16 230);
+      --brand: oklch(0.72 0.20 38);
+      --brand-soft: oklch(0.35 0.10 38);
+      --chart-1: oklch(0.78 0.14 180);
+      --chart-2: oklch(0.75 0.16 38);
+      --chart-3: oklch(0.78 0.14 250);
+      --chart-4: oklch(0.75 0.14 149);
+      --chart-5: oklch(0.78 0.16 300);
+      --chart-6: oklch(0.75 0.18 340);
+      --sidebar: oklch(0.20 0.01 260);
+      --sidebar-foreground: oklch(0.988 0.003 106.5);
+      --sidebar-border: oklch(0.28 0.012 260);
+      --sidebar-accent: oklch(0.27 0.015 260);
+      --sidebar-accent-foreground: oklch(0.988 0.003 106.5);
+      --sidebar-primary: oklch(0.70 0.20 38);
+    }
+    body { background: var(--background); color: var(--foreground); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .card { background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: 0.75rem; }
+    .btn-primary { background: var(--primary); color: var(--primary-foreground); border-radius: 0.5rem; padding: 0.5rem 1rem; font-weight: 500; border: none; cursor: pointer; }
+    .btn-secondary { background: var(--secondary); color: var(--secondary-foreground); border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.5rem 1rem; font-weight: 500; cursor: pointer; }
+    .btn-brand { background: var(--brand); color: var(--primary-foreground); border-radius: 0.5rem; padding: 0.5rem 1rem; font-weight: 600; border: none; cursor: pointer; }
+    .muted { color: var(--muted-foreground); }
+    .badge { background: var(--muted); color: var(--muted-foreground); border-radius: 999px; padding: 0.125rem 0.625rem; font-size: 0.75rem; }
+    .alert-success { background: var(--success); color: white; border-radius: 0.5rem; padding: 0.75rem 1rem; }
+    .alert-warning { background: var(--warning); color: #1a1a1a; border-radius: 0.5rem; padding: 0.75rem 1rem; }
+    .alert-error { background: var(--destructive); color: white; border-radius: 0.5rem; padding: 0.75rem 1rem; }
+    .alert-info { background: var(--info); color: #1a1a1a; border-radius: 0.5rem; padding: 0.75rem 1rem; }
+    .sidebar { background: var(--sidebar); color: var(--sidebar-foreground); border-right: 1px solid var(--sidebar-border); }
+    .sidebar-item { color: var(--sidebar-foreground); padding: 0.5rem 0.75rem; border-radius: 0.5rem; }
+    .sidebar-item.active { background: var(--sidebar-accent); color: var(--sidebar-accent-foreground); }
+    .sidebar-item.brand-active { background: var(--sidebar-primary); color: white; }
+    .chart-1 { background: var(--chart-1); }
+    .chart-2 { background: var(--chart-2); }
+    .chart-3 { background: var(--chart-3); }
+    .chart-4 { background: var(--chart-4); }
+    .chart-5 { background: var(--chart-5); }
+    .chart-6 { background: var(--chart-6); }
+    .brand-soft { background: var(--brand-soft); color: var(--card-foreground); border-radius: 0.5rem; padding: 0.75rem 1rem; }
+    .section-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-foreground); margin-bottom: 0.75rem; font-weight: 600; }
+    .mode-toggle {
+      position: fixed; top: 1rem; right: 1rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 0.5rem; padding: 0.5rem 1rem; cursor: pointer;
+      color: var(--foreground); font-size: 0.85rem; z-index: 10;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <button class="mode-toggle" onclick="document.documentElement.classList.toggle('dark'); updateToggle()">Toggle Light/Dark</button>
+  <script>
+    function updateToggle() {
+      const isDark = document.documentElement.classList.contains('dark');
+      document.querySelector('.mode-toggle').textContent = isDark ? 'Switch to Light' : 'Switch to Dark';
+    }
+  </script>
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar Preview -->
+    <aside class="sidebar w-56 p-4 flex flex-col gap-1">
+      <div class="px-3 py-2 mb-3">
+        <div class="font-bold text-lg" style="color: var(--sidebar-primary)">Social Beam</div>
+      </div>
+      <div class="sidebar-item active">Dashboard</div>
+      <div class="sidebar-item brand-active">Compose</div>
+      <div class="sidebar-item">Analytics</div>
+      <div class="sidebar-item">Schedule</div>
+      <div class="sidebar-item">Inbox</div>
+      <div class="mt-auto pt-3 border-t" style="border-color: var(--sidebar-border)">
+        <div class="sidebar-item">Settings</div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 max-w-5xl">
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold mb-2">Current: Cool Blue-Gray</h1>
+        <p class="muted">Baseline palette - hue 260 throughout. Orange brand at hue 38.</p>
+      </div>
+
+      <!-- Color Swatches -->
+      <div class="card p-6 mb-6">
+        <div class="section-title">Surface Colors</div>
+        <div class="flex gap-4 flex-wrap mb-4">
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-lg mb-2" style="background: var(--background); border: 1px solid var(--border)"></div>
+            <div class="text-xs muted">Background</div>
+            <div class="text-xs muted" style="font-size: 0.65rem">oklch(0.12)</div>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-lg mb-2" style="background: var(--card)"></div>
+            <div class="text-xs muted">Card</div>
+            <div class="text-xs muted" style="font-size: 0.65rem">oklch(0.18)</div>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-lg mb-2" style="background: var(--secondary)"></div>
+            <div class="text-xs muted">Secondary</div>
+            <div class="text-xs muted" style="font-size: 0.65rem">oklch(0.27)</div>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-lg mb-2" style="background: var(--muted)"></div>
+            <div class="text-xs muted">Muted</div>
+            <div class="text-xs muted" style="font-size: 0.65rem">oklch(0.24)</div>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-lg mb-2" style="background: var(--border)"></div>
+            <div class="text-xs muted">Border</div>
+            <div class="text-xs muted" style="font-size: 0.65rem">oklch(0.28)</div>
+          </div>
+        </div>
+        <div class="section-title mt-4">Brand & Accent Colors</div>
+        <div class="flex gap-4 flex-wrap">
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-lg mb-2" style="background: var(--primary)"></div>
+            <div class="text-xs muted">Primary</div>
+            <div class="text-xs muted" style="font-size: 0.65rem">oklch(0.68 h38)</div>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-lg mb-2" style="background: var(--brand)"></div>
+            <div class="text-xs muted">Brand</div>
+            <div class="text-xs muted" style="font-size: 0.65rem">oklch(0.72 h38)</div>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-lg mb-2" style="background: var(--brand-soft)"></div>
+            <div class="text-xs muted">Brand Soft</div>
+            <div class="text-xs muted" style="font-size: 0.65rem">oklch(0.35)</div>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-lg mb-2" style="background: var(--accent)"></div>
+            <div class="text-xs muted">Accent</div>
+            <div class="text-xs muted" style="font-size: 0.65rem">oklch(0.27)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="card p-6 mb-6">
+        <div class="section-title">Buttons</div>
+        <div class="flex gap-3 flex-wrap items-center">
+          <button class="btn-primary">Primary</button>
+          <button class="btn-brand">Brand</button>
+          <button class="btn-secondary">Secondary</button>
+          <button class="btn-primary" style="background: var(--destructive)">Destructive</button>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div class="card p-6 mb-6">
+        <div class="section-title">Alerts & Status</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="alert-success">Success - Post published</div>
+          <div class="alert-warning">Warning - Rate limit near</div>
+          <div class="alert-error">Error - Failed to post</div>
+          <div class="alert-info">Info - Syncing accounts</div>
+        </div>
+      </div>
+
+      <!-- Badges & Tags -->
+      <div class="card p-6 mb-6">
+        <div class="section-title">Badges</div>
+        <div class="flex gap-2 flex-wrap">
+          <span class="badge">Draft</span>
+          <span class="badge" style="background: var(--success); color: white">Published</span>
+          <span class="badge" style="background: var(--warning); color: #1a1a1a">Queued</span>
+          <span class="badge" style="background: var(--info); color: #1a1a1a">Publishing</span>
+          <span class="badge" style="background: var(--destructive); color: white">Failed</span>
+        </div>
+      </div>
+
+      <!-- Chart Preview -->
+      <div class="card p-6 mb-6">
+        <div class="section-title">Chart Colors (Bar Chart Preview)</div>
+        <div class="flex items-end gap-3 h-40">
+          <div class="chart-1 rounded-t" style="width: 40px; height: 65%"></div>
+          <div class="chart-2 rounded-t" style="width: 40px; height: 80%"></div>
+          <div class="chart-3 rounded-t" style="width: 40px; height: 50%"></div>
+          <div class="chart-4 rounded-t" style="width: 40px; height: 90%"></div>
+          <div class="chart-5 rounded-t" style="width: 40px; height: 70%"></div>
+          <div class="chart-6 rounded-t" style="width: 40px; height: 55%"></div>
+        </div>
+        <div class="flex gap-3 mt-2">
+          <span class="text-xs muted" style="width: 40px">Mon</span>
+          <span class="text-xs muted" style="width: 40px">Tue</span>
+          <span class="text-xs muted" style="width: 40px">Wed</span>
+          <span class="text-xs muted" style="width: 40px">Thu</span>
+          <span class="text-xs muted" style="width: 40px">Fri</span>
+          <span class="text-xs muted" style="width: 40px">Sat</span>
+        </div>
+      </div>
+
+      <!-- Brand Soft CTA -->
+      <div class="card p-6 mb-6">
+        <div class="section-title">Brand Soft CTA</div>
+        <div class="brand-soft">
+          <div class="font-semibold mb-1" style="color: var(--card-foreground)">Upgrade to Pro</div>
+          <div class="text-sm" style="opacity: 0.8">Unlock advanced analytics and scheduling features</div>
+        </div>
+      </div>
+
+      <!-- Light/Dark Comparison -->
+      <div class="card p-6">
+        <div class="section-title">Light vs Dark Contrast Comparison</div>
+        <div class="grid grid-cols-2 gap-4">
+          <div style="background: oklch(0.98 0.005 260); color: oklch(0.15 0.01 260); padding: 1rem; border-radius: 0.5rem;">
+            <div class="text-xs" style="color: oklch(0.50 0.02 260)">Light Mode</div>
+            <div class="font-bold text-lg">Social Beam</div>
+            <div class="text-sm mt-1" style="color: oklch(0.50 0.02 260)">Background: 0.98</div>
+            <div class="mt-2" style="background: oklch(0.60 0.22 38); color: white; padding: 0.35rem 0.75rem; border-radius: 0.375rem; font-size: 0.8rem; font-weight: 500; display: inline-block">Primary Button</div>
+          </div>
+          <div style="background: var(--background); color: var(--foreground); padding: 1rem; border-radius: 0.5rem; border: 1px solid var(--border);">
+            <div class="text-xs muted">Dark Mode</div>
+            <div class="font-bold text-lg">Social Beam</div>
+            <div class="text-sm mt-1 muted">Background: 0.12</div>
+            <div class="mt-2" style="background: var(--primary); color: var(--primary-foreground); padding: 0.35rem 0.75rem; border-radius: 0.375rem; font-size: 0.8rem; font-weight: 500; display: inline-block">Primary Button</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 text-center">
+        <a href="index.html" style="color: var(--brand); text-decoration: none; font-weight: 500">← Back to All Palettes</a>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

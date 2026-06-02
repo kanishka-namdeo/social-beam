@@ -234,7 +234,7 @@ export type OnboardingSessionScalarWhereWithAggregatesInput = {
 }
 
 export type OnboardingSessionCreateInput = {
-  id?: string
+  id: string
   userId: string
   currentStep?: string
   stepData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -243,7 +243,7 @@ export type OnboardingSessionCreateInput = {
 }
 
 export type OnboardingSessionUncheckedCreateInput = {
-  id?: string
+  id: string
   userId: string
   currentStep?: string
   stepData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -270,7 +270,7 @@ export type OnboardingSessionUncheckedUpdateInput = {
 }
 
 export type OnboardingSessionCreateManyInput = {
-  id?: string
+  id: string
   userId: string
   currentStep?: string
   stepData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue

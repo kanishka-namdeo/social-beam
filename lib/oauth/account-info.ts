@@ -32,6 +32,14 @@ export async function fetchAccountInfo(
         return await fetchInstagramAccountInfo(accessToken);
       case 'facebook':
         return await fetchFacebookAccountInfo(accessToken);
+      case 'threads':
+        return await fetchThreadsAccountInfo(accessToken);
+      case 'googlebusiness':
+        return await fetchGoogleBusinessAccountInfo(accessToken);
+      case 'youtube':
+        return await fetchYoutubeAccountInfo(accessToken);
+      case 'bluesky':
+        return null; // Bluesky uses direct auth, account info fetched separately during session creation
       default:
         logger.warn('oauth.account_info.unsupported_platform', { platform });
         return null;
@@ -201,5 +209,80 @@ async function fetchFacebookAccountInfo(accessToken: string): Promise<AccountInf
     platformUsername: page.name as string,
     avatarUrl: (picture?.data as Record<string, string>)?.url as string | undefined,
     followerCount: page.fan_count as number | undefined,
+  };
+}
+
+async function fetchThreadsAccountInfo(accessToken: string): Promise<AccountInfoResult> {
+  const response = await fetch(
+    'https://graph.facebook.com/v22.0/me?fields=id,name,threads_profile_picture_url&access_token=' + accessToken,
+    { method: 'GET' }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Threads account info failed: ${response.status}`);
+  }
+
+  const data = await response.json() as Record<string, unknown>;
+  return {
+    platformUserId: data.id as string,
+    platformUsername: (data.name as string) ?? `@${data.id as string}`,
+    avatarUrl: data.threads_profile_picture_url as string | undefined,
+  };
+}
+
+async function fetchGoogleBusinessAccountInfo(accessToken: string): Promise<AccountInfoResult> {
+  const response = await fetch(
+    'https://mybusiness.googleapis.com/v4/accounts',
+    {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Google Business account info failed: ${response.status}`);
+  }
+
+  const data = await response.json() as Record<string, unknown>;
+  const accounts = (data.accounts as Array<Record<string, unknown>>) ?? [];
+  if (accounts.length === 0) {
+    throw new Error('No Google Business accounts found');
+  }
+
+  const account = accounts[0];
+  const accountName = account.name as string;
+  const accountId = accountName.split('/').pop() ?? accountName;
+
+  return {
+    platformUserId: accountId,
+    platformUsername: (account.title ?? accountId) as string,
+  };
+}
+
+async function fetchYoutubeAccountInfo(accessToken: string): Promise<AccountInfoResult> {
+  const response = await fetch(
+    'https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true',
+    {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`YouTube account info failed: ${response.status}`);
+  }
+
+  const data = await response.json() as Record<string, unknown>;
+  const items = (data.items as Array<Record<string, unknown>>) ?? [];
+  if (items.length === 0) {
+    throw new Error('No YouTube channels found');
+  }
+
+  const channel = items[0];
+  const snippet = channel.snippet as Record<string, unknown> | undefined;
+
+  return {
+    platformUserId: channel.id as string,
+    platformUsername: (snippet?.title as string) ?? (channel.id as string),
   };
 }

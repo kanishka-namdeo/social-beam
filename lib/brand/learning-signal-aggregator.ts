@@ -288,6 +288,7 @@ export async function applySuggestion(
         },
       },
       create: {
+        id: crypto.randomUUID(),
         brandContextId,
         fieldName,
         currentValue: (currentFieldValue as Prisma.JsonObject) ?? Prisma.JsonNull,
@@ -339,6 +340,7 @@ export async function initializeFieldStates(brandContextId: string): Promise<voi
         brandContextId_fieldName: { brandContextId, fieldName },
       },
       create: {
+        id: crypto.randomUUID(),
         brandContextId,
         fieldName,
         currentValue: (fieldValue as Prisma.JsonObject) ?? Prisma.JsonNull,

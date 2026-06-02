@@ -48,7 +48,7 @@ export const saveAudienceTool = tool(
 
       if (!profile) {
         profile = await prisma.userProfile.create({
-          data: { workspaceId },
+          data: { id: crypto.randomUUID(), workspaceId },
           select: { id: true },
         });
       }

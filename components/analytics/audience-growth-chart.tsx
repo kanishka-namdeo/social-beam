@@ -57,13 +57,13 @@ export function AudienceGrowthChart({ timeSeries, netChangeByPlatform, totalNetC
 
   if (platforms.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Audience Growth</CardTitle>
-          <CardDescription>Track follower count across platforms</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex h-48 items-center justify-center rounded-lg border border-dashed border-border">
+    <Card className="rounded-sm border border-border">
+      <CardHeader>
+        <CardTitle className="text-base font-medium tracking-tight">Audience Growth</CardTitle>
+        <CardDescription>Track follower count across platforms</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex h-48 items-center justify-center rounded-sm border border-dashed border-border bg-muted/20">
             <p className="text-sm text-muted-foreground">
               Connect accounts to track audience growth.
             </p>
@@ -74,15 +74,15 @@ export function AudienceGrowthChart({ timeSeries, netChangeByPlatform, totalNetC
   }
 
   return (
-    <Card>
+    <Card className="rounded-sm border border-border">
       <CardHeader>
-        <CardTitle className="text-base">Audience Growth</CardTitle>
+        <CardTitle className="text-base font-medium tracking-tight">Audience Growth</CardTitle>
         <CardDescription>Follower count trends across platforms</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Net change summary */}
         <div className="flex flex-wrap gap-3">
-          <div className="flex items-center gap-2 rounded-md bg-muted px-3 py-2">
+          <div className="flex items-center gap-2 rounded-sm bg-muted px-3 py-2">
             <span className="text-xs text-muted-foreground">Total Net Change:</span>
             <span className={cn(
               "text-sm font-semibold",
@@ -122,13 +122,13 @@ export function AudienceGrowthChart({ timeSeries, netChangeByPlatform, totalNetC
               content={({ active, payload }) => {
                 if (!active || !payload || payload.length === 0) return null;
                 return (
-                  <div className="rounded-lg border border-border bg-card p-3 shadow-lg">
-                    <p className="text-sm font-medium text-foreground mb-1">{payload[0].payload.date}</p>
+                  <div className="rounded-sm border border-border bg-card p-3 shadow-lg">
+                    <p className="text-sm font-medium tracking-tight text-foreground mb-1">{payload[0].payload.date}</p>
                     {payload.map((entry, idx) => (
                       <div key={idx} className="flex items-center gap-2 text-xs">
-                        <span className="size-2 rounded-full" style={{ backgroundColor: entry.color }} />
+                        <span className="size-2 rounded-sm" style={{ backgroundColor: entry.color }} />
                         <span className="text-muted-foreground capitalize">{entry.name}:</span>
-                        <span className="font-medium text-foreground">
+                        <span className="font-medium font-mono tabular-nums text-foreground">
                           {typeof entry.value === "number" ? entry.value.toLocaleString() : entry.value}
                         </span>
                       </div>

@@ -2,144 +2,64 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isOnboardingComplete } from "@/lib/onboarding";
 import { redirect } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Sparkle, InstagramLogo, XLogo, LinkedinLogo, MetaLogo, TiktokLogo, PinterestLogo, ChartBar, GlobeHemisphereEast, PencilSimple, Calendar, MagnifyingGlass } from "@phosphor-icons/react/ssr";
-import { RecentPostsList } from "@/components/dashboard/recent-posts-list";
-import { AIInsightsCard } from "@/components/dashboard/ai-insights-card";
-import { CalendarPreview } from "@/components/dashboard/calendar-preview";
-import { AIStatusPanel } from "@/components/dashboard/ai-status-panel";
+import { PencilSimple, Calendar, ChartBar, MagnifyingGlass, GearSix } from "@phosphor-icons/react/ssr";
 import { StartingVerbs } from "@/components/dashboard/starting-verbs";
 import { AIComposePrompt } from "@/components/dashboard/ai-compose-prompt";
 import { WorkedExampleEmptyState } from "@/components/dashboard/worked-example-empty-state";
-import { ProfileAnalysisCard } from "@/components/dashboard/profile-analysis-card";
 import { OnboardingBanner } from "@/components/dashboard/onboarding-banner";
-import { ComposeInput } from "@/components/dashboard/compose-input";
-import { TrendingRadarCard } from "@/components/reddit/trending-radar-card";
+import { WidgetGrid } from "@/components/dashboard/widget-grid";
+import { CustomizeDashboardDialogContainer } from "@/components/dashboard/customize-dashboard-dialog";
+import type { WidgetLayout } from "@/lib/dashboard/widget-registry";
+import { DEFAULT_WIDGET_LAYOUT } from "@/lib/dashboard/widget-registry";
 import { subHours } from "@/lib/utils/dates";
 
-const platformIcons: Record<string, React.ReactNode> = {
-  instagram: <InstagramLogo className="size-5" weight="fill" />,
-  facebook: <MetaLogo className="size-5" weight="fill" />,
-  x: <XLogo className="size-5" weight="fill" />,
-  linkedin: <LinkedinLogo className="size-5" weight="fill" />,
-  tiktok: <TiktokLogo className="size-5" weight="fill" />,
-  pinterest: <PinterestLogo className="size-5" weight="fill" />,
-};
-
-const defaultPlatformIcon = <ChartBar className="size-5" weight="fill" />;
-
-const statusVariant: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-  connected: "default",
-  expired: "secondary",
-  revoked: "destructive",
-  error: "destructive",
-};
-
-function ProfileAnalysisContent({ profile }: { profile: { tone?: string | null; postTypes?: Record<string, unknown> | null; audience?: Record<string, unknown> | null; bio?: Record<string, unknown> | null } }) {
-  const toneLabels: Record<string, string> = {
-    professional: "Professional",
-    casual: "Casual",
-    witty: "Witty",
-    educational: "Educational",
-    inspirational: "Inspirational",
-    bold: "Bold",
-  };
-
-  const tone = profile.tone ? toneLabels[profile.tone] ?? profile.tone : null;
-  const bio = profile.bio;
-  const postTypes = profile.postTypes;
-  const audience = profile.audience;
-
-  return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {tone && (
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
-            Brand Tone
-          </p>
-          <Badge variant="default" className="text-xs normal-case tracking-normal">
-            {tone}
-          </Badge>
-        </div>
-      )}
-      {postTypes && (
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
-            Content Mix
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {Object.entries(postTypes).map(([type, value]) => (
-              <Badge key={type} variant="outline" className="text-xs normal-case tracking-normal">
-                {type}: {typeof value === "number" ? `${value}%` : String(value)}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      )}
-      {audience && (
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
-            Audience
-          </p>
-          <p className="text-sm text-foreground">
-            {Array.isArray(audience.interests)
-              ? audience.interests.slice(0, 3).join(", ")
-              : "Profiled"}
-          </p>
-        </div>
-      )}
-      {bio != null && bio.industry != null && (
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-tight text-muted-foreground">
-            Industry
-          </p>
-          <p className="text-sm text-foreground">
-            {String(bio.industry)}
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
-
-async function DashboardWidgets({ workspaceId }: { workspaceId: string }) {
-  const [recentPosts, scheduledPosts, trendingPosts] = await Promise.all([
-    prisma.post.findMany({
-      where: { workspaceId },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-      select: {
-        id: true,
-        title: true,
-        status: true,
-        confidence: true,
-        scheduledAt: true,
-        publishedAt: true,
-        platforms: { select: { platform: true, status: true, error: true } },
-      },
-    }),
-    prisma.post.findMany({
-      where: { workspaceId, status: "SCHEDULED", scheduledAt: { gte: new Date() } },
-      orderBy: { scheduledAt: "asc" },
-      select: {
-        id: true,
-        title: true,
-        scheduledAt: true,
-        platforms: { select: { platform: true } },
-      },
-    }),
-    prisma.redditTrendingPost.findMany({
-      where: {
-        workspaceId,
-        scrapedAt: { gte: subHours(new Date(), 24) },
-      },
-      orderBy: [{ relevanceScore: "desc" }, { upvotes: "desc" }],
-      take: 20,
-    }),
-  ]);
+async function fetchDashboardData(workspaceId: string) {
+  const [recentPosts, scheduledPosts, trendingPosts, totalPosts, scheduledCount, publishedThisWeek, failedCount] =
+    await Promise.all([
+      prisma.post.findMany({
+        where: { workspaceId },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          confidence: true,
+          scheduledAt: true,
+          publishedAt: true,
+          PostPlatform: { select: { platform: true, status: true, error: true } },
+        },
+      }),
+      prisma.post.findMany({
+        where: { workspaceId, status: "SCHEDULED", scheduledAt: { gte: new Date() } },
+        orderBy: { scheduledAt: "asc" },
+        select: {
+          id: true,
+          title: true,
+          scheduledAt: true,
+          PostPlatform: { select: { platform: true } },
+        },
+      }),
+      prisma.redditTrendingPost.findMany({
+        where: {
+          workspaceId,
+          scrapedAt: { gte: subHours(new Date(), 24) },
+        },
+        orderBy: [{ relevanceScore: "desc" }, { upvotes: "desc" }],
+        take: 20,
+      }),
+      prisma.post.count({ where: { workspaceId } }),
+      prisma.post.count({ where: { workspaceId, status: "SCHEDULED" } }),
+      prisma.post.count({
+        where: {
+          workspaceId,
+          status: "PUBLISHED",
+          publishedAt: { gte: (() => { const d = new Date(); d.setDate(d.getDate() - 7); return d; })() },
+        },
+      }),
+      prisma.post.count({ where: { workspaceId, status: "FAILED" } }),
+    ]);
 
   const oneWeekAgo = (() => {
     const d = new Date();
@@ -149,7 +69,7 @@ async function DashboardWidgets({ workspaceId }: { workspaceId: string }) {
 
   const [topPostAnalytics] = await prisma.analyticsSnapshot.findMany({
     where: {
-      post: {
+      Post: {
         workspaceId,
         publishedAt: { gte: oneWeekAgo },
       },
@@ -157,13 +77,13 @@ async function DashboardWidgets({ workspaceId }: { workspaceId: string }) {
     orderBy: { engagementRate: "desc" },
     take: 1,
     include: {
-      post: { select: { id: true, title: true } },
+      Post: { select: { id: true, title: true } },
     },
   });
 
   const topPost = topPostAnalytics
     ? {
-        title: topPostAnalytics.post.title ?? "Untitled",
+        title: topPostAnalytics.Post.title ?? "Untitled",
         platform: topPostAnalytics.platform,
         engagementRate: topPostAnalytics.engagementRate ?? 0,
         likes: topPostAnalytics.likes,
@@ -172,103 +92,155 @@ async function DashboardWidgets({ workspaceId }: { workspaceId: string }) {
       }
     : undefined;
 
-  const drafts = await prisma.post.findMany({
-    where: { workspaceId, status: "DRAFT" },
-    orderBy: { createdAt: "desc" },
-    take: 3,
+  // Engagement data for sparkline (last 14 days)
+  const engagementSnapshots = await prisma.analyticsSnapshot.findMany({
+    where: {
+      Post: {
+        workspaceId,
+        publishedAt: {
+          gte: (() => { const d = new Date(); d.setDate(d.getDate() - 14); return d; })(),
+        },
+      },
+    },
+    orderBy: { snapshotAt: "asc" },
     select: {
-      id: true,
-      title: true,
-      createdAt: true,
-      platforms: { select: { platform: true } },
+      snapshotAt: true,
+      engagementRate: true,
     },
   });
 
-  return (
-    <div className="space-y-6">
-      {/* AI Status Panel */}
-      <AIStatusPanel
-        agentActivity="Analyzing your content strategy"
-        pendingReviews={
-          drafts.length > 0
-            ? drafts.map((d) => ({
-                id: d.id,
-                title: d.title ?? "Untitled",
-                platforms: d.platforms.map((p) => p.platform),
-                createdAt: d.createdAt.toISOString(),
-              }))
-            : []
-        }
-      />
+  const engagementData = engagementSnapshots.map((s) => ({
+    date: s.snapshotAt.toISOString(),
+    engagementRate: s.engagementRate ?? 0,
+  }));
 
-      {/* Two-column grid */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Left column */}
-        <div className="space-y-6">
-          <RecentPostsList
-            posts={recentPosts.map((p) => ({
-              id: p.id,
-              title: p.title,
-              status: p.status,
-              confidence: p.confidence,
-              scheduledAt: p.scheduledAt?.toISOString() ?? null,
-              publishedAt: p.publishedAt?.toISOString() ?? null,
-              platforms: p.platforms.map((pl) => ({
-                platform: pl.platform,
-                status: pl.status,
-                error: pl.error,
-              })),
-            }))}
-          />
+  // Posting streak calculation
+  const publishedPosts = await prisma.post.findMany({
+    where: { workspaceId, status: "PUBLISHED", publishedAt: { not: null } },
+    orderBy: { publishedAt: "desc" },
+    select: { publishedAt: true },
+  });
 
-          <CalendarPreview
-            posts={scheduledPosts
-              .filter((p) => p.scheduledAt != null)
-              .map((p) => ({
-                id: p.id,
-                title: p.title,
-                platforms: p.platforms.map((pl) => pl.platform),
-                scheduledAt: p.scheduledAt!.toISOString(),
-              }))}
-          />
-        </div>
+  const { currentStreak, longestStreak, lastPostDate } = calculateStreak(publishedPosts.map((p) => p.publishedAt!).filter(Boolean));
 
-        {/* Right column */}
-        <div className="space-y-6">
-          <AIInsightsCard
-            topPost={topPost}
-            trend={
-              topPost
-                ? { direction: "up", metric: "Engagement rate", value: "+12%", period: "this week" }
-                : undefined
-            }
-            recommendation={
-              topPost
-                ? "Video content is performing well on Instagram. Consider creating more behind-the-scenes content."
-                : undefined
-            }
-          />
+  const consistencyScore = calculateConsistencyScore(publishedPosts);
 
-          <TrendingRadarCard
-            posts={trendingPosts.map((p) => ({
-              id: p.id,
-              subreddit: p.subreddit,
-              title: p.title,
-              url: p.url,
-              author: p.author,
-              upvotes: p.upvotes,
-              commentCount: p.commentCount,
-              relevanceScore: p.relevanceScore,
-              relevanceReason: p.relevanceReason,
-              isActionable: p.isActionable,
-              topicTags: p.topicTags,
-              suggestedAction: p.suggestedAction,
-            }))}
-          />
-        </div>
-      </div>
-    </div>
-  );
+  return {
+    recentPosts: recentPosts.map((p) => ({
+      id: p.id,
+      title: p.title,
+      status: p.status,
+      confidence: p.confidence,
+      scheduledAt: p.scheduledAt?.toISOString() ?? null,
+      publishedAt: p.publishedAt?.toISOString() ?? null,
+      platforms: p.PostPlatform.map((pl) => ({
+        platform: pl.platform,
+        status: pl.status,
+        error: pl.error,
+      })),
+    })),
+    scheduledPosts: scheduledPosts
+      .filter((p) => p.scheduledAt != null)
+      .map((p) => ({
+        id: p.id,
+        title: p.title,
+        platforms: p.PostPlatform.map((pl) => pl.platform),
+        scheduledAt: p.scheduledAt!.toISOString(),
+      })),
+    trendingPosts: trendingPosts.map((p) => ({
+      id: p.id,
+      subreddit: p.subreddit,
+      title: p.title,
+      url: p.url,
+      author: p.author,
+      upvotes: p.upvotes,
+      commentCount: p.commentCount,
+      relevanceScore: p.relevanceScore,
+      relevanceReason: p.relevanceReason,
+      isActionable: p.isActionable,
+      topicTags: p.topicTags,
+      suggestedAction: p.suggestedAction,
+    })),
+    insights: {
+      topPost,
+      trend: topPost
+        ? { direction: "up" as const, metric: "Engagement rate", value: "+12%", period: "this week" }
+        : undefined,
+      recommendation: topPost
+        ? "Video content is performing well on Instagram. Consider creating more behind-the-scenes content."
+        : undefined,
+    },
+    quickStats: {
+      totalPosts,
+      scheduledCount,
+      publishedThisWeek,
+      failedCount,
+    },
+    engagementData,
+    postingStreak: {
+      currentStreak,
+      longestStreak,
+      consistencyScore,
+      lastPostDate: lastPostDate?.toISOString() ?? null,
+    },
+  };
+}
+
+function calculateStreak(dates: Date[]) {
+  if (dates.length === 0) return { currentStreak: 0, longestStreak: 0, lastPostDate: null };
+
+  const sorted = [...dates].sort((a, b) => b.getTime() - a.getTime());
+  const lastPostDate = sorted[0];
+
+  // Normalize to dates only (no time)
+  const toDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const uniqueDays = new Set(sorted.map(toDay));
+  const dayArray = Array.from(uniqueDays).sort((a, b) => b - a);
+
+  // Current streak
+  const today = toDay(new Date());
+  const yesterday = today - 86400000;
+  let currentStreak = 0;
+  if (dayArray[0] === today || dayArray[0] === yesterday) {
+    currentStreak = 1;
+    for (let i = 1; i < dayArray.length; i++) {
+      if (dayArray[i] === dayArray[i - 1] - 86400000) {
+        currentStreak++;
+      } else {
+        break;
+      }
+    }
+  }
+
+  // Longest streak
+  let longestStreak = 1;
+  let tempStreak = 1;
+  for (let i = 1; i < dayArray.length; i++) {
+    if (dayArray[i] === dayArray[i - 1] - 86400000) {
+      tempStreak++;
+      longestStreak = Math.max(longestStreak, tempStreak);
+    } else {
+      tempStreak = 1;
+    }
+  }
+
+  return { currentStreak, longestStreak, lastPostDate };
+}
+
+function calculateConsistencyScore(publishedPosts: { publishedAt: Date | null }[]): number {
+  if (publishedPosts.length === 0) return 0;
+
+  const now = new Date();
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000);
+  const recentPosts = publishedPosts.filter((p) => p.publishedAt && p.publishedAt >= thirtyDaysAgo);
+
+  // Count unique days with posts in last 30 days
+  const toDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const uniqueDays = new Set(recentPosts.map((p) => toDay(p.publishedAt!)));
+
+  // Target: at least 15 unique posting days in 30 = 100%
+  const targetDays = 15;
+  return Math.min(100, Math.round((uniqueDays.size / targetDays) * 100));
 }
 
 export default async function DashboardPage() {
@@ -294,12 +266,13 @@ export default async function DashboardPage() {
     );
   }
 
-  const [profile, connectedAccounts] = await Promise.all([
+  const [profile, connectedAccounts, preferences] = await Promise.all([
     prisma.userProfile.findUnique({ where: { workspaceId } }),
     prisma.connectedAccount.findMany({
       where: { workspaceId },
       orderBy: { createdAt: "desc" },
     }),
+    prisma.dashboardPreference.findUnique({ where: { workspaceId } }),
   ]);
 
   const hour = new Date().getHours();
@@ -316,6 +289,11 @@ export default async function DashboardPage() {
 
   const postCount = await prisma.post.count({ where: { workspaceId } });
 
+  // Parse layout preferences
+  const layout: WidgetLayout = (preferences?.layout as WidgetLayout | undefined) ?? DEFAULT_WIDGET_LAYOUT;
+
+  const dashboardData = await fetchDashboardData(workspaceId);
+
   return (
     <div className="space-y-6">
       {/* Onboarding incomplete banner */}
@@ -323,19 +301,30 @@ export default async function DashboardPage() {
         <OnboardingBanner />
       )}
 
-      {/* Greeting */}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          {greeting}, {userName}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Here&apos;s what&apos;s happening with your social media today.
-        </p>
+      {/* Header row: Greeting + Customize button */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-medium tracking-tight text-foreground" suppressHydrationWarning>
+            {greeting}, {userName}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Here&apos;s what&apos;s happening with your social media today.
+          </p>
+        </div>
+        <CustomizeDashboardDialogContainer
+          layout={layout}
+          trigger={
+            <Button variant="outline" size="sm" className="hover-scale">
+              <GearSix className="mr-1.5 size-4" weight="bold" />
+              Customize
+            </Button>
+          }
+        />
       </div>
 
       {/* Quick-action bar */}
       <div className="flex flex-wrap gap-2">
-        <Button variant="outline" size="sm" asChild className="hover-scale">
+        <Button variant="default" size="sm" asChild className="hover-scale">
           <a href="/compose">
             <PencilSimple className="mr-1.5 size-4" weight="bold" />
             Compose
@@ -361,106 +350,53 @@ export default async function DashboardPage() {
         </Button>
       </div>
 
-      {/* No posts yet */}
+      {/* No posts yet — show empty state with profile analysis */}
       {postCount === 0 ? (
         <div className="space-y-6">
           <AIComposePrompt />
           <StartingVerbs />
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <Sparkle className="size-5 text-brand" weight="fill" />
-                Your Profile Analysis
-              </CardTitle>
-              <CardDescription>
-                AI-generated insights from your onboarding session
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ProfileAnalysisContent profile={{
+          <WidgetGrid
+            layout={layout}
+            data={{
+              ...dashboardData,
+              connectedAccounts: connectedAccounts.map((a) => ({
+                id: a.id,
+                platform: a.platform,
+                platformUserId: a.platformUserId,
+                status: a.status,
+              })),
+              profile: {
                 tone: profile.tone,
                 postTypes: profile.postTypes as Record<string, unknown> | null,
                 audience: profile.audience as Record<string, unknown> | null,
                 bio: profile.bio as Record<string, unknown> | null,
-              }} />
-            </CardContent>
-          </Card>
+              },
+            }}
+          />
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Dashboard Widgets */}
-          <DashboardWidgets workspaceId={workspaceId!} />
-
-          <Separator />
-
-          {/* Profile Analysis Card */}
-          <ProfileAnalysisCard
-            title="Profile Analysis"
-            description="AI-generated insights from your onboarding session"
-            profile={{
-              tone: profile.tone,
-              postTypes: profile.postTypes as Record<string, unknown> | null,
-              audience: profile.audience as Record<string, unknown> | null,
-              bio: profile.bio as Record<string, unknown> | null,
+          {/* Widget Grid */}
+          <WidgetGrid
+            layout={layout}
+            data={{
+              ...dashboardData,
+              connectedAccounts: connectedAccounts.map((a) => ({
+                id: a.id,
+                platform: a.platform,
+                platformUserId: a.platformUserId,
+                status: a.status,
+              })),
+              profile: {
+                tone: profile.tone,
+                postTypes: profile.postTypes as Record<string, unknown> | null,
+                audience: profile.audience as Record<string, unknown> | null,
+                bio: profile.bio as Record<string, unknown> | null,
+              },
             }}
           />
         </div>
       )}
-
-      {/* Connected Accounts */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Connected Accounts</CardTitle>
-          <CardDescription>
-            Manage your social media integrations
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {connectedAccounts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-3 rounded-md border border-dashed border-border p-8 text-center">
-              <GlobeHemisphereEast className="size-8 text-muted-foreground" weight="light" />
-              <p className="text-sm text-muted-foreground">
-                No accounts connected yet
-              </p>
-              <Button variant="outline" size="sm" asChild>
-                <a href="/settings?tab=accounts">Connect an Account</a>
-              </Button>
-            </div>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {connectedAccounts.map((account: { id: string; platform: string; platformUserId: string; status: string }) => (
-                <div
-                  key={account.id}
-                  className="flex items-center justify-between rounded-md border border-border bg-card p-4 hover-lift"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-muted-foreground" aria-hidden="true">
-                      {platformIcons[account.platform] ?? defaultPlatformIcon}
-                    </span>
-                    <div>
-                      <p className="text-sm font-medium capitalize text-foreground">
-                        {account.platform}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {account.platformUserId}
-                      </p>
-                    </div>
-                  </div>
-                  <Badge
-                    variant={statusVariant[account.status] ?? "secondary"}
-                    className="text-[0.625rem] normal-case tracking-normal"
-                  >
-                    {account.status}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Conversational Input */}
-      <ComposeInput />
     </div>
   );
 }

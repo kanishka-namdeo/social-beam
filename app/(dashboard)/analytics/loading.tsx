@@ -14,7 +14,7 @@ export default function AnalyticsLoading() {
       </div>
 
       {/* Metric Cards Skeleton */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
         {Array.from({ length: 5 }).map((_, i) => (
           <Card key={i}>
             <CardContent className="p-5">
@@ -23,7 +23,7 @@ export default function AnalyticsLoading() {
                   <Skeleton className="h-4 w-20" />
                   <Skeleton className="h-7 w-16" />
                 </div>
-                <Skeleton className="h-10 w-10 rounded-lg" />
+                <Skeleton className="h-10 w-10 rounded-sm" />
               </div>
               <div className="mt-3 flex items-center gap-1">
                 <Skeleton className="h-3 w-12" />
@@ -40,13 +40,13 @@ export default function AnalyticsLoading() {
           <Skeleton className="h-5 w-44" />
           <Skeleton className="h-4 w-56" />
           <div className="flex gap-1 mt-4">
-            <Skeleton className="h-8 w-24 rounded-md" />
-            <Skeleton className="h-8 w-28 rounded-md" />
-            <Skeleton className="h-8 w-24 rounded-md" />
+            <Skeleton className="h-8 w-24 rounded-sm" />
+            <Skeleton className="h-8 w-28 rounded-sm" />
+            <Skeleton className="h-8 w-24 rounded-sm" />
           </div>
         </CardHeader>
         <CardContent>
-          <Skeleton className="h-[300px] w-full rounded-lg" />
+          <Skeleton className="h-[300px] w-full rounded-sm" />
         </CardContent>
       </Card>
 
@@ -59,11 +59,11 @@ export default function AnalyticsLoading() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-2">
-              <Skeleton className="h-8 w-36 rounded-md" />
-              <Skeleton className="h-6 w-24 rounded-md" />
-              <Skeleton className="h-6 w-20 rounded-md" />
+              <Skeleton className="h-8 w-36 rounded-sm" />
+              <Skeleton className="h-6 w-24 rounded-sm" />
+              <Skeleton className="h-6 w-20 rounded-sm" />
             </div>
-            <Skeleton className="h-[280px] w-full rounded-lg" />
+            <Skeleton className="h-[280px] w-full rounded-sm" />
           </CardContent>
         </Card>
         <Card>
@@ -72,7 +72,7 @@ export default function AnalyticsLoading() {
             <Skeleton className="h-4 w-44" />
           </CardHeader>
           <CardContent>
-            <Skeleton className="h-52 w-full rounded-lg" />
+            <Skeleton className="h-52 w-full rounded-sm" />
           </CardContent>
         </Card>
       </div>
@@ -85,7 +85,7 @@ export default function AnalyticsLoading() {
         </CardHeader>
         <CardContent className="space-y-3">
           <Skeleton className="h-4 w-28" />
-          <div className="rounded-md border">
+          <div className="rounded-sm border">
             {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className={`h-10 w-full ${i > 0 ? "border-t" : ""}`} />
             ))}
@@ -100,7 +100,7 @@ export default function AnalyticsLoading() {
           <Skeleton className="h-4 w-48" />
         </CardHeader>
         <CardContent>
-          <Skeleton className="h-[240px] w-full rounded-lg" />
+          <Skeleton className="h-[240px] w-full rounded-sm" />
         </CardContent>
       </Card>
 
@@ -112,7 +112,7 @@ export default function AnalyticsLoading() {
             <Skeleton className="h-4 w-56" />
           </CardHeader>
           <CardContent>
-            <Skeleton className="h-[256px] w-full rounded-lg" />
+            <Skeleton className="h-[256px] w-full rounded-sm" />
           </CardContent>
         </Card>
         <Card>
@@ -121,7 +121,7 @@ export default function AnalyticsLoading() {
             <Skeleton className="h-4 w-44" />
           </CardHeader>
           <CardContent>
-            <Skeleton className="h-[256px] w-full rounded-lg" />
+            <Skeleton className="h-[256px] w-full rounded-sm" />
           </CardContent>
         </Card>
       </div>
@@ -134,7 +134,7 @@ export default function AnalyticsLoading() {
             <Skeleton className="h-4 w-56" />
           </CardHeader>
           <CardContent>
-            <Skeleton className="h-[280px] w-full rounded-lg" />
+            <Skeleton className="h-[280px] w-full rounded-sm" />
           </CardContent>
         </Card>
         <Card>
@@ -143,7 +143,7 @@ export default function AnalyticsLoading() {
             <Skeleton className="h-4 w-52" />
           </CardHeader>
           <CardContent>
-            <Skeleton className="h-[280px] w-full rounded-lg" />
+            <Skeleton className="h-[280px] w-full rounded-sm" />
           </CardContent>
         </Card>
       </div>

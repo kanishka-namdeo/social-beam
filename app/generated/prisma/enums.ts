@@ -9,17 +9,6 @@
 * 🟢 You can import this file directly.
 */
 
-export const PostStatus = {
-  DRAFT: 'DRAFT',
-  SCHEDULED: 'SCHEDULED',
-  PUBLISHING: 'PUBLISHING',
-  PUBLISHED: 'PUBLISHED',
-  FAILED: 'FAILED'
-} as const
-
-export type PostStatus = (typeof PostStatus)[keyof typeof PostStatus]
-
-
 export const ConfidenceLevel = {
   HIGH: 'HIGH',
   MEDIUM: 'MEDIUM',
@@ -27,3 +16,34 @@ export const ConfidenceLevel = {
 } as const
 
 export type ConfidenceLevel = (typeof ConfidenceLevel)[keyof typeof ConfidenceLevel]
+
+
+export const PostStatus = {
+  DRAFT: 'DRAFT',
+  SCHEDULED: 'SCHEDULED',
+  PUBLISHING: 'PUBLISHING',
+  PUBLISHED: 'PUBLISHED',
+  FAILED: 'FAILED',
+  EXTERNAL: 'EXTERNAL'
+} as const
+
+export type PostStatus = (typeof PostStatus)[keyof typeof PostStatus]
+
+
+export const EngagementType = {
+  COMMENT: 'COMMENT',
+  MENTION: 'MENTION',
+  DM: 'DM'
+} as const
+
+export type EngagementType = (typeof EngagementType)[keyof typeof EngagementType]
+
+
+export const EngagementStatus = {
+  UNREAD: 'UNREAD',
+  READ: 'READ',
+  REPLIED: 'REPLIED',
+  DISMISSED: 'DISMISSED'
+} as const
+
+export type EngagementStatus = (typeof EngagementStatus)[keyof typeof EngagementStatus]

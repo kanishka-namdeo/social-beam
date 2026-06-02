@@ -170,8 +170,8 @@ export default function XLandingPage() {
 
         <div className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {bestPractices.map((practice) => (
-            <div key={practice.title} className="flex gap-4 p-6 border border-border rounded-lg">
-              <div className="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center shrink-0 font-semibold">
+            <div key={practice.title} className="flex gap-4 p-6 border border-border rounded-sm">
+              <div className="w-10 h-10 rounded-sm bg-brand/10 text-brand flex items-center justify-center shrink-0 font-semibold">
                 {bestPractices.indexOf(practice) + 1}
               </div>
               <div>

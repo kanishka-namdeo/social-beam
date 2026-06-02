@@ -43,7 +43,7 @@ export function EmojiPicker({ onInsert }: EmojiPickerProps) {
           type="button"
           variant="ghost"
           size="icon"
-          className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md"
+          className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm"
           aria-label="Insert emoji"
         >
           <Smiley className="size-4" />
@@ -58,7 +58,7 @@ export function EmojiPicker({ onInsert }: EmojiPickerProps) {
             <button
               key={i}
               type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-md text-lg hover:bg-muted active:bg-muted/80"
+              className="flex h-9 w-9 items-center justify-center rounded-sm text-lg hover:bg-muted active:bg-muted/80"
               onClick={() => handleSelect(emoji)}
               aria-label={`Insert ${emoji} emoji`}
             >

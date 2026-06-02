@@ -16,6 +16,60 @@ const StreamRequestSchema = z.object({
   return true;
 });
 
+const HEARTBEAT_INTERVAL_MS = 10_000;
+
+/** Categorize an error string into a structured error code and user-friendly message. */
+function categorizeError(errMsg: string): { errorCode: string; error: string; suggestion: string } {
+  const msg = errMsg.toLowerCase();
+  if (msg.includes("timed out") || msg.includes("timeout")) {
+    return {
+      errorCode: "analysis_timeout",
+      error: "Analysis took too long. This site may be too complex.",
+      suggestion: "Try describing your brand manually instead.",
+    };
+  }
+  if (msg.includes("403") || msg.includes("blocked") || msg.includes("captcha") || msg.includes("forbidden")) {
+    return {
+      errorCode: "anti_bot_detected",
+      error: "This website blocks automated visits.",
+      suggestion: "Try describing your brand manually instead.",
+    };
+  }
+  if (msg.includes("aborted") || msg.includes("aborterror") || msg.includes("canceled")) {
+    return {
+      errorCode: "canceled",
+      error: "Analysis was canceled.",
+      suggestion: "Start a new analysis when ready.",
+    };
+  }
+  if (msg.includes("enotfound") || msg.includes("err_name_not_resolved") || msg.includes("network") || msg.includes("fetch")) {
+    return {
+      errorCode: "site_unreachable",
+      error: "Could not reach this website.",
+      suggestion: "Check the URL and try again.",
+    };
+  }
+  if (msg.includes("no readable content") || msg.includes("empty content") || msg.includes("no content") || msg.includes("no content found")) {
+    return {
+      errorCode: "empty_content",
+      error: "The website loaded but had no readable content.",
+      suggestion: "Try a different URL or describe your brand manually.",
+    };
+  }
+  if (msg.includes("parse") || msg.includes("parsing") || msg.includes("json")) {
+    return {
+      errorCode: "parse_error",
+      error: "Analysis completed but we couldn't process the results.",
+      suggestion: "Try again or describe your brand manually.",
+    };
+  }
+  return {
+    errorCode: "unknown_error",
+    error: "Analysis failed.",
+    suggestion: "Try again or describe your brand manually.",
+  };
+}
+
 export async function POST(req: Request) {
   const requestId = crypto.randomUUID();
 
@@ -48,8 +102,32 @@ export async function POST(req: Request) {
 
     const stream = new ReadableStream({
       async start(controller) {
+        // Heartbeat: keep SSE connection alive during long operations
+        const startTime = Date.now();
+        let heartbeatId: ReturnType<typeof setInterval> | undefined;
+        heartbeatId = setInterval(() => {
+          const elapsed = Date.now() - startTime;
+          const data = `data: ${JSON.stringify({ heartbeat: true, elapsedMs: elapsed })}\n\n`;
+          try {
+            controller.enqueue(encoder.encode(data));
+          } catch {
+            // Stream may already be closed
+            if (heartbeatId) clearInterval(heartbeatId);
+          }
+        }, HEARTBEAT_INTERVAL_MS);
+
+        const clearHeartbeat = () => {
+          if (heartbeatId) clearInterval(heartbeatId);
+          heartbeatId = undefined;
+        };
+
         try {
-          const eventStream = graph.streamEvents(
+          // Track which granular events have already been emitted
+          const emittedEvents = new Set<string>();
+          // Track last known crawl pages for per-page progress
+          let lastCrawlPageCount = 0;
+
+          const nodeStream = await graph.stream(
             {
               ...(websiteUrl ? { websiteUrl } : {}),
               ...(brandDescription ? { brandDescription } : {}),
@@ -65,148 +143,196 @@ export async function POST(req: Request) {
               ],
             },
             {
-              version: "v2",
               configurable: { thread_id: threadId },
+              streamMode: "values",
             },
           );
 
-          for await (const event of eventStream) {
-            const eventType = event.event;
-            const eventData = event.data as Record<string, unknown> | undefined;
+          for await (const stateValue of nodeStream) {
+            if (!stateValue || typeof stateValue !== "object") continue;
+            const output = stateValue as Record<string, unknown>;
 
-            // Stream LLM tokens for user-facing progress text
-            if (eventType === "on_chat_model_stream") {
-              const chunk = eventData?.chunk as Record<string, unknown> | undefined;
-              const token = chunk?.content ?? "";
-              if (token) {
-                const data = `data: ${JSON.stringify({ content: token })}\n\n`;
-                controller.enqueue(encoder.encode(data));
+            // Stream current step for progress indicator
+            if (output?.currentStep) {
+              const stepData = `data: ${JSON.stringify({ step: output.currentStep })}\n\n`;
+              controller.enqueue(encoder.encode(stepData));
+            }
+
+            // Emit per-page crawl progress as pages are crawled (streamed in real-time)
+            const crawlPages = output?.__crawlPages as string[] | undefined;
+            if (crawlPages && crawlPages.length > lastCrawlPageCount) {
+              const newPages = crawlPages.slice(lastCrawlPageCount);
+              const pageData = `data: ${JSON.stringify({
+                crawl_progress: {
+                  pages: newPages,
+                  totalPages: crawlPages.length,
+                },
+              })}\n\n`;
+              controller.enqueue(encoder.encode(pageData));
+              lastCrawlPageCount = crawlPages.length;
+            }
+
+            // Emit content_summary when collector finishes crawling
+            if (output?.currentStep === "analyze" && !emittedEvents.has("content_summary")) {
+              const crawled = output?.crawledContent as Record<string, { page: string; zone: string; weight: number; text: string }> | undefined;
+              if (crawled && Object.keys(crawled).length > 0) {
+                const pages = [...new Set(Object.values(crawled).map((c) => c.page))];
+                const summaryData = `data: ${JSON.stringify({
+                  content_summary: {
+                    pagesFound: pages,
+                    pageCount: pages.length,
+                  },
+                })}\n\n`;
+                controller.enqueue(encoder.encode(summaryData));
+                emittedEvents.add("content_summary");
               }
             }
 
-            // Track which granular events have already been emitted to avoid duplicates
-            const emittedEvents = new Set<string>();
+            // Detect error state and emit categorized error immediately
+            if (output?.currentStep === "error" && !emittedEvents.has("error_emitted")) {
+              emittedEvents.add("error_emitted");
+              const crawlError = output?.__crawlError as string | undefined;
+              // Get error message from messages array if available (from analyzer nodes)
+              const messages = output?.messages as Array<{ content?: string }> | undefined;
+              const lastMessage = messages?.[messages.length - 1];
+              const messageContent = lastMessage?.content;
+              const errMsg = crawlError || (typeof messageContent === 'string' ? messageContent : "Analysis failed — no content available.");
+              const categorized = categorizeError(errMsg);
 
-            // Stream node progress events
-            if (eventType === "on_chain_end") {
-              const output = eventData?.output as Record<string, unknown> | undefined;
+              const errorData = `data: ${JSON.stringify({
+                error: categorized.error,
+                errorCode: categorized.errorCode,
+                suggestion: categorized.suggestion,
+              })}\n\n`;
+              controller.enqueue(encoder.encode(errorData));
+              log.warn("api.brand_stream.graph_error", { threadId, errorCode: categorized.errorCode });
+              clearHeartbeat();
+              log.info("api.brand_stream.done", { correlationId: requestId, threadId });
+              const doneData = `data: ${JSON.stringify({ done: true, threadId })}\n\n`;
+              controller.enqueue(encoder.encode(doneData));
+              controller.close();
+              return;
+            }
 
-              // Stream current step for progress indicator
-              if (output?.currentStep) {
-                const stepData = `data: ${JSON.stringify({ step: output.currentStep })}\n\n`;
-                controller.enqueue(encoder.encode(stepData));
+            // Emit granular findings when brand analyzer completes
+            if (output?.brandContextDraft && Object.keys(output.brandContextDraft as object).length > 0 && !emittedEvents.has("findings")) {
+              const draft = output.brandContextDraft as Record<string, unknown>;
+
+              if (draft.businessName || draft.tagline || draft.industry) {
+                const identityData = `data: ${JSON.stringify({
+                  identity_extracted: {
+                    businessName: draft.businessName ?? null,
+                    tagline: draft.tagline ?? null,
+                    industry: draft.industry ?? null,
+                  },
+                })}\n\n`;
+                controller.enqueue(encoder.encode(identityData));
               }
 
-              // Emit content_summary when collector finishes crawling
-              if (output?.currentStep === "analyze" && !emittedEvents.has("content_summary")) {
-                const crawled = output?.crawledContent as Record<string, { page: string; zone: string; weight: number; text: string }> | undefined;
-                if (crawled && Object.keys(crawled).length > 0) {
-                  const pages = [...new Set(Object.values(crawled).map((c) => c.page))];
-                  const summaryData = `data: ${JSON.stringify({
-                    content_summary: {
-                      pagesFound: pages,
-                      pageCount: pages.length,
-                    },
-                  })}\n\n`;
-                  controller.enqueue(encoder.encode(summaryData));
-                  emittedEvents.add("content_summary");
-                }
+              if (draft.tonePreset || draft.voiceDescription) {
+                const voiceData = `data: ${JSON.stringify({
+                  voice_extracted: {
+                    tonePreset: draft.tonePreset ?? null,
+                    voiceDescription: draft.voiceDescription ?? null,
+                  },
+                })}\n\n`;
+                controller.enqueue(encoder.encode(voiceData));
               }
 
-              // Emit granular findings when brand analyzer completes
-              if (output?.brandContextDraft && Object.keys(output.brandContextDraft as object).length > 0 && !emittedEvents.has("findings")) {
-                const draft = output.brandContextDraft as Record<string, unknown>;
-
-                // Identity findings
-                if (draft.businessName || draft.tagline || draft.industry) {
-                  const identityData = `data: ${JSON.stringify({
-                    identity_extracted: {
-                      businessName: draft.businessName ?? null,
-                      tagline: draft.tagline ?? null,
-                      industry: draft.industry ?? null,
-                    },
-                  })}\n\n`;
-                  controller.enqueue(encoder.encode(identityData));
-                }
-
-                // Voice findings
-                if (draft.tonePreset || draft.voiceDescription) {
-                  const voiceData = `data: ${JSON.stringify({
-                    voice_extracted: {
-                      tonePreset: draft.tonePreset ?? null,
-                      voiceDescription: draft.voiceDescription ?? null,
-                    },
-                  })}\n\n`;
-                  controller.enqueue(encoder.encode(voiceData));
-                }
-
-                // Audience findings
-                if (draft.audienceType || draft.interests || draft.painPoints) {
-                  const audienceData = `data: ${JSON.stringify({
-                    audience_extracted: {
-                      audienceType: draft.audienceType ?? null,
-                      interests: Array.isArray(draft.interests) ? draft.interests : [],
-                      painPoints: Array.isArray(draft.painPoints) ? draft.painPoints : [],
-                    },
-                  })}\n\n`;
-                  controller.enqueue(encoder.encode(audienceData));
-                }
-
-                emittedEvents.add("findings");
+              if (draft.audienceType || draft.interests || draft.painPoints) {
+                const audienceData = `data: ${JSON.stringify({
+                  audience_extracted: {
+                    audienceType: draft.audienceType ?? null,
+                    interests: Array.isArray(draft.interests) ? draft.interests : [],
+                    painPoints: Array.isArray(draft.painPoints) ? draft.painPoints : [],
+                  },
+                })}\n\n`;
+                controller.enqueue(encoder.encode(audienceData));
               }
 
-              // Emit platform_ready per platform when platform adapter completes
-              if (output?.platformContextsDraft && Object.keys(output.platformContextsDraft as object).length > 0 && !emittedEvents.has("platforms_finding")) {
-                const platforms = output.platformContextsDraft as Record<string, Record<string, unknown>>;
-                for (const [platformKey, ctx] of Object.entries(platforms)) {
-                  const platformData = `data: ${JSON.stringify({
-                    platform_ready: {
-                      platform: platformKey,
-                      tonePreset: ctx.tonePreset ?? null,
-                      contentStyle: ctx.contentStyle ?? null,
-                    },
-                  })}\n\n`;
-                  controller.enqueue(encoder.encode(platformData));
-                }
-                emittedEvents.add("platforms_finding");
-              }
+              emittedEvents.add("findings");
+            }
 
-              // Stream brand context draft when available
-              if (output?.brandContextDraft && Object.keys(output.brandContextDraft as object).length > 0) {
-                const draftData = `data: ${JSON.stringify({ draft: output.brandContextDraft })}\n\n`;
-                controller.enqueue(encoder.encode(draftData));
-              }
-
-              // Stream platform contexts draft
-              if (output?.platformContextsDraft && Object.keys(output.platformContextsDraft as object).length > 0) {
-                const platformData = `data: ${JSON.stringify({ platforms: output.platformContextsDraft })}\n\n`;
+            // Emit platform_ready per platform when platform adapter completes
+            if (output?.platformContextsDraft && Object.keys(output.platformContextsDraft as object).length > 0 && !emittedEvents.has("platforms_finding")) {
+              const platforms = output.platformContextsDraft as Record<string, Record<string, unknown>>;
+              for (const [platformKey, ctx] of Object.entries(platforms)) {
+                const platformData = `data: ${JSON.stringify({
+                  platform_ready: {
+                    platform: platformKey,
+                    tonePreset: (ctx as Record<string, unknown>).tonePreset ?? null,
+                    contentStyle: (ctx as Record<string, unknown>).contentStyle ?? null,
+                  },
+                })}\n\n`;
                 controller.enqueue(encoder.encode(platformData));
               }
+              emittedEvents.add("platforms_finding");
+            }
 
-              // Stream connected platforms and account details (Phase 4)
-              if (output?.connectedPlatforms && Array.isArray(output.connectedPlatforms) && (output.connectedPlatforms as unknown[]).length > 0) {
-                const connectedData = `data: ${JSON.stringify({ connectedPlatforms: output.connectedPlatforms, accountDetails: output.connectedAccountDetails })}\n\n`;
-                controller.enqueue(encoder.encode(connectedData));
-              }
+            // Stream brand context draft when available
+            if (output?.brandContextDraft && Object.keys(output.brandContextDraft as object).length > 0) {
+              const draftData = `data: ${JSON.stringify({ draft: output.brandContextDraft })}\n\n`;
+              controller.enqueue(encoder.encode(draftData));
+            }
 
-              // Stream sample posts
-              if (output?.samplePosts && Array.isArray(output.samplePosts) && (output.samplePosts as unknown[]).length > 0) {
-                const samplesData = `data: ${JSON.stringify({ samples: output.samplePosts })}\n\n`;
-                controller.enqueue(encoder.encode(samplesData));
-              }
+            // Stream platform contexts draft
+            if (output?.platformContextsDraft && Object.keys(output.platformContextsDraft as object).length > 0) {
+              const platformData = `data: ${JSON.stringify({ platforms: output.platformContextsDraft })}\n\n`;
+              controller.enqueue(encoder.encode(platformData));
+            }
+
+            // Stream connected platforms and account details (Phase 4)
+            if (output?.connectedPlatforms && Array.isArray(output.connectedPlatforms) && (output.connectedPlatforms as unknown[]).length > 0) {
+              const connectedData = `data: ${JSON.stringify({ connectedPlatforms: output.connectedPlatforms, accountDetails: output.connectedAccountDetails })}\n\n`;
+              controller.enqueue(encoder.encode(connectedData));
+            }
+
+            // Stream sample posts
+            if (output?.samplePosts && Array.isArray(output.samplePosts) && (output.samplePosts as unknown[]).length > 0) {
+              const samplesData = `data: ${JSON.stringify({ samples: output.samplePosts })}\n\n`;
+              controller.enqueue(encoder.encode(samplesData));
             }
           }
 
-          // After stream ends, check for interrupt
-          const finalState = await graph.getState({ configurable: { thread_id: threadId } });
-          const nextNodes = finalState.next as string[] | undefined;
+          // The stream above stops at the `interruptBefore` boundary (contextWait).
+          // The thread is now paused, waiting for user input via /resume.
+          const pausedState = await graph.getState({ configurable: { thread_id: threadId } });
+          const stateValues = pausedState.values as Record<string, unknown>;
+          const nextNodes = pausedState.next as string[] | undefined;
+          const currentStep = stateValues?.currentStep as string | undefined;
+
+          // If the graph hit an error node before reaching interrupt, emit a categorized error
+          if (currentStep === "error" && !emittedEvents.has("error_emitted")) {
+            const crawlError = stateValues?.__crawlError as string | undefined;
+            // Get error message from messages array if available (from analyzer nodes)
+            const messages = stateValues?.messages as Array<{ content?: string }> | undefined;
+            const lastMessage = messages?.[messages.length - 1];
+            const messageContent = lastMessage?.content;
+            const errMsg = crawlError || (typeof messageContent === 'string' ? messageContent : "Analysis failed — no content available.");
+            const categorized = categorizeError(errMsg);
+
+            const errorData = `data: ${JSON.stringify({
+              error: categorized.error,
+              errorCode: categorized.errorCode,
+              suggestion: categorized.suggestion,
+            })}\n\n`;
+            controller.enqueue(encoder.encode(errorData));
+            clearHeartbeat();
+            log.info("api.brand_stream.done", { correlationId: requestId, threadId });
+            const doneData = `data: ${JSON.stringify({ done: true, threadId })}\n\n`;
+            controller.enqueue(encoder.encode(doneData));
+            controller.close();
+            return;
+          }
+
+          // Emit the review payload so the client transitions to review phase
+          const draft = stateValues?.brandContextDraft ?? {};
+          const hasDraft = Object.keys(draft).length > 0;
           const isInterrupted = Array.isArray(nextNodes) && nextNodes.includes("__interrupt__");
+          const shouldShowReview = isInterrupted || (currentStep === "review" && hasDraft);
 
-          const stateValues = finalState.values as Record<string, unknown>;
-
-          if (isInterrupted) {
-            log.info("api.brand_stream.interrupted", { threadId });
-            const draft = stateValues?.brandContextDraft ?? {};
+          if (shouldShowReview) {
+            log.info("api.brand_stream.interrupted", { threadId, currentStep, hasDraft, isInterrupted });
             const platforms = stateValues?.platformContextsDraft ?? {};
             const samples = stateValues?.samplePosts ?? [];
             const connectedPlatforms = stateValues?.connectedPlatforms ?? [];
@@ -222,18 +348,68 @@ export async function POST(req: Request) {
               accountDetails,
             })}\n\n`;
             controller.enqueue(encoder.encode(data));
+          } else if (!isInterrupted && currentStep !== "error") {
+            log.warn("api.brand_stream.no_review_data", { threadId, currentStep, draftKeys: Object.keys(draft as object) });
           }
 
+          // Final safety check: if we have no draft and no interrupt, something went wrong
+          // Emit a generic error to ensure the client doesn't hang
+          if (!hasDraft && !isInterrupted && currentStep !== "error" && !emittedEvents.has("error_emitted")) {
+            const errorData = `data: ${JSON.stringify({
+              error: "Analysis failed — no content available.",
+              errorCode: "unknown_error",
+              suggestion: "Try again or describe your brand manually.",
+            })}\n\n`;
+            controller.enqueue(encoder.encode(errorData));
+            emittedEvents.add("error_emitted");
+          }
+
+          clearHeartbeat();
           log.info("api.brand_stream.done", { correlationId: requestId, threadId });
           const doneData = `data: ${JSON.stringify({ done: true, threadId })}\n\n`;
           controller.enqueue(encoder.encode(doneData));
           controller.close();
         } catch (error) {
-          log.error("api.brand_stream.error", { error: String(error) });
-          const errorData = `data: ${JSON.stringify({ error: "Brand analysis stream failed" })}\n\n`;
-          controller.enqueue(encoder.encode(errorData));
+          clearHeartbeat();
+          const errMsg = String(error);
+          // GraphInterrupt from interrupt() is expected — treat as successful interrupt, not error
+          if (errMsg.includes("GraphInterrupt") || errMsg.includes("interrupt")) {
+            log.info("api.brand_stream.interrupted", { threadId });
+            try {
+              const finalState = await graph.getState({ configurable: { thread_id: threadId } });
+              const stateValues = finalState.values as Record<string, unknown>;
+              const draft = stateValues?.brandContextDraft ?? {};
+              const platforms = stateValues?.platformContextsDraft ?? {};
+              const samples = stateValues?.samplePosts ?? [];
+              const connectedPlatforms = stateValues?.connectedPlatforms ?? [];
+              const accountDetails = stateValues?.connectedAccountDetails ?? {};
+
+              const data = `data: ${JSON.stringify({
+                interrupted: true,
+                threadId,
+                draft,
+                platforms,
+                samples,
+                connectedPlatforms,
+                accountDetails,
+              })}\n\n`;
+              controller.enqueue(encoder.encode(data));
+            } catch (getStateErr) {
+              log.error("api.brand_stream.interrupt_state_error", { error: String(getStateErr) });
+            }
+          } else {
+            log.error("api.brand_stream.error", { error: errMsg });
+            const categorized = categorizeError(errMsg);
+            const errorData = `data: ${JSON.stringify({
+              error: categorized.error,
+              errorCode: categorized.errorCode,
+              suggestion: categorized.suggestion,
+            })}\n\n`;
+            controller.enqueue(encoder.encode(errorData));
+          }
           controller.close();
         } finally {
+          clearHeartbeat();
           await shutdownCrawler();
         }
       },

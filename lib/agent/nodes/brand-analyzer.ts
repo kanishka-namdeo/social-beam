@@ -9,7 +9,7 @@ const model = new ChatOpenAI({
   modelName: process.env.MODEL ?? 'qwen3.6-plus',
   temperature: 0.3,
   maxRetries: 2,
-  timeout: 60_000,
+  timeout: 90_000,
 });
 
 const BASE_SYSTEM_PROMPT = `You are SocialBeam's brand analyzer. Given crawled website content, extract brand identity fields.
@@ -149,9 +149,9 @@ export async function brandAnalyzerNode(state: BrandAnalyzerStateType): Promise<
     } catch (err) {
       logger.error('brandAnalyzerNode: failed to parse LLM response from description', { error: String(err) });
       return {
-        brandContextDraft: { error: 'Failed to parse brand analysis results' },
-        currentStep: 'adapt',
-        messages: [new AIMessage('The brand analysis encountered an issue. Please try again.')],
+        brandContextDraft: {},
+        currentStep: 'error',
+        messages: [new AIMessage('The brand analysis encountered an issue while parsing results. Please try again or describe your brand manually.')],
       };
     }
   }
@@ -176,9 +176,9 @@ export async function brandAnalyzerNode(state: BrandAnalyzerStateType): Promise<
   } catch (err) {
     logger.error('brandAnalyzerNode: failed to parse LLM response', { error: String(err) });
     return {
-      brandContextDraft: { error: 'Failed to parse brand analysis results' },
-      currentStep: 'adapt',
-      messages: [new AIMessage('The brand analysis encountered an issue. Please try again.')],
+      brandContextDraft: {},
+      currentStep: 'error',
+      messages: [new AIMessage('The brand analysis encountered an issue while parsing results. Please try again or describe your brand manually.')],
     };
   }
 }

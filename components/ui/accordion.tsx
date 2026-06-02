@@ -4,7 +4,7 @@ import * as React from "react"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
 
 import { cn } from "@/lib/utils"
-import { CaretDownIcon, CaretUpIcon } from "@phosphor-icons/react"
+import { CaretDownIcon, CaretUpIcon } from "@phosphor-icons/react/ssr"
 
 function Accordion({
   className,

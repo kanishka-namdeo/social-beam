@@ -1,8 +1,8 @@
 "use client"
 
-import { useTheme } from "next-themes"
+import { useTheme } from "@wrksz/themes/client"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
-import { CheckCircleIcon, InfoIcon, WarningIcon, XCircleIcon, SpinnerIcon } from "@phosphor-icons/react"
+import { CheckCircleIcon, InfoIcon, WarningIcon, XCircleIcon, SpinnerIcon } from "@phosphor-icons/react/ssr"
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
@@ -30,9 +30,13 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={
         {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
+          "--normal-bg": "var(--toast-background)",
+          "--normal-text": "var(--toast-foreground)",
+          "--normal-border": "var(--toast-border)",
+          "--success-bg": "var(--toast-success)",
+          "--error-bg": "var(--toast-error)",
+          "--warning-bg": "var(--toast-warning)",
+          "--info-bg": "var(--toast-info)",
           "--border-radius": "var(--radius)",
         } as React.CSSProperties
       }

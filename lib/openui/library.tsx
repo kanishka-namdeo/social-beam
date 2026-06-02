@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
-import { Sparkle, ArrowRight, CheckCircle, ArrowClockwise } from '@phosphor-icons/react';
+import { Sparkle, ArrowRight, CheckCircle, ArrowClockwise } from '@phosphor-icons/react/ssr';
 
 // ---------------------------------------------------------------------------
 // Callback registry type — page supplies these at runtime
@@ -74,7 +74,6 @@ export const BrandVoicePreviewSchema = z.object({
 
 export const CompletionCelebrationSchema = z.object({
   accomplishments: z.array(z.string()).describe('List of completed onboarding items'),
-  creditBalance: z.number().optional().describe('Starting credit count'),
 });
 
 export const AudienceSummarySchema = z.object({
@@ -281,22 +280,17 @@ export function CompletionCelebrationComponent(props: z.infer<typeof CompletionC
   return (
     <div className="rounded-lg border p-4 bg-card space-y-4">
       <div className="flex items-center gap-2">
-        <CheckCircle className="size-6 text-green-600 dark:text-green-400" weight="fill" />
+        <CheckCircle className="size-6 text-success" weight="fill" />
         <h3 className="text-lg font-semibold">Setup Complete!</h3>
       </div>
       <div className="space-y-2">
         {props.accomplishments.map((item, i) => (
           <div key={i} className="flex items-center gap-2 text-sm">
-            <CheckCircle className="size-4 text-green-600 dark:text-green-400" weight="fill" />
+            <CheckCircle className="size-4 text-success" weight="fill" />
             <span>{item}</span>
           </div>
         ))}
       </div>
-      {props.creditBalance !== undefined && (
-        <div className="rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm">
-          You have <strong>{props.creditBalance} free credits</strong> to start using AI features
-        </div>
-      )}
       {props.onGoToDashboard && (
         <Button onClick={props.onGoToDashboard} className="w-full">
           Go to Dashboard <ArrowRight className="ml-1 size-4" />
@@ -535,7 +529,6 @@ const componentRegistry: Record<string, ComponentEntry> = {
     render: (props, callbacks) => (
       <CompletionCelebrationComponent
         accomplishments={props.accomplishments as string[]}
-        creditBalance={props.creditBalance as number | undefined}
         onGoToDashboard={callbacks.onGoToDashboard}
       />
     ),

@@ -1,7 +1,5 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { isOnboardingComplete } from "@/lib/db/onboarding";
-import { redirect } from "next/navigation";
 import { ComposeForm } from "@/components/compose/compose-form";
 import { TrendContextBanner } from "@/components/compose/trend-context-banner";
 import { BrandContextIndicator } from "@/components/compose/brand-context-indicator";
@@ -12,19 +10,13 @@ export default async function ComposePage({
   searchParams: Promise<{ trendId?: string; prompt?: string }>;
 }) {
   const session = await auth();
-  const user = session?.user as { id?: string; workspaceId?: string } | undefined;
-
-  if (!user?.id || !user?.workspaceId) {
-    redirect("/login");
-  }
-
-  if (!(await isOnboardingComplete(user.id))) {
-    redirect("/onboarding");
-  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const user = session?.user as any;
+  const workspaceId = user?.workspaceId as string;
 
   const [connectedAccounts, brandContext] = await Promise.all([
     prisma.connectedAccount.findMany({
-      where: { workspaceId: user.workspaceId, status: "connected" },
+      where: { workspaceId, status: "connected" },
       select: {
         platform: true,
         platformUsername: true,
@@ -33,7 +25,7 @@ export default async function ComposePage({
       },
     }),
     prisma.brandContext.findUnique({
-      where: { workspaceId: user.workspaceId },
+      where: { workspaceId },
       select: {
         businessName: true,
         tonePreset: true,
@@ -46,7 +38,7 @@ export default async function ComposePage({
   let trendContext = null;
   if (resolvedParams?.trendId) {
     const trend = await prisma.redditTrendingPost.findUnique({
-      where: { id: resolvedParams.trendId, workspaceId: user.workspaceId },
+      where: { id: resolvedParams.trendId, workspaceId },
     });
     if (trend) {
       trendContext = {
@@ -72,7 +64,7 @@ export default async function ComposePage({
     : resolvedParams?.prompt ?? undefined;
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-4xl space-y-4">
       <BrandContextIndicator brandContext={brandContext} />
       {trendContext && <TrendContextBanner trend={trendContext} />}
       <ComposeForm

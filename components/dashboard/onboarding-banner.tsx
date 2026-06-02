@@ -25,7 +25,7 @@ export function OnboardingBanner() {
   };
 
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 p-4 text-sm">
+    <div className="flex items-start gap-3 rounded-sm border border-warning/30 bg-warning/10 p-4 text-sm">
       <Warning className="size-5 text-warning mt-0.5 shrink-0" weight="fill" />
       <div className="flex-1">
         <p className="font-medium">Onboarding incomplete</p>

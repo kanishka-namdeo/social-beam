@@ -20,7 +20,7 @@ export async function GET() {
 
   const topPostAnalytics = await prisma.analyticsSnapshot.findMany({
     where: {
-      post: {
+      Post: {
         workspaceId,
         publishedAt: {
           gte: oneWeekAgo,
@@ -30,7 +30,7 @@ export async function GET() {
     orderBy: { engagementRate: "desc" },
     take: 1,
     include: {
-      post: {
+      Post: {
         select: {
           id: true,
           title: true,
@@ -51,7 +51,7 @@ export async function GET() {
       id: true,
       title: true,
       createdAt: true,
-      platforms: {
+      PostPlatform: {
         select: {
           platform: true,
         },
@@ -63,8 +63,8 @@ export async function GET() {
   if (topPostAnalytics.length > 0 && topPostAnalytics[0]) {
     const snap = topPostAnalytics[0];
     topPost = {
-      id: snap.post.id,
-      title: snap.post.title ?? "Untitled",
+      id: snap.Post.id,
+      title: snap.Post.title ?? "Untitled",
       platform: snap.platform,
       engagementRate: snap.engagementRate ?? 0,
       likes: snap.likes,
@@ -78,7 +78,7 @@ export async function GET() {
     pendingReviews: pendingReviews.map((p) => ({
       id: p.id,
       title: p.title ?? "Untitled",
-      platforms: p.platforms.map((pp) => pp.platform),
+      platforms: p.PostPlatform.map((pp) => pp.platform),
       createdAt: p.createdAt,
     })),
   });

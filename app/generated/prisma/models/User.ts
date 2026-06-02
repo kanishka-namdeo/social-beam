@@ -190,8 +190,8 @@ export type UserWhereInput = {
   password?: Prisma.StringFilter<"User"> | string
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  workspaces?: Prisma.WorkspaceListRelationFilter
-  oauthApps?: Prisma.UserOAuthAppListRelationFilter
+  UserOAuthApp?: Prisma.UserOAuthAppListRelationFilter
+  Workspace?: Prisma.WorkspaceListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -201,8 +201,8 @@ export type UserOrderByWithRelationInput = {
   password?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  workspaces?: Prisma.WorkspaceOrderByRelationAggregateInput
-  oauthApps?: Prisma.UserOAuthAppOrderByRelationAggregateInput
+  UserOAuthApp?: Prisma.UserOAuthAppOrderByRelationAggregateInput
+  Workspace?: Prisma.WorkspaceOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -215,8 +215,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   password?: Prisma.StringFilter<"User"> | string
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  workspaces?: Prisma.WorkspaceListRelationFilter
-  oauthApps?: Prisma.UserOAuthAppListRelationFilter
+  UserOAuthApp?: Prisma.UserOAuthAppListRelationFilter
+  Workspace?: Prisma.WorkspaceListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -244,25 +244,25 @@ export type UserScalarWhereWithAggregatesInput = {
 }
 
 export type UserCreateInput = {
-  id?: string
+  id: string
   email: string
   name?: string | null
   password: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  workspaces?: Prisma.WorkspaceCreateNestedManyWithoutUserInput
-  oauthApps?: Prisma.UserOAuthAppCreateNestedManyWithoutUserInput
+  UserOAuthApp?: Prisma.UserOAuthAppCreateNestedManyWithoutUserInput
+  Workspace?: Prisma.WorkspaceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
-  id?: string
+  id: string
   email: string
   name?: string | null
   password: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  workspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutUserInput
-  oauthApps?: Prisma.UserOAuthAppUncheckedCreateNestedManyWithoutUserInput
+  UserOAuthApp?: Prisma.UserOAuthAppUncheckedCreateNestedManyWithoutUserInput
+  Workspace?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -272,8 +272,8 @@ export type UserUpdateInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspaces?: Prisma.WorkspaceUpdateManyWithoutUserNestedInput
-  oauthApps?: Prisma.UserOAuthAppUpdateManyWithoutUserNestedInput
+  UserOAuthApp?: Prisma.UserOAuthAppUpdateManyWithoutUserNestedInput
+  Workspace?: Prisma.WorkspaceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -283,12 +283,12 @@ export type UserUncheckedUpdateInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutUserNestedInput
-  oauthApps?: Prisma.UserOAuthAppUncheckedUpdateManyWithoutUserNestedInput
+  UserOAuthApp?: Prisma.UserOAuthAppUncheckedUpdateManyWithoutUserNestedInput
+  Workspace?: Prisma.WorkspaceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
-  id?: string
+  id: string
   email: string
   name?: string | null
   password: string
@@ -346,156 +346,144 @@ export type UserScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput
 }
 
-export type StringFieldUpdateOperationsInput = {
-  set?: string
-}
-
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
-}
-
-export type UserCreateNestedOneWithoutWorkspacesInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutWorkspacesInput, Prisma.UserUncheckedCreateWithoutWorkspacesInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutWorkspacesInput
+export type UserCreateNestedOneWithoutUserOAuthAppInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUserOAuthAppInput, Prisma.UserUncheckedCreateWithoutUserOAuthAppInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserOAuthAppInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutWorkspacesNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutWorkspacesInput, Prisma.UserUncheckedCreateWithoutWorkspacesInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutWorkspacesInput
-  upsert?: Prisma.UserUpsertWithoutWorkspacesInput
+export type UserUpdateOneRequiredWithoutUserOAuthAppNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUserOAuthAppInput, Prisma.UserUncheckedCreateWithoutUserOAuthAppInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserOAuthAppInput
+  upsert?: Prisma.UserUpsertWithoutUserOAuthAppInput
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutWorkspacesInput, Prisma.UserUpdateWithoutWorkspacesInput>, Prisma.UserUncheckedUpdateWithoutWorkspacesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUserOAuthAppInput, Prisma.UserUpdateWithoutUserOAuthAppInput>, Prisma.UserUncheckedUpdateWithoutUserOAuthAppInput>
 }
 
-export type UserCreateNestedOneWithoutOauthAppsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutOauthAppsInput, Prisma.UserUncheckedCreateWithoutOauthAppsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOauthAppsInput
+export type UserCreateNestedOneWithoutWorkspaceInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutWorkspaceInput, Prisma.UserUncheckedCreateWithoutWorkspaceInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutWorkspaceInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutOauthAppsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutOauthAppsInput, Prisma.UserUncheckedCreateWithoutOauthAppsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOauthAppsInput
-  upsert?: Prisma.UserUpsertWithoutOauthAppsInput
+export type UserUpdateOneRequiredWithoutWorkspaceNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutWorkspaceInput, Prisma.UserUncheckedCreateWithoutWorkspaceInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutWorkspaceInput
+  upsert?: Prisma.UserUpsertWithoutWorkspaceInput
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOauthAppsInput, Prisma.UserUpdateWithoutOauthAppsInput>, Prisma.UserUncheckedUpdateWithoutOauthAppsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutWorkspaceInput, Prisma.UserUpdateWithoutWorkspaceInput>, Prisma.UserUncheckedUpdateWithoutWorkspaceInput>
 }
 
-export type UserCreateWithoutWorkspacesInput = {
-  id?: string
+export type UserCreateWithoutUserOAuthAppInput = {
+  id: string
   email: string
   name?: string | null
   password: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  oauthApps?: Prisma.UserOAuthAppCreateNestedManyWithoutUserInput
+  Workspace?: Prisma.WorkspaceCreateNestedManyWithoutUserInput
 }
 
-export type UserUncheckedCreateWithoutWorkspacesInput = {
-  id?: string
+export type UserUncheckedCreateWithoutUserOAuthAppInput = {
+  id: string
   email: string
   name?: string | null
   password: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  oauthApps?: Prisma.UserOAuthAppUncheckedCreateNestedManyWithoutUserInput
+  Workspace?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutUserInput
 }
 
-export type UserCreateOrConnectWithoutWorkspacesInput = {
+export type UserCreateOrConnectWithoutUserOAuthAppInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutWorkspacesInput, Prisma.UserUncheckedCreateWithoutWorkspacesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUserOAuthAppInput, Prisma.UserUncheckedCreateWithoutUserOAuthAppInput>
 }
 
-export type UserUpsertWithoutWorkspacesInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutWorkspacesInput, Prisma.UserUncheckedUpdateWithoutWorkspacesInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutWorkspacesInput, Prisma.UserUncheckedCreateWithoutWorkspacesInput>
+export type UserUpsertWithoutUserOAuthAppInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutUserOAuthAppInput, Prisma.UserUncheckedUpdateWithoutUserOAuthAppInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUserOAuthAppInput, Prisma.UserUncheckedCreateWithoutUserOAuthAppInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutWorkspacesInput = {
+export type UserUpdateToOneWithWhereWithoutUserOAuthAppInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutWorkspacesInput, Prisma.UserUncheckedUpdateWithoutWorkspacesInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutUserOAuthAppInput, Prisma.UserUncheckedUpdateWithoutUserOAuthAppInput>
 }
 
-export type UserUpdateWithoutWorkspacesInput = {
+export type UserUpdateWithoutUserOAuthAppInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  oauthApps?: Prisma.UserOAuthAppUpdateManyWithoutUserNestedInput
+  Workspace?: Prisma.WorkspaceUpdateManyWithoutUserNestedInput
 }
 
-export type UserUncheckedUpdateWithoutWorkspacesInput = {
+export type UserUncheckedUpdateWithoutUserOAuthAppInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  oauthApps?: Prisma.UserOAuthAppUncheckedUpdateManyWithoutUserNestedInput
+  Workspace?: Prisma.WorkspaceUncheckedUpdateManyWithoutUserNestedInput
 }
 
-export type UserCreateWithoutOauthAppsInput = {
-  id?: string
+export type UserCreateWithoutWorkspaceInput = {
+  id: string
   email: string
   name?: string | null
   password: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  workspaces?: Prisma.WorkspaceCreateNestedManyWithoutUserInput
+  UserOAuthApp?: Prisma.UserOAuthAppCreateNestedManyWithoutUserInput
 }
 
-export type UserUncheckedCreateWithoutOauthAppsInput = {
-  id?: string
+export type UserUncheckedCreateWithoutWorkspaceInput = {
+  id: string
   email: string
   name?: string | null
   password: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  workspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutUserInput
+  UserOAuthApp?: Prisma.UserOAuthAppUncheckedCreateNestedManyWithoutUserInput
 }
 
-export type UserCreateOrConnectWithoutOauthAppsInput = {
+export type UserCreateOrConnectWithoutWorkspaceInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutOauthAppsInput, Prisma.UserUncheckedCreateWithoutOauthAppsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutWorkspaceInput, Prisma.UserUncheckedCreateWithoutWorkspaceInput>
 }
 
-export type UserUpsertWithoutOauthAppsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutOauthAppsInput, Prisma.UserUncheckedUpdateWithoutOauthAppsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutOauthAppsInput, Prisma.UserUncheckedCreateWithoutOauthAppsInput>
+export type UserUpsertWithoutWorkspaceInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutWorkspaceInput, Prisma.UserUncheckedUpdateWithoutWorkspaceInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutWorkspaceInput, Prisma.UserUncheckedCreateWithoutWorkspaceInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutOauthAppsInput = {
+export type UserUpdateToOneWithWhereWithoutWorkspaceInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutOauthAppsInput, Prisma.UserUncheckedUpdateWithoutOauthAppsInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutWorkspaceInput, Prisma.UserUncheckedUpdateWithoutWorkspaceInput>
 }
 
-export type UserUpdateWithoutOauthAppsInput = {
+export type UserUpdateWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspaces?: Prisma.WorkspaceUpdateManyWithoutUserNestedInput
+  UserOAuthApp?: Prisma.UserOAuthAppUpdateManyWithoutUserNestedInput
 }
 
-export type UserUncheckedUpdateWithoutOauthAppsInput = {
+export type UserUncheckedUpdateWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutUserNestedInput
+  UserOAuthApp?: Prisma.UserOAuthAppUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -504,13 +492,13 @@ export type UserUncheckedUpdateWithoutOauthAppsInput = {
  */
 
 export type UserCountOutputType = {
-  workspaces: number
-  oauthApps: number
+  UserOAuthApp: number
+  Workspace: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspaces?: boolean | UserCountOutputTypeCountWorkspacesArgs
-  oauthApps?: boolean | UserCountOutputTypeCountOauthAppsArgs
+  UserOAuthApp?: boolean | UserCountOutputTypeCountUserOAuthAppArgs
+  Workspace?: boolean | UserCountOutputTypeCountWorkspaceArgs
 }
 
 /**
@@ -526,15 +514,15 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountWorkspacesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.WorkspaceWhereInput
+export type UserCountOutputTypeCountUserOAuthAppArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserOAuthAppWhereInput
 }
 
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountOauthAppsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.UserOAuthAppWhereInput
+export type UserCountOutputTypeCountWorkspaceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkspaceWhereInput
 }
 
 
@@ -545,8 +533,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   password?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  workspaces?: boolean | Prisma.User$workspacesArgs<ExtArgs>
-  oauthApps?: boolean | Prisma.User$oauthAppsArgs<ExtArgs>
+  UserOAuthApp?: boolean | Prisma.User$UserOAuthAppArgs<ExtArgs>
+  Workspace?: boolean | Prisma.User$WorkspaceArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -579,8 +567,8 @@ export type UserSelectScalar = {
 
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "password" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspaces?: boolean | Prisma.User$workspacesArgs<ExtArgs>
-  oauthApps?: boolean | Prisma.User$oauthAppsArgs<ExtArgs>
+  UserOAuthApp?: boolean | Prisma.User$UserOAuthAppArgs<ExtArgs>
+  Workspace?: boolean | Prisma.User$WorkspaceArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -589,8 +577,8 @@ export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
-    workspaces: Prisma.$WorkspacePayload<ExtArgs>[]
-    oauthApps: Prisma.$UserOAuthAppPayload<ExtArgs>[]
+    UserOAuthApp: Prisma.$UserOAuthAppPayload<ExtArgs>[]
+    Workspace: Prisma.$WorkspacePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -993,8 +981,8 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  workspaces<T extends Prisma.User$workspacesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$workspacesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  oauthApps<T extends Prisma.User$oauthAppsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$oauthAppsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserOAuthAppPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  UserOAuthApp<T extends Prisma.User$UserOAuthAppArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$UserOAuthAppArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserOAuthAppPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Workspace<T extends Prisma.User$WorkspaceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$WorkspaceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1423,33 +1411,9 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * User.workspaces
+ * User.UserOAuthApp
  */
-export type User$workspacesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Workspace
-   */
-  select?: Prisma.WorkspaceSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Workspace
-   */
-  omit?: Prisma.WorkspaceOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.WorkspaceInclude<ExtArgs> | null
-  where?: Prisma.WorkspaceWhereInput
-  orderBy?: Prisma.WorkspaceOrderByWithRelationInput | Prisma.WorkspaceOrderByWithRelationInput[]
-  cursor?: Prisma.WorkspaceWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.WorkspaceScalarFieldEnum | Prisma.WorkspaceScalarFieldEnum[]
-}
-
-/**
- * User.oauthApps
- */
-export type User$oauthAppsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$UserOAuthAppArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the UserOAuthApp
    */
@@ -1468,6 +1432,30 @@ export type User$oauthAppsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.UserOAuthAppScalarFieldEnum | Prisma.UserOAuthAppScalarFieldEnum[]
+}
+
+/**
+ * User.Workspace
+ */
+export type User$WorkspaceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Workspace
+   */
+  select?: Prisma.WorkspaceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Workspace
+   */
+  omit?: Prisma.WorkspaceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkspaceInclude<ExtArgs> | null
+  where?: Prisma.WorkspaceWhereInput
+  orderBy?: Prisma.WorkspaceOrderByWithRelationInput | Prisma.WorkspaceOrderByWithRelationInput[]
+  cursor?: Prisma.WorkspaceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkspaceScalarFieldEnum | Prisma.WorkspaceScalarFieldEnum[]
 }
 
 /**

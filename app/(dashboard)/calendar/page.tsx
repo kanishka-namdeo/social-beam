@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { isOnboardingComplete } from "@/lib/db/onboarding";
 import { redirect } from "next/navigation";
 import { CalendarClient } from "@/components/calendar/calendar-client";
-import { startOfMonth, endOfMonth } from "date-fns";
 
 export default async function CalendarPage() {
   const session = await auth();
@@ -18,8 +17,8 @@ export default async function CalendarPage() {
   }
 
   const now = new Date();
-  const monthStart = startOfMonth(now);
-  const monthEnd = endOfMonth(now);
+  const monthStart = new Date(Date.UTC(now.getFullYear(), now.getMonth(), 1, 0, 0, 0));
+  const monthEnd = new Date(Date.UTC(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999));
 
   const [posts, connectedAccounts] = await Promise.all([
     prisma.post.findMany({
@@ -40,7 +39,7 @@ export default async function CalendarPage() {
         scheduledAt: true,
         publishedAt: true,
         createdAt: true,
-        platforms: {
+        PostPlatform: {
           select: {
             platform: true,
             status: true,
@@ -56,9 +55,10 @@ export default async function CalendarPage() {
   ]);
 
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Calendar</h1>
+    <div className="space-y-4">
+      {/* Page header */}
+      <div className="flex flex-col gap-1.5">
+        <h1 className="text-2xl font-medium tracking-tight text-foreground">Calendar</h1>
         <p className="text-sm text-muted-foreground">
           Schedule, preview, and manage your posts across all platforms.
         </p>
@@ -74,7 +74,7 @@ export default async function CalendarPage() {
             confidence: p.confidence,
             scheduledAt: p.scheduledAt?.toISOString() ?? null,
             publishedAt: p.publishedAt?.toISOString() ?? null,
-            platforms: p.platforms.map((pl) => ({
+            platforms: p.PostPlatform.map((pl) => ({
               platform: pl.platform,
               status: pl.status,
             })),

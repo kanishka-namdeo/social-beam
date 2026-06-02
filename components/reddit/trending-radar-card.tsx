@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,13 @@ export function TrendingRadarCard({ posts, isLoading }: TrendingRadarCardProps) 
   const [selectedPost, setSelectedPost] = useState<TrendingPost | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cleanup polling timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearTimeout(pollRef.current);
+    };
+  }, []);
 
   const pollForJobStatus = useCallback(async (jobId: string, maxPolls = 40) => {
     let polls = 0;
@@ -106,35 +113,35 @@ export function TrendingRadarCard({ posts, isLoading }: TrendingRadarCardProps) 
 
   if (isLoading) {
     return (
-      <Card className="bg-ai-surface/50 border-ai-surface">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Sparkle className="size-5 text-brand" weight="fill" />
-            Research & Ideation
-          </CardTitle>
-          <CardDescription>Trending opportunities from Reddit</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-4 w-5/6" />
-        </CardContent>
-      </Card>
-    );
+      <Card className="h-full bg-ai-surface/50 border-ai-surface">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm font-medium tracking-tight text-foreground flex items-center gap-2">
+          <Sparkle className="size-4 text-brand" weight="fill" />
+          Trending Radar
+        </CardTitle>
+        <CardDescription>Trending opportunities from Reddit</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-4 w-5/6" />
+      </CardContent>
+    </Card>
+  );
   }
 
   if (posts.length === 0) {
     return (
-      <Card className="bg-ai-surface/50 border-ai-surface">
+      <Card className="h-full bg-ai-surface/50 border-ai-surface">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Sparkle className="size-5 text-brand" weight="fill" />
-            Research & Ideation
-          </CardTitle>
-          <CardDescription>Discover trending topics to inspire your next post</CardDescription>
+        <CardTitle className="text-sm font-medium tracking-tight text-foreground flex items-center gap-2">
+          <Sparkle className="size-4 text-brand" weight="fill" />
+          Trending Radar
+        </CardTitle>
+        <CardDescription>Discover trending topics to inspire your next post</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border border-dashed border-border p-6 text-center space-y-3">
+          <div className="rounded-sm border border-dashed border-border p-6 text-center space-y-3">
             <p className="text-sm text-muted-foreground">
               No trending data yet. Add subreddits to track and trigger your first scrape.
             </p>
@@ -154,11 +161,11 @@ export function TrendingRadarCard({ posts, isLoading }: TrendingRadarCardProps) 
   const isProgressing = triggering && jobStatus != null;
 
   return (
-    <Card className="bg-ai-surface/50 border-ai-surface">
+    <Card className="h-full bg-ai-surface/50 border-ai-surface">
       <CardHeader className="pb-3">
-        <CardTitle className="text-base flex items-center gap-2">
-          <Sparkle className="size-5 text-brand" weight="fill" />
-          Research & Ideation
+        <CardTitle className="text-sm font-medium tracking-tight text-foreground flex items-center gap-2">
+          <Sparkle className="size-4 text-brand" weight="fill" />
+          Trending Radar
         </CardTitle>
         <CardDescription>
           {actionablePosts.length} actionable trends found in the last 24 hours
@@ -167,7 +174,7 @@ export function TrendingRadarCard({ posts, isLoading }: TrendingRadarCardProps) 
       <CardContent className="space-y-3">
         {/* Progress indicator */}
         {isProgressing && (
-          <div className="rounded-lg border border-brand/20 bg-brand/5 p-3 space-y-2">
+          <div className="rounded-sm border border-brand/20 bg-brand/5 p-3 space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="font-medium text-foreground">
                 {jobStatus.phase === "scraping" ? "Scraping Reddit..." : "Analyzing with AI..."}
@@ -185,7 +192,7 @@ export function TrendingRadarCard({ posts, isLoading }: TrendingRadarCardProps) 
 
         {/* Top trend this week */}
         {topTrend && (
-          <div className="rounded-lg border border-brand/20 bg-brand/5 p-3 space-y-1.5">
+          <div className="rounded-sm border border-brand/20 bg-brand/5 p-3 space-y-1.5">
             <p className="text-xs font-medium text-muted-foreground">Top trend this week</p>
             <p className="text-sm font-medium text-foreground line-clamp-2">{topTrend.title}</p>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">

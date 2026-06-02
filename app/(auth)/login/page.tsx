@@ -73,25 +73,25 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-b from-brand/5 via-muted/10 to-background p-4">
-      {/* Branded header */}
-      <div className="absolute top-8 left-1/2 -translate-x-1/2 text-center">
-        <div className="flex items-center gap-2">
-          <Sparkle className="size-8 text-brand" weight="fill" />
-          <h1 className="text-2xl font-semibold text-brand">SocialBeam</h1>
+    <div className="relative flex w-full max-w-md flex-col">
+      {/* Branded header with enhanced spacing */}
+      <div className="mb-12 text-center">
+        <div className="inline-flex items-center gap-3 rounded-sm border border-border/40 bg-card/60 px-5 py-3 backdrop-blur-sm">
+          <Sparkle className="size-7 text-brand" weight="fill" />
+          <h1 className="text-xl font-bold tracking-tight text-foreground">SocialBeam</h1>
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">AI-powered social media management</p>
+        <p className="mt-3 text-sm text-muted-foreground">AI-powered social media management</p>
       </div>
 
-      <Card className="w-full max-w-md rounded-lg">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Welcome back</CardTitle>
-          <CardDescription>Sign in to your SocialBeam account</CardDescription>
+      <Card className="w-full rounded-sm border border-border/80 bg-card/80 shadow-[0_8px_32px_oklch(from_var(--foreground)_l_c_h_/_0.08),0_0_0_1px_oklch(from_var(--border)_l_c_h_/_0.5)] backdrop-blur-sm">
+        <CardHeader className="pb-6 pt-8 text-center">
+          <CardTitle className="text-2xl font-semibold tracking-tight">Welcome back</CardTitle>
+          <CardDescription className="mt-2 text-sm text-muted-foreground">Sign in to continue to your workspace</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-5">
+        <CardContent className="px-8 pb-8 pt-6 space-y-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-sm font-medium tracking-tight">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -102,6 +102,7 @@ export default function LoginPage() {
                 autoComplete="email"
                 aria-invalid={!!emailError}
                 aria-describedby={emailError ? 'email-error' : undefined}
+                className="rounded-sm border-border/60 bg-background/50 focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/20 transition-all"
               />
               {emailError && (
                 <p id="email-error" className="text-destructive text-xs" role="alert" aria-live="polite">
@@ -110,7 +111,7 @@ export default function LoginPage() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm font-medium tracking-tight">Password</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -119,7 +120,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   required
-                  className="pr-10"
+                  className="rounded-sm border-border/60 bg-background/50 pr-10 focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/20 transition-all"
                   autoComplete="current-password"
                 />
                 <Button
@@ -127,7 +128,7 @@ export default function LoginPage() {
                   variant="ghost"
                   size="icon"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 size-8"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 size-8 rounded-sm text-muted-foreground hover:text-foreground transition-colors"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -139,17 +140,21 @@ export default function LoginPage() {
               </div>
             </div>
             <div className="flex justify-end">
-              <Link href="/forgot-password" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="/forgot-password" className="text-sm text-muted-foreground transition-colors hover:text-foreground underline-offset-4 hover:underline">
                 Forgot password?
               </Link>
             </div>
             {error && (
-              <Alert variant="destructive">
+              <Alert variant="destructive" className="rounded-sm">
                 <WarningCircle className="size-4" weight="bold" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full rounded-sm bg-brand text-white font-medium tracking-tight shadow-[0_2px_8px_oklch(from_var(--brand)_l_c_h_/_0.3)] transition-all hover:bg-brand/90 hover:shadow-[0_4px_12px_oklch(from_var(--brand)_l_c_h_/_0.4)] active:scale-[0.99]"
+              disabled={loading}
+            >
               {loading ? (
                 <>
                   <Spinner className="mr-2 h-4 w-4 animate-spin" weight="bold" />
@@ -164,13 +169,13 @@ export default function LoginPage() {
           <div className="relative">
             <Separator className="absolute inset-0 top-1/2" />
             <div className="relative flex justify-center text-xs">
-              <span className="bg-card px-2 text-muted-foreground">or continue with</span>
+              <span className="bg-card px-3 text-muted-foreground">or continue with</span>
             </div>
           </div>
 
           <Button
             variant="outline"
-            className="w-full"
+            className="w-full gap-2 rounded-sm border-border/60 font-medium tracking-tight transition-all hover:bg-accent hover:border-border active:scale-[0.99]"
             disabled={googleLoading}
             onClick={async () => {
               setGoogleLoading(true);
@@ -179,12 +184,12 @@ export default function LoginPage() {
           >
             {googleLoading ? (
               <>
-                <Spinner className="mr-2 h-4 w-4 animate-spin" weight="bold" />
+                <Spinner className="h-4 w-4 animate-spin" weight="bold" />
                 Connecting...
               </>
             ) : (
               <>
-                <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+                <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
                   <path
                     fill="currentColor"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
@@ -209,7 +214,7 @@ export default function LoginPage() {
 
           <p className="text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-primary font-medium hover:underline">
+            <Link href="/register" className="text-brand font-medium transition-colors hover:text-brand/80 underline-offset-4 hover:underline">
               Sign up
             </Link>
           </p>

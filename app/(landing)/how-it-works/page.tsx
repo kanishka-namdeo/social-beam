@@ -66,22 +66,22 @@ export default function HowItWorksPage() {
         {steps.map((step) => {
           const Icon = step.icon;
           return (
-            <Card key={step.number} className="border-border hover-lift transition-shadow">
+            <Card key={step.number} className="border-border rounded-sm hover-lift transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-brand text-brand-soft font-bold text-lg shrink-0" aria-hidden="true">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-sm bg-brand text-background font-semibold text-lg shrink-0" aria-hidden="true">
                     {step.number}
                   </div>
-                  <div className="p-3 bg-brand/10 text-brand rounded-md shrink-0" aria-hidden="true">
+                  <div className="p-3 bg-brand/10 text-brand rounded-sm shrink-0" aria-hidden="true">
                     <Icon className="w-6 h-6" />
                   </div>
                   <div>
-                    <CardTitle className="text-xl text-foreground">{step.title}</CardTitle>
+                    <CardTitle className="text-xl text-foreground tracking-tight">{step.title}</CardTitle>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <CardDescription className="text-muted-foreground text-base">
+                <CardDescription className="text-muted-foreground text-base leading-relaxed">
                   {step.description}
                 </CardDescription>
                 <ul className="grid sm:grid-cols-2 gap-2">
@@ -99,7 +99,7 @@ export default function HowItWorksPage() {
 
         <div className="text-center pt-8">
           <Link href="/register">
-            <Button size="lg" className="gap-2 hover-lift">
+            <Button size="lg" className="gap-2 rounded-sm">
               Get Started Free
               <ArrowRight weight="bold" className="w-4 h-4" aria-hidden="true" />
             </Button>

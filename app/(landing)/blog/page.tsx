@@ -78,10 +78,10 @@ export default function BlogPage() {
     >
       <div className="max-w-4xl mx-auto space-y-12">
         {/* Newsletter Signup */}
-        <Card className="border-border bg-muted/30">
+        <Card className="border-border bg-muted/30 rounded-sm">
           <CardHeader>
-            <CardTitle className="text-2xl text-foreground">Subscribe to updates</CardTitle>
-            <CardDescription className="text-muted-foreground">
+            <CardTitle className="text-2xl text-foreground tracking-tight">Subscribe to updates</CardTitle>
+            <CardDescription className="text-muted-foreground leading-relaxed">
               Get the latest articles, tips, and product updates delivered to your inbox. No spam, ever.
             </CardDescription>
           </CardHeader>
@@ -90,10 +90,10 @@ export default function BlogPage() {
               <Input
                 type="email"
                 placeholder="you@example.com"
-                className="flex-1"
+                className="flex-1 rounded-sm"
                 aria-label="Email address for newsletter"
               />
-              <Button className="gap-2 whitespace-nowrap">
+              <Button className="gap-2 whitespace-nowrap rounded-sm">
                 Subscribe
                 <ArrowRight weight="bold" className="w-4 h-4" />
               </Button>
@@ -118,16 +118,16 @@ export default function BlogPage() {
           {blogPosts.map((post) => {
             const Icon = post.icon;
             return (
-              <Card key={post.slug} className="border-border hover:border-brand/50 transition-colors">
+              <Card key={post.slug} className="border-border rounded-sm hover-lift transition-shadow hover:border-brand/50">
                 <CardHeader>
                   <div className="flex items-center gap-2 mb-2">
                     <Icon className="w-5 h-5 text-brand" />
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant="secondary" className="text-xs rounded-sm">
                       {post.category}
                     </Badge>
                   </div>
-                  <CardTitle className="text-lg text-foreground leading-snug">{post.title}</CardTitle>
-                  <CardDescription className="text-muted-foreground line-clamp-2">
+                  <CardTitle className="text-lg text-foreground leading-snug tracking-tight">{post.title}</CardTitle>
+                  <CardDescription className="text-muted-foreground line-clamp-2 leading-relaxed">
                     {post.description}
                   </CardDescription>
                 </CardHeader>
@@ -158,14 +158,14 @@ export default function BlogPage() {
         </div>
 
         {/* CTA */}
-        <Card className="border-border text-center">
+        <Card className="border-border rounded-sm text-center">
           <CardContent className="pt-8 pb-8 space-y-4">
-            <h2 className="text-2xl font-bold text-foreground">Ready to supercharge your social media?</h2>
-            <p className="text-muted-foreground max-w-md mx-auto">
+            <h2 className="text-2xl font-semibold text-foreground tracking-tight">Ready to supercharge your social media?</h2>
+            <p className="text-muted-foreground max-w-md mx-auto leading-relaxed">
               Join thousands of creators and marketers using SocialBeam to schedule, analyze, and grow their audience.
             </p>
             <Link href="/register">
-              <Button size="lg" className="gap-2">
+              <Button size="lg" className="gap-2 rounded-sm">
                 Start for free
                 <ArrowRight weight="bold" className="w-4 h-4" />
               </Button>

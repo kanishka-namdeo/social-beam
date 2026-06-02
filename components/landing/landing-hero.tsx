@@ -4,25 +4,27 @@ import { ArrowRight } from "@phosphor-icons/react/ssr";
 
 export function LandingHero() {
   return (
-    <section className="py-20 md:py-32">
-      <div className="container mx-auto px-4">
+    <section className="relative py-20 md:py-32 overflow-hidden">
+      {/* Subtle animated gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-brand/5 via-transparent to-ai-surface/30 pointer-events-none" aria-hidden="true" />
+      <div className="container mx-auto px-4 relative">
         <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground tracking-tight leading-tight">
+          <div className="space-y-8">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground tracking-tight text-balance leading-tight">
               AI-native social media management — free forever
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-xl">
+            <p className="text-lg md:text-xl text-muted-foreground text-balance max-w-xl leading-relaxed">
               Schedule unlimited posts across 10 accounts. AI writes, optimizes, and analyzes your content. Starts at $19/mo when you&apos;re ready.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link href="/register">
-                <Button size="lg" className="gap-2 min-w-48">
+                <Button size="lg" className="gap-2 min-w-48 rounded-sm">
                   Get Started Free
                   <ArrowRight weight="bold" className="w-4 h-4" />
                 </Button>
               </Link>
               <a href="#features">
-                <Button size="lg" variant="outline" className="min-w-48">
+                <Button size="lg" variant="outline" className="min-w-48 rounded-sm">
                   See how it works
                 </Button>
               </a>
@@ -30,12 +32,12 @@ export function LandingHero() {
           </div>
 
           <div className="relative">
-            <div className="bg-gradient-to-br from-brand-soft to-ai-surface border border-border p-6 md:p-8">
-              <div className="bg-card border border-border p-4 space-y-4 rounded-md">
+            <div className="bg-gradient-to-br from-brand-soft to-ai-surface border border-border/50 p-6 md:p-8 rounded-sm">
+              <div className="bg-card/80 backdrop-blur-sm border border-border p-4 space-y-4 rounded-sm">
                 <div className="flex items-center gap-3" aria-hidden="true">
-                  <div className="w-3 h-3 rounded-full bg-post-published" />
-                  <div className="w-3 h-3 rounded-full bg-post-queued" />
-                  <div className="w-3 h-3 rounded-full bg-post-draft" />
+                  <div className="w-3 h-3 rounded-sm bg-post-published" />
+                  <div className="w-3 h-3 rounded-sm bg-post-queued" />
+                  <div className="w-3 h-3 rounded-sm bg-post-draft" />
                 </div>
                 <div className="space-y-3">
                   <div className="h-4 w-3/4 bg-muted rounded" />

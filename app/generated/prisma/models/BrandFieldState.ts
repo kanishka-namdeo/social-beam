@@ -244,7 +244,7 @@ export type BrandFieldStateWhereInput = {
   stability?: Prisma.IntFilter<"BrandFieldState"> | number
   signalCount?: Prisma.IntFilter<"BrandFieldState"> | number
   lastUpdated?: Prisma.DateTimeFilter<"BrandFieldState"> | Date | string
-  brandContext?: Prisma.XOR<Prisma.BrandContextScalarRelationFilter, Prisma.BrandContextWhereInput>
+  BrandContext?: Prisma.XOR<Prisma.BrandContextScalarRelationFilter, Prisma.BrandContextWhereInput>
 }
 
 export type BrandFieldStateOrderByWithRelationInput = {
@@ -256,7 +256,7 @@ export type BrandFieldStateOrderByWithRelationInput = {
   stability?: Prisma.SortOrder
   signalCount?: Prisma.SortOrder
   lastUpdated?: Prisma.SortOrder
-  brandContext?: Prisma.BrandContextOrderByWithRelationInput
+  BrandContext?: Prisma.BrandContextOrderByWithRelationInput
 }
 
 export type BrandFieldStateWhereUniqueInput = Prisma.AtLeast<{
@@ -272,7 +272,7 @@ export type BrandFieldStateWhereUniqueInput = Prisma.AtLeast<{
   stability?: Prisma.IntFilter<"BrandFieldState"> | number
   signalCount?: Prisma.IntFilter<"BrandFieldState"> | number
   lastUpdated?: Prisma.DateTimeFilter<"BrandFieldState"> | Date | string
-  brandContext?: Prisma.XOR<Prisma.BrandContextScalarRelationFilter, Prisma.BrandContextWhereInput>
+  BrandContext?: Prisma.XOR<Prisma.BrandContextScalarRelationFilter, Prisma.BrandContextWhereInput>
 }, "id" | "brandContextId_fieldName">
 
 export type BrandFieldStateOrderByWithAggregationInput = {
@@ -306,18 +306,18 @@ export type BrandFieldStateScalarWhereWithAggregatesInput = {
 }
 
 export type BrandFieldStateCreateInput = {
-  id?: string
+  id: string
   fieldName: string
   currentValue: Prisma.JsonNullValueInput | runtime.InputJsonValue
   confidence?: number
   stability?: number
   signalCount?: number
   lastUpdated?: Date | string
-  brandContext: Prisma.BrandContextCreateNestedOneWithoutFieldStatesInput
+  BrandContext: Prisma.BrandContextCreateNestedOneWithoutBrandFieldStateInput
 }
 
 export type BrandFieldStateUncheckedCreateInput = {
-  id?: string
+  id: string
   brandContextId: string
   fieldName: string
   currentValue: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -335,7 +335,7 @@ export type BrandFieldStateUpdateInput = {
   stability?: Prisma.IntFieldUpdateOperationsInput | number
   signalCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastUpdated?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  brandContext?: Prisma.BrandContextUpdateOneRequiredWithoutFieldStatesNestedInput
+  BrandContext?: Prisma.BrandContextUpdateOneRequiredWithoutBrandFieldStateNestedInput
 }
 
 export type BrandFieldStateUncheckedUpdateInput = {
@@ -350,7 +350,7 @@ export type BrandFieldStateUncheckedUpdateInput = {
 }
 
 export type BrandFieldStateCreateManyInput = {
-  id?: string
+  id: string
   brandContextId: string
   fieldName: string
   currentValue: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -481,8 +481,16 @@ export type BrandFieldStateUncheckedUpdateManyWithoutBrandContextNestedInput = {
   deleteMany?: Prisma.BrandFieldStateScalarWhereInput | Prisma.BrandFieldStateScalarWhereInput[]
 }
 
+export type FloatFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type BrandFieldStateCreateWithoutBrandContextInput = {
-  id?: string
+  id: string
   fieldName: string
   currentValue: Prisma.JsonNullValueInput | runtime.InputJsonValue
   confidence?: number
@@ -492,7 +500,7 @@ export type BrandFieldStateCreateWithoutBrandContextInput = {
 }
 
 export type BrandFieldStateUncheckedCreateWithoutBrandContextInput = {
-  id?: string
+  id: string
   fieldName: string
   currentValue: Prisma.JsonNullValueInput | runtime.InputJsonValue
   confidence?: number
@@ -542,7 +550,7 @@ export type BrandFieldStateScalarWhereInput = {
 }
 
 export type BrandFieldStateCreateManyBrandContextInput = {
-  id?: string
+  id: string
   fieldName: string
   currentValue: Prisma.JsonNullValueInput | runtime.InputJsonValue
   confidence?: number
@@ -592,7 +600,7 @@ export type BrandFieldStateSelect<ExtArgs extends runtime.Types.Extensions.Inter
   stability?: boolean
   signalCount?: boolean
   lastUpdated?: boolean
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["brandFieldState"]>
 
 export type BrandFieldStateSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -604,7 +612,7 @@ export type BrandFieldStateSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   stability?: boolean
   signalCount?: boolean
   lastUpdated?: boolean
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["brandFieldState"]>
 
 export type BrandFieldStateSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -616,7 +624,7 @@ export type BrandFieldStateSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   stability?: boolean
   signalCount?: boolean
   lastUpdated?: boolean
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["brandFieldState"]>
 
 export type BrandFieldStateSelectScalar = {
@@ -632,19 +640,19 @@ export type BrandFieldStateSelectScalar = {
 
 export type BrandFieldStateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "brandContextId" | "fieldName" | "currentValue" | "confidence" | "stability" | "signalCount" | "lastUpdated", ExtArgs["result"]["brandFieldState"]>
 export type BrandFieldStateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }
 export type BrandFieldStateIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }
 export type BrandFieldStateIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }
 
 export type $BrandFieldStatePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "BrandFieldState"
   objects: {
-    brandContext: Prisma.$BrandContextPayload<ExtArgs>
+    BrandContext: Prisma.$BrandContextPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1049,7 +1057,7 @@ readonly fields: BrandFieldStateFieldRefs;
  */
 export interface Prisma__BrandFieldStateClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  brandContext<T extends Prisma.BrandContextDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BrandContextDefaultArgs<ExtArgs>>): Prisma.Prisma__BrandContextClient<runtime.Types.Result.GetResult<Prisma.$BrandContextPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  BrandContext<T extends Prisma.BrandContextDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BrandContextDefaultArgs<ExtArgs>>): Prisma.Prisma__BrandContextClient<runtime.Types.Result.GetResult<Prisma.$BrandContextPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

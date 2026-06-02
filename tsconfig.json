@@ -30,5 +30,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "seed-profile.ts", "test-profile-setup.ts", "check-users.js", "fix-demo-password.js", "cleanup-workspaces.ts", "fix-media-urls.mts", "test-crawlee-cloakbrowser.mts", "scripts/*.js", "verify-password.js", "test-check-users.js"]
 }

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, GearSix, Code } from '@phosphor-icons/react';
+import { CheckCircle, XCircle, GearSix, Code } from '@phosphor-icons/react/ssr';
 import { platformIcon, PLATFORM_DISPLAY_NAMES } from '@/lib/oauth/platform-icons';
 import { OauthAppConfigDialog } from './components/oauth-app-config-dialog';
 
@@ -42,15 +42,15 @@ export function DeveloperAppsTab({ initialApps }: DeveloperAppsTabProps) {
   return (
     <div className="space-y-4">
       {justSaved && (
-        <div className="rounded-md border border-success/30 bg-success/10 p-3 text-sm text-success flex items-center gap-2">
+        <div className="rounded-sm border border-success/30 bg-success/10 p-3 text-sm text-success flex items-center gap-2">
           <CheckCircle className="size-4" weight="fill" />
           Credentials for {PLATFORM_DISPLAY_NAMES[justSaved]} saved successfully.
         </div>
       )}
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Developer App Credentials</CardTitle>
+          <CardHeader>
+          <CardTitle className="text-base tracking-tight">Developer App Credentials</CardTitle>
           <CardDescription>
             Each social platform requires a developer app with OAuth credentials. Create your apps on the respective
             developer portals and paste the Client ID and Client Secret below.
@@ -58,7 +58,7 @@ export function DeveloperAppsTab({ initialApps }: DeveloperAppsTabProps) {
         </CardHeader>
         <CardContent className="space-y-3">
           {!apps.some((a) => a.isConfigured) && (
-            <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border p-8 text-center">
+            <div className="flex flex-col items-center justify-center gap-3 rounded-sm border border-dashed border-border p-8 text-center">
               <Code className="size-8 text-muted-foreground" weight="light" />
               <p className="text-sm font-medium text-foreground">No developer apps configured yet</p>
               <p className="text-xs text-muted-foreground max-w-sm">
@@ -75,7 +75,7 @@ export function DeveloperAppsTab({ initialApps }: DeveloperAppsTabProps) {
             return (
               <div
                 key={app.platform}
-                className="flex items-center justify-between rounded-lg border border-border p-4"
+                className="flex items-center justify-between rounded-sm border border-border p-4"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-muted-foreground">

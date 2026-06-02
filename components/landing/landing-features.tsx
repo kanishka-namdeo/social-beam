@@ -26,13 +26,13 @@ const features = [
 
 export function LandingFeatures() {
   return (
-    <section id="features" className="py-20">
+    <section id="features" className="py-20 border-t border-border/50">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-semibold text-foreground mb-4 tracking-tight text-balance">
             Everything you need to grow your audience
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Powerful AI features that make social media management effortless.
           </p>
         </div>
@@ -41,15 +41,15 @@ export function LandingFeatures() {
           {features.map((feature) => {
             const Icon = feature.icon;
             return (
-              <Card key={feature.title} className="border-border hover-lift transition-shadow">
+              <Card key={feature.title} className="border-border rounded-sm hover-lift transition-shadow">
                 <CardHeader className="pb-3">
-                  <div className="p-3 bg-brand/10 text-brand w-fit mb-3 rounded-md" aria-hidden="true">
+                  <div className="p-3 bg-brand/10 text-brand w-fit mb-3 rounded-sm" aria-hidden="true">
                     <Icon className="w-6 h-6" />
                   </div>
-                  <CardTitle className="text-xl text-foreground">{feature.title}</CardTitle>
+                  <CardTitle className="text-xl text-foreground tracking-tight">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription className="text-muted-foreground text-base">
+                  <CardDescription className="text-muted-foreground text-base leading-relaxed">
                     {feature.description}
                   </CardDescription>
                 </CardContent>

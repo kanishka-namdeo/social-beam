@@ -1,15 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { decryptToken, encryptToken } from '@/lib/agent/tools/social-tools';
 import { logger } from '@/lib/logger';
-
-const ENV_VAR_MAP: Record<string, { clientId: string; clientSecret: string }> = {
-  instagram: { clientId: 'META_APP_ID', clientSecret: 'META_APP_SECRET' },
-  facebook: { clientId: 'META_APP_ID', clientSecret: 'META_APP_SECRET' },
-  x: { clientId: 'X_CLIENT_ID', clientSecret: 'X_CLIENT_SECRET' },
-  linkedin: { clientId: 'LINKEDIN_CLIENT_ID', clientSecret: 'LINKEDIN_CLIENT_SECRET' },
-  tiktok: { clientId: 'TIKTOK_CLIENT_KEY', clientSecret: 'TIKTOK_CLIENT_SECRET' },
-  pinterest: { clientId: 'PINTEREST_APP_ID', clientSecret: 'PINTEREST_APP_SECRET' },
-};
+import { getPlatformEnvVars } from './platform-registry';
 
 /**
  * Resolve credentials for a given user and platform.
@@ -46,7 +38,7 @@ export async function resolveCredentials(
   }
 
   // Fall back to env vars
-  const envVars = ENV_VAR_MAP[normalizedPlatform];
+  const envVars = getPlatformEnvVars(normalizedPlatform);
   if (envVars) {
     const clientId = process.env[envVars.clientId] ?? '';
     const clientSecret = process.env[envVars.clientSecret] ?? '';
@@ -73,7 +65,7 @@ export async function resolveCredentialsForPlatform(
   platform: string,
 ): Promise<{ clientId: string; clientSecret: string } | null> {
   const normalizedPlatform = platform.toLowerCase();
-  const envVars = ENV_VAR_MAP[normalizedPlatform];
+  const envVars = getPlatformEnvVars(normalizedPlatform);
   if (!envVars) {
     logger.warn('oauth.credentials.unknown_platform', { platform: normalizedPlatform });
     return null;
@@ -110,6 +102,7 @@ export async function upsertUserCredentials(
         userId_platform: { userId, platform: normalizedPlatform },
       },
       create: {
+        id: crypto.randomUUID(),
         userId,
         platform: normalizedPlatform,
         clientId: encryptedClientId,
@@ -168,7 +161,7 @@ export async function deleteUserCredentials(
 export async function listUserOAuthApps(
   userId: string,
 ): Promise<Array<{ platform: string; isConfigured: boolean; hasClientId: boolean; hasSecret: boolean }>> {
-  const allPlatforms = ['instagram', 'facebook', 'x', 'linkedin', 'tiktok', 'pinterest'];
+  const allPlatforms = ['instagram', 'facebook', 'x', 'linkedin', 'tiktok', 'pinterest', 'threads', 'googleBusiness', 'youtube', 'bluesky'];
 
   const userApps = await prisma.userOAuthApp.findMany({
     where: { userId },
@@ -178,7 +171,7 @@ export async function listUserOAuthApps(
   const userConfiguredSet = new Set(userApps.map((a) => a.platform));
 
   return allPlatforms.map((platform) => {
-    const envVars = ENV_VAR_MAP[platform];
+    const envVars = getPlatformEnvVars(platform);
     const hasEnvCredentials = envVars
       ? !!(process.env[envVars.clientId] && process.env[envVars.clientSecret])
       : false;

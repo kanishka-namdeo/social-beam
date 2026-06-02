@@ -5,12 +5,23 @@ alwaysApply: true
 
 # Core Principles
 
+## Rule Priority Hierarchy
+
+When rules or principles conflict, follow this priority order:
+
+1. **Security** — User safety, data protection, OWASP compliance, auth/crypto correctness
+2. **Correctness** — Accurate code, proper error handling, verified implementations
+3. **Simplicity** — Minimal complexity, no over-engineering, essential requirements only
+4. **Speed** — Performance, efficiency, parallel execution
+
+Example: If `agent-persona.mdc` suggests a creative approach but `typescript-standards.mdc` requires explicit return types, the technical rule takes precedence over persona preferences.
+
 **Minimalism**: Only include essential requirements. Over-specified context reduces success rates by 20%+.
 
 **Simplicity First (Karpathy)**: All else equal, simpler is better. No speculative code. Avoid over-engineering, but do not skip necessary error handling or edge case analysis. Every changed line must trace to the user's request.
 
 
-**Parallel Tool Execution**: Use parallel tool calls when independent (Context7 + WebSearch for research, reading multiple files at once, concurrent lint/typecheck runs). This does NOT apply to subagent task dispatch — when using Task subagents, they must execute sequentially with explicit handoffs. See `agent-handoff-verification.mdc` for the decision tree on when to use subagents vs direct execution.
+**Parallel Tool Execution**: Use parallel tool calls when independent (Context7 + WebSearch for research, reading multiple files at once, concurrent lint/typecheck runs). Subagent dispatch can also be parallel for independent tasks with no shared state — see `agent-handoff-verification.mdc` for guidance.
 
 **Source Quality**: Prefer 2025-2026 sources with dates. Official documentation > tech blogs > tutorials. Cite all sources with URLs.
 

@@ -102,8 +102,8 @@ export async function platformAdapterNode(state: BrandAnalyzerStateType): Promis
     logger.error('platformAdapterNode: failed to parse LLM response', { error: String(err) });
     return {
       platformContextsDraft: {},
-      currentStep: 'sample',
-      messages: [new AIMessage('Failed to generate platform contexts. Please try again.')],
+      currentStep: 'error',
+      messages: [new AIMessage('Failed to generate platform contexts. Please try again or describe your brand manually.')],
     };
   }
 }

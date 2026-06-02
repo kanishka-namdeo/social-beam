@@ -198,7 +198,7 @@ export default function SproutSocialComparisonPage() {
         <div className="grid md:grid-cols-3 gap-6">
           <Card className="border-border">
             <CardHeader>
-              <div className="w-8 h-8 rounded-full bg-brand text-background flex items-center justify-center font-bold text-sm mb-3">1</div>
+              <div className="w-8 h-8 rounded-sm bg-brand text-background flex items-center justify-center font-semibold text-sm mb-3">1</div>
               <CardTitle className="text-foreground">Export your Sprout Social data</CardTitle>
             </CardHeader>
             <CardContent>
@@ -209,7 +209,7 @@ export default function SproutSocialComparisonPage() {
           </Card>
           <Card className="border-border">
             <CardHeader>
-              <div className="w-8 h-8 rounded-full bg-brand text-background flex items-center justify-center font-bold text-sm mb-3">2</div>
+              <div className="w-8 h-8 rounded-sm bg-brand text-background flex items-center justify-center font-semibold text-sm mb-3">2</div>
               <CardTitle className="text-foreground">Import to SocialBeam</CardTitle>
             </CardHeader>
             <CardContent>
@@ -220,7 +220,7 @@ export default function SproutSocialComparisonPage() {
           </Card>
           <Card className="border-border">
             <CardHeader>
-              <div className="w-8 h-8 rounded-full bg-brand text-background flex items-center justify-center font-bold text-sm mb-3">3</div>
+              <div className="w-8 h-8 rounded-sm bg-brand text-background flex items-center justify-center font-semibold text-sm mb-3">3</div>
               <CardTitle className="text-foreground">Invite your team</CardTitle>
             </CardHeader>
             <CardContent>

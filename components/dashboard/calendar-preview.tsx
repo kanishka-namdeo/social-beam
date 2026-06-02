@@ -24,12 +24,12 @@ interface CalendarPreviewProps {
 }
 
 const platformColors: Record<string, string> = {
-  instagram: "bg-chart-1",
-  facebook: "bg-chart-2",
-  x: "bg-chart-3",
-  linkedin: "bg-chart-4",
-  tiktok: "bg-chart-5",
-  pinterest: "bg-chart-1",
+  instagram: "bg-preview-instagram",
+  facebook: "bg-preview-facebook",
+  x: "bg-preview-x",
+  linkedin: "bg-preview-linkedin",
+  tiktok: "bg-preview-tiktok",
+  pinterest: "bg-preview-pinterest",
 };
 
 export function CalendarPreview({ posts }: CalendarPreviewProps) {
@@ -53,67 +53,126 @@ export function CalendarPreview({ posts }: CalendarPreviewProps) {
   }
 
   return (
-    <Card>
+    <Card className="h-full rounded-sm">
       <CardHeader className="pb-3">
-        <CardTitle className="text-base flex items-center gap-2">
-          <CalendarDots className="size-5 text-brand" weight="regular" />
+        <CardTitle className="text-sm font-medium tracking-tight text-foreground flex items-center gap-2">
+          <CalendarDots className="size-4 text-brand" weight="bold" />
           Next 7 Days
         </CardTitle>
         <CardDescription>Your upcoming scheduled posts</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-7 gap-2">
-          {days.map((day) => (
-            <div
-              key={day.date.toISOString()}
-              className={cn(
-                "flex flex-col items-center rounded-lg border p-2 min-h-[80px] transition-colors",
-                day.posts.length > 0
-                  ? "border-border bg-card"
-                  : "border-dashed border-border/50 bg-muted/20"
-              )}
-            >
-              <span className="text-[0.625rem] font-medium uppercase text-muted-foreground">
-                {day.dayName}
-              </span>
-              <span className="text-lg font-semibold text-foreground">{day.dayNum}</span>
-              <div className="mt-1 flex flex-col gap-1 w-full">
-                {day.posts.map((post) => (
-                  <Link
-                    key={post.id}
-                    href={`/dashboard/compose?postId=${post.id}`}
-                    className="group"
-                  >
-                    <div className="rounded-md px-1.5 py-0.5 text-[0.625rem] font-medium truncate bg-brand/10 text-brand group-hover:bg-brand/20 transition-colors">
-                      {post.title ?? "Untitled"}
-                    </div>
-                    <div className="flex gap-0.5 mt-0.5">
-                      {post.platforms.map((p) => (
-                        <span
-                          key={p}
-                          className={cn(
-                            "size-1.5 rounded-full",
-                            platformColors[p] ?? "bg-muted"
-                          )}
-                        />
+        {posts.length === 0 ? (
+          <div className="flex h-32 items-center justify-center rounded-sm border border-dashed border-border bg-muted/20">
+            <p className="text-xs text-muted-foreground">
+              No scheduled posts yet. Schedule content to see it here.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="hidden md:grid md:grid-cols-7 gap-2">
+              {days.map((day) => (
+                <div
+                  key={day.date.toISOString()}
+                  className={cn(
+                    "flex flex-col items-center rounded-sm border p-2 min-h-[80px] transition-colors",
+                    day.posts.length > 0
+                      ? "border-border bg-card"
+                      : "border-dashed border-border/50 bg-muted/20"
+                  )}
+                >
+                  <span className="text-[0.625rem] font-medium uppercase text-muted-foreground">
+                    {day.dayName}
+                  </span>
+                  <span className="text-lg font-semibold text-foreground">{day.dayNum}</span>
+                  <div className="mt-1 flex flex-col gap-1 w-full">
+                    {day.posts.map((post) => (
+                      <Link
+                        key={post.id}
+                        href={`/dashboard/compose?postId=${post.id}`}
+                        className="group"
+                      >
+                        <div className="rounded-sm px-1.5 py-0.5 text-[0.625rem] font-medium truncate bg-brand/10 text-brand group-hover:bg-brand/20 transition-colors">
+                          {post.title ?? "Untitled"}
+                        </div>
+                        <div className="flex gap-0.5 mt-0.5">
+                          {post.platforms.map((p) => (
+                            <span
+                              key={p}
+                              className={cn(
+                                "size-1.5 rounded-sm",
+                                platformColors[p] ?? "bg-muted"
+                              )}
+                            />
+                          ))}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="md:hidden flex flex-col gap-2">
+              {days.map((day) => (
+                <div
+                  key={day.date.toISOString()}
+                  className={cn(
+                    "flex items-center gap-3 rounded-sm border px-3 py-2 transition-colors",
+                    day.posts.length > 0
+                      ? "border-border bg-card"
+                      : "border-dashed border-border/50 bg-muted/20"
+                  )}
+                >
+                  <div className="flex flex-col items-center min-w-[36px]">
+                    <span className="text-[0.625rem] font-medium uppercase text-muted-foreground">
+                      {day.dayName}
+                    </span>
+                    <span className="text-sm font-semibold text-foreground">{day.dayNum}</span>
+                  </div>
+                  {day.posts.length > 0 ? (
+                    <div className="flex flex-col gap-1 flex-1 min-w-0">
+                      {day.posts.map((post) => (
+                        <Link
+                          key={post.id}
+                          href={`/dashboard/compose?postId=${post.id}`}
+                          className="group"
+                        >
+                          <div className="rounded-sm px-1.5 py-0.5 text-xs font-medium truncate bg-brand/10 text-brand group-hover:bg-brand/20 transition-colors">
+                            {post.title ?? "Untitled"}
+                          </div>
+                          <div className="flex gap-0.5 mt-0.5">
+                            {post.platforms.map((p) => (
+                              <span
+                                key={p}
+                                className={cn(
+                                  "size-1.5 rounded-sm",
+                                  platformColors[p] ?? "bg-muted"
+                                )}
+                              />
+                            ))}
+                          </div>
+                        </Link>
                       ))}
                     </div>
-                  </Link>
-                ))}
-              </div>
+                  ) : (
+                    <span className="text-xs text-muted-foreground flex-1">No posts</span>
+                  )}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        <div className="mt-4 flex justify-end">
-          <Link
-            href="/dashboard/calendar"
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            View full calendar
-            <ArrowRight className="size-3" weight="bold" />
-          </Link>
-        </div>
+            <div className="mt-4 flex justify-end">
+              <Link
+                href="/dashboard/calendar"
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                View full calendar
+                <ArrowRight className="size-3" weight="bold" />
+              </Link>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );

@@ -62,12 +62,12 @@ export function ContentGapAnalysis({
   }
 
   return (
-    <Card className="rounded-lg border-ai-surface/50 bg-ai-surface/20">
+    <Card className="rounded-sm border-border">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkle className="size-5 text-brand" weight="fill" />
-            <CardTitle className="text-sm">Weekly Content Analysis</CardTitle>
+            <CardTitle className="text-sm font-medium tracking-tight">Weekly Content Analysis</CardTitle>
           </div>
           <Badge
             variant="outline"
@@ -96,7 +96,7 @@ export function ContentGapAnalysis({
             {(expanded ? gapDays : gapDays.slice(0, 3)).map((day) => (
               <div
                 key={day.date.toISOString()}
-                className="flex items-center justify-between rounded-lg border border-border/50 bg-card px-3 py-2"
+                className="flex items-center justify-between rounded-sm border border-border bg-card px-3 py-2"
               >
                 <div className="flex items-center gap-2">
                   <CalendarDots className="size-4 text-brand" weight="bold" />

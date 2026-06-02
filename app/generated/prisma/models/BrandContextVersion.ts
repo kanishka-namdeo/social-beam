@@ -182,7 +182,7 @@ export type BrandContextVersionWhereInput = {
   changeReason?: Prisma.StringNullableFilter<"BrandContextVersion"> | string | null
   platformSnapshot?: Prisma.JsonNullableFilter<"BrandContextVersion">
   createdAt?: Prisma.DateTimeFilter<"BrandContextVersion"> | Date | string
-  brandContext?: Prisma.XOR<Prisma.BrandContextScalarRelationFilter, Prisma.BrandContextWhereInput>
+  BrandContext?: Prisma.XOR<Prisma.BrandContextScalarRelationFilter, Prisma.BrandContextWhereInput>
 }
 
 export type BrandContextVersionOrderByWithRelationInput = {
@@ -192,7 +192,7 @@ export type BrandContextVersionOrderByWithRelationInput = {
   changeReason?: Prisma.SortOrderInput | Prisma.SortOrder
   platformSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  brandContext?: Prisma.BrandContextOrderByWithRelationInput
+  BrandContext?: Prisma.BrandContextOrderByWithRelationInput
 }
 
 export type BrandContextVersionWhereUniqueInput = Prisma.AtLeast<{
@@ -205,7 +205,7 @@ export type BrandContextVersionWhereUniqueInput = Prisma.AtLeast<{
   changeReason?: Prisma.StringNullableFilter<"BrandContextVersion"> | string | null
   platformSnapshot?: Prisma.JsonNullableFilter<"BrandContextVersion">
   createdAt?: Prisma.DateTimeFilter<"BrandContextVersion"> | Date | string
-  brandContext?: Prisma.XOR<Prisma.BrandContextScalarRelationFilter, Prisma.BrandContextWhereInput>
+  BrandContext?: Prisma.XOR<Prisma.BrandContextScalarRelationFilter, Prisma.BrandContextWhereInput>
 }, "id">
 
 export type BrandContextVersionOrderByWithAggregationInput = {
@@ -233,16 +233,16 @@ export type BrandContextVersionScalarWhereWithAggregatesInput = {
 }
 
 export type BrandContextVersionCreateInput = {
-  id?: string
+  id: string
   snapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   changeReason?: string | null
   platformSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
-  brandContext: Prisma.BrandContextCreateNestedOneWithoutVersionsInput
+  BrandContext: Prisma.BrandContextCreateNestedOneWithoutBrandContextVersionInput
 }
 
 export type BrandContextVersionUncheckedCreateInput = {
-  id?: string
+  id: string
   brandContextId: string
   snapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   changeReason?: string | null
@@ -256,7 +256,7 @@ export type BrandContextVersionUpdateInput = {
   changeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   platformSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  brandContext?: Prisma.BrandContextUpdateOneRequiredWithoutVersionsNestedInput
+  BrandContext?: Prisma.BrandContextUpdateOneRequiredWithoutBrandContextVersionNestedInput
 }
 
 export type BrandContextVersionUncheckedUpdateInput = {
@@ -269,7 +269,7 @@ export type BrandContextVersionUncheckedUpdateInput = {
 }
 
 export type BrandContextVersionCreateManyInput = {
-  id?: string
+  id: string
   brandContextId: string
   snapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   changeReason?: string | null
@@ -370,7 +370,7 @@ export type BrandContextVersionUncheckedUpdateManyWithoutBrandContextNestedInput
 }
 
 export type BrandContextVersionCreateWithoutBrandContextInput = {
-  id?: string
+  id: string
   snapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   changeReason?: string | null
   platformSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -378,7 +378,7 @@ export type BrandContextVersionCreateWithoutBrandContextInput = {
 }
 
 export type BrandContextVersionUncheckedCreateWithoutBrandContextInput = {
-  id?: string
+  id: string
   snapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   changeReason?: string | null
   platformSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -424,7 +424,7 @@ export type BrandContextVersionScalarWhereInput = {
 }
 
 export type BrandContextVersionCreateManyBrandContextInput = {
-  id?: string
+  id: string
   snapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   changeReason?: string | null
   platformSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -464,7 +464,7 @@ export type BrandContextVersionSelect<ExtArgs extends runtime.Types.Extensions.I
   changeReason?: boolean
   platformSnapshot?: boolean
   createdAt?: boolean
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["brandContextVersion"]>
 
 export type BrandContextVersionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -474,7 +474,7 @@ export type BrandContextVersionSelectCreateManyAndReturn<ExtArgs extends runtime
   changeReason?: boolean
   platformSnapshot?: boolean
   createdAt?: boolean
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["brandContextVersion"]>
 
 export type BrandContextVersionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -484,7 +484,7 @@ export type BrandContextVersionSelectUpdateManyAndReturn<ExtArgs extends runtime
   changeReason?: boolean
   platformSnapshot?: boolean
   createdAt?: boolean
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["brandContextVersion"]>
 
 export type BrandContextVersionSelectScalar = {
@@ -498,19 +498,19 @@ export type BrandContextVersionSelectScalar = {
 
 export type BrandContextVersionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "brandContextId" | "snapshot" | "changeReason" | "platformSnapshot" | "createdAt", ExtArgs["result"]["brandContextVersion"]>
 export type BrandContextVersionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }
 export type BrandContextVersionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }
 export type BrandContextVersionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }
 
 export type $BrandContextVersionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "BrandContextVersion"
   objects: {
-    brandContext: Prisma.$BrandContextPayload<ExtArgs>
+    BrandContext: Prisma.$BrandContextPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -913,7 +913,7 @@ readonly fields: BrandContextVersionFieldRefs;
  */
 export interface Prisma__BrandContextVersionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  brandContext<T extends Prisma.BrandContextDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BrandContextDefaultArgs<ExtArgs>>): Prisma.Prisma__BrandContextClient<runtime.Types.Result.GetResult<Prisma.$BrandContextPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  BrandContext<T extends Prisma.BrandContextDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BrandContextDefaultArgs<ExtArgs>>): Prisma.Prisma__BrandContextClient<runtime.Types.Result.GetResult<Prisma.$BrandContextPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

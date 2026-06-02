@@ -1,5 +1,6 @@
 ---
-alwaysApply: false
+description: Server vs Client component classification for Next.js App Router. Prevents hydration errors, SSR crashes, and React context mismatches. Apply to all TypeScript/React files.
+alwaysApply: true
 ---
 # React Component Boundaries
 

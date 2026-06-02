@@ -32,12 +32,16 @@ const statusConfig: Record<string, { label: string; className: string }> = {
 };
 
 const platformColors: Record<string, string> = {
-  instagram: "bg-chart-1",
-  facebook: "bg-chart-2",
-  x: "bg-chart-3",
-  linkedin: "bg-chart-4",
-  tiktok: "bg-chart-5",
-  pinterest: "bg-chart-6",
+  instagram: "bg-preview-instagram",
+  facebook: "bg-preview-facebook",
+  x: "bg-preview-x",
+  linkedin: "bg-preview-linkedin",
+  tiktok: "bg-preview-tiktok",
+  pinterest: "bg-preview-pinterest",
+  threads: "bg-preview-threads",
+  googleBusiness: "bg-preview-googleBusiness",
+  youtube: "bg-preview-youtube",
+  bluesky: "bg-preview-bluesky",
 };
 
 export function PostPreviewDialog({
@@ -100,12 +104,12 @@ export function PostPreviewDialog({
             <span
               key={p.platform}
               className={cn(
-                "flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1 text-xs",
+                "flex items-center gap-1.5 rounded-sm border border-border bg-card px-2.5 py-1 text-xs",
               )}
             >
               <span
                 className={cn(
-                  "size-2.5 rounded-full",
+                  "size-2.5 rounded-sm",
                   platformColors[p.platform] ?? "bg-muted",
                 )}
               />
@@ -127,7 +131,7 @@ export function PostPreviewDialog({
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Content
             </span>
-            <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-foreground whitespace-pre-wrap max-h-48 overflow-y-auto">
+            <div className="rounded-sm border border-border bg-muted/30 p-3 text-sm text-foreground whitespace-pre-wrap max-h-48 overflow-y-auto">
               {post.content}
             </div>
           </div>
@@ -143,7 +147,7 @@ export function PostPreviewDialog({
               {mediaItems.map((media, i) => (
                 <div
                   key={i}
-                  className="relative group aspect-video rounded-lg border border-border bg-card overflow-hidden"
+                  className="relative group aspect-video rounded-sm border border-border bg-card overflow-hidden"
                 >
                   {media.type === "image" ? (
                     <img

@@ -282,11 +282,11 @@ export type BrandContextWhereInput = {
   lastTrainedAt?: Prisma.DateTimeNullableFilter<"BrandContext"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"BrandContext"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BrandContext"> | Date | string
-  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
-  platformContexts?: Prisma.PlatformContextListRelationFilter
-  learningSignals?: Prisma.BrandLearningSignalListRelationFilter
-  fieldStates?: Prisma.BrandFieldStateListRelationFilter
-  versions?: Prisma.BrandContextVersionListRelationFilter
+  Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  BrandContextVersion?: Prisma.BrandContextVersionListRelationFilter
+  BrandFieldState?: Prisma.BrandFieldStateListRelationFilter
+  BrandLearningSignal?: Prisma.BrandLearningSignalListRelationFilter
+  PlatformContext?: Prisma.PlatformContextListRelationFilter
 }
 
 export type BrandContextOrderByWithRelationInput = {
@@ -311,11 +311,11 @@ export type BrandContextOrderByWithRelationInput = {
   lastTrainedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  workspace?: Prisma.WorkspaceOrderByWithRelationInput
-  platformContexts?: Prisma.PlatformContextOrderByRelationAggregateInput
-  learningSignals?: Prisma.BrandLearningSignalOrderByRelationAggregateInput
-  fieldStates?: Prisma.BrandFieldStateOrderByRelationAggregateInput
-  versions?: Prisma.BrandContextVersionOrderByRelationAggregateInput
+  Workspace?: Prisma.WorkspaceOrderByWithRelationInput
+  BrandContextVersion?: Prisma.BrandContextVersionOrderByRelationAggregateInput
+  BrandFieldState?: Prisma.BrandFieldStateOrderByRelationAggregateInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalOrderByRelationAggregateInput
+  PlatformContext?: Prisma.PlatformContextOrderByRelationAggregateInput
 }
 
 export type BrandContextWhereUniqueInput = Prisma.AtLeast<{
@@ -343,11 +343,11 @@ export type BrandContextWhereUniqueInput = Prisma.AtLeast<{
   lastTrainedAt?: Prisma.DateTimeNullableFilter<"BrandContext"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"BrandContext"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BrandContext"> | Date | string
-  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
-  platformContexts?: Prisma.PlatformContextListRelationFilter
-  learningSignals?: Prisma.BrandLearningSignalListRelationFilter
-  fieldStates?: Prisma.BrandFieldStateListRelationFilter
-  versions?: Prisma.BrandContextVersionListRelationFilter
+  Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  BrandContextVersion?: Prisma.BrandContextVersionListRelationFilter
+  BrandFieldState?: Prisma.BrandFieldStateListRelationFilter
+  BrandLearningSignal?: Prisma.BrandLearningSignalListRelationFilter
+  PlatformContext?: Prisma.PlatformContextListRelationFilter
 }, "id" | "workspaceId">
 
 export type BrandContextOrderByWithAggregationInput = {
@@ -405,7 +405,7 @@ export type BrandContextScalarWhereWithAggregatesInput = {
 }
 
 export type BrandContextCreateInput = {
-  id?: string
+  id: string
   businessName?: string | null
   tagline?: string | null
   websiteUrl?: string | null
@@ -425,15 +425,15 @@ export type BrandContextCreateInput = {
   lastTrainedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutBrandContextInput
-  platformContexts?: Prisma.PlatformContextCreateNestedManyWithoutBrandContextInput
-  learningSignals?: Prisma.BrandLearningSignalCreateNestedManyWithoutBrandContextInput
-  fieldStates?: Prisma.BrandFieldStateCreateNestedManyWithoutBrandContextInput
-  versions?: Prisma.BrandContextVersionCreateNestedManyWithoutBrandContextInput
+  Workspace: Prisma.WorkspaceCreateNestedOneWithoutBrandContextInput
+  BrandContextVersion?: Prisma.BrandContextVersionCreateNestedManyWithoutBrandContextInput
+  BrandFieldState?: Prisma.BrandFieldStateCreateNestedManyWithoutBrandContextInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalCreateNestedManyWithoutBrandContextInput
+  PlatformContext?: Prisma.PlatformContextCreateNestedManyWithoutBrandContextInput
 }
 
 export type BrandContextUncheckedCreateInput = {
-  id?: string
+  id: string
   workspaceId: string
   businessName?: string | null
   tagline?: string | null
@@ -454,10 +454,10 @@ export type BrandContextUncheckedCreateInput = {
   lastTrainedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  platformContexts?: Prisma.PlatformContextUncheckedCreateNestedManyWithoutBrandContextInput
-  learningSignals?: Prisma.BrandLearningSignalUncheckedCreateNestedManyWithoutBrandContextInput
-  fieldStates?: Prisma.BrandFieldStateUncheckedCreateNestedManyWithoutBrandContextInput
-  versions?: Prisma.BrandContextVersionUncheckedCreateNestedManyWithoutBrandContextInput
+  BrandContextVersion?: Prisma.BrandContextVersionUncheckedCreateNestedManyWithoutBrandContextInput
+  BrandFieldState?: Prisma.BrandFieldStateUncheckedCreateNestedManyWithoutBrandContextInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalUncheckedCreateNestedManyWithoutBrandContextInput
+  PlatformContext?: Prisma.PlatformContextUncheckedCreateNestedManyWithoutBrandContextInput
 }
 
 export type BrandContextUpdateInput = {
@@ -481,11 +481,11 @@ export type BrandContextUpdateInput = {
   lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBrandContextNestedInput
-  platformContexts?: Prisma.PlatformContextUpdateManyWithoutBrandContextNestedInput
-  learningSignals?: Prisma.BrandLearningSignalUpdateManyWithoutBrandContextNestedInput
-  fieldStates?: Prisma.BrandFieldStateUpdateManyWithoutBrandContextNestedInput
-  versions?: Prisma.BrandContextVersionUpdateManyWithoutBrandContextNestedInput
+  Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBrandContextNestedInput
+  BrandContextVersion?: Prisma.BrandContextVersionUpdateManyWithoutBrandContextNestedInput
+  BrandFieldState?: Prisma.BrandFieldStateUpdateManyWithoutBrandContextNestedInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalUpdateManyWithoutBrandContextNestedInput
+  PlatformContext?: Prisma.PlatformContextUpdateManyWithoutBrandContextNestedInput
 }
 
 export type BrandContextUncheckedUpdateInput = {
@@ -510,14 +510,14 @@ export type BrandContextUncheckedUpdateInput = {
   lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  platformContexts?: Prisma.PlatformContextUncheckedUpdateManyWithoutBrandContextNestedInput
-  learningSignals?: Prisma.BrandLearningSignalUncheckedUpdateManyWithoutBrandContextNestedInput
-  fieldStates?: Prisma.BrandFieldStateUncheckedUpdateManyWithoutBrandContextNestedInput
-  versions?: Prisma.BrandContextVersionUncheckedUpdateManyWithoutBrandContextNestedInput
+  BrandContextVersion?: Prisma.BrandContextVersionUncheckedUpdateManyWithoutBrandContextNestedInput
+  BrandFieldState?: Prisma.BrandFieldStateUncheckedUpdateManyWithoutBrandContextNestedInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalUncheckedUpdateManyWithoutBrandContextNestedInput
+  PlatformContext?: Prisma.PlatformContextUncheckedUpdateManyWithoutBrandContextNestedInput
 }
 
 export type BrandContextCreateManyInput = {
-  id?: string
+  id: string
   workspaceId: string
   businessName?: string | null
   tagline?: string | null
@@ -587,9 +587,12 @@ export type BrandContextUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type BrandContextNullableScalarRelationFilter = {
-  is?: Prisma.BrandContextWhereInput | null
-  isNot?: Prisma.BrandContextWhereInput | null
+export type StringNullableListFilter<$PrismaModel = never> = {
+  equals?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
+  has?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
+  hasEvery?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  hasSome?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  isEmpty?: boolean
 }
 
 export type BrandContextCountOrderByAggregateInput = {
@@ -655,6 +658,120 @@ export type BrandContextScalarRelationFilter = {
   isNot?: Prisma.BrandContextWhereInput
 }
 
+export type BrandContextNullableScalarRelationFilter = {
+  is?: Prisma.BrandContextWhereInput | null
+  isNot?: Prisma.BrandContextWhereInput | null
+}
+
+export type BrandContextCreatebannedWordsInput = {
+  set: string[]
+}
+
+export type BrandContextCreateinterestsInput = {
+  set: string[]
+}
+
+export type BrandContextCreatepainPointsInput = {
+  set: string[]
+}
+
+export type BrandContextCreatecompetitorsInput = {
+  set: string[]
+}
+
+export type BrandContextCreategoalsInput = {
+  set: string[]
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
+}
+
+export type BrandContextUpdatebannedWordsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type BrandContextUpdateinterestsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type BrandContextUpdatepainPointsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type BrandContextUpdatecompetitorsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type BrandContextUpdategoalsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
+export type BrandContextCreateNestedOneWithoutBrandContextVersionInput = {
+  create?: Prisma.XOR<Prisma.BrandContextCreateWithoutBrandContextVersionInput, Prisma.BrandContextUncheckedCreateWithoutBrandContextVersionInput>
+  connectOrCreate?: Prisma.BrandContextCreateOrConnectWithoutBrandContextVersionInput
+  connect?: Prisma.BrandContextWhereUniqueInput
+}
+
+export type BrandContextUpdateOneRequiredWithoutBrandContextVersionNestedInput = {
+  create?: Prisma.XOR<Prisma.BrandContextCreateWithoutBrandContextVersionInput, Prisma.BrandContextUncheckedCreateWithoutBrandContextVersionInput>
+  connectOrCreate?: Prisma.BrandContextCreateOrConnectWithoutBrandContextVersionInput
+  upsert?: Prisma.BrandContextUpsertWithoutBrandContextVersionInput
+  connect?: Prisma.BrandContextWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BrandContextUpdateToOneWithWhereWithoutBrandContextVersionInput, Prisma.BrandContextUpdateWithoutBrandContextVersionInput>, Prisma.BrandContextUncheckedUpdateWithoutBrandContextVersionInput>
+}
+
+export type BrandContextCreateNestedOneWithoutBrandFieldStateInput = {
+  create?: Prisma.XOR<Prisma.BrandContextCreateWithoutBrandFieldStateInput, Prisma.BrandContextUncheckedCreateWithoutBrandFieldStateInput>
+  connectOrCreate?: Prisma.BrandContextCreateOrConnectWithoutBrandFieldStateInput
+  connect?: Prisma.BrandContextWhereUniqueInput
+}
+
+export type BrandContextUpdateOneRequiredWithoutBrandFieldStateNestedInput = {
+  create?: Prisma.XOR<Prisma.BrandContextCreateWithoutBrandFieldStateInput, Prisma.BrandContextUncheckedCreateWithoutBrandFieldStateInput>
+  connectOrCreate?: Prisma.BrandContextCreateOrConnectWithoutBrandFieldStateInput
+  upsert?: Prisma.BrandContextUpsertWithoutBrandFieldStateInput
+  connect?: Prisma.BrandContextWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BrandContextUpdateToOneWithWhereWithoutBrandFieldStateInput, Prisma.BrandContextUpdateWithoutBrandFieldStateInput>, Prisma.BrandContextUncheckedUpdateWithoutBrandFieldStateInput>
+}
+
+export type BrandContextCreateNestedOneWithoutBrandLearningSignalInput = {
+  create?: Prisma.XOR<Prisma.BrandContextCreateWithoutBrandLearningSignalInput, Prisma.BrandContextUncheckedCreateWithoutBrandLearningSignalInput>
+  connectOrCreate?: Prisma.BrandContextCreateOrConnectWithoutBrandLearningSignalInput
+  connect?: Prisma.BrandContextWhereUniqueInput
+}
+
+export type BrandContextUpdateOneRequiredWithoutBrandLearningSignalNestedInput = {
+  create?: Prisma.XOR<Prisma.BrandContextCreateWithoutBrandLearningSignalInput, Prisma.BrandContextUncheckedCreateWithoutBrandLearningSignalInput>
+  connectOrCreate?: Prisma.BrandContextCreateOrConnectWithoutBrandLearningSignalInput
+  upsert?: Prisma.BrandContextUpsertWithoutBrandLearningSignalInput
+  connect?: Prisma.BrandContextWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BrandContextUpdateToOneWithWhereWithoutBrandLearningSignalInput, Prisma.BrandContextUpdateWithoutBrandLearningSignalInput>, Prisma.BrandContextUncheckedUpdateWithoutBrandLearningSignalInput>
+}
+
+export type BrandContextCreateNestedOneWithoutPlatformContextInput = {
+  create?: Prisma.XOR<Prisma.BrandContextCreateWithoutPlatformContextInput, Prisma.BrandContextUncheckedCreateWithoutPlatformContextInput>
+  connectOrCreate?: Prisma.BrandContextCreateOrConnectWithoutPlatformContextInput
+  connect?: Prisma.BrandContextWhereUniqueInput
+}
+
+export type BrandContextUpdateOneRequiredWithoutPlatformContextNestedInput = {
+  create?: Prisma.XOR<Prisma.BrandContextCreateWithoutPlatformContextInput, Prisma.BrandContextUncheckedCreateWithoutPlatformContextInput>
+  connectOrCreate?: Prisma.BrandContextCreateOrConnectWithoutPlatformContextInput
+  upsert?: Prisma.BrandContextUpsertWithoutPlatformContextInput
+  connect?: Prisma.BrandContextWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BrandContextUpdateToOneWithWhereWithoutPlatformContextInput, Prisma.BrandContextUpdateWithoutPlatformContextInput>, Prisma.BrandContextUncheckedUpdateWithoutPlatformContextInput>
+}
+
 export type BrandContextCreateNestedOneWithoutWorkspaceInput = {
   create?: Prisma.XOR<Prisma.BrandContextCreateWithoutWorkspaceInput, Prisma.BrandContextUncheckedCreateWithoutWorkspaceInput>
   connectOrCreate?: Prisma.BrandContextCreateOrConnectWithoutWorkspaceInput
@@ -687,109 +804,504 @@ export type BrandContextUncheckedUpdateOneWithoutWorkspaceNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BrandContextUpdateToOneWithWhereWithoutWorkspaceInput, Prisma.BrandContextUpdateWithoutWorkspaceInput>, Prisma.BrandContextUncheckedUpdateWithoutWorkspaceInput>
 }
 
-export type BrandContextCreatebannedWordsInput = {
-  set: string[]
+export type BrandContextCreateWithoutBrandContextVersionInput = {
+  id: string
+  businessName?: string | null
+  tagline?: string | null
+  websiteUrl?: string | null
+  industry?: string | null
+  productDesc?: string | null
+  tonePreset?: string | null
+  voiceDescription?: string | null
+  bannedWords?: Prisma.BrandContextCreatebannedWordsInput | string[]
+  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  audienceType?: string | null
+  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  interests?: Prisma.BrandContextCreateinterestsInput | string[]
+  painPoints?: Prisma.BrandContextCreatepainPointsInput | string[]
+  competitors?: Prisma.BrandContextCreatecompetitorsInput | string[]
+  goals?: Prisma.BrandContextCreategoalsInput | string[]
+  trainingStatus?: string
+  lastTrainedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  Workspace: Prisma.WorkspaceCreateNestedOneWithoutBrandContextInput
+  BrandFieldState?: Prisma.BrandFieldStateCreateNestedManyWithoutBrandContextInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalCreateNestedManyWithoutBrandContextInput
+  PlatformContext?: Prisma.PlatformContextCreateNestedManyWithoutBrandContextInput
 }
 
-export type BrandContextCreateinterestsInput = {
-  set: string[]
+export type BrandContextUncheckedCreateWithoutBrandContextVersionInput = {
+  id: string
+  workspaceId: string
+  businessName?: string | null
+  tagline?: string | null
+  websiteUrl?: string | null
+  industry?: string | null
+  productDesc?: string | null
+  tonePreset?: string | null
+  voiceDescription?: string | null
+  bannedWords?: Prisma.BrandContextCreatebannedWordsInput | string[]
+  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  audienceType?: string | null
+  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  interests?: Prisma.BrandContextCreateinterestsInput | string[]
+  painPoints?: Prisma.BrandContextCreatepainPointsInput | string[]
+  competitors?: Prisma.BrandContextCreatecompetitorsInput | string[]
+  goals?: Prisma.BrandContextCreategoalsInput | string[]
+  trainingStatus?: string
+  lastTrainedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  BrandFieldState?: Prisma.BrandFieldStateUncheckedCreateNestedManyWithoutBrandContextInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalUncheckedCreateNestedManyWithoutBrandContextInput
+  PlatformContext?: Prisma.PlatformContextUncheckedCreateNestedManyWithoutBrandContextInput
 }
 
-export type BrandContextCreatepainPointsInput = {
-  set: string[]
+export type BrandContextCreateOrConnectWithoutBrandContextVersionInput = {
+  where: Prisma.BrandContextWhereUniqueInput
+  create: Prisma.XOR<Prisma.BrandContextCreateWithoutBrandContextVersionInput, Prisma.BrandContextUncheckedCreateWithoutBrandContextVersionInput>
 }
 
-export type BrandContextCreatecompetitorsInput = {
-  set: string[]
+export type BrandContextUpsertWithoutBrandContextVersionInput = {
+  update: Prisma.XOR<Prisma.BrandContextUpdateWithoutBrandContextVersionInput, Prisma.BrandContextUncheckedUpdateWithoutBrandContextVersionInput>
+  create: Prisma.XOR<Prisma.BrandContextCreateWithoutBrandContextVersionInput, Prisma.BrandContextUncheckedCreateWithoutBrandContextVersionInput>
+  where?: Prisma.BrandContextWhereInput
 }
 
-export type BrandContextCreategoalsInput = {
-  set: string[]
+export type BrandContextUpdateToOneWithWhereWithoutBrandContextVersionInput = {
+  where?: Prisma.BrandContextWhereInput
+  data: Prisma.XOR<Prisma.BrandContextUpdateWithoutBrandContextVersionInput, Prisma.BrandContextUncheckedUpdateWithoutBrandContextVersionInput>
 }
 
-export type BrandContextUpdatebannedWordsInput = {
-  set?: string[]
-  push?: string | string[]
+export type BrandContextUpdateWithoutBrandContextVersionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tonePreset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voiceDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannedWords?: Prisma.BrandContextUpdatebannedWordsInput | string[]
+  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  audienceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  interests?: Prisma.BrandContextUpdateinterestsInput | string[]
+  painPoints?: Prisma.BrandContextUpdatepainPointsInput | string[]
+  competitors?: Prisma.BrandContextUpdatecompetitorsInput | string[]
+  goals?: Prisma.BrandContextUpdategoalsInput | string[]
+  trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBrandContextNestedInput
+  BrandFieldState?: Prisma.BrandFieldStateUpdateManyWithoutBrandContextNestedInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalUpdateManyWithoutBrandContextNestedInput
+  PlatformContext?: Prisma.PlatformContextUpdateManyWithoutBrandContextNestedInput
 }
 
-export type BrandContextUpdateinterestsInput = {
-  set?: string[]
-  push?: string | string[]
+export type BrandContextUncheckedUpdateWithoutBrandContextVersionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tonePreset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voiceDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannedWords?: Prisma.BrandContextUpdatebannedWordsInput | string[]
+  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  audienceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  interests?: Prisma.BrandContextUpdateinterestsInput | string[]
+  painPoints?: Prisma.BrandContextUpdatepainPointsInput | string[]
+  competitors?: Prisma.BrandContextUpdatecompetitorsInput | string[]
+  goals?: Prisma.BrandContextUpdategoalsInput | string[]
+  trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  BrandFieldState?: Prisma.BrandFieldStateUncheckedUpdateManyWithoutBrandContextNestedInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalUncheckedUpdateManyWithoutBrandContextNestedInput
+  PlatformContext?: Prisma.PlatformContextUncheckedUpdateManyWithoutBrandContextNestedInput
 }
 
-export type BrandContextUpdatepainPointsInput = {
-  set?: string[]
-  push?: string | string[]
+export type BrandContextCreateWithoutBrandFieldStateInput = {
+  id: string
+  businessName?: string | null
+  tagline?: string | null
+  websiteUrl?: string | null
+  industry?: string | null
+  productDesc?: string | null
+  tonePreset?: string | null
+  voiceDescription?: string | null
+  bannedWords?: Prisma.BrandContextCreatebannedWordsInput | string[]
+  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  audienceType?: string | null
+  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  interests?: Prisma.BrandContextCreateinterestsInput | string[]
+  painPoints?: Prisma.BrandContextCreatepainPointsInput | string[]
+  competitors?: Prisma.BrandContextCreatecompetitorsInput | string[]
+  goals?: Prisma.BrandContextCreategoalsInput | string[]
+  trainingStatus?: string
+  lastTrainedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  Workspace: Prisma.WorkspaceCreateNestedOneWithoutBrandContextInput
+  BrandContextVersion?: Prisma.BrandContextVersionCreateNestedManyWithoutBrandContextInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalCreateNestedManyWithoutBrandContextInput
+  PlatformContext?: Prisma.PlatformContextCreateNestedManyWithoutBrandContextInput
 }
 
-export type BrandContextUpdatecompetitorsInput = {
-  set?: string[]
-  push?: string | string[]
+export type BrandContextUncheckedCreateWithoutBrandFieldStateInput = {
+  id: string
+  workspaceId: string
+  businessName?: string | null
+  tagline?: string | null
+  websiteUrl?: string | null
+  industry?: string | null
+  productDesc?: string | null
+  tonePreset?: string | null
+  voiceDescription?: string | null
+  bannedWords?: Prisma.BrandContextCreatebannedWordsInput | string[]
+  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  audienceType?: string | null
+  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  interests?: Prisma.BrandContextCreateinterestsInput | string[]
+  painPoints?: Prisma.BrandContextCreatepainPointsInput | string[]
+  competitors?: Prisma.BrandContextCreatecompetitorsInput | string[]
+  goals?: Prisma.BrandContextCreategoalsInput | string[]
+  trainingStatus?: string
+  lastTrainedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  BrandContextVersion?: Prisma.BrandContextVersionUncheckedCreateNestedManyWithoutBrandContextInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalUncheckedCreateNestedManyWithoutBrandContextInput
+  PlatformContext?: Prisma.PlatformContextUncheckedCreateNestedManyWithoutBrandContextInput
 }
 
-export type BrandContextUpdategoalsInput = {
-  set?: string[]
-  push?: string | string[]
+export type BrandContextCreateOrConnectWithoutBrandFieldStateInput = {
+  where: Prisma.BrandContextWhereUniqueInput
+  create: Prisma.XOR<Prisma.BrandContextCreateWithoutBrandFieldStateInput, Prisma.BrandContextUncheckedCreateWithoutBrandFieldStateInput>
 }
 
-export type BrandContextCreateNestedOneWithoutVersionsInput = {
-  create?: Prisma.XOR<Prisma.BrandContextCreateWithoutVersionsInput, Prisma.BrandContextUncheckedCreateWithoutVersionsInput>
-  connectOrCreate?: Prisma.BrandContextCreateOrConnectWithoutVersionsInput
-  connect?: Prisma.BrandContextWhereUniqueInput
+export type BrandContextUpsertWithoutBrandFieldStateInput = {
+  update: Prisma.XOR<Prisma.BrandContextUpdateWithoutBrandFieldStateInput, Prisma.BrandContextUncheckedUpdateWithoutBrandFieldStateInput>
+  create: Prisma.XOR<Prisma.BrandContextCreateWithoutBrandFieldStateInput, Prisma.BrandContextUncheckedCreateWithoutBrandFieldStateInput>
+  where?: Prisma.BrandContextWhereInput
 }
 
-export type BrandContextUpdateOneRequiredWithoutVersionsNestedInput = {
-  create?: Prisma.XOR<Prisma.BrandContextCreateWithoutVersionsInput, Prisma.BrandContextUncheckedCreateWithoutVersionsInput>
-  connectOrCreate?: Prisma.BrandContextCreateOrConnectWithoutVersionsInput
-  upsert?: Prisma.BrandContextUpsertWithoutVersionsInput
-  connect?: Prisma.BrandContextWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.BrandContextUpdateToOneWithWhereWithoutVersionsInput, Prisma.BrandContextUpdateWithoutVersionsInput>, Prisma.BrandContextUncheckedUpdateWithoutVersionsInput>
+export type BrandContextUpdateToOneWithWhereWithoutBrandFieldStateInput = {
+  where?: Prisma.BrandContextWhereInput
+  data: Prisma.XOR<Prisma.BrandContextUpdateWithoutBrandFieldStateInput, Prisma.BrandContextUncheckedUpdateWithoutBrandFieldStateInput>
 }
 
-export type BrandContextCreateNestedOneWithoutPlatformContextsInput = {
-  create?: Prisma.XOR<Prisma.BrandContextCreateWithoutPlatformContextsInput, Prisma.BrandContextUncheckedCreateWithoutPlatformContextsInput>
-  connectOrCreate?: Prisma.BrandContextCreateOrConnectWithoutPlatformContextsInput
-  connect?: Prisma.BrandContextWhereUniqueInput
+export type BrandContextUpdateWithoutBrandFieldStateInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tonePreset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voiceDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannedWords?: Prisma.BrandContextUpdatebannedWordsInput | string[]
+  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  audienceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  interests?: Prisma.BrandContextUpdateinterestsInput | string[]
+  painPoints?: Prisma.BrandContextUpdatepainPointsInput | string[]
+  competitors?: Prisma.BrandContextUpdatecompetitorsInput | string[]
+  goals?: Prisma.BrandContextUpdategoalsInput | string[]
+  trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBrandContextNestedInput
+  BrandContextVersion?: Prisma.BrandContextVersionUpdateManyWithoutBrandContextNestedInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalUpdateManyWithoutBrandContextNestedInput
+  PlatformContext?: Prisma.PlatformContextUpdateManyWithoutBrandContextNestedInput
 }
 
-export type BrandContextUpdateOneRequiredWithoutPlatformContextsNestedInput = {
-  create?: Prisma.XOR<Prisma.BrandContextCreateWithoutPlatformContextsInput, Prisma.BrandContextUncheckedCreateWithoutPlatformContextsInput>
-  connectOrCreate?: Prisma.BrandContextCreateOrConnectWithoutPlatformContextsInput
-  upsert?: Prisma.BrandContextUpsertWithoutPlatformContextsInput
-  connect?: Prisma.BrandContextWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.BrandContextUpdateToOneWithWhereWithoutPlatformContextsInput, Prisma.BrandContextUpdateWithoutPlatformContextsInput>, Prisma.BrandContextUncheckedUpdateWithoutPlatformContextsInput>
+export type BrandContextUncheckedUpdateWithoutBrandFieldStateInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tonePreset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voiceDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannedWords?: Prisma.BrandContextUpdatebannedWordsInput | string[]
+  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  audienceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  interests?: Prisma.BrandContextUpdateinterestsInput | string[]
+  painPoints?: Prisma.BrandContextUpdatepainPointsInput | string[]
+  competitors?: Prisma.BrandContextUpdatecompetitorsInput | string[]
+  goals?: Prisma.BrandContextUpdategoalsInput | string[]
+  trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  BrandContextVersion?: Prisma.BrandContextVersionUncheckedUpdateManyWithoutBrandContextNestedInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalUncheckedUpdateManyWithoutBrandContextNestedInput
+  PlatformContext?: Prisma.PlatformContextUncheckedUpdateManyWithoutBrandContextNestedInput
 }
 
-export type BrandContextCreateNestedOneWithoutLearningSignalsInput = {
-  create?: Prisma.XOR<Prisma.BrandContextCreateWithoutLearningSignalsInput, Prisma.BrandContextUncheckedCreateWithoutLearningSignalsInput>
-  connectOrCreate?: Prisma.BrandContextCreateOrConnectWithoutLearningSignalsInput
-  connect?: Prisma.BrandContextWhereUniqueInput
+export type BrandContextCreateWithoutBrandLearningSignalInput = {
+  id: string
+  businessName?: string | null
+  tagline?: string | null
+  websiteUrl?: string | null
+  industry?: string | null
+  productDesc?: string | null
+  tonePreset?: string | null
+  voiceDescription?: string | null
+  bannedWords?: Prisma.BrandContextCreatebannedWordsInput | string[]
+  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  audienceType?: string | null
+  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  interests?: Prisma.BrandContextCreateinterestsInput | string[]
+  painPoints?: Prisma.BrandContextCreatepainPointsInput | string[]
+  competitors?: Prisma.BrandContextCreatecompetitorsInput | string[]
+  goals?: Prisma.BrandContextCreategoalsInput | string[]
+  trainingStatus?: string
+  lastTrainedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  Workspace: Prisma.WorkspaceCreateNestedOneWithoutBrandContextInput
+  BrandContextVersion?: Prisma.BrandContextVersionCreateNestedManyWithoutBrandContextInput
+  BrandFieldState?: Prisma.BrandFieldStateCreateNestedManyWithoutBrandContextInput
+  PlatformContext?: Prisma.PlatformContextCreateNestedManyWithoutBrandContextInput
 }
 
-export type BrandContextUpdateOneRequiredWithoutLearningSignalsNestedInput = {
-  create?: Prisma.XOR<Prisma.BrandContextCreateWithoutLearningSignalsInput, Prisma.BrandContextUncheckedCreateWithoutLearningSignalsInput>
-  connectOrCreate?: Prisma.BrandContextCreateOrConnectWithoutLearningSignalsInput
-  upsert?: Prisma.BrandContextUpsertWithoutLearningSignalsInput
-  connect?: Prisma.BrandContextWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.BrandContextUpdateToOneWithWhereWithoutLearningSignalsInput, Prisma.BrandContextUpdateWithoutLearningSignalsInput>, Prisma.BrandContextUncheckedUpdateWithoutLearningSignalsInput>
+export type BrandContextUncheckedCreateWithoutBrandLearningSignalInput = {
+  id: string
+  workspaceId: string
+  businessName?: string | null
+  tagline?: string | null
+  websiteUrl?: string | null
+  industry?: string | null
+  productDesc?: string | null
+  tonePreset?: string | null
+  voiceDescription?: string | null
+  bannedWords?: Prisma.BrandContextCreatebannedWordsInput | string[]
+  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  audienceType?: string | null
+  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  interests?: Prisma.BrandContextCreateinterestsInput | string[]
+  painPoints?: Prisma.BrandContextCreatepainPointsInput | string[]
+  competitors?: Prisma.BrandContextCreatecompetitorsInput | string[]
+  goals?: Prisma.BrandContextCreategoalsInput | string[]
+  trainingStatus?: string
+  lastTrainedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  BrandContextVersion?: Prisma.BrandContextVersionUncheckedCreateNestedManyWithoutBrandContextInput
+  BrandFieldState?: Prisma.BrandFieldStateUncheckedCreateNestedManyWithoutBrandContextInput
+  PlatformContext?: Prisma.PlatformContextUncheckedCreateNestedManyWithoutBrandContextInput
 }
 
-export type BrandContextCreateNestedOneWithoutFieldStatesInput = {
-  create?: Prisma.XOR<Prisma.BrandContextCreateWithoutFieldStatesInput, Prisma.BrandContextUncheckedCreateWithoutFieldStatesInput>
-  connectOrCreate?: Prisma.BrandContextCreateOrConnectWithoutFieldStatesInput
-  connect?: Prisma.BrandContextWhereUniqueInput
+export type BrandContextCreateOrConnectWithoutBrandLearningSignalInput = {
+  where: Prisma.BrandContextWhereUniqueInput
+  create: Prisma.XOR<Prisma.BrandContextCreateWithoutBrandLearningSignalInput, Prisma.BrandContextUncheckedCreateWithoutBrandLearningSignalInput>
 }
 
-export type BrandContextUpdateOneRequiredWithoutFieldStatesNestedInput = {
-  create?: Prisma.XOR<Prisma.BrandContextCreateWithoutFieldStatesInput, Prisma.BrandContextUncheckedCreateWithoutFieldStatesInput>
-  connectOrCreate?: Prisma.BrandContextCreateOrConnectWithoutFieldStatesInput
-  upsert?: Prisma.BrandContextUpsertWithoutFieldStatesInput
-  connect?: Prisma.BrandContextWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.BrandContextUpdateToOneWithWhereWithoutFieldStatesInput, Prisma.BrandContextUpdateWithoutFieldStatesInput>, Prisma.BrandContextUncheckedUpdateWithoutFieldStatesInput>
+export type BrandContextUpsertWithoutBrandLearningSignalInput = {
+  update: Prisma.XOR<Prisma.BrandContextUpdateWithoutBrandLearningSignalInput, Prisma.BrandContextUncheckedUpdateWithoutBrandLearningSignalInput>
+  create: Prisma.XOR<Prisma.BrandContextCreateWithoutBrandLearningSignalInput, Prisma.BrandContextUncheckedCreateWithoutBrandLearningSignalInput>
+  where?: Prisma.BrandContextWhereInput
+}
+
+export type BrandContextUpdateToOneWithWhereWithoutBrandLearningSignalInput = {
+  where?: Prisma.BrandContextWhereInput
+  data: Prisma.XOR<Prisma.BrandContextUpdateWithoutBrandLearningSignalInput, Prisma.BrandContextUncheckedUpdateWithoutBrandLearningSignalInput>
+}
+
+export type BrandContextUpdateWithoutBrandLearningSignalInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tonePreset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voiceDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannedWords?: Prisma.BrandContextUpdatebannedWordsInput | string[]
+  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  audienceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  interests?: Prisma.BrandContextUpdateinterestsInput | string[]
+  painPoints?: Prisma.BrandContextUpdatepainPointsInput | string[]
+  competitors?: Prisma.BrandContextUpdatecompetitorsInput | string[]
+  goals?: Prisma.BrandContextUpdategoalsInput | string[]
+  trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBrandContextNestedInput
+  BrandContextVersion?: Prisma.BrandContextVersionUpdateManyWithoutBrandContextNestedInput
+  BrandFieldState?: Prisma.BrandFieldStateUpdateManyWithoutBrandContextNestedInput
+  PlatformContext?: Prisma.PlatformContextUpdateManyWithoutBrandContextNestedInput
+}
+
+export type BrandContextUncheckedUpdateWithoutBrandLearningSignalInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tonePreset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voiceDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannedWords?: Prisma.BrandContextUpdatebannedWordsInput | string[]
+  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  audienceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  interests?: Prisma.BrandContextUpdateinterestsInput | string[]
+  painPoints?: Prisma.BrandContextUpdatepainPointsInput | string[]
+  competitors?: Prisma.BrandContextUpdatecompetitorsInput | string[]
+  goals?: Prisma.BrandContextUpdategoalsInput | string[]
+  trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  BrandContextVersion?: Prisma.BrandContextVersionUncheckedUpdateManyWithoutBrandContextNestedInput
+  BrandFieldState?: Prisma.BrandFieldStateUncheckedUpdateManyWithoutBrandContextNestedInput
+  PlatformContext?: Prisma.PlatformContextUncheckedUpdateManyWithoutBrandContextNestedInput
+}
+
+export type BrandContextCreateWithoutPlatformContextInput = {
+  id: string
+  businessName?: string | null
+  tagline?: string | null
+  websiteUrl?: string | null
+  industry?: string | null
+  productDesc?: string | null
+  tonePreset?: string | null
+  voiceDescription?: string | null
+  bannedWords?: Prisma.BrandContextCreatebannedWordsInput | string[]
+  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  audienceType?: string | null
+  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  interests?: Prisma.BrandContextCreateinterestsInput | string[]
+  painPoints?: Prisma.BrandContextCreatepainPointsInput | string[]
+  competitors?: Prisma.BrandContextCreatecompetitorsInput | string[]
+  goals?: Prisma.BrandContextCreategoalsInput | string[]
+  trainingStatus?: string
+  lastTrainedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  Workspace: Prisma.WorkspaceCreateNestedOneWithoutBrandContextInput
+  BrandContextVersion?: Prisma.BrandContextVersionCreateNestedManyWithoutBrandContextInput
+  BrandFieldState?: Prisma.BrandFieldStateCreateNestedManyWithoutBrandContextInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalCreateNestedManyWithoutBrandContextInput
+}
+
+export type BrandContextUncheckedCreateWithoutPlatformContextInput = {
+  id: string
+  workspaceId: string
+  businessName?: string | null
+  tagline?: string | null
+  websiteUrl?: string | null
+  industry?: string | null
+  productDesc?: string | null
+  tonePreset?: string | null
+  voiceDescription?: string | null
+  bannedWords?: Prisma.BrandContextCreatebannedWordsInput | string[]
+  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  audienceType?: string | null
+  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  interests?: Prisma.BrandContextCreateinterestsInput | string[]
+  painPoints?: Prisma.BrandContextCreatepainPointsInput | string[]
+  competitors?: Prisma.BrandContextCreatecompetitorsInput | string[]
+  goals?: Prisma.BrandContextCreategoalsInput | string[]
+  trainingStatus?: string
+  lastTrainedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  BrandContextVersion?: Prisma.BrandContextVersionUncheckedCreateNestedManyWithoutBrandContextInput
+  BrandFieldState?: Prisma.BrandFieldStateUncheckedCreateNestedManyWithoutBrandContextInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalUncheckedCreateNestedManyWithoutBrandContextInput
+}
+
+export type BrandContextCreateOrConnectWithoutPlatformContextInput = {
+  where: Prisma.BrandContextWhereUniqueInput
+  create: Prisma.XOR<Prisma.BrandContextCreateWithoutPlatformContextInput, Prisma.BrandContextUncheckedCreateWithoutPlatformContextInput>
+}
+
+export type BrandContextUpsertWithoutPlatformContextInput = {
+  update: Prisma.XOR<Prisma.BrandContextUpdateWithoutPlatformContextInput, Prisma.BrandContextUncheckedUpdateWithoutPlatformContextInput>
+  create: Prisma.XOR<Prisma.BrandContextCreateWithoutPlatformContextInput, Prisma.BrandContextUncheckedCreateWithoutPlatformContextInput>
+  where?: Prisma.BrandContextWhereInput
+}
+
+export type BrandContextUpdateToOneWithWhereWithoutPlatformContextInput = {
+  where?: Prisma.BrandContextWhereInput
+  data: Prisma.XOR<Prisma.BrandContextUpdateWithoutPlatformContextInput, Prisma.BrandContextUncheckedUpdateWithoutPlatformContextInput>
+}
+
+export type BrandContextUpdateWithoutPlatformContextInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tonePreset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voiceDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannedWords?: Prisma.BrandContextUpdatebannedWordsInput | string[]
+  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  audienceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  interests?: Prisma.BrandContextUpdateinterestsInput | string[]
+  painPoints?: Prisma.BrandContextUpdatepainPointsInput | string[]
+  competitors?: Prisma.BrandContextUpdatecompetitorsInput | string[]
+  goals?: Prisma.BrandContextUpdategoalsInput | string[]
+  trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBrandContextNestedInput
+  BrandContextVersion?: Prisma.BrandContextVersionUpdateManyWithoutBrandContextNestedInput
+  BrandFieldState?: Prisma.BrandFieldStateUpdateManyWithoutBrandContextNestedInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalUpdateManyWithoutBrandContextNestedInput
+}
+
+export type BrandContextUncheckedUpdateWithoutPlatformContextInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tonePreset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voiceDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannedWords?: Prisma.BrandContextUpdatebannedWordsInput | string[]
+  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  audienceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  interests?: Prisma.BrandContextUpdateinterestsInput | string[]
+  painPoints?: Prisma.BrandContextUpdatepainPointsInput | string[]
+  competitors?: Prisma.BrandContextUpdatecompetitorsInput | string[]
+  goals?: Prisma.BrandContextUpdategoalsInput | string[]
+  trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  BrandContextVersion?: Prisma.BrandContextVersionUncheckedUpdateManyWithoutBrandContextNestedInput
+  BrandFieldState?: Prisma.BrandFieldStateUncheckedUpdateManyWithoutBrandContextNestedInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalUncheckedUpdateManyWithoutBrandContextNestedInput
 }
 
 export type BrandContextCreateWithoutWorkspaceInput = {
-  id?: string
+  id: string
   businessName?: string | null
   tagline?: string | null
   websiteUrl?: string | null
@@ -809,14 +1321,14 @@ export type BrandContextCreateWithoutWorkspaceInput = {
   lastTrainedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  platformContexts?: Prisma.PlatformContextCreateNestedManyWithoutBrandContextInput
-  learningSignals?: Prisma.BrandLearningSignalCreateNestedManyWithoutBrandContextInput
-  fieldStates?: Prisma.BrandFieldStateCreateNestedManyWithoutBrandContextInput
-  versions?: Prisma.BrandContextVersionCreateNestedManyWithoutBrandContextInput
+  BrandContextVersion?: Prisma.BrandContextVersionCreateNestedManyWithoutBrandContextInput
+  BrandFieldState?: Prisma.BrandFieldStateCreateNestedManyWithoutBrandContextInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalCreateNestedManyWithoutBrandContextInput
+  PlatformContext?: Prisma.PlatformContextCreateNestedManyWithoutBrandContextInput
 }
 
 export type BrandContextUncheckedCreateWithoutWorkspaceInput = {
-  id?: string
+  id: string
   businessName?: string | null
   tagline?: string | null
   websiteUrl?: string | null
@@ -836,10 +1348,10 @@ export type BrandContextUncheckedCreateWithoutWorkspaceInput = {
   lastTrainedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  platformContexts?: Prisma.PlatformContextUncheckedCreateNestedManyWithoutBrandContextInput
-  learningSignals?: Prisma.BrandLearningSignalUncheckedCreateNestedManyWithoutBrandContextInput
-  fieldStates?: Prisma.BrandFieldStateUncheckedCreateNestedManyWithoutBrandContextInput
-  versions?: Prisma.BrandContextVersionUncheckedCreateNestedManyWithoutBrandContextInput
+  BrandContextVersion?: Prisma.BrandContextVersionUncheckedCreateNestedManyWithoutBrandContextInput
+  BrandFieldState?: Prisma.BrandFieldStateUncheckedCreateNestedManyWithoutBrandContextInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalUncheckedCreateNestedManyWithoutBrandContextInput
+  PlatformContext?: Prisma.PlatformContextUncheckedCreateNestedManyWithoutBrandContextInput
 }
 
 export type BrandContextCreateOrConnectWithoutWorkspaceInput = {
@@ -879,10 +1391,10 @@ export type BrandContextUpdateWithoutWorkspaceInput = {
   lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  platformContexts?: Prisma.PlatformContextUpdateManyWithoutBrandContextNestedInput
-  learningSignals?: Prisma.BrandLearningSignalUpdateManyWithoutBrandContextNestedInput
-  fieldStates?: Prisma.BrandFieldStateUpdateManyWithoutBrandContextNestedInput
-  versions?: Prisma.BrandContextVersionUpdateManyWithoutBrandContextNestedInput
+  BrandContextVersion?: Prisma.BrandContextVersionUpdateManyWithoutBrandContextNestedInput
+  BrandFieldState?: Prisma.BrandFieldStateUpdateManyWithoutBrandContextNestedInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalUpdateManyWithoutBrandContextNestedInput
+  PlatformContext?: Prisma.PlatformContextUpdateManyWithoutBrandContextNestedInput
 }
 
 export type BrandContextUncheckedUpdateWithoutWorkspaceInput = {
@@ -906,506 +1418,10 @@ export type BrandContextUncheckedUpdateWithoutWorkspaceInput = {
   lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  platformContexts?: Prisma.PlatformContextUncheckedUpdateManyWithoutBrandContextNestedInput
-  learningSignals?: Prisma.BrandLearningSignalUncheckedUpdateManyWithoutBrandContextNestedInput
-  fieldStates?: Prisma.BrandFieldStateUncheckedUpdateManyWithoutBrandContextNestedInput
-  versions?: Prisma.BrandContextVersionUncheckedUpdateManyWithoutBrandContextNestedInput
-}
-
-export type BrandContextCreateWithoutVersionsInput = {
-  id?: string
-  businessName?: string | null
-  tagline?: string | null
-  websiteUrl?: string | null
-  industry?: string | null
-  productDesc?: string | null
-  tonePreset?: string | null
-  voiceDescription?: string | null
-  bannedWords?: Prisma.BrandContextCreatebannedWordsInput | string[]
-  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  audienceType?: string | null
-  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  interests?: Prisma.BrandContextCreateinterestsInput | string[]
-  painPoints?: Prisma.BrandContextCreatepainPointsInput | string[]
-  competitors?: Prisma.BrandContextCreatecompetitorsInput | string[]
-  goals?: Prisma.BrandContextCreategoalsInput | string[]
-  trainingStatus?: string
-  lastTrainedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutBrandContextInput
-  platformContexts?: Prisma.PlatformContextCreateNestedManyWithoutBrandContextInput
-  learningSignals?: Prisma.BrandLearningSignalCreateNestedManyWithoutBrandContextInput
-  fieldStates?: Prisma.BrandFieldStateCreateNestedManyWithoutBrandContextInput
-}
-
-export type BrandContextUncheckedCreateWithoutVersionsInput = {
-  id?: string
-  workspaceId: string
-  businessName?: string | null
-  tagline?: string | null
-  websiteUrl?: string | null
-  industry?: string | null
-  productDesc?: string | null
-  tonePreset?: string | null
-  voiceDescription?: string | null
-  bannedWords?: Prisma.BrandContextCreatebannedWordsInput | string[]
-  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  audienceType?: string | null
-  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  interests?: Prisma.BrandContextCreateinterestsInput | string[]
-  painPoints?: Prisma.BrandContextCreatepainPointsInput | string[]
-  competitors?: Prisma.BrandContextCreatecompetitorsInput | string[]
-  goals?: Prisma.BrandContextCreategoalsInput | string[]
-  trainingStatus?: string
-  lastTrainedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  platformContexts?: Prisma.PlatformContextUncheckedCreateNestedManyWithoutBrandContextInput
-  learningSignals?: Prisma.BrandLearningSignalUncheckedCreateNestedManyWithoutBrandContextInput
-  fieldStates?: Prisma.BrandFieldStateUncheckedCreateNestedManyWithoutBrandContextInput
-}
-
-export type BrandContextCreateOrConnectWithoutVersionsInput = {
-  where: Prisma.BrandContextWhereUniqueInput
-  create: Prisma.XOR<Prisma.BrandContextCreateWithoutVersionsInput, Prisma.BrandContextUncheckedCreateWithoutVersionsInput>
-}
-
-export type BrandContextUpsertWithoutVersionsInput = {
-  update: Prisma.XOR<Prisma.BrandContextUpdateWithoutVersionsInput, Prisma.BrandContextUncheckedUpdateWithoutVersionsInput>
-  create: Prisma.XOR<Prisma.BrandContextCreateWithoutVersionsInput, Prisma.BrandContextUncheckedCreateWithoutVersionsInput>
-  where?: Prisma.BrandContextWhereInput
-}
-
-export type BrandContextUpdateToOneWithWhereWithoutVersionsInput = {
-  where?: Prisma.BrandContextWhereInput
-  data: Prisma.XOR<Prisma.BrandContextUpdateWithoutVersionsInput, Prisma.BrandContextUncheckedUpdateWithoutVersionsInput>
-}
-
-export type BrandContextUpdateWithoutVersionsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  productDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tonePreset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  voiceDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannedWords?: Prisma.BrandContextUpdatebannedWordsInput | string[]
-  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  audienceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  interests?: Prisma.BrandContextUpdateinterestsInput | string[]
-  painPoints?: Prisma.BrandContextUpdatepainPointsInput | string[]
-  competitors?: Prisma.BrandContextUpdatecompetitorsInput | string[]
-  goals?: Prisma.BrandContextUpdategoalsInput | string[]
-  trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBrandContextNestedInput
-  platformContexts?: Prisma.PlatformContextUpdateManyWithoutBrandContextNestedInput
-  learningSignals?: Prisma.BrandLearningSignalUpdateManyWithoutBrandContextNestedInput
-  fieldStates?: Prisma.BrandFieldStateUpdateManyWithoutBrandContextNestedInput
-}
-
-export type BrandContextUncheckedUpdateWithoutVersionsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  productDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tonePreset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  voiceDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannedWords?: Prisma.BrandContextUpdatebannedWordsInput | string[]
-  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  audienceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  interests?: Prisma.BrandContextUpdateinterestsInput | string[]
-  painPoints?: Prisma.BrandContextUpdatepainPointsInput | string[]
-  competitors?: Prisma.BrandContextUpdatecompetitorsInput | string[]
-  goals?: Prisma.BrandContextUpdategoalsInput | string[]
-  trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  platformContexts?: Prisma.PlatformContextUncheckedUpdateManyWithoutBrandContextNestedInput
-  learningSignals?: Prisma.BrandLearningSignalUncheckedUpdateManyWithoutBrandContextNestedInput
-  fieldStates?: Prisma.BrandFieldStateUncheckedUpdateManyWithoutBrandContextNestedInput
-}
-
-export type BrandContextCreateWithoutPlatformContextsInput = {
-  id?: string
-  businessName?: string | null
-  tagline?: string | null
-  websiteUrl?: string | null
-  industry?: string | null
-  productDesc?: string | null
-  tonePreset?: string | null
-  voiceDescription?: string | null
-  bannedWords?: Prisma.BrandContextCreatebannedWordsInput | string[]
-  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  audienceType?: string | null
-  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  interests?: Prisma.BrandContextCreateinterestsInput | string[]
-  painPoints?: Prisma.BrandContextCreatepainPointsInput | string[]
-  competitors?: Prisma.BrandContextCreatecompetitorsInput | string[]
-  goals?: Prisma.BrandContextCreategoalsInput | string[]
-  trainingStatus?: string
-  lastTrainedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutBrandContextInput
-  learningSignals?: Prisma.BrandLearningSignalCreateNestedManyWithoutBrandContextInput
-  fieldStates?: Prisma.BrandFieldStateCreateNestedManyWithoutBrandContextInput
-  versions?: Prisma.BrandContextVersionCreateNestedManyWithoutBrandContextInput
-}
-
-export type BrandContextUncheckedCreateWithoutPlatformContextsInput = {
-  id?: string
-  workspaceId: string
-  businessName?: string | null
-  tagline?: string | null
-  websiteUrl?: string | null
-  industry?: string | null
-  productDesc?: string | null
-  tonePreset?: string | null
-  voiceDescription?: string | null
-  bannedWords?: Prisma.BrandContextCreatebannedWordsInput | string[]
-  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  audienceType?: string | null
-  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  interests?: Prisma.BrandContextCreateinterestsInput | string[]
-  painPoints?: Prisma.BrandContextCreatepainPointsInput | string[]
-  competitors?: Prisma.BrandContextCreatecompetitorsInput | string[]
-  goals?: Prisma.BrandContextCreategoalsInput | string[]
-  trainingStatus?: string
-  lastTrainedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  learningSignals?: Prisma.BrandLearningSignalUncheckedCreateNestedManyWithoutBrandContextInput
-  fieldStates?: Prisma.BrandFieldStateUncheckedCreateNestedManyWithoutBrandContextInput
-  versions?: Prisma.BrandContextVersionUncheckedCreateNestedManyWithoutBrandContextInput
-}
-
-export type BrandContextCreateOrConnectWithoutPlatformContextsInput = {
-  where: Prisma.BrandContextWhereUniqueInput
-  create: Prisma.XOR<Prisma.BrandContextCreateWithoutPlatformContextsInput, Prisma.BrandContextUncheckedCreateWithoutPlatformContextsInput>
-}
-
-export type BrandContextUpsertWithoutPlatformContextsInput = {
-  update: Prisma.XOR<Prisma.BrandContextUpdateWithoutPlatformContextsInput, Prisma.BrandContextUncheckedUpdateWithoutPlatformContextsInput>
-  create: Prisma.XOR<Prisma.BrandContextCreateWithoutPlatformContextsInput, Prisma.BrandContextUncheckedCreateWithoutPlatformContextsInput>
-  where?: Prisma.BrandContextWhereInput
-}
-
-export type BrandContextUpdateToOneWithWhereWithoutPlatformContextsInput = {
-  where?: Prisma.BrandContextWhereInput
-  data: Prisma.XOR<Prisma.BrandContextUpdateWithoutPlatformContextsInput, Prisma.BrandContextUncheckedUpdateWithoutPlatformContextsInput>
-}
-
-export type BrandContextUpdateWithoutPlatformContextsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  productDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tonePreset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  voiceDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannedWords?: Prisma.BrandContextUpdatebannedWordsInput | string[]
-  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  audienceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  interests?: Prisma.BrandContextUpdateinterestsInput | string[]
-  painPoints?: Prisma.BrandContextUpdatepainPointsInput | string[]
-  competitors?: Prisma.BrandContextUpdatecompetitorsInput | string[]
-  goals?: Prisma.BrandContextUpdategoalsInput | string[]
-  trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBrandContextNestedInput
-  learningSignals?: Prisma.BrandLearningSignalUpdateManyWithoutBrandContextNestedInput
-  fieldStates?: Prisma.BrandFieldStateUpdateManyWithoutBrandContextNestedInput
-  versions?: Prisma.BrandContextVersionUpdateManyWithoutBrandContextNestedInput
-}
-
-export type BrandContextUncheckedUpdateWithoutPlatformContextsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  productDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tonePreset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  voiceDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannedWords?: Prisma.BrandContextUpdatebannedWordsInput | string[]
-  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  audienceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  interests?: Prisma.BrandContextUpdateinterestsInput | string[]
-  painPoints?: Prisma.BrandContextUpdatepainPointsInput | string[]
-  competitors?: Prisma.BrandContextUpdatecompetitorsInput | string[]
-  goals?: Prisma.BrandContextUpdategoalsInput | string[]
-  trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  learningSignals?: Prisma.BrandLearningSignalUncheckedUpdateManyWithoutBrandContextNestedInput
-  fieldStates?: Prisma.BrandFieldStateUncheckedUpdateManyWithoutBrandContextNestedInput
-  versions?: Prisma.BrandContextVersionUncheckedUpdateManyWithoutBrandContextNestedInput
-}
-
-export type BrandContextCreateWithoutLearningSignalsInput = {
-  id?: string
-  businessName?: string | null
-  tagline?: string | null
-  websiteUrl?: string | null
-  industry?: string | null
-  productDesc?: string | null
-  tonePreset?: string | null
-  voiceDescription?: string | null
-  bannedWords?: Prisma.BrandContextCreatebannedWordsInput | string[]
-  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  audienceType?: string | null
-  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  interests?: Prisma.BrandContextCreateinterestsInput | string[]
-  painPoints?: Prisma.BrandContextCreatepainPointsInput | string[]
-  competitors?: Prisma.BrandContextCreatecompetitorsInput | string[]
-  goals?: Prisma.BrandContextCreategoalsInput | string[]
-  trainingStatus?: string
-  lastTrainedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutBrandContextInput
-  platformContexts?: Prisma.PlatformContextCreateNestedManyWithoutBrandContextInput
-  fieldStates?: Prisma.BrandFieldStateCreateNestedManyWithoutBrandContextInput
-  versions?: Prisma.BrandContextVersionCreateNestedManyWithoutBrandContextInput
-}
-
-export type BrandContextUncheckedCreateWithoutLearningSignalsInput = {
-  id?: string
-  workspaceId: string
-  businessName?: string | null
-  tagline?: string | null
-  websiteUrl?: string | null
-  industry?: string | null
-  productDesc?: string | null
-  tonePreset?: string | null
-  voiceDescription?: string | null
-  bannedWords?: Prisma.BrandContextCreatebannedWordsInput | string[]
-  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  audienceType?: string | null
-  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  interests?: Prisma.BrandContextCreateinterestsInput | string[]
-  painPoints?: Prisma.BrandContextCreatepainPointsInput | string[]
-  competitors?: Prisma.BrandContextCreatecompetitorsInput | string[]
-  goals?: Prisma.BrandContextCreategoalsInput | string[]
-  trainingStatus?: string
-  lastTrainedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  platformContexts?: Prisma.PlatformContextUncheckedCreateNestedManyWithoutBrandContextInput
-  fieldStates?: Prisma.BrandFieldStateUncheckedCreateNestedManyWithoutBrandContextInput
-  versions?: Prisma.BrandContextVersionUncheckedCreateNestedManyWithoutBrandContextInput
-}
-
-export type BrandContextCreateOrConnectWithoutLearningSignalsInput = {
-  where: Prisma.BrandContextWhereUniqueInput
-  create: Prisma.XOR<Prisma.BrandContextCreateWithoutLearningSignalsInput, Prisma.BrandContextUncheckedCreateWithoutLearningSignalsInput>
-}
-
-export type BrandContextUpsertWithoutLearningSignalsInput = {
-  update: Prisma.XOR<Prisma.BrandContextUpdateWithoutLearningSignalsInput, Prisma.BrandContextUncheckedUpdateWithoutLearningSignalsInput>
-  create: Prisma.XOR<Prisma.BrandContextCreateWithoutLearningSignalsInput, Prisma.BrandContextUncheckedCreateWithoutLearningSignalsInput>
-  where?: Prisma.BrandContextWhereInput
-}
-
-export type BrandContextUpdateToOneWithWhereWithoutLearningSignalsInput = {
-  where?: Prisma.BrandContextWhereInput
-  data: Prisma.XOR<Prisma.BrandContextUpdateWithoutLearningSignalsInput, Prisma.BrandContextUncheckedUpdateWithoutLearningSignalsInput>
-}
-
-export type BrandContextUpdateWithoutLearningSignalsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  productDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tonePreset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  voiceDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannedWords?: Prisma.BrandContextUpdatebannedWordsInput | string[]
-  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  audienceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  interests?: Prisma.BrandContextUpdateinterestsInput | string[]
-  painPoints?: Prisma.BrandContextUpdatepainPointsInput | string[]
-  competitors?: Prisma.BrandContextUpdatecompetitorsInput | string[]
-  goals?: Prisma.BrandContextUpdategoalsInput | string[]
-  trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBrandContextNestedInput
-  platformContexts?: Prisma.PlatformContextUpdateManyWithoutBrandContextNestedInput
-  fieldStates?: Prisma.BrandFieldStateUpdateManyWithoutBrandContextNestedInput
-  versions?: Prisma.BrandContextVersionUpdateManyWithoutBrandContextNestedInput
-}
-
-export type BrandContextUncheckedUpdateWithoutLearningSignalsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  productDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tonePreset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  voiceDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannedWords?: Prisma.BrandContextUpdatebannedWordsInput | string[]
-  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  audienceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  interests?: Prisma.BrandContextUpdateinterestsInput | string[]
-  painPoints?: Prisma.BrandContextUpdatepainPointsInput | string[]
-  competitors?: Prisma.BrandContextUpdatecompetitorsInput | string[]
-  goals?: Prisma.BrandContextUpdategoalsInput | string[]
-  trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  platformContexts?: Prisma.PlatformContextUncheckedUpdateManyWithoutBrandContextNestedInput
-  fieldStates?: Prisma.BrandFieldStateUncheckedUpdateManyWithoutBrandContextNestedInput
-  versions?: Prisma.BrandContextVersionUncheckedUpdateManyWithoutBrandContextNestedInput
-}
-
-export type BrandContextCreateWithoutFieldStatesInput = {
-  id?: string
-  businessName?: string | null
-  tagline?: string | null
-  websiteUrl?: string | null
-  industry?: string | null
-  productDesc?: string | null
-  tonePreset?: string | null
-  voiceDescription?: string | null
-  bannedWords?: Prisma.BrandContextCreatebannedWordsInput | string[]
-  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  audienceType?: string | null
-  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  interests?: Prisma.BrandContextCreateinterestsInput | string[]
-  painPoints?: Prisma.BrandContextCreatepainPointsInput | string[]
-  competitors?: Prisma.BrandContextCreatecompetitorsInput | string[]
-  goals?: Prisma.BrandContextCreategoalsInput | string[]
-  trainingStatus?: string
-  lastTrainedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutBrandContextInput
-  platformContexts?: Prisma.PlatformContextCreateNestedManyWithoutBrandContextInput
-  learningSignals?: Prisma.BrandLearningSignalCreateNestedManyWithoutBrandContextInput
-  versions?: Prisma.BrandContextVersionCreateNestedManyWithoutBrandContextInput
-}
-
-export type BrandContextUncheckedCreateWithoutFieldStatesInput = {
-  id?: string
-  workspaceId: string
-  businessName?: string | null
-  tagline?: string | null
-  websiteUrl?: string | null
-  industry?: string | null
-  productDesc?: string | null
-  tonePreset?: string | null
-  voiceDescription?: string | null
-  bannedWords?: Prisma.BrandContextCreatebannedWordsInput | string[]
-  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  audienceType?: string | null
-  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  interests?: Prisma.BrandContextCreateinterestsInput | string[]
-  painPoints?: Prisma.BrandContextCreatepainPointsInput | string[]
-  competitors?: Prisma.BrandContextCreatecompetitorsInput | string[]
-  goals?: Prisma.BrandContextCreategoalsInput | string[]
-  trainingStatus?: string
-  lastTrainedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  platformContexts?: Prisma.PlatformContextUncheckedCreateNestedManyWithoutBrandContextInput
-  learningSignals?: Prisma.BrandLearningSignalUncheckedCreateNestedManyWithoutBrandContextInput
-  versions?: Prisma.BrandContextVersionUncheckedCreateNestedManyWithoutBrandContextInput
-}
-
-export type BrandContextCreateOrConnectWithoutFieldStatesInput = {
-  where: Prisma.BrandContextWhereUniqueInput
-  create: Prisma.XOR<Prisma.BrandContextCreateWithoutFieldStatesInput, Prisma.BrandContextUncheckedCreateWithoutFieldStatesInput>
-}
-
-export type BrandContextUpsertWithoutFieldStatesInput = {
-  update: Prisma.XOR<Prisma.BrandContextUpdateWithoutFieldStatesInput, Prisma.BrandContextUncheckedUpdateWithoutFieldStatesInput>
-  create: Prisma.XOR<Prisma.BrandContextCreateWithoutFieldStatesInput, Prisma.BrandContextUncheckedCreateWithoutFieldStatesInput>
-  where?: Prisma.BrandContextWhereInput
-}
-
-export type BrandContextUpdateToOneWithWhereWithoutFieldStatesInput = {
-  where?: Prisma.BrandContextWhereInput
-  data: Prisma.XOR<Prisma.BrandContextUpdateWithoutFieldStatesInput, Prisma.BrandContextUncheckedUpdateWithoutFieldStatesInput>
-}
-
-export type BrandContextUpdateWithoutFieldStatesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  productDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tonePreset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  voiceDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannedWords?: Prisma.BrandContextUpdatebannedWordsInput | string[]
-  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  audienceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  interests?: Prisma.BrandContextUpdateinterestsInput | string[]
-  painPoints?: Prisma.BrandContextUpdatepainPointsInput | string[]
-  competitors?: Prisma.BrandContextUpdatecompetitorsInput | string[]
-  goals?: Prisma.BrandContextUpdategoalsInput | string[]
-  trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBrandContextNestedInput
-  platformContexts?: Prisma.PlatformContextUpdateManyWithoutBrandContextNestedInput
-  learningSignals?: Prisma.BrandLearningSignalUpdateManyWithoutBrandContextNestedInput
-  versions?: Prisma.BrandContextVersionUpdateManyWithoutBrandContextNestedInput
-}
-
-export type BrandContextUncheckedUpdateWithoutFieldStatesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  productDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tonePreset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  voiceDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannedWords?: Prisma.BrandContextUpdatebannedWordsInput | string[]
-  voiceExamples?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  audienceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  demographics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  interests?: Prisma.BrandContextUpdateinterestsInput | string[]
-  painPoints?: Prisma.BrandContextUpdatepainPointsInput | string[]
-  competitors?: Prisma.BrandContextUpdatecompetitorsInput | string[]
-  goals?: Prisma.BrandContextUpdategoalsInput | string[]
-  trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  platformContexts?: Prisma.PlatformContextUncheckedUpdateManyWithoutBrandContextNestedInput
-  learningSignals?: Prisma.BrandLearningSignalUncheckedUpdateManyWithoutBrandContextNestedInput
-  versions?: Prisma.BrandContextVersionUncheckedUpdateManyWithoutBrandContextNestedInput
+  BrandContextVersion?: Prisma.BrandContextVersionUncheckedUpdateManyWithoutBrandContextNestedInput
+  BrandFieldState?: Prisma.BrandFieldStateUncheckedUpdateManyWithoutBrandContextNestedInput
+  BrandLearningSignal?: Prisma.BrandLearningSignalUncheckedUpdateManyWithoutBrandContextNestedInput
+  PlatformContext?: Prisma.PlatformContextUncheckedUpdateManyWithoutBrandContextNestedInput
 }
 
 
@@ -1414,17 +1430,17 @@ export type BrandContextUncheckedUpdateWithoutFieldStatesInput = {
  */
 
 export type BrandContextCountOutputType = {
-  platformContexts: number
-  learningSignals: number
-  fieldStates: number
-  versions: number
+  BrandContextVersion: number
+  BrandFieldState: number
+  BrandLearningSignal: number
+  PlatformContext: number
 }
 
 export type BrandContextCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  platformContexts?: boolean | BrandContextCountOutputTypeCountPlatformContextsArgs
-  learningSignals?: boolean | BrandContextCountOutputTypeCountLearningSignalsArgs
-  fieldStates?: boolean | BrandContextCountOutputTypeCountFieldStatesArgs
-  versions?: boolean | BrandContextCountOutputTypeCountVersionsArgs
+  BrandContextVersion?: boolean | BrandContextCountOutputTypeCountBrandContextVersionArgs
+  BrandFieldState?: boolean | BrandContextCountOutputTypeCountBrandFieldStateArgs
+  BrandLearningSignal?: boolean | BrandContextCountOutputTypeCountBrandLearningSignalArgs
+  PlatformContext?: boolean | BrandContextCountOutputTypeCountPlatformContextArgs
 }
 
 /**
@@ -1440,29 +1456,29 @@ export type BrandContextCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types
 /**
  * BrandContextCountOutputType without action
  */
-export type BrandContextCountOutputTypeCountPlatformContextsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.PlatformContextWhereInput
+export type BrandContextCountOutputTypeCountBrandContextVersionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BrandContextVersionWhereInput
 }
 
 /**
  * BrandContextCountOutputType without action
  */
-export type BrandContextCountOutputTypeCountLearningSignalsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.BrandLearningSignalWhereInput
-}
-
-/**
- * BrandContextCountOutputType without action
- */
-export type BrandContextCountOutputTypeCountFieldStatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type BrandContextCountOutputTypeCountBrandFieldStateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.BrandFieldStateWhereInput
 }
 
 /**
  * BrandContextCountOutputType without action
  */
-export type BrandContextCountOutputTypeCountVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.BrandContextVersionWhereInput
+export type BrandContextCountOutputTypeCountBrandLearningSignalArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BrandLearningSignalWhereInput
+}
+
+/**
+ * BrandContextCountOutputType without action
+ */
+export type BrandContextCountOutputTypeCountPlatformContextArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PlatformContextWhereInput
 }
 
 
@@ -1488,11 +1504,11 @@ export type BrandContextSelect<ExtArgs extends runtime.Types.Extensions.Internal
   lastTrainedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
-  platformContexts?: boolean | Prisma.BrandContext$platformContextsArgs<ExtArgs>
-  learningSignals?: boolean | Prisma.BrandContext$learningSignalsArgs<ExtArgs>
-  fieldStates?: boolean | Prisma.BrandContext$fieldStatesArgs<ExtArgs>
-  versions?: boolean | Prisma.BrandContext$versionsArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  BrandContextVersion?: boolean | Prisma.BrandContext$BrandContextVersionArgs<ExtArgs>
+  BrandFieldState?: boolean | Prisma.BrandContext$BrandFieldStateArgs<ExtArgs>
+  BrandLearningSignal?: boolean | Prisma.BrandContext$BrandLearningSignalArgs<ExtArgs>
+  PlatformContext?: boolean | Prisma.BrandContext$PlatformContextArgs<ExtArgs>
   _count?: boolean | Prisma.BrandContextCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["brandContext"]>
 
@@ -1518,7 +1534,7 @@ export type BrandContextSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   lastTrainedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["brandContext"]>
 
 export type BrandContextSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1543,7 +1559,7 @@ export type BrandContextSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   lastTrainedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["brandContext"]>
 
 export type BrandContextSelectScalar = {
@@ -1572,28 +1588,28 @@ export type BrandContextSelectScalar = {
 
 export type BrandContextOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "businessName" | "tagline" | "websiteUrl" | "industry" | "productDesc" | "tonePreset" | "voiceDescription" | "bannedWords" | "voiceExamples" | "audienceType" | "demographics" | "interests" | "painPoints" | "competitors" | "goals" | "trainingStatus" | "lastTrainedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["brandContext"]>
 export type BrandContextInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
-  platformContexts?: boolean | Prisma.BrandContext$platformContextsArgs<ExtArgs>
-  learningSignals?: boolean | Prisma.BrandContext$learningSignalsArgs<ExtArgs>
-  fieldStates?: boolean | Prisma.BrandContext$fieldStatesArgs<ExtArgs>
-  versions?: boolean | Prisma.BrandContext$versionsArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  BrandContextVersion?: boolean | Prisma.BrandContext$BrandContextVersionArgs<ExtArgs>
+  BrandFieldState?: boolean | Prisma.BrandContext$BrandFieldStateArgs<ExtArgs>
+  BrandLearningSignal?: boolean | Prisma.BrandContext$BrandLearningSignalArgs<ExtArgs>
+  PlatformContext?: boolean | Prisma.BrandContext$PlatformContextArgs<ExtArgs>
   _count?: boolean | Prisma.BrandContextCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BrandContextIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 export type BrandContextIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 
 export type $BrandContextPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "BrandContext"
   objects: {
-    workspace: Prisma.$WorkspacePayload<ExtArgs>
-    platformContexts: Prisma.$PlatformContextPayload<ExtArgs>[]
-    learningSignals: Prisma.$BrandLearningSignalPayload<ExtArgs>[]
-    fieldStates: Prisma.$BrandFieldStatePayload<ExtArgs>[]
-    versions: Prisma.$BrandContextVersionPayload<ExtArgs>[]
+    Workspace: Prisma.$WorkspacePayload<ExtArgs>
+    BrandContextVersion: Prisma.$BrandContextVersionPayload<ExtArgs>[]
+    BrandFieldState: Prisma.$BrandFieldStatePayload<ExtArgs>[]
+    BrandLearningSignal: Prisma.$BrandLearningSignalPayload<ExtArgs>[]
+    PlatformContext: Prisma.$PlatformContextPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2011,11 +2027,11 @@ readonly fields: BrandContextFieldRefs;
  */
 export interface Prisma__BrandContextClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  platformContexts<T extends Prisma.BrandContext$platformContextsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BrandContext$platformContextsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PlatformContextPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  learningSignals<T extends Prisma.BrandContext$learningSignalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BrandContext$learningSignalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BrandLearningSignalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  fieldStates<T extends Prisma.BrandContext$fieldStatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BrandContext$fieldStatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BrandFieldStatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  versions<T extends Prisma.BrandContext$versionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BrandContext$versionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BrandContextVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  BrandContextVersion<T extends Prisma.BrandContext$BrandContextVersionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BrandContext$BrandContextVersionArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BrandContextVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  BrandFieldState<T extends Prisma.BrandContext$BrandFieldStateArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BrandContext$BrandFieldStateArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BrandFieldStatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  BrandLearningSignal<T extends Prisma.BrandContext$BrandLearningSignalArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BrandContext$BrandLearningSignalArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BrandLearningSignalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  PlatformContext<T extends Prisma.BrandContext$PlatformContextArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BrandContext$PlatformContextArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PlatformContextPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2467,57 +2483,33 @@ export type BrandContextDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.
 }
 
 /**
- * BrandContext.platformContexts
+ * BrandContext.BrandContextVersion
  */
-export type BrandContext$platformContextsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type BrandContext$BrandContextVersionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the PlatformContext
+   * Select specific fields to fetch from the BrandContextVersion
    */
-  select?: Prisma.PlatformContextSelect<ExtArgs> | null
+  select?: Prisma.BrandContextVersionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the PlatformContext
+   * Omit specific fields from the BrandContextVersion
    */
-  omit?: Prisma.PlatformContextOmit<ExtArgs> | null
+  omit?: Prisma.BrandContextVersionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.PlatformContextInclude<ExtArgs> | null
-  where?: Prisma.PlatformContextWhereInput
-  orderBy?: Prisma.PlatformContextOrderByWithRelationInput | Prisma.PlatformContextOrderByWithRelationInput[]
-  cursor?: Prisma.PlatformContextWhereUniqueInput
+  include?: Prisma.BrandContextVersionInclude<ExtArgs> | null
+  where?: Prisma.BrandContextVersionWhereInput
+  orderBy?: Prisma.BrandContextVersionOrderByWithRelationInput | Prisma.BrandContextVersionOrderByWithRelationInput[]
+  cursor?: Prisma.BrandContextVersionWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.PlatformContextScalarFieldEnum | Prisma.PlatformContextScalarFieldEnum[]
+  distinct?: Prisma.BrandContextVersionScalarFieldEnum | Prisma.BrandContextVersionScalarFieldEnum[]
 }
 
 /**
- * BrandContext.learningSignals
+ * BrandContext.BrandFieldState
  */
-export type BrandContext$learningSignalsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the BrandLearningSignal
-   */
-  select?: Prisma.BrandLearningSignalSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the BrandLearningSignal
-   */
-  omit?: Prisma.BrandLearningSignalOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.BrandLearningSignalInclude<ExtArgs> | null
-  where?: Prisma.BrandLearningSignalWhereInput
-  orderBy?: Prisma.BrandLearningSignalOrderByWithRelationInput | Prisma.BrandLearningSignalOrderByWithRelationInput[]
-  cursor?: Prisma.BrandLearningSignalWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.BrandLearningSignalScalarFieldEnum | Prisma.BrandLearningSignalScalarFieldEnum[]
-}
-
-/**
- * BrandContext.fieldStates
- */
-export type BrandContext$fieldStatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type BrandContext$BrandFieldStateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the BrandFieldState
    */
@@ -2539,27 +2531,51 @@ export type BrandContext$fieldStatesArgs<ExtArgs extends runtime.Types.Extension
 }
 
 /**
- * BrandContext.versions
+ * BrandContext.BrandLearningSignal
  */
-export type BrandContext$versionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type BrandContext$BrandLearningSignalArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the BrandContextVersion
+   * Select specific fields to fetch from the BrandLearningSignal
    */
-  select?: Prisma.BrandContextVersionSelect<ExtArgs> | null
+  select?: Prisma.BrandLearningSignalSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the BrandContextVersion
+   * Omit specific fields from the BrandLearningSignal
    */
-  omit?: Prisma.BrandContextVersionOmit<ExtArgs> | null
+  omit?: Prisma.BrandLearningSignalOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.BrandContextVersionInclude<ExtArgs> | null
-  where?: Prisma.BrandContextVersionWhereInput
-  orderBy?: Prisma.BrandContextVersionOrderByWithRelationInput | Prisma.BrandContextVersionOrderByWithRelationInput[]
-  cursor?: Prisma.BrandContextVersionWhereUniqueInput
+  include?: Prisma.BrandLearningSignalInclude<ExtArgs> | null
+  where?: Prisma.BrandLearningSignalWhereInput
+  orderBy?: Prisma.BrandLearningSignalOrderByWithRelationInput | Prisma.BrandLearningSignalOrderByWithRelationInput[]
+  cursor?: Prisma.BrandLearningSignalWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.BrandContextVersionScalarFieldEnum | Prisma.BrandContextVersionScalarFieldEnum[]
+  distinct?: Prisma.BrandLearningSignalScalarFieldEnum | Prisma.BrandLearningSignalScalarFieldEnum[]
+}
+
+/**
+ * BrandContext.PlatformContext
+ */
+export type BrandContext$PlatformContextArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PlatformContext
+   */
+  select?: Prisma.PlatformContextSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PlatformContext
+   */
+  omit?: Prisma.PlatformContextOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PlatformContextInclude<ExtArgs> | null
+  where?: Prisma.PlatformContextWhereInput
+  orderBy?: Prisma.PlatformContextOrderByWithRelationInput | Prisma.PlatformContextOrderByWithRelationInput[]
+  cursor?: Prisma.PlatformContextWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PlatformContextScalarFieldEnum | Prisma.PlatformContextScalarFieldEnum[]
 }
 
 /**

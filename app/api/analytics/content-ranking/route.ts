@@ -28,11 +28,13 @@ export async function GET(req: Request) {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    // Fetch published posts with their analytics in the last 30 days
+    // Fetch published AND external posts with their analytics in the last 30 days
     const postsWithAnalytics = await prisma.post.findMany({
       where: {
         workspaceId,
-        status: "PUBLISHED",
+        status: {
+          in: ["PUBLISHED", "EXTERNAL"],
+        },
         publishedAt: {
           gte: thirtyDaysAgo,
         },
@@ -41,12 +43,15 @@ export async function GET(req: Request) {
         id: true,
         title: true,
         publishedAt: true,
-        platforms: {
+        isExternal: true,
+        PostPlatform: {
           select: {
             platform: true,
+            postUrl: true,
+            content: true,
           },
         },
-        analytics: {
+        AnalyticsSnapshot: {
           select: {
             platform: true,
             likes: true,
@@ -64,17 +69,26 @@ export async function GET(req: Request) {
 
     // Flatten: each post+platform combination becomes one entry
     const entries = postsWithAnalytics.flatMap((post) =>
-      post.analytics.map((analytics) => ({
-        postId: post.id,
-        title: post.title ?? "Untitled",
-        platform: analytics.platform,
-        likes: analytics.likes,
-        comments: analytics.comments,
-        shares: analytics.shares,
-        impressions: analytics.impressions,
-        engagementRate: analytics.engagementRate ?? 0,
-        publishedAt: post.publishedAt,
-      }))
+      post.AnalyticsSnapshot.map((analytics) => {
+        const totalEng = analytics.likes + analytics.comments + analytics.shares;
+        const totalImp = analytics.impressions;
+        // For posts with zero impressions (external/scraped), use raw engagement / 1000 as pseudo-rate
+        const effectiveRate = totalImp > 0 ? totalEng / totalImp : totalEng / 1000;
+        return {
+          postId: post.id,
+          title: post.title ?? "Untitled",
+          platform: analytics.platform,
+          likes: analytics.likes,
+          comments: analytics.comments,
+          shares: analytics.shares,
+          impressions: analytics.impressions,
+          engagementRate: effectiveRate,
+          publishedAt: post.publishedAt,
+          url: post.PostPlatform[0]?.postUrl ?? null,
+          isExternal: post.isExternal,
+          fullText: post.PostPlatform[0]?.content ?? null,
+        };
+      })
     );
 
     // Sort by engagement rate descending

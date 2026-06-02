@@ -190,7 +190,7 @@ export type UserProfileWhereInput = {
   imageAnalysis?: Prisma.JsonNullableFilter<"UserProfile">
   audience?: Prisma.JsonNullableFilter<"UserProfile">
   createdAt?: Prisma.DateTimeFilter<"UserProfile"> | Date | string
-  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
 }
 
 export type UserProfileOrderByWithRelationInput = {
@@ -202,7 +202,7 @@ export type UserProfileOrderByWithRelationInput = {
   imageAnalysis?: Prisma.SortOrderInput | Prisma.SortOrder
   audience?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  workspace?: Prisma.WorkspaceOrderByWithRelationInput
+  Workspace?: Prisma.WorkspaceOrderByWithRelationInput
 }
 
 export type UserProfileWhereUniqueInput = Prisma.AtLeast<{
@@ -217,7 +217,7 @@ export type UserProfileWhereUniqueInput = Prisma.AtLeast<{
   imageAnalysis?: Prisma.JsonNullableFilter<"UserProfile">
   audience?: Prisma.JsonNullableFilter<"UserProfile">
   createdAt?: Prisma.DateTimeFilter<"UserProfile"> | Date | string
-  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
 }, "id" | "workspaceId">
 
 export type UserProfileOrderByWithAggregationInput = {
@@ -249,18 +249,18 @@ export type UserProfileScalarWhereWithAggregatesInput = {
 }
 
 export type UserProfileCreateInput = {
-  id?: string
+  id: string
   bio?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   tone?: string | null
   postTypes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   imageAnalysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   audience?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutProfileInput
+  Workspace: Prisma.WorkspaceCreateNestedOneWithoutUserProfileInput
 }
 
 export type UserProfileUncheckedCreateInput = {
-  id?: string
+  id: string
   workspaceId: string
   bio?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   tone?: string | null
@@ -278,7 +278,7 @@ export type UserProfileUpdateInput = {
   imageAnalysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   audience?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProfileNestedInput
+  Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutUserProfileNestedInput
 }
 
 export type UserProfileUncheckedUpdateInput = {
@@ -293,7 +293,7 @@ export type UserProfileUncheckedUpdateInput = {
 }
 
 export type UserProfileCreateManyInput = {
-  id?: string
+  id: string
   workspaceId: string
   bio?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   tone?: string | null
@@ -324,11 +324,6 @@ export type UserProfileUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type UserProfileNullableScalarRelationFilter = {
-  is?: Prisma.UserProfileWhereInput | null
-  isNot?: Prisma.UserProfileWhereInput | null
-}
-
 export type UserProfileCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
@@ -352,6 +347,11 @@ export type UserProfileMinOrderByAggregateInput = {
   workspaceId?: Prisma.SortOrder
   tone?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type UserProfileNullableScalarRelationFilter = {
+  is?: Prisma.UserProfileWhereInput | null
+  isNot?: Prisma.UserProfileWhereInput | null
 }
 
 export type UserProfileCreateNestedOneWithoutWorkspaceInput = {
@@ -387,7 +387,7 @@ export type UserProfileUncheckedUpdateOneWithoutWorkspaceNestedInput = {
 }
 
 export type UserProfileCreateWithoutWorkspaceInput = {
-  id?: string
+  id: string
   bio?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   tone?: string | null
   postTypes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -397,7 +397,7 @@ export type UserProfileCreateWithoutWorkspaceInput = {
 }
 
 export type UserProfileUncheckedCreateWithoutWorkspaceInput = {
-  id?: string
+  id: string
   bio?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   tone?: string | null
   postTypes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -453,7 +453,7 @@ export type UserProfileSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   imageAnalysis?: boolean
   audience?: boolean
   createdAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userProfile"]>
 
 export type UserProfileSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -465,7 +465,7 @@ export type UserProfileSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   imageAnalysis?: boolean
   audience?: boolean
   createdAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userProfile"]>
 
 export type UserProfileSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -477,7 +477,7 @@ export type UserProfileSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   imageAnalysis?: boolean
   audience?: boolean
   createdAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userProfile"]>
 
 export type UserProfileSelectScalar = {
@@ -493,19 +493,19 @@ export type UserProfileSelectScalar = {
 
 export type UserProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "bio" | "tone" | "postTypes" | "imageAnalysis" | "audience" | "createdAt", ExtArgs["result"]["userProfile"]>
 export type UserProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 export type UserProfileIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 export type UserProfileIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 
 export type $UserProfilePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "UserProfile"
   objects: {
-    workspace: Prisma.$WorkspacePayload<ExtArgs>
+    Workspace: Prisma.$WorkspacePayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -910,7 +910,7 @@ readonly fields: UserProfileFieldRefs;
  */
 export interface Prisma__UserProfileClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

@@ -46,7 +46,7 @@ export async function GET() {
         competitors: brandContext.competitors,
         goals: brandContext.goals,
       },
-      platformContexts: brandContext.platformContexts.map((pc) => ({
+      platformContexts: brandContext.PlatformContext.map((pc) => ({
         platform: pc.platform,
         platformTone: pc.platformTone,
         contentMix: pc.contentMix,

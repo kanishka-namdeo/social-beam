@@ -27,9 +27,9 @@ export function PublishingReliabilityTable({ data }: { data: ReliabilityData[] }
     Math.max(1, data.reduce((s, d) => s + d.total, 0));
 
   return (
-    <Card className="bg-card border-border">
+    <Card className="rounded-sm bg-card border-border">
       <CardHeader>
-        <CardTitle className="text-lg">Publishing Reliability</CardTitle>
+        <CardTitle className="text-lg font-medium tracking-tight">Publishing Reliability</CardTitle>
         <p className="text-sm text-muted-foreground">
           Post success rates across platforms
         </p>
@@ -37,15 +37,15 @@ export function PublishingReliabilityTable({ data }: { data: ReliabilityData[] }
       <CardContent className="space-y-4">
         {/* Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="rounded-lg border border-success/20 bg-success/5 p-4">
-            <div className="text-sm text-muted-foreground">Overall Success Rate</div>
-            <div className="mt-1 text-2xl font-semibold text-success">
+          <div className="rounded-sm border border-success/20 bg-success/5 p-4">
+            <div className="text-sm font-medium tracking-tight text-muted-foreground">Overall Success Rate</div>
+            <div className="mt-1 text-2xl font-semibold font-mono tabular-nums text-success">
               {(overallSuccessRate * 100).toFixed(1)}%
             </div>
           </div>
-          <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4">
-            <div className="text-sm text-muted-foreground">Overall Fail Rate</div>
-            <div className="mt-1 text-2xl font-semibold text-destructive">
+          <div className="rounded-sm border border-destructive/20 bg-destructive/5 p-4">
+            <div className="text-sm font-medium tracking-tight text-muted-foreground">Overall Fail Rate</div>
+            <div className="mt-1 text-2xl font-semibold font-mono tabular-nums text-destructive">
               {(overallFailRate * 100).toFixed(1)}%
             </div>
           </div>
@@ -54,20 +54,20 @@ export function PublishingReliabilityTable({ data }: { data: ReliabilityData[] }
         {/* Per-platform */}
         <div className="space-y-3">
           {data.map((d) => (
-            <div key={d.platform} className="rounded-lg border p-3">
+            <div key={d.platform} className="rounded-sm border p-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Badge
                     variant={d.successRate >= 0.9 ? "default" : d.successRate >= 0.7 ? "secondary" : "destructive"}
-                    className="text-xs"
+                    className="rounded-sm text-xs"
                   >
                     {(d.successRate * 100).toFixed(0)}%
                   </Badge>
-                  <span className="text-sm font-medium">
+                  <span className="text-sm font-medium tracking-tight">
                     {PLATFORM_DISPLAY_NAMES[d.platform] ?? d.platform}
                   </span>
                 </div>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs font-mono tabular-nums text-muted-foreground">
                   {d.published}/{d.total} posts
                 </span>
               </div>

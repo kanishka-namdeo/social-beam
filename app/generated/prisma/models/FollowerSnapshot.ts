@@ -278,7 +278,7 @@ export type FollowerSnapshotScalarWhereWithAggregatesInput = {
 }
 
 export type FollowerSnapshotCreateInput = {
-  id?: string
+  id: string
   workspaceId: string
   platform: string
   followers?: number
@@ -287,7 +287,7 @@ export type FollowerSnapshotCreateInput = {
 }
 
 export type FollowerSnapshotUncheckedCreateInput = {
-  id?: string
+  id: string
   workspaceId: string
   platform: string
   followers?: number
@@ -314,7 +314,7 @@ export type FollowerSnapshotUncheckedUpdateInput = {
 }
 
 export type FollowerSnapshotCreateManyInput = {
-  id?: string
+  id: string
   workspaceId: string
   platform: string
   followers?: number

@@ -22,16 +22,16 @@ function MetricCard({ label, value, change, iconKey }: MetricCardData) {
   const Icon = ICON_MAP[iconKey];
 
   return (
-    <Card>
+    <Card className="rounded-sm border-l-2 border-l-brand hover-lift">
       <CardContent className="p-5">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-muted-foreground">{label}</p>
-            <p className="text-2xl font-semibold tracking-tight text-foreground mt-1">
+            <p className="text-sm font-medium tracking-tight text-muted-foreground">{label}</p>
+            <p className="text-2xl font-semibold font-mono tabular-nums tracking-tight text-foreground mt-1">
               {value}
             </p>
           </div>
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-muted">
             <Icon className="size-5 text-muted-foreground" weight="fill" />
           </div>
         </div>
@@ -43,7 +43,7 @@ function MetricCard({ label, value, change, iconKey }: MetricCardData) {
           )}
           <span
             className={cn(
-              "text-xs font-medium",
+              "text-xs font-medium font-mono tabular-nums",
               isPositive ? "text-success" : "text-destructive"
             )}
           >
@@ -59,7 +59,7 @@ function MetricCard({ label, value, change, iconKey }: MetricCardData) {
 
 export function MetricCards({ metrics }: MetricCardsProps) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+    <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
       {metrics.map((metric) => (
         <MetricCard key={metric.label} {...metric} />
       ))}

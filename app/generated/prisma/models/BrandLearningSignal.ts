@@ -40,40 +40,40 @@ export type BrandLearningSignalMinAggregateOutputType = {
   id: string | null
   brandContextId: string | null
   signalType: string | null
+  sourcePostId: string | null
   fieldName: string | null
   direction: string | null
   magnitude: number | null
   confidence: number | null
-  sourcePostId: string | null
-  applied: boolean | null
   createdAt: Date | null
+  applied: boolean | null
 }
 
 export type BrandLearningSignalMaxAggregateOutputType = {
   id: string | null
   brandContextId: string | null
   signalType: string | null
+  sourcePostId: string | null
   fieldName: string | null
   direction: string | null
   magnitude: number | null
   confidence: number | null
-  sourcePostId: string | null
-  applied: boolean | null
   createdAt: Date | null
+  applied: boolean | null
 }
 
 export type BrandLearningSignalCountAggregateOutputType = {
   id: number
   brandContextId: number
   signalType: number
+  sourcePostId: number
   fieldName: number
   direction: number
   magnitude: number
   confidence: number
-  sourcePostId: number
-  metadata: number
-  applied: number
   createdAt: number
+  applied: number
+  metadata: number
   _all: number
 }
 
@@ -92,40 +92,40 @@ export type BrandLearningSignalMinAggregateInputType = {
   id?: true
   brandContextId?: true
   signalType?: true
+  sourcePostId?: true
   fieldName?: true
   direction?: true
   magnitude?: true
   confidence?: true
-  sourcePostId?: true
-  applied?: true
   createdAt?: true
+  applied?: true
 }
 
 export type BrandLearningSignalMaxAggregateInputType = {
   id?: true
   brandContextId?: true
   signalType?: true
+  sourcePostId?: true
   fieldName?: true
   direction?: true
   magnitude?: true
   confidence?: true
-  sourcePostId?: true
-  applied?: true
   createdAt?: true
+  applied?: true
 }
 
 export type BrandLearningSignalCountAggregateInputType = {
   id?: true
   brandContextId?: true
   signalType?: true
+  sourcePostId?: true
   fieldName?: true
   direction?: true
   magnitude?: true
   confidence?: true
-  sourcePostId?: true
-  metadata?: true
-  applied?: true
   createdAt?: true
+  applied?: true
+  metadata?: true
   _all?: true
 }
 
@@ -219,14 +219,14 @@ export type BrandLearningSignalGroupByOutputType = {
   id: string
   brandContextId: string
   signalType: string
+  sourcePostId: string | null
   fieldName: string
   direction: string
   magnitude: number
   confidence: number
-  sourcePostId: string | null
-  metadata: runtime.JsonValue | null
-  applied: boolean
   createdAt: Date
+  applied: boolean
+  metadata: runtime.JsonValue | null
   _count: BrandLearningSignalCountAggregateOutputType | null
   _avg: BrandLearningSignalAvgAggregateOutputType | null
   _sum: BrandLearningSignalSumAggregateOutputType | null
@@ -256,30 +256,30 @@ export type BrandLearningSignalWhereInput = {
   id?: Prisma.StringFilter<"BrandLearningSignal"> | string
   brandContextId?: Prisma.StringFilter<"BrandLearningSignal"> | string
   signalType?: Prisma.StringFilter<"BrandLearningSignal"> | string
+  sourcePostId?: Prisma.StringNullableFilter<"BrandLearningSignal"> | string | null
   fieldName?: Prisma.StringFilter<"BrandLearningSignal"> | string
   direction?: Prisma.StringFilter<"BrandLearningSignal"> | string
   magnitude?: Prisma.FloatFilter<"BrandLearningSignal"> | number
   confidence?: Prisma.FloatFilter<"BrandLearningSignal"> | number
-  sourcePostId?: Prisma.StringNullableFilter<"BrandLearningSignal"> | string | null
-  metadata?: Prisma.JsonNullableFilter<"BrandLearningSignal">
-  applied?: Prisma.BoolFilter<"BrandLearningSignal"> | boolean
   createdAt?: Prisma.DateTimeFilter<"BrandLearningSignal"> | Date | string
-  brandContext?: Prisma.XOR<Prisma.BrandContextScalarRelationFilter, Prisma.BrandContextWhereInput>
+  applied?: Prisma.BoolFilter<"BrandLearningSignal"> | boolean
+  metadata?: Prisma.JsonNullableFilter<"BrandLearningSignal">
+  BrandContext?: Prisma.XOR<Prisma.BrandContextScalarRelationFilter, Prisma.BrandContextWhereInput>
 }
 
 export type BrandLearningSignalOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   brandContextId?: Prisma.SortOrder
   signalType?: Prisma.SortOrder
+  sourcePostId?: Prisma.SortOrderInput | Prisma.SortOrder
   fieldName?: Prisma.SortOrder
   direction?: Prisma.SortOrder
   magnitude?: Prisma.SortOrder
   confidence?: Prisma.SortOrder
-  sourcePostId?: Prisma.SortOrderInput | Prisma.SortOrder
-  metadata?: Prisma.SortOrderInput | Prisma.SortOrder
-  applied?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  brandContext?: Prisma.BrandContextOrderByWithRelationInput
+  applied?: Prisma.SortOrder
+  metadata?: Prisma.SortOrderInput | Prisma.SortOrder
+  BrandContext?: Prisma.BrandContextOrderByWithRelationInput
 }
 
 export type BrandLearningSignalWhereUniqueInput = Prisma.AtLeast<{
@@ -289,29 +289,29 @@ export type BrandLearningSignalWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.BrandLearningSignalWhereInput | Prisma.BrandLearningSignalWhereInput[]
   brandContextId?: Prisma.StringFilter<"BrandLearningSignal"> | string
   signalType?: Prisma.StringFilter<"BrandLearningSignal"> | string
+  sourcePostId?: Prisma.StringNullableFilter<"BrandLearningSignal"> | string | null
   fieldName?: Prisma.StringFilter<"BrandLearningSignal"> | string
   direction?: Prisma.StringFilter<"BrandLearningSignal"> | string
   magnitude?: Prisma.FloatFilter<"BrandLearningSignal"> | number
   confidence?: Prisma.FloatFilter<"BrandLearningSignal"> | number
-  sourcePostId?: Prisma.StringNullableFilter<"BrandLearningSignal"> | string | null
-  metadata?: Prisma.JsonNullableFilter<"BrandLearningSignal">
-  applied?: Prisma.BoolFilter<"BrandLearningSignal"> | boolean
   createdAt?: Prisma.DateTimeFilter<"BrandLearningSignal"> | Date | string
-  brandContext?: Prisma.XOR<Prisma.BrandContextScalarRelationFilter, Prisma.BrandContextWhereInput>
+  applied?: Prisma.BoolFilter<"BrandLearningSignal"> | boolean
+  metadata?: Prisma.JsonNullableFilter<"BrandLearningSignal">
+  BrandContext?: Prisma.XOR<Prisma.BrandContextScalarRelationFilter, Prisma.BrandContextWhereInput>
 }, "id">
 
 export type BrandLearningSignalOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   brandContextId?: Prisma.SortOrder
   signalType?: Prisma.SortOrder
+  sourcePostId?: Prisma.SortOrderInput | Prisma.SortOrder
   fieldName?: Prisma.SortOrder
   direction?: Prisma.SortOrder
   magnitude?: Prisma.SortOrder
   confidence?: Prisma.SortOrder
-  sourcePostId?: Prisma.SortOrderInput | Prisma.SortOrder
-  metadata?: Prisma.SortOrderInput | Prisma.SortOrder
-  applied?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  applied?: Prisma.SortOrder
+  metadata?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.BrandLearningSignalCountOrderByAggregateInput
   _avg?: Prisma.BrandLearningSignalAvgOrderByAggregateInput
   _max?: Prisma.BrandLearningSignalMaxOrderByAggregateInput
@@ -326,111 +326,111 @@ export type BrandLearningSignalScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"BrandLearningSignal"> | string
   brandContextId?: Prisma.StringWithAggregatesFilter<"BrandLearningSignal"> | string
   signalType?: Prisma.StringWithAggregatesFilter<"BrandLearningSignal"> | string
+  sourcePostId?: Prisma.StringNullableWithAggregatesFilter<"BrandLearningSignal"> | string | null
   fieldName?: Prisma.StringWithAggregatesFilter<"BrandLearningSignal"> | string
   direction?: Prisma.StringWithAggregatesFilter<"BrandLearningSignal"> | string
   magnitude?: Prisma.FloatWithAggregatesFilter<"BrandLearningSignal"> | number
   confidence?: Prisma.FloatWithAggregatesFilter<"BrandLearningSignal"> | number
-  sourcePostId?: Prisma.StringNullableWithAggregatesFilter<"BrandLearningSignal"> | string | null
-  metadata?: Prisma.JsonNullableWithAggregatesFilter<"BrandLearningSignal">
-  applied?: Prisma.BoolWithAggregatesFilter<"BrandLearningSignal"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"BrandLearningSignal"> | Date | string
+  applied?: Prisma.BoolWithAggregatesFilter<"BrandLearningSignal"> | boolean
+  metadata?: Prisma.JsonNullableWithAggregatesFilter<"BrandLearningSignal">
 }
 
 export type BrandLearningSignalCreateInput = {
-  id?: string
+  id: string
   signalType: string
+  sourcePostId?: string | null
   fieldName: string
   direction: string
   magnitude: number
   confidence: number
-  sourcePostId?: string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  applied?: boolean
   createdAt?: Date | string
-  brandContext: Prisma.BrandContextCreateNestedOneWithoutLearningSignalsInput
+  applied?: boolean
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  BrandContext: Prisma.BrandContextCreateNestedOneWithoutBrandLearningSignalInput
 }
 
 export type BrandLearningSignalUncheckedCreateInput = {
-  id?: string
+  id: string
   brandContextId: string
   signalType: string
+  sourcePostId?: string | null
   fieldName: string
   direction: string
   magnitude: number
   confidence: number
-  sourcePostId?: string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  applied?: boolean
   createdAt?: Date | string
+  applied?: boolean
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type BrandLearningSignalUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   signalType?: Prisma.StringFieldUpdateOperationsInput | string
+  sourcePostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fieldName?: Prisma.StringFieldUpdateOperationsInput | string
   direction?: Prisma.StringFieldUpdateOperationsInput | string
   magnitude?: Prisma.FloatFieldUpdateOperationsInput | number
   confidence?: Prisma.FloatFieldUpdateOperationsInput | number
-  sourcePostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  brandContext?: Prisma.BrandContextUpdateOneRequiredWithoutLearningSignalsNestedInput
+  applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  BrandContext?: Prisma.BrandContextUpdateOneRequiredWithoutBrandLearningSignalNestedInput
 }
 
 export type BrandLearningSignalUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   brandContextId?: Prisma.StringFieldUpdateOperationsInput | string
   signalType?: Prisma.StringFieldUpdateOperationsInput | string
+  sourcePostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fieldName?: Prisma.StringFieldUpdateOperationsInput | string
   direction?: Prisma.StringFieldUpdateOperationsInput | string
   magnitude?: Prisma.FloatFieldUpdateOperationsInput | number
   confidence?: Prisma.FloatFieldUpdateOperationsInput | number
-  sourcePostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type BrandLearningSignalCreateManyInput = {
-  id?: string
+  id: string
   brandContextId: string
   signalType: string
+  sourcePostId?: string | null
   fieldName: string
   direction: string
   magnitude: number
   confidence: number
-  sourcePostId?: string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  applied?: boolean
   createdAt?: Date | string
+  applied?: boolean
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type BrandLearningSignalUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   signalType?: Prisma.StringFieldUpdateOperationsInput | string
+  sourcePostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fieldName?: Prisma.StringFieldUpdateOperationsInput | string
   direction?: Prisma.StringFieldUpdateOperationsInput | string
   magnitude?: Prisma.FloatFieldUpdateOperationsInput | number
   confidence?: Prisma.FloatFieldUpdateOperationsInput | number
-  sourcePostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type BrandLearningSignalUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   brandContextId?: Prisma.StringFieldUpdateOperationsInput | string
   signalType?: Prisma.StringFieldUpdateOperationsInput | string
+  sourcePostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fieldName?: Prisma.StringFieldUpdateOperationsInput | string
   direction?: Prisma.StringFieldUpdateOperationsInput | string
   magnitude?: Prisma.FloatFieldUpdateOperationsInput | number
   confidence?: Prisma.FloatFieldUpdateOperationsInput | number
-  sourcePostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type BrandLearningSignalListRelationFilter = {
@@ -447,14 +447,14 @@ export type BrandLearningSignalCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   brandContextId?: Prisma.SortOrder
   signalType?: Prisma.SortOrder
+  sourcePostId?: Prisma.SortOrder
   fieldName?: Prisma.SortOrder
   direction?: Prisma.SortOrder
   magnitude?: Prisma.SortOrder
   confidence?: Prisma.SortOrder
-  sourcePostId?: Prisma.SortOrder
-  metadata?: Prisma.SortOrder
-  applied?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  applied?: Prisma.SortOrder
+  metadata?: Prisma.SortOrder
 }
 
 export type BrandLearningSignalAvgOrderByAggregateInput = {
@@ -466,26 +466,26 @@ export type BrandLearningSignalMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   brandContextId?: Prisma.SortOrder
   signalType?: Prisma.SortOrder
+  sourcePostId?: Prisma.SortOrder
   fieldName?: Prisma.SortOrder
   direction?: Prisma.SortOrder
   magnitude?: Prisma.SortOrder
   confidence?: Prisma.SortOrder
-  sourcePostId?: Prisma.SortOrder
-  applied?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  applied?: Prisma.SortOrder
 }
 
 export type BrandLearningSignalMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   brandContextId?: Prisma.SortOrder
   signalType?: Prisma.SortOrder
+  sourcePostId?: Prisma.SortOrder
   fieldName?: Prisma.SortOrder
   direction?: Prisma.SortOrder
   magnitude?: Prisma.SortOrder
   confidence?: Prisma.SortOrder
-  sourcePostId?: Prisma.SortOrder
-  applied?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  applied?: Prisma.SortOrder
 }
 
 export type BrandLearningSignalSumOrderByAggregateInput = {
@@ -535,38 +535,34 @@ export type BrandLearningSignalUncheckedUpdateManyWithoutBrandContextNestedInput
   deleteMany?: Prisma.BrandLearningSignalScalarWhereInput | Prisma.BrandLearningSignalScalarWhereInput[]
 }
 
-export type FloatFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type BrandLearningSignalCreateWithoutBrandContextInput = {
-  id?: string
+  id: string
   signalType: string
+  sourcePostId?: string | null
   fieldName: string
   direction: string
   magnitude: number
   confidence: number
-  sourcePostId?: string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  applied?: boolean
   createdAt?: Date | string
+  applied?: boolean
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type BrandLearningSignalUncheckedCreateWithoutBrandContextInput = {
-  id?: string
+  id: string
   signalType: string
+  sourcePostId?: string | null
   fieldName: string
   direction: string
   magnitude: number
   confidence: number
-  sourcePostId?: string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  applied?: boolean
   createdAt?: Date | string
+  applied?: boolean
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type BrandLearningSignalCreateOrConnectWithoutBrandContextInput = {
@@ -602,66 +598,66 @@ export type BrandLearningSignalScalarWhereInput = {
   id?: Prisma.StringFilter<"BrandLearningSignal"> | string
   brandContextId?: Prisma.StringFilter<"BrandLearningSignal"> | string
   signalType?: Prisma.StringFilter<"BrandLearningSignal"> | string
+  sourcePostId?: Prisma.StringNullableFilter<"BrandLearningSignal"> | string | null
   fieldName?: Prisma.StringFilter<"BrandLearningSignal"> | string
   direction?: Prisma.StringFilter<"BrandLearningSignal"> | string
   magnitude?: Prisma.FloatFilter<"BrandLearningSignal"> | number
   confidence?: Prisma.FloatFilter<"BrandLearningSignal"> | number
-  sourcePostId?: Prisma.StringNullableFilter<"BrandLearningSignal"> | string | null
-  metadata?: Prisma.JsonNullableFilter<"BrandLearningSignal">
-  applied?: Prisma.BoolFilter<"BrandLearningSignal"> | boolean
   createdAt?: Prisma.DateTimeFilter<"BrandLearningSignal"> | Date | string
+  applied?: Prisma.BoolFilter<"BrandLearningSignal"> | boolean
+  metadata?: Prisma.JsonNullableFilter<"BrandLearningSignal">
 }
 
 export type BrandLearningSignalCreateManyBrandContextInput = {
-  id?: string
+  id: string
   signalType: string
+  sourcePostId?: string | null
   fieldName: string
   direction: string
   magnitude: number
   confidence: number
-  sourcePostId?: string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  applied?: boolean
   createdAt?: Date | string
+  applied?: boolean
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type BrandLearningSignalUpdateWithoutBrandContextInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   signalType?: Prisma.StringFieldUpdateOperationsInput | string
+  sourcePostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fieldName?: Prisma.StringFieldUpdateOperationsInput | string
   direction?: Prisma.StringFieldUpdateOperationsInput | string
   magnitude?: Prisma.FloatFieldUpdateOperationsInput | number
   confidence?: Prisma.FloatFieldUpdateOperationsInput | number
-  sourcePostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type BrandLearningSignalUncheckedUpdateWithoutBrandContextInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   signalType?: Prisma.StringFieldUpdateOperationsInput | string
+  sourcePostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fieldName?: Prisma.StringFieldUpdateOperationsInput | string
   direction?: Prisma.StringFieldUpdateOperationsInput | string
   magnitude?: Prisma.FloatFieldUpdateOperationsInput | number
   confidence?: Prisma.FloatFieldUpdateOperationsInput | number
-  sourcePostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type BrandLearningSignalUncheckedUpdateManyWithoutBrandContextInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   signalType?: Prisma.StringFieldUpdateOperationsInput | string
+  sourcePostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fieldName?: Prisma.StringFieldUpdateOperationsInput | string
   direction?: Prisma.StringFieldUpdateOperationsInput | string
   magnitude?: Prisma.FloatFieldUpdateOperationsInput | number
   confidence?: Prisma.FloatFieldUpdateOperationsInput | number
-  sourcePostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 
@@ -670,89 +666,89 @@ export type BrandLearningSignalSelect<ExtArgs extends runtime.Types.Extensions.I
   id?: boolean
   brandContextId?: boolean
   signalType?: boolean
+  sourcePostId?: boolean
   fieldName?: boolean
   direction?: boolean
   magnitude?: boolean
   confidence?: boolean
-  sourcePostId?: boolean
-  metadata?: boolean
-  applied?: boolean
   createdAt?: boolean
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  applied?: boolean
+  metadata?: boolean
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["brandLearningSignal"]>
 
 export type BrandLearningSignalSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   brandContextId?: boolean
   signalType?: boolean
+  sourcePostId?: boolean
   fieldName?: boolean
   direction?: boolean
   magnitude?: boolean
   confidence?: boolean
-  sourcePostId?: boolean
-  metadata?: boolean
-  applied?: boolean
   createdAt?: boolean
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  applied?: boolean
+  metadata?: boolean
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["brandLearningSignal"]>
 
 export type BrandLearningSignalSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   brandContextId?: boolean
   signalType?: boolean
+  sourcePostId?: boolean
   fieldName?: boolean
   direction?: boolean
   magnitude?: boolean
   confidence?: boolean
-  sourcePostId?: boolean
-  metadata?: boolean
-  applied?: boolean
   createdAt?: boolean
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  applied?: boolean
+  metadata?: boolean
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["brandLearningSignal"]>
 
 export type BrandLearningSignalSelectScalar = {
   id?: boolean
   brandContextId?: boolean
   signalType?: boolean
+  sourcePostId?: boolean
   fieldName?: boolean
   direction?: boolean
   magnitude?: boolean
   confidence?: boolean
-  sourcePostId?: boolean
-  metadata?: boolean
-  applied?: boolean
   createdAt?: boolean
+  applied?: boolean
+  metadata?: boolean
 }
 
-export type BrandLearningSignalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "brandContextId" | "signalType" | "fieldName" | "direction" | "magnitude" | "confidence" | "sourcePostId" | "metadata" | "applied" | "createdAt", ExtArgs["result"]["brandLearningSignal"]>
+export type BrandLearningSignalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "brandContextId" | "signalType" | "sourcePostId" | "fieldName" | "direction" | "magnitude" | "confidence" | "createdAt" | "applied" | "metadata", ExtArgs["result"]["brandLearningSignal"]>
 export type BrandLearningSignalInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }
 export type BrandLearningSignalIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }
 export type BrandLearningSignalIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  brandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
+  BrandContext?: boolean | Prisma.BrandContextDefaultArgs<ExtArgs>
 }
 
 export type $BrandLearningSignalPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "BrandLearningSignal"
   objects: {
-    brandContext: Prisma.$BrandContextPayload<ExtArgs>
+    BrandContext: Prisma.$BrandContextPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     brandContextId: string
     signalType: string
+    sourcePostId: string | null
     fieldName: string
     direction: string
     magnitude: number
     confidence: number
-    sourcePostId: string | null
-    metadata: runtime.JsonValue | null
-    applied: boolean
     createdAt: Date
+    applied: boolean
+    metadata: runtime.JsonValue | null
   }, ExtArgs["result"]["brandLearningSignal"]>
   composites: {}
 }
@@ -1147,7 +1143,7 @@ readonly fields: BrandLearningSignalFieldRefs;
  */
 export interface Prisma__BrandLearningSignalClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  brandContext<T extends Prisma.BrandContextDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BrandContextDefaultArgs<ExtArgs>>): Prisma.Prisma__BrandContextClient<runtime.Types.Result.GetResult<Prisma.$BrandContextPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  BrandContext<T extends Prisma.BrandContextDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BrandContextDefaultArgs<ExtArgs>>): Prisma.Prisma__BrandContextClient<runtime.Types.Result.GetResult<Prisma.$BrandContextPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1180,14 +1176,14 @@ export interface BrandLearningSignalFieldRefs {
   readonly id: Prisma.FieldRef<"BrandLearningSignal", 'String'>
   readonly brandContextId: Prisma.FieldRef<"BrandLearningSignal", 'String'>
   readonly signalType: Prisma.FieldRef<"BrandLearningSignal", 'String'>
+  readonly sourcePostId: Prisma.FieldRef<"BrandLearningSignal", 'String'>
   readonly fieldName: Prisma.FieldRef<"BrandLearningSignal", 'String'>
   readonly direction: Prisma.FieldRef<"BrandLearningSignal", 'String'>
   readonly magnitude: Prisma.FieldRef<"BrandLearningSignal", 'Float'>
   readonly confidence: Prisma.FieldRef<"BrandLearningSignal", 'Float'>
-  readonly sourcePostId: Prisma.FieldRef<"BrandLearningSignal", 'String'>
-  readonly metadata: Prisma.FieldRef<"BrandLearningSignal", 'Json'>
-  readonly applied: Prisma.FieldRef<"BrandLearningSignal", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"BrandLearningSignal", 'DateTime'>
+  readonly applied: Prisma.FieldRef<"BrandLearningSignal", 'Boolean'>
+  readonly metadata: Prisma.FieldRef<"BrandLearningSignal", 'Json'>
 }
     
 

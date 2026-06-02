@@ -51,50 +51,50 @@ export function PostFrequencyChart({ data, avgPostsPerDay, currentStreak, engage
       <CardContent className="space-y-4">
         {/* Metric cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="rounded-lg border p-3">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="rounded-sm border p-3">
+            <div className="flex items-center gap-2 text-sm font-medium tracking-tight text-muted-foreground">
               <CalendarIcon className="h-4 w-4" />
               Posting Streak
             </div>
-            <div className="mt-1 text-2xl font-semibold">
+            <div className="mt-1 text-2xl font-semibold font-mono tabular-nums">
               {currentStreak}{" "}
               <span className="text-sm font-normal text-muted-foreground">
                 {currentStreak === 1 ? "day" : "days"}
               </span>
             </div>
             {currentStreak >= 7 && (
-              <Badge variant="default" className="mt-1 text-xs">
+              <Badge variant="default" className="mt-1 rounded-sm text-xs">
                 <TrendingUpIcon className="mr-1 h-3 w-3" /> On fire!
               </Badge>
             )}
           </div>
-          <div className="rounded-lg border p-3">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="rounded-sm border p-3">
+            <div className="flex items-center gap-2 text-sm font-medium tracking-tight text-muted-foreground">
               <BarChart3Icon className="h-4 w-4" />
               Avg Posts / Day
             </div>
-            <div className="mt-1 text-2xl font-semibold">
+            <div className="mt-1 text-2xl font-semibold font-mono tabular-nums">
               {avgPostsPerDay.toFixed(1)}
             </div>
             <div className="mt-1 text-xs text-muted-foreground">
               {activeDays} active days · {totalPosts} total
             </div>
           </div>
-          <div className="rounded-lg border p-3">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="rounded-sm border p-3">
+            <div className="flex items-center gap-2 text-sm font-medium tracking-tight text-muted-foreground">
               <UsersIcon className="h-4 w-4" />
               Engagement / Follower
             </div>
-            <div className="mt-1 text-2xl font-semibold">
+            <div className="mt-1 text-2xl font-semibold font-mono tabular-nums">
               {engagementPerFollower.toFixed(2)}
             </div>
             <div className="mt-1 text-xs text-muted-foreground">
               Engagements per follower
             </div>
           </div>
-          <div className="rounded-lg border p-3">
-            <div className="text-sm text-muted-foreground">Active Day Rate</div>
-            <div className="mt-1 text-2xl font-semibold">
+          <div className="rounded-sm border p-3">
+            <div className="text-sm font-medium tracking-tight text-muted-foreground">Active Day Rate</div>
+            <div className="mt-1 text-2xl font-semibold font-mono tabular-nums">
               {data.length > 0 ? ((activeDays / data.length) * 100).toFixed(0) : 0}%
             </div>
             <div className="mt-1 text-xs text-muted-foreground">
@@ -106,33 +106,31 @@ export function PostFrequencyChart({ data, avgPostsPerDay, currentStreak, engage
         <Separator />
 
         {/* Frequency chart */}
-        <div className="h-48">
-          <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={192}>
             <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis
                 dataKey="date"
-                stroke="hsl(var(--muted-foreground))"
+                stroke="var(--muted-foreground)"
                 tick={{ fontSize: 10 }}
                 interval="preserveStartEnd"
               />
               <YAxis
-                stroke="hsl(var(--muted-foreground))"
+                stroke="var(--muted-foreground)"
                 tick={{ fontSize: 10 }}
                 allowDecimals={false}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: "8px",
+                  backgroundColor: "var(--card)",
+                  border: "1px solid var(--border)",
+                  borderRadius: "2px",
                   fontSize: "12px",
                 }}
               />
-              <Bar dataKey="posts" fill="hsl(var(--brand))" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="posts" fill="var(--brand)" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
-        </div>
       </CardContent>
     </Card>
   );

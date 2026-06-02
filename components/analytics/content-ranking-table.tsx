@@ -10,6 +10,7 @@ import {
   LinkedinLogo,
   TiktokLogo,
   PinterestLogo,
+  ArrowSquareOut,
 } from "@phosphor-icons/react/ssr";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +34,9 @@ interface RankedPost {
   comments: number;
   shares: number;
   publishedAt: string | null;
+  url?: string | null;
+  isExternal?: boolean;
+  fullText?: string | null;
 }
 
 interface ContentRankingTableProps {
@@ -52,36 +56,63 @@ function RankingTable({ posts, title }: { posts: RankedPost[]; title: string }) 
   return (
     <div className="space-y-2">
       <h4 className="text-sm font-medium text-foreground">{title}</h4>
-      <div className="rounded-md border border-border">
+      <div className="rounded-sm border border-border overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/50">
-              <th className="py-2 px-3 text-left font-medium text-muted-foreground w-10">#</th>
-              <th className="py-2 px-3 text-left font-medium text-muted-foreground">Post</th>
-              <th className="py-2 px-3 text-left font-medium text-muted-foreground w-24">Platform</th>
-              <th className="py-2 px-3 text-right font-medium text-muted-foreground">Eng. Rate</th>
-              <th className="py-2 px-3 text-right font-medium text-muted-foreground hidden sm:table-cell">Impressions</th>
-              <th className="py-2 px-3 text-right font-medium text-muted-foreground hidden md:table-cell">Likes</th>
-              <th className="py-2 px-3 text-right font-medium text-muted-foreground hidden lg:table-cell">Comments</th>
-              <th className="py-2 px-3 text-right font-medium text-muted-foreground hidden lg:table-cell">Shares</th>
+              <th className="py-2 px-3 text-left font-medium tracking-tight uppercase text-xs text-muted-foreground w-10">#</th>
+              <th className="py-2 px-3 text-left font-medium tracking-tight uppercase text-xs text-muted-foreground">Post</th>
+              <th className="py-2 px-3 text-left font-medium tracking-tight uppercase text-xs text-muted-foreground w-24">Platform</th>
+              <th className="py-2 px-3 text-right font-medium tracking-tight uppercase text-xs text-muted-foreground">Eng. Rate</th>
+              <th className="py-2 px-3 text-right font-medium tracking-tight uppercase text-xs text-muted-foreground hidden sm:table-cell">Impressions</th>
+              <th className="py-2 px-3 text-right font-medium tracking-tight uppercase text-xs text-muted-foreground hidden md:table-cell">Likes</th>
+              <th className="py-2 px-3 text-right font-medium tracking-tight uppercase text-xs text-muted-foreground hidden lg:table-cell">Comments</th>
+              <th className="py-2 px-3 text-right font-medium tracking-tight uppercase text-xs text-muted-foreground hidden lg:table-cell">Shares</th>
             </tr>
           </thead>
           <tbody>
             {posts.map((post, idx) => (
               <tr
                 key={`${post.id}-${post.platform}-${idx}`}
-                className="border-b border-border/50 hover:bg-muted/50"
+                className="border-b border-border/50 even:bg-muted/30 hover:bg-muted/50"
               >
                 <td className="py-2.5 px-3">
-                  <span className="text-xs font-medium text-muted-foreground">{idx + 1}</span>
+                  <span className="text-xs font-mono tabular-nums font-medium text-muted-foreground">{idx + 1}</span>
                 </td>
                 <td className="py-2.5 px-3">
-                  <Link
-                    href={`/compose?post=${post.id}`}
-                    className="font-medium text-foreground hover:underline truncate block max-w-[200px]"
-                  >
-                    {post.title ?? "Untitled"}
-                  </Link>
+                  <div className="flex items-center gap-1.5 max-w-[200px]">
+                    <div
+                      className="group relative font-medium text-foreground hover:underline truncate cursor-pointer"
+                      title={post.fullText || undefined}
+                    >
+                      {post.title ?? "Untitled"}
+                      {post.fullText && (
+                        <div className="pointer-events-none absolute bottom-full left-0 z-50 mb-2 hidden w-64 rounded-sm border border-border bg-popover p-3 text-xs text-popover-foreground shadow-sm group-hover:block">
+                          <p className="whitespace-pre-wrap break-words">{post.fullText}</p>
+                        </div>
+                      )}
+                    </div>
+                    {post.isExternal && post.url && (
+                      <a
+                        href={post.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-shrink-0 text-muted-foreground hover:text-foreground"
+                        title="View on {post.platform}"
+                      >
+                        <ArrowSquareOut className="size-3.5" weight="bold" />
+                      </a>
+                    )}
+                    {!post.isExternal && (
+                      <Link
+                        href={`/compose?post=${post.id}`}
+                        className="flex-shrink-0 text-muted-foreground hover:text-foreground"
+                        title="Edit post"
+                      >
+                        <ArrowSquareOut className="size-3.5" weight="bold" />
+                      </Link>
+                    )}
+                  </div>
                 </td>
                 <td className="py-2.5 px-3">
                   <Badge variant="outline" className="gap-1 text-xs">
@@ -94,16 +125,16 @@ function RankingTable({ posts, title }: { posts: RankedPost[]; title: string }) 
                     {(post.engagementRate * 100).toFixed(1)}%
                   </Badge>
                 </td>
-                <td className="py-2.5 px-3 text-right text-foreground hidden sm:table-cell">
+                <td className="py-2.5 px-3 text-right font-mono tabular-nums text-foreground hidden sm:table-cell">
                   {post.impressions.toLocaleString()}
                 </td>
-                <td className="py-2.5 px-3 text-right text-foreground hidden md:table-cell">
+                <td className="py-2.5 px-3 text-right font-mono tabular-nums text-foreground hidden md:table-cell">
                   {post.likes.toLocaleString()}
                 </td>
-                <td className="py-2.5 px-3 text-right text-foreground hidden lg:table-cell">
+                <td className="py-2.5 px-3 text-right font-mono tabular-nums text-foreground hidden lg:table-cell">
                   {post.comments.toLocaleString()}
                 </td>
-                <td className="py-2.5 px-3 text-right text-foreground hidden lg:table-cell">
+                <td className="py-2.5 px-3 text-right font-mono tabular-nums text-foreground hidden lg:table-cell">
                   {post.shares.toLocaleString()}
                 </td>
               </tr>
@@ -118,13 +149,13 @@ function RankingTable({ posts, title }: { posts: RankedPost[]; title: string }) 
 export function ContentRankingTable({ topPosts, bottomPosts }: ContentRankingTableProps) {
   if (topPosts.length === 0 && bottomPosts.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Content Rankings</CardTitle>
-          <CardDescription>Top and bottom performing posts</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-border">
+    <Card className="rounded-sm border border-border">
+      <CardHeader>
+        <CardTitle className="text-base font-medium tracking-tight">Content Rankings</CardTitle>
+        <CardDescription>Top and bottom performing posts</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex h-32 items-center justify-center rounded-sm border border-dashed border-border bg-muted/20">
             <p className="text-sm text-muted-foreground">Published posts will appear here.</p>
           </div>
         </CardContent>

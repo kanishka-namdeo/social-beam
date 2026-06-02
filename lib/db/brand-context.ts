@@ -39,7 +39,7 @@ export async function getBrandContext(workspaceId: string) {
   logger.debug('db.brand_context.get', { workspaceId });
   return prisma.brandContext.findUnique({
     where: { workspaceId },
-    include: { platformContexts: true },
+    include: { PlatformContext: true },
   });
 }
 
@@ -57,6 +57,7 @@ export async function upsertBrandContext(
     return await prisma.brandContext.upsert({
       where: { workspaceId },
       create: {
+        id: crypto.randomUUID(),
         workspaceId,
         ...parsed,
         voiceExamples: parsed.voiceExamples as Prisma.InputJsonValue | undefined,
@@ -110,6 +111,7 @@ export async function upsertPlatformContext(
         },
       },
       create: {
+        id: crypto.randomUUID(),
         brandContextId,
         platform,
         ...parsed,
@@ -140,7 +142,7 @@ export async function getFullBrandContext(workspaceId: string) {
   logger.debug('db.brand_context.get_full', { workspaceId });
   return prisma.brandContext.findUnique({
     where: { workspaceId },
-    include: { platformContexts: true },
+    include: { PlatformContext: true },
   });
 }
 
@@ -157,7 +159,7 @@ export async function snapshotBrandContext(
 ) {
   const brandContext = await prisma.brandContext.findUnique({
     where: { workspaceId },
-    include: { platformContexts: true },
+    include: { PlatformContext: true },
   });
 
   if (!brandContext) {
@@ -184,7 +186,7 @@ export async function snapshotBrandContext(
     trainingStatus: brandContext.trainingStatus,
   };
 
-  const platformSnapshot = brandContext.platformContexts.map((pc) => ({
+  const platformSnapshot = brandContext.PlatformContext.map((pc) => ({
     platform: pc.platform,
     platformTone: pc.platformTone,
     contentMix: pc.contentMix,
@@ -199,6 +201,7 @@ export async function snapshotBrandContext(
 
   return prisma.brandContextVersion.create({
     data: {
+      id: crypto.randomUUID(),
       brandContextId: brandContext.id,
       snapshot: snapshot as Prisma.InputJsonValue,
       changeReason: reason,
@@ -295,6 +298,7 @@ export async function restoreBrandContext(
             brandContextId_platform: { brandContextId: brandContext.id, platform: pc.platform },
           },
           create: {
+            id: crypto.randomUUID(),
             brandContextId: brandContext.id,
             platform: pc.platform,
             platformTone: pc.platformTone,

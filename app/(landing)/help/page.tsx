@@ -10,11 +10,11 @@ import {
   RocketLaunch,
   CalendarCheck,
   Sparkle,
-  CreditCard,
   PlugsConnected,
   ArrowRight,
   ChatsCircle,
   BookOpen,
+  CreditCard,
 } from "@phosphor-icons/react/ssr";
 import { LandingPageShell } from "@/components/landing/landing-page-shell";
 
@@ -59,7 +59,6 @@ const categories = [
 
 const popularArticles = [
   "How to connect Instagram to SocialBeam",
-  "Understanding AI credit usage",
   "Setting up your first content calendar",
   "How to schedule posts in bulk",
   "Troubleshooting failed publishes",

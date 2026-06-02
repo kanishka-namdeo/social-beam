@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -55,6 +55,13 @@ export function TrendingEmptyState({ hasSubreddits, onOpenManager }: TrendingEmp
   const [addingSubreddit, setAddingSubreddit] = useState<string | null>(null);
   const [jobPhase, setJobPhase] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cleanup polling timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearTimeout(pollRef.current);
+    };
+  }, []);
 
   const pollForJobStatus = useCallback(async (jobId: string, maxPolls = 40) => {
     let polls = 0;
@@ -160,7 +167,7 @@ export function TrendingEmptyState({ hasSubreddits, onOpenManager }: TrendingEmp
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Worked example */}
-          <div className="rounded-lg border border-border bg-muted/20 p-4">
+          <div className="rounded-sm border border-border bg-muted/20 p-4">
             <p className="text-xs font-medium text-muted-foreground mb-3">
               Here&apos;s what you&apos;ll see once you add subreddits:
             </p>
@@ -241,14 +248,14 @@ export function TrendingEmptyState({ hasSubreddits, onOpenManager }: TrendingEmp
             </div>
 
             {triggering && (
-              <div className="rounded-lg border border-brand/20 bg-brand/5 p-3 space-y-2">
+              <div className="rounded-sm border border-brand/20 bg-brand/5 p-3 space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-medium text-foreground">
                     {jobPhase === "analyzing" ? "Analyzing with AI..." : "Scraping Reddit..."}
                   </span>
                   <span className="text-muted-foreground">{scrapingProgress}%</span>
                 </div>
-                <div className="h-1.5 w-full bg-brand/10 rounded-full overflow-hidden">
+                <div className="h-1.5 w-full bg-brand/10 rounded-sm overflow-hidden">
                   <Progress value={scrapingProgress} className="h-1.5" />
                 </div>
               </div>

@@ -78,6 +78,7 @@ When in coding mode, the agent should:
 2. **Coding → Planning escalation**: If during implementation the agent discovers a design flaw or scope issue, it should escalate and switch back to PM/UX mode before proceeding
 3. **No mode mixing**: During planning, do not write implementation code. During coding, do not debate product strategy — follow the agreed plan
 4. **All other rules still apply**: Every existing `.mdc` rule continues to govern. This persona layer adds perspective, it never overrides specific technical requirements
+5. **Technical rules override persona preferences**: When a specific technical rule (e.g., `typescript-standards.mdc`, `react-component-boundaries.mdc`) conflicts with persona suggestions, the technical rule takes precedence. Security and correctness are non-negotiable.
 
 ## Anti-Patterns
 

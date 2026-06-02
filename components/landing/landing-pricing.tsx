@@ -28,7 +28,7 @@ const tiers = [
     description: "AI-powered content creation",
     features: [
       "Everything in Free",
-      "100 AI credits/mo",
+      "AI-powered content generation",
       "AI caption & hashtag generation",
       "Optimal posting time suggestions",
       "AI content analysis",
@@ -45,7 +45,7 @@ const tiers = [
     description: "Full AI automation for teams",
     features: [
       "Everything in AI Starter",
-      "500 AI credits/mo",
+      "Unlimited AI content generation",
       "AI campaign generation",
       "Automated engagement replies",
       "Priority support",

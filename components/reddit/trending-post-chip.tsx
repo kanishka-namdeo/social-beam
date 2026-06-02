@@ -35,7 +35,7 @@ export function TrendingPostChip({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-lg border border-border bg-card p-3 hover:bg-muted/50 transition-colors",
+        "flex items-center gap-3 rounded-sm border border-border bg-card p-3 hover:bg-muted/50 transition-colors",
         isActionable && "border-ai-surface bg-ai-surface/30",
         className,
       )}

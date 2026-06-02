@@ -198,7 +198,7 @@ export type UserOAuthAppWhereInput = {
   clientSecret?: Prisma.StringFilter<"UserOAuthApp"> | string
   createdAt?: Prisma.DateTimeFilter<"UserOAuthApp"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"UserOAuthApp"> | Date | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type UserOAuthAppOrderByWithRelationInput = {
@@ -209,7 +209,7 @@ export type UserOAuthAppOrderByWithRelationInput = {
   clientSecret?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  user?: Prisma.UserOrderByWithRelationInput
+  User?: Prisma.UserOrderByWithRelationInput
 }
 
 export type UserOAuthAppWhereUniqueInput = Prisma.AtLeast<{
@@ -224,7 +224,7 @@ export type UserOAuthAppWhereUniqueInput = Prisma.AtLeast<{
   clientSecret?: Prisma.StringFilter<"UserOAuthApp"> | string
   createdAt?: Prisma.DateTimeFilter<"UserOAuthApp"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"UserOAuthApp"> | Date | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id" | "userId_platform">
 
 export type UserOAuthAppOrderByWithAggregationInput = {
@@ -254,17 +254,17 @@ export type UserOAuthAppScalarWhereWithAggregatesInput = {
 }
 
 export type UserOAuthAppCreateInput = {
-  id?: string
+  id: string
   platform: string
   clientId: string
   clientSecret: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutOauthAppsInput
+  User: Prisma.UserCreateNestedOneWithoutUserOAuthAppInput
 }
 
 export type UserOAuthAppUncheckedCreateInput = {
-  id?: string
+  id: string
   userId: string
   platform: string
   clientId: string
@@ -280,7 +280,7 @@ export type UserOAuthAppUpdateInput = {
   clientSecret?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutOauthAppsNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutUserOAuthAppNestedInput
 }
 
 export type UserOAuthAppUncheckedUpdateInput = {
@@ -294,7 +294,7 @@ export type UserOAuthAppUncheckedUpdateInput = {
 }
 
 export type UserOAuthAppCreateManyInput = {
-  id?: string
+  id: string
   userId: string
   platform: string
   clientId: string
@@ -410,7 +410,7 @@ export type UserOAuthAppUncheckedUpdateManyWithoutUserNestedInput = {
 }
 
 export type UserOAuthAppCreateWithoutUserInput = {
-  id?: string
+  id: string
   platform: string
   clientId: string
   clientSecret: string
@@ -419,7 +419,7 @@ export type UserOAuthAppCreateWithoutUserInput = {
 }
 
 export type UserOAuthAppUncheckedCreateWithoutUserInput = {
-  id?: string
+  id: string
   platform: string
   clientId: string
   clientSecret: string
@@ -467,7 +467,7 @@ export type UserOAuthAppScalarWhereInput = {
 }
 
 export type UserOAuthAppCreateManyUserInput = {
-  id?: string
+  id: string
   platform: string
   clientId: string
   clientSecret: string
@@ -512,7 +512,7 @@ export type UserOAuthAppSelect<ExtArgs extends runtime.Types.Extensions.Internal
   clientSecret?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userOAuthApp"]>
 
 export type UserOAuthAppSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -523,7 +523,7 @@ export type UserOAuthAppSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   clientSecret?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userOAuthApp"]>
 
 export type UserOAuthAppSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -534,7 +534,7 @@ export type UserOAuthAppSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   clientSecret?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userOAuthApp"]>
 
 export type UserOAuthAppSelectScalar = {
@@ -549,19 +549,19 @@ export type UserOAuthAppSelectScalar = {
 
 export type UserOAuthAppOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "platform" | "clientId" | "clientSecret" | "createdAt" | "updatedAt", ExtArgs["result"]["userOAuthApp"]>
 export type UserOAuthAppInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type UserOAuthAppIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type UserOAuthAppIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $UserOAuthAppPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "UserOAuthApp"
   objects: {
-    user: Prisma.$UserPayload<ExtArgs>
+    User: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -965,7 +965,7 @@ readonly fields: UserOAuthAppFieldRefs;
  */
 export interface Prisma__UserOAuthAppClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

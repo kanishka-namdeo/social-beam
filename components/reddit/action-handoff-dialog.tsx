@@ -138,7 +138,7 @@ export function ActionHandoffDialog({ post, open, onOpenChange, onDismiss, onMar
 
         <div className="space-y-4">
           {/* Trend summary */}
-          <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-2">
+          <div className="rounded-sm border border-border bg-muted/20 p-4 space-y-2">
             <p className="text-sm font-medium text-foreground">{post.title}</p>
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <span>r/{post.subreddit}</span>
@@ -196,7 +196,7 @@ export function ActionHandoffDialog({ post, open, onOpenChange, onDismiss, onMar
 
           {/* Risk warning */}
           {post.riskLevel === "high" && post.riskReason && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 space-y-1">
+            <div className="rounded-sm border border-destructive/20 bg-destructive/5 p-3 space-y-1">
               <div className="flex items-center gap-1.5 text-xs font-medium text-destructive">
                 <Warning className="size-3.5" weight="fill" />
                 High Risk Trend

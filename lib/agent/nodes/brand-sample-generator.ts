@@ -70,8 +70,8 @@ export async function sampleGeneratorNode(state: BrandAnalyzerStateType): Promis
     logger.error('sampleGeneratorNode: failed to parse LLM response', { error: String(err) });
     return {
       samplePosts: [],
-      currentStep: 'review',
-      messages: [new AIMessage('Failed to generate sample posts. Please try again.')],
+      currentStep: 'error',
+      messages: [new AIMessage('Failed to generate sample posts. Please try again or describe your brand manually.')],
     };
   }
 }

@@ -54,6 +54,7 @@ export const saveFullBrandContextTool = tool(
         const brandContext = await tx.brandContext.upsert({
           where: { workspaceId },
           create: {
+            id: crypto.randomUUID(),
             workspaceId,
             ...brandData,
             voiceExamples: brandData.voiceExamples as Prisma.InputJsonValue | undefined,
@@ -80,6 +81,7 @@ export const saveFullBrandContextTool = tool(
                 },
               },
               create: {
+                id: crypto.randomUUID(),
                 brandContextId: brandContext.id,
                 platform: pc.platform,
                 platformTone: pc.platformTone,

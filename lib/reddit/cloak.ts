@@ -1,35 +1,12 @@
-import { launch } from "cloakbrowser";
+import { withPage as withPageShared, shutdown as shutdownShared } from "@/lib/cloakbrowser";
 import { logger } from "@/lib/logger";
 
-type PlaywrightBrowser = Awaited<ReturnType<typeof launch>>;
-type PlaywrightPage = Awaited<ReturnType<Awaited<ReturnType<PlaywrightBrowser["newContext"]>>["newPage"]>>;
-
-let browser: PlaywrightBrowser | undefined;
-
-async function ensureBrowser(): Promise<PlaywrightBrowser> {
-  if (!browser || !browser.isConnected()) {
-    logger.debug("reddit.cloak.browser_launch");
-    browser = await launch({ headless: true });
-  }
-  return browser;
-}
+type PlaywrightPage = Parameters<typeof withPageShared>[0] extends (fn: infer P) => any ? P : never;
 
 export async function withPage<T>(fn: (page: PlaywrightPage) => Promise<T>): Promise<T> {
-  const br = await ensureBrowser();
-  const context = await br.newContext({
-    viewport: { width: 1280, height: 800 },
-  });
-  const page = await context.newPage();
-  try {
-    return await fn(page);
-  } finally {
-    await context.close().catch(() => {});
-  }
+  return withPageShared(fn, { stealth: false });
 }
 
 export async function shutdownBrowser(): Promise<void> {
-  if (browser) {
-    await browser.close().catch(() => {});
-    browser = undefined;
-  }
+  await shutdownShared();
 }

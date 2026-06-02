@@ -21,6 +21,12 @@ alwaysApply: true
 | 4 | Has "## Breaking Changes & Migrations" section? | Must Pass | Research version changes, add section |
 | 5 | Has "## Security Considerations" section? | Must Pass | Review security docs, add section |
 | 6 | Has "## Verification Steps" checklist? | Must Pass | Add verification checklist |
+| 7 | Has "## Dependencies & Risks" section? | Must Pass | Analyze dependencies, add section |
+| 8 | Has "## Edge Cases" section? | Must Pass | Document empty/error/loading states |
+| 9 | Existing codebase grepped for similar patterns? | Must Pass | Run Grep/SemanticSearch, document findings |
+| 10 | Scope matches user request (no unrequested features)? | Must Pass | Remove unrequested features, flag as future work |
+| 11 | Verification Steps include 2+ specific acceptance criteria? | Must Pass | Add feature-specific behavioral tests |
+| 12 | **If social platform feature**: Competitor feasibility checked? | Conditional | Read `docs/competitor-analysis/buffer-features-feasibility-2026.md`, add findings |
 
 **Validation Gate Logic**:
 ```
@@ -70,13 +76,29 @@ Code references "config.json" → Glob "config.json" first
 README mentions "data.csv" → Shell "ls data.csv" first
 ```
 
-### 3. Synthesize Findings
+### 4a. Existing Codebase Pattern Analysis
+
+Before proposing new code or patterns:
+- **Grep for existing similar patterns**: Search the codebase for components, hooks, utilities, or API routes that already solve a similar problem
+- **Check for duplicate features**: Verify the proposed feature does not already exist elsewhere (use `docs/features-built.md` and semantic search)
+- **Verify architectural consistency**: Ensure proposed file structure matches the existing project layout (follow `app/` route conventions, `lib/` module boundaries, `components/` folder patterns)
+- **Follow existing conventions**: If the codebase uses a certain auth pattern, data fetching approach, or component structure — replicate it. Do not introduce new conventions without justification.
+
+### 4b. Scope Discipline Check
+
+Before finalizing the plan, verify:
+- **Every proposed change traces to the user's request**: If a feature is not asked for, flag it as "future work" or remove it
+- **MVP boundaries respected**: Check `docs/mvp-scope.md` before adding features marked out of scope
+- **Simplest solution first**: If two approaches deliver the same user value, choose the simpler one
+- **Phased rollout for large features**: If the plan touches >5 files, consider whether it can be split into independently deliverable phases
+
+### 5. Synthesize Findings
 - Compare Context7 APIs with web best practices
 - Note breaking changes between versions
 - Identify security considerations
 - Extract code examples from authoritative sources
 
-### 3. Document Sources
+### 6. Document Sources
 For each finding:
 - Source URL
 - Publication/update date (must be 2025-2026)
@@ -132,8 +154,40 @@ todos:
 - [ ] `pnpm run typecheck` (0 errors)
 - [ ] `pnpm run lint` (0 warnings)
 - [ ] `pnpm run build` (success)
-- [ ] [Specific acceptance criteria 1]
-- [ ] [Specific acceptance criteria 2]
+- [ ] [Specific acceptance criterion 1 — user-visible behavior]
+- [ ] [Specific acceptance criterion 2 — user-visible behavior]
+- [ ] [Specific acceptance criterion 3 — error/edge case behavior]
+
+> **Requirement**: At least 2 verification steps MUST be specific behavioral tests tied to the feature's user value. Generic checks (typecheck/lint/build) do not count toward this minimum.
+
+---
+
+## Dependencies & Risks
+
+### Dependencies
+- **Internal**: [list files/modules this change depends on]
+- **External**: [list third-party APIs, packages, or services required]
+- **Database**: [list any Prisma schema changes and migration steps]
+
+### Risks
+- **[Risk 1]**: [what could go wrong and likelihood]
+  - Mitigation: [how to prevent or detect it]
+
+### Rollback Plan
+- If this breaks production: [specific steps to revert]
+
+---
+
+## Edge Cases
+
+| Scenario | Handling |
+|---|---|
+| **Empty state** | [what the user sees with no data] |
+| **Error state** | [what the user sees on failure] |
+| **Loading state** | [what the user sees during async ops] |
+| **Permission denied** | [behavior without required access] |
+
+> Remove rows that don't apply. Add feature-specific edge cases.
 
 ---
 
@@ -163,6 +217,20 @@ Run scope analysis per task (see `agent-handoff-verification.mdc` decision tree)
 1. [task-1]: [description]
 2. [task-2]: [description] (depends on task-1)
 3. [task-N]: [description] (depends on task-N-1)
+
+---
+
+## Integration with writing-plans Skill
+
+**If the `writing-plans` skill is available**, the plan MUST ALSO include bite-sized tasks following that skill's format:
+
+- Each task broken into 2-5 minute steps with checkbox syntax (`- [ ]`)
+- **Code blocks in every step** that changes code — never use placeholders like "implement the logic" or "add error handling"
+- **TDD workflow**: failing test → make it fail → implement → make it pass → commit
+- **Exact file paths and line ranges** for every modification
+- **Exact commands** with expected output for each verification step
+
+This section is mandatory for plans created when the writing-plans skill is loaded. The two formats complement each other: the Research Summary / Dependencies & Risks / Security sections provide the "why," while the bite-sized tasks provide the "how."
 ```
 
 ---

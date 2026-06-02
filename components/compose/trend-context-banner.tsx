@@ -54,7 +54,7 @@ export function TrendContextBanner({ trend }: TrendContextBannerProps) {
   if (dismissed) return null;
 
   return (
-    <div className="mb-4 rounded-lg border border-brand/20 bg-brand/5 p-4">
+    <div className="mb-4 rounded-sm border border-brand/20 bg-ai-surface p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
           <Sparkle className="size-5 text-brand mt-0.5 shrink-0" weight="fill" />

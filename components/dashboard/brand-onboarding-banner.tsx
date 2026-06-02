@@ -66,12 +66,12 @@ export function BrandOnboardingBanner({
   }
 
   return (
-    <Card className="border-l-4 border-l-brand relative">
+    <Card className="rounded-sm border-l-2 border-l-brand relative">
       <button
         type="button"
         onClick={handleDismiss}
         aria-label="Dismiss banner"
-        className="absolute top-3 right-3 p-1 rounded-md hover:bg-muted transition-colors min-h-10 min-w-10 flex items-center justify-center"
+        className="absolute top-3 right-3 p-1 rounded-sm hover:bg-muted transition-colors min-h-10 min-w-10 flex items-center justify-center"
       >
         <X className="size-4 text-muted-foreground" />
       </button>
@@ -97,9 +97,9 @@ export function BrandOnboardingBanner({
             return (
               <div
                 key={power.title}
-                className="flex items-start gap-3 rounded-lg border border-border bg-card p-3"
+                className="flex items-start gap-3 rounded-sm border border-border bg-card p-3"
               >
-                <div className="rounded-md bg-brand/10 p-1.5 mt-0.5">
+                <div className="rounded-sm bg-brand/10 p-1.5 mt-0.5">
                   <Icon className="size-4 text-brand" weight="duotone" />
                 </div>
                 <div>
@@ -114,18 +114,18 @@ export function BrandOnboardingBanner({
         {/* Social proof + CTA */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <Badge variant="secondary" className="flex items-center gap-1 min-h-6">
+            <Badge variant="secondary" className="flex items-center gap-1 min-h-6 rounded-sm">
               <Clock className="size-3" />
               ~30 seconds
             </Badge>
-            <Badge variant="secondary" className="flex items-center gap-1 min-h-6">
+            <Badge variant="secondary" className="flex items-center gap-1 min-h-6 rounded-sm">
               <LinkSimple className="size-3" />
               Just paste your website URL
             </Badge>
           </div>
           <Button
             onClick={onGetStarted}
-            className="min-h-10"
+            className="min-h-10 rounded-sm"
           >
             Set up your brand context
             <Sparkle className="size-4 ml-1" weight="fill" />

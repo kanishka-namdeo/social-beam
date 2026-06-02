@@ -19,7 +19,7 @@ export async function fetchDuePosts(): Promise<DuePost[]> {
       id: true,
       workspaceId: true,
       scheduledAt: true,
-      platforms: {
+      PostPlatform: {
         where: { status: 'SCHEDULED' },
         select: {
           id: true,
@@ -37,7 +37,7 @@ export async function fetchDuePosts(): Promise<DuePost[]> {
     id: post.id,
     workspaceId: post.workspaceId,
     scheduledAt: post.scheduledAt!,
-    platforms: post.platforms.map(p => ({
+    platforms: post.PostPlatform.map(p => ({
       platformId: p.id,
       platform: p.platform as DuePost['platforms'][number]['platform'],
       content: p.content,
@@ -149,7 +149,7 @@ export async function fetchRetryCandidates(): Promise<DuePost[]> {
       id: true,
       workspaceId: true,
       scheduledAt: true,
-      platforms: {
+      PostPlatform: {
         where: { status: { in: ['FAILED', 'PUBLISHING'] } },
         select: {
           id: true,
@@ -162,12 +162,12 @@ export async function fetchRetryCandidates(): Promise<DuePost[]> {
   });
 
   return posts
-    .filter(post => post.platforms.length > 0)
+    .filter(post => post.PostPlatform.length > 0)
     .map(post => ({
       id: post.id,
       workspaceId: post.workspaceId,
       scheduledAt: post.scheduledAt ?? new Date(),
-      platforms: post.platforms.map(p => ({
+      platforms: post.PostPlatform.map(p => ({
         platformId: p.id,
         platform: p.platform as DuePost['platforms'][number]['platform'],
         content: p.content,

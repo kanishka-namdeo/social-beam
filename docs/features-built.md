@@ -1,7 +1,7 @@
 # Features Built — SocialBeam
 
 > **Auto-maintained**: This document is automatically updated by the Cursor agent whenever features are built, removed, or edited.
-> **Last updated**: 2026-05-25
+> **Last updated**: 2026-05-29
 
 ---
 
@@ -22,7 +22,7 @@
 | **Drag & Drop** | dnd-kit |
 | **Logging** | Pino 10.3.1 |
 | **Scheduling** | node-cron 4.2.1 |
-| **Headless Browser** | Playwright Core 1.60.0 |
+| **Headless Browser** | CloakBrowser 0.3.31 + Playwright Core 1.60.0 + Crawlee 3.16.0 |
 | **Package Manager** | pnpm |
 
 ---
@@ -68,7 +68,7 @@
 | Starting Verbs | Suggested first actions | `components/dashboard/starting-verbs.tsx` | ✅ Built |
 | Onboarding Banner | Shown when onboarding incomplete | `components/dashboard/onboarding-banner.tsx` | ✅ Built |
 | Brand Onboarding Banner | Client version of onboarding banner | `components/dashboard/brand-onboarding-banner-client.tsx` | ✅ Built |
-| Credit Indicator | AI credit balance display | `components/dashboard/credit-indicator.tsx` | ✅ Built |
+| Credit Indicator | AI credit balance display | `components/dashboard/credit-indicator.tsx` | ❌ Removed |
 | Mobile Menu | Responsive mobile navigation | `components/dashboard/mobile-menu.tsx` | ✅ Built |
 | Sidebar Navigation | Dashboard sidebar with nav items | `components/dashboard/sidebar-nav.tsx` | ✅ Built |
 | User Menu | User avatar dropdown menu | `components/dashboard/user-menu.tsx` | ✅ Built |
@@ -83,9 +83,10 @@
 | Feature | Description | Location | Status |
 |---|---|---|---|
 | Compose Page | Full compose flow with connected accounts, trend context integration | `app/(dashboard)/compose/page.tsx` | ✅ Built |
-| Compose Form | Main composition component with platform selection, media upload | `components/compose/compose-form.tsx` | ✅ Built |
-| Rich Text Editor | TipTap-based editor with emoji, image, link, text-align, typography, underline extensions | `components/compose/rich-text-editor.tsx` | ✅ Built |
-| AI Compose Panel | AI-assisted content generation panel | `components/compose/ai-compose-panel.tsx` | ✅ Built |
+| Compose Form | Unified composition with topic input, inline AI ghost-text suggestions, platform selection, media upload (no tab-based AI panel) | `components/compose/compose-form.tsx` | ✅ Built |
+| Rich Text Editor | TipTap-based editor with ghost-text AI suggestions, emoji, image, link, text-align, typography, underline extensions | `components/compose/rich-text-editor.tsx` | ✅ Built |
+| Inline Suggestion | Custom TipTap extension for ghost-text AI suggestions with Tab-to-accept, Escape-to-dismiss, mobile accept button, aria-hidden | `components/compose/inline-suggestion.tsx` | ✅ Built |
+| Suggest API (AI) | Free AI content suggestion endpoint with rate limiting, no credit deduction | `app/api/compose/suggest/route.ts` | ✅ Built |
 | Toolbar | Formatting toolbar with emoji picker | `components/compose/toolbar/` | ✅ Built |
 | Platform-Specific Previews | Live previews for X, Instagram, Facebook, LinkedIn, TikTok, Pinterest | `components/compose/preview/` | ✅ Built |
 | Trend Context Banner | Shows Reddit trend context when composing from trending radar | `components/compose/trend-context-banner.tsx` | ✅ Built |
@@ -206,6 +207,7 @@
 | Brand Context Loader | Loads brand context for AI operations | `lib/ai/brand-context-loader.ts` | ✅ Built |
 | Brand Voice Model | Tone presets, per-platform voice, examples | `prisma/schema.prisma` (BrandVoice) | ✅ Built |
 | Crawler | Web crawler for brand context gathering | `lib/agent/crawler.ts` | ✅ Built |
+| Invisible AI Visibility Control | User-controllable AI label visibility; invisible by default | `lib/invisible-ai-context.tsx` | ✅ Built |
 
 ---
 
@@ -237,9 +239,9 @@
 
 | Feature | Description | Location | Status |
 |---|---|---|---|
-| AI Credit Balance | Per-workspace credit tracking (default 100 free, tier system) | `prisma/schema.prisma` (AiCreditBalance) | ✅ Built |
-| Credits API | Fetch/manage credit balance | `app/api/credits/route.ts` | ✅ Built |
-| Credit Indicator Component | Displays credit balance in UI | `components/dashboard/credit-indicator.tsx` | ✅ Built |
+| AI Credit Balance | Per-workspace credit tracking (default 100 free, tier system) | `prisma/schema.prisma` (AiCreditBalance) | ❌ Removed |
+| Credits API | Fetch/manage credit balance | `app/api/credits/route.ts` | ❌ Removed |
+| Credit Indicator Component | Displays credit balance in UI | `components/dashboard/credit-indicator.tsx` | ❌ Removed |
 
 ---
 
@@ -291,7 +293,7 @@
 | RedditTrendingPost | Scraped posts with relevance score, sentiment, risk level, topic tags, suggested action | ✅ Built |
 | BrandContext | Full brand profile: name, tagline, industry, tone, banned words, audience, competitors, goals, training status | ✅ Built |
 | PlatformContext | Per-platform tone, content mix, posting cadence, hashtag strategy, visual/engagement style, rules | ✅ Built |
-| AiCreditBalance | Balance, tier, total spent, last refill | ✅ Built |
+| AiCreditBalance | Balance, tier, total spent, last refill | ❌ Removed |
 | BrandLearningSignal | Signal type, direction, magnitude, confidence, source, applied status | ✅ Built |
 | BrandFieldState | Per-field confidence, stability, signal count | ✅ Built |
 
@@ -318,6 +320,32 @@
 | Date Utilities | date-fns wrappers (subHours, subDays) | `lib/utils/dates.ts` | ✅ Built |
 | Utility Functions | cn() class merging, other helpers | `lib/utils.ts` | ✅ Built |
 | Request Context | Correlation ID propagation | `lib/request-context.ts` | ✅ Built |
+
+---
+
+## 14. CloakBrowser Scraping Infrastructure
+
+| Feature | Description | Location | Status |
+|---|---|---|---|
+| CloakBrowser Package | `cloakbrowser` npm dependency for headless browser with anti-detection | `package.json`, `next.config.ts` | ✅ Built |
+| Shared Browser Service | Singleton browser, `withPage()`, stealth injection, User-Agent rotation, timeout protection | `lib/cloakbrowser/service.ts` | ✅ Built |
+| Cookie Management | Per-platform cookie persistence (env + file cache) | `lib/cloakbrowser/cookies.ts` | ✅ Built |
+| Error Types | CookieExpiredError, OperationTimeoutError, ScrapingBlockedError, RateLimitedError | `lib/cloakbrowser/errors.ts` | ✅ Built |
+| Scraper Interface | `PlatformScraperResult<T>`, `PageOptions` types | `lib/cloakbrowser/types.ts` | ✅ Built |
+| Cookie Extraction Scripts | Platform-specific scripts for manual login cookie extraction | `scripts/extract-<platform>-cookie.mjs` | ✅ Built |
+| LinkedIn Scraper | Post analytics scraping with cookie injection, stealth, session validation | `lib/linkedin/browser.ts` | ✅ Built |
+| LinkedIn Inbox Scraper | Feed discovery, post scraping, comment extraction, reply posting | `lib/inbox/scrapers/linkedin-scraper.ts` | ✅ Built |
+| Reddit Scraper | JSON API primary, browser fallback via CloakBrowser | `lib/reddit/scraper.ts`, `lib/reddit/cloak.ts` | ✅ Built |
+| Brand Website Crawler | Crawlee + CloakBrowser integration, sitemap discovery, zone-based content extraction | `lib/agent/crawler.ts` | ✅ Built |
+| Instagram Scraper | Profile browsing, post/comment scraping, DMs | `lib/cloakbrowser/platforms/instagram.ts` | ✅ Built |
+| X/Twitter Scraper | Timeline, comments, mentions, DMs scraping | `lib/cloakbrowser/platforms/x.ts` | ✅ Built |
+| TikTok Scraper | Profile browsing with lazy-load scroll, comments, DMs | `lib/cloakbrowser/platforms/tiktok.ts` | ✅ Built |
+| Facebook Scraper | Feed, comments, mentions, Messenger scraping | `lib/cloakbrowser/platforms/facebook.ts` | ✅ Built |
+| Pinterest Scraper | Board browsing, pin/comment scraping | `lib/cloakbrowser/platforms/pinterest.ts` | ✅ Built |
+| YouTube Scraper | Video comments, community posts, notifications | `lib/cloakbrowser/platforms/youtube.ts` | ✅ Built |
+| Threads Scraper | Profile, thread comments scraping | `lib/cloakbrowser/platforms/threads.ts` | ✅ Built |
+| Bluesky Scraper | Profile, post comments, notifications | `lib/cloakbrowser/platforms/bluesky.ts` | ✅ Built |
+| Hybrid Inbox Adapters | API primary + browser fallback for Instagram, X, Facebook, TikTok, Pinterest | `lib/inbox/adapters/*-hybrid.ts` | ✅ Built |
 
 ---
 

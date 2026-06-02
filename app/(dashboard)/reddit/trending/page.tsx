@@ -168,7 +168,7 @@ export default async function RedditTrendingPage({
                   {summary.map((s) => (
                     <div
                       key={s.subreddit}
-                      className="rounded-lg border border-border p-3"
+                      className="rounded-sm border border-border p-3"
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-foreground">

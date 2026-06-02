@@ -64,7 +64,6 @@ export async function completionNode(state: OnboardingStateType): Promise<Partia
       type: 'CompletionCelebration',
       props: {
         accomplishments,
-        creditBalance: 10,
       },
     },
   };

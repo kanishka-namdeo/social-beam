@@ -18,70 +18,10 @@ export { Prisma }
 export * as $Enums from './enums'
 export * from './enums';
 /**
- * Model User
- * 
- */
-export type User = Prisma.UserModel
-/**
- * Model Workspace
- * 
- */
-export type Workspace = Prisma.WorkspaceModel
-/**
- * Model Post
- * 
- */
-export type Post = Prisma.PostModel
-/**
- * Model PostPlatform
- * 
- */
-export type PostPlatform = Prisma.PostPlatformModel
-/**
  * Model AnalyticsSnapshot
  * 
  */
 export type AnalyticsSnapshot = Prisma.AnalyticsSnapshotModel
-/**
- * Model FollowerSnapshot
- * 
- */
-export type FollowerSnapshot = Prisma.FollowerSnapshotModel
-/**
- * Model UserProfile
- * 
- */
-export type UserProfile = Prisma.UserProfileModel
-/**
- * Model ConnectedAccount
- * 
- */
-export type ConnectedAccount = Prisma.ConnectedAccountModel
-/**
- * Model OnboardingSession
- * 
- */
-export type OnboardingSession = Prisma.OnboardingSessionModel
-/**
- * Model BrandVoice
- * 
- */
-export type BrandVoice = Prisma.BrandVoiceModel
-/**
- * Model UserOAuthApp
- * 
- */
-export type UserOAuthApp = Prisma.UserOAuthAppModel
-/**
- * Model RedditSubredditConfig
- * 
- */
-export type RedditSubredditConfig = Prisma.RedditSubredditConfigModel
-/**
- * Model RedditTrendingPost
- * 
- */
-export type RedditTrendingPost = Prisma.RedditTrendingPostModel
 /**
  * Model BrandContext
  * 
@@ -93,27 +33,117 @@ export type BrandContext = Prisma.BrandContextModel
  */
 export type BrandContextVersion = Prisma.BrandContextVersionModel
 /**
- * Model PlatformContext
+ * Model BrandFieldState
  * 
  */
-export type PlatformContext = Prisma.PlatformContextModel
-/**
- * Model AiCreditBalance
- * 
- */
-export type AiCreditBalance = Prisma.AiCreditBalanceModel
+export type BrandFieldState = Prisma.BrandFieldStateModel
 /**
  * Model BrandLearningSignal
  * 
  */
 export type BrandLearningSignal = Prisma.BrandLearningSignalModel
 /**
- * Model BrandFieldState
+ * Model BrandVoice
  * 
  */
-export type BrandFieldState = Prisma.BrandFieldStateModel
+export type BrandVoice = Prisma.BrandVoiceModel
+/**
+ * Model ConnectedAccount
+ * 
+ */
+export type ConnectedAccount = Prisma.ConnectedAccountModel
+/**
+ * Model DashboardPreference
+ * 
+ */
+export type DashboardPreference = Prisma.DashboardPreferenceModel
+/**
+ * Model EngagementItem
+ * 
+ */
+export type EngagementItem = Prisma.EngagementItemModel
+/**
+ * Model SavedReply
+ * 
+ */
+export type SavedReply = Prisma.SavedReplyModel
+/**
+ * Model FollowerSnapshot
+ * 
+ */
+export type FollowerSnapshot = Prisma.FollowerSnapshotModel
 /**
  * Model MediaAsset
  * 
  */
 export type MediaAsset = Prisma.MediaAssetModel
+/**
+ * Model OnboardingSession
+ * 
+ */
+export type OnboardingSession = Prisma.OnboardingSessionModel
+/**
+ * Model PlatformContext
+ * 
+ */
+export type PlatformContext = Prisma.PlatformContextModel
+/**
+ * Model Post
+ * 
+ */
+export type Post = Prisma.PostModel
+/**
+ * Model PostPlatform
+ * 
+ */
+export type PostPlatform = Prisma.PostPlatformModel
+/**
+ * Model RedditSubredditConfig
+ * 
+ */
+export type RedditSubredditConfig = Prisma.RedditSubredditConfigModel
+/**
+ * Model RedditTrendingPost
+ * 
+ */
+export type RedditTrendingPost = Prisma.RedditTrendingPostModel
+/**
+ * Model User
+ * 
+ */
+export type User = Prisma.UserModel
+/**
+ * Model UserOAuthApp
+ * 
+ */
+export type UserOAuthApp = Prisma.UserOAuthAppModel
+/**
+ * Model UserProfile
+ * 
+ */
+export type UserProfile = Prisma.UserProfileModel
+/**
+ * Model Workspace
+ * 
+ */
+export type Workspace = Prisma.WorkspaceModel
+/**
+ * Model checkpoint_blobs
+ * 
+ */
+export type checkpoint_blobs = Prisma.checkpoint_blobsModel
+/**
+ * Model checkpoint_migrations
+ * 
+ */
+export type checkpoint_migrations = Prisma.checkpoint_migrationsModel
+/**
+ * Model checkpoint_writes
+ * 
+ */
+export type checkpoint_writes = Prisma.checkpoint_writesModel
+/**
+ * Model checkpoints
+ * 
+ */
+export type checkpoints = Prisma.checkpointsModel

@@ -25,7 +25,7 @@ export default function CalendarLoading() {
               <Skeleton key={`header-${i}`} className="h-6 w-full" />
             ))}
             {Array.from({ length: 35 }).map((_, i) => (
-              <Skeleton key={`cell-${i}`} className="h-24 w-full rounded-md" />
+              <Skeleton key={`cell-${i}`} className="h-24 w-full rounded-sm" />
             ))}
           </div>
         </CardContent>

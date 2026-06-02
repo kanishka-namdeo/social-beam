@@ -123,7 +123,7 @@ export default function InstagramLandingPage() {
       <div className="mb-16">
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 mb-3">
-            <InstagramLogo className="w-6 h-6 text-pink-500" weight="fill" />
+            <InstagramLogo className="w-6 h-6 text-preview-instagram" weight="fill" />
             <Badge variant="outline">Instagram Features</Badge>
           </div>
           <h2 className="text-3xl font-bold text-foreground mb-3">
@@ -140,7 +140,7 @@ export default function InstagramLandingPage() {
             return (
               <Card key={feature.title} className="border-border">
                 <CardHeader className="pb-3">
-                  <div className="p-3 bg-pink-500/10 text-pink-500 w-fit mb-3">
+                  <div className="p-3 bg-preview-instagram/10 text-preview-instagram w-fit mb-3">
                     <Icon className="w-6 h-6" weight="bold" />
                   </div>
                   <CardTitle className="text-xl text-foreground">{feature.title}</CardTitle>
@@ -169,8 +169,8 @@ export default function InstagramLandingPage() {
 
         <div className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {bestPractices.map((practice) => (
-            <div key={practice.title} className="flex gap-4 p-6 border border-border rounded-lg">
-              <div className="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center shrink-0 font-semibold">
+            <div key={practice.title} className="flex gap-4 p-6 border border-border rounded-sm">
+              <div className="w-10 h-10 rounded-sm bg-brand/10 text-brand flex items-center justify-center shrink-0 font-semibold">
                 {bestPractices.indexOf(practice) + 1}
               </div>
               <div>

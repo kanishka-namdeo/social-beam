@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Spinner } from '@phosphor-icons/react';
+import { Spinner } from '@phosphor-icons/react/ssr';
 import { platformIcon, PLATFORM_DISPLAY_NAMES } from '@/lib/oauth/platform-icons';
 
 interface ConnectDialogProps {
@@ -53,13 +53,13 @@ export function ConnectDialog({ open, platform, onClose }: ConnectDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
-      <DialogContent>
+      <DialogContent className="rounded-sm">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <span className="text-muted-foreground">
               {platformIcon(platform)}
             </span>
-            <DialogTitle>Connect {PLATFORM_DISPLAY_NAMES[platform]}</DialogTitle>
+            <DialogTitle className="tracking-tight">Connect {PLATFORM_DISPLAY_NAMES[platform]}</DialogTitle>
           </div>
           <DialogDescription>
             You&apos;ll be redirected to {PLATFORM_DISPLAY_NAMES[platform]} to authorize the connection.
@@ -67,16 +67,16 @@ export function ConnectDialog({ open, platform, onClose }: ConnectDialogProps) {
         </DialogHeader>
 
         {error && (
-          <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+          <div className="rounded-sm border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
             {error}
           </div>
         )}
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={loading}>
+          <Button variant="outline" className="rounded-sm" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
-          <Button onClick={handleConnect} disabled={loading}>
+          <Button className="rounded-sm" onClick={handleConnect} disabled={loading}>
             {loading ? (
               <>
                 <Spinner className="mr-2 size-4" />

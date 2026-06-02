@@ -405,6 +405,7 @@ export async function processAndStoreTrendingPosts(
     }
 
     return {
+      id: crypto.randomUUID(),
       workspaceId,
       subreddit: post.subreddit,
       postId: extractPostId(post.url),

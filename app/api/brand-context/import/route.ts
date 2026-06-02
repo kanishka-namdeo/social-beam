@@ -80,6 +80,7 @@ export async function POST(req: Request) {
     const brandContext = await prisma.brandContext.upsert({
       where: { workspaceId },
       create: {
+        id: crypto.randomUUID(),
         workspaceId,
         businessName: bcData.businessName ?? undefined,
         tagline: bcData.tagline ?? undefined,
@@ -123,6 +124,7 @@ export async function POST(req: Request) {
           brandContextId_platform: { brandContextId: brandContext.id, platform: pc.platform },
         },
         create: {
+          id: crypto.randomUUID(),
           brandContextId: brandContext.id,
           platform: pc.platform,
           platformTone: pc.platformTone ?? undefined,

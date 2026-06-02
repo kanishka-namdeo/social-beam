@@ -29,8 +29,8 @@ export async function GET(req: Request) {
   const year = parseInt(searchParams.get("year") ?? String(new Date().getFullYear()), 10);
   const month = parseInt(searchParams.get("month") ?? String(new Date().getMonth()), 10);
 
-  const monthStart = new Date(year, month, 1);
-  const monthEnd = new Date(year, month + 1, 0, 23, 59, 59, 999);
+  const monthStart = new Date(Date.UTC(year, month, 1, 0, 0, 0));
+  const monthEnd = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
 
   log.info("api.calendar.posts.get", { workspaceId, year, month });
 
@@ -52,7 +52,7 @@ export async function GET(req: Request) {
       scheduledAt: true,
       publishedAt: true,
       createdAt: true,
-      platforms: {
+      PostPlatform: {
         select: {
           platform: true,
           status: true,
@@ -74,7 +74,7 @@ export async function GET(req: Request) {
         scheduledAt: p.scheduledAt?.toISOString() ?? null,
         publishedAt: p.publishedAt?.toISOString() ?? null,
         createdAt: p.createdAt.toISOString(),
-        platforms: p.platforms.map((pl) => ({
+        platforms: p.PostPlatform.map((pl) => ({
           platform: pl.platform,
           status: pl.status,
         })),
@@ -153,7 +153,7 @@ export async function POST(req: Request) {
       title: true,
       status: true,
       scheduledAt: true,
-      platforms: {
+      PostPlatform: {
         select: {
           platform: true,
           status: true,
@@ -166,7 +166,7 @@ export async function POST(req: Request) {
     data: {
       ...updatedPost,
       scheduledAt: updatedPost.scheduledAt?.toISOString() ?? null,
-      platforms: updatedPost.platforms.map((pl) => ({
+      platforms: updatedPost.PostPlatform.map((pl) => ({
         platform: pl.platform,
         status: pl.status,
       })),
@@ -253,7 +253,7 @@ export async function PATCH(req: Request) {
 
   const original = await prisma.post.findUnique({
     where: { id: postId },
-    include: { platforms: true },
+    include: { PostPlatform: true },
   });
 
   if (!original) {
@@ -269,12 +269,14 @@ export async function PATCH(req: Request) {
 
   const created = await prisma.post.create({
     data: {
+      id: crypto.randomUUID(),
       workspaceId,
       title: original.title ? `Copy of ${original.title}` : "Untitled Copy",
       content: (original.content as unknown) as Prisma.InputJsonValue,
       status: "DRAFT",
-      platforms: {
-        create: original.platforms.map((p) => ({
+      PostPlatform: {
+        create: original.PostPlatform.map((p) => ({
+          id: crypto.randomUUID(),
           platform: p.platform,
           content: p.content,
           ...(p.mediaUrls != null ? { mediaUrls: p.mediaUrls } : {}),

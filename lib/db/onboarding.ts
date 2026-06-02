@@ -11,6 +11,7 @@ export async function getOrCreateSession(userId: string) {
     logger.info('db.onboarding.session_created', { userId });
     session = await prisma.onboardingSession.create({
       data: {
+        id: crypto.randomUUID(),
         userId,
         currentStep: 'greeting',
         stepData: {} as Prisma.JsonObject,
@@ -30,6 +31,7 @@ export async function updateSessionStep(
   return prisma.onboardingSession.upsert({
     where: { userId },
     create: {
+      id: crypto.randomUUID(),
       userId,
       currentStep: step,
       ...(stepData && { stepData: stepData as Prisma.JsonObject }),
@@ -43,17 +45,25 @@ export async function updateSessionStep(
 
 export async function markSessionComplete(userId: string) {
   logger.info('db.onboarding.complete', { userId });
-  return prisma.onboardingSession.upsert({
-    where: { userId },
-    create: {
+  const existing = await prisma.onboardingSession.findUnique({ where: { userId } });
+  
+  if (existing) {
+    return prisma.onboardingSession.update({
+      where: { userId },
+      data: {
+        currentStep: 'completion',
+        completedAt: new Date(),
+      },
+    });
+  }
+  
+  return prisma.onboardingSession.create({
+    data: {
+      id: crypto.randomUUID(),
       userId,
       currentStep: 'completion',
       completedAt: new Date(),
-      stepData: {},
-    },
-    update: {
-      currentStep: 'completion',
-      completedAt: new Date(),
+      stepData: {} as Prisma.InputJsonValue,
     },
   });
 }
@@ -130,6 +140,7 @@ export async function saveOnboardingData(data: OnboardingSaveData): Promise<void
       await tx.userProfile.upsert({
         where: { workspaceId },
         create: {
+          id: crypto.randomUUID(),
           workspaceId,
           bio: userProfileUpdateData.bio as Prisma.InputJsonValue,
           tone: userProfileUpdateData.tone as string | null | undefined,
@@ -162,6 +173,7 @@ export async function saveOnboardingData(data: OnboardingSaveData): Promise<void
         await tx.brandVoice.upsert({
           where: { workspaceId },
           create: {
+            id: crypto.randomUUID(),
             workspaceId,
             ...brandVoiceUpdateData,
           } as Prisma.BrandVoiceCreateInput,
@@ -206,6 +218,7 @@ export async function saveOnboardingData(data: OnboardingSaveData): Promise<void
       await tx.brandContext.upsert({
         where: { workspaceId },
         create: {
+          id: crypto.randomUUID(),
           workspaceId,
           ...(brandContextData.businessName ? { businessName: brandContextData.businessName as string } : {}),
           ...(brandContextData.industry ? { industry: brandContextData.industry as string } : {}),
@@ -254,6 +267,7 @@ export async function saveOnboardingData(data: OnboardingSaveData): Promise<void
                   },
                 },
                 create: {
+                  id: crypto.randomUUID(),
                   brandContextId: brandContext.id,
                   platform,
                   ...(config.tone ? { platformTone: config.tone } : {}),
@@ -295,7 +309,7 @@ export async function getExistingOnboardingData(workspaceId: string): Promise<Ex
   // Try new BrandContext first
   const brandContext = await prisma.brandContext.findUnique({
     where: { workspaceId },
-    include: { platformContexts: true },
+    include: { PlatformContext: true },
   });
 
   if (brandContext) {
@@ -328,7 +342,7 @@ export async function getExistingOnboardingData(workspaceId: string): Promise<Ex
             description: brandContext.voiceDescription,
             examples: brandContext.voiceExamples,
             perPlatform: Object.fromEntries(
-              brandContext.platformContexts.map((pc: PlatformContext) => [
+              brandContext.PlatformContext.map((pc: PlatformContext) => [
                 pc.platform,
                 { tone: pc.platformTone },
               ])
@@ -419,6 +433,7 @@ export async function saveStepData(
       await prisma.userProfile.upsert({
         where: { workspaceId },
         create: {
+          id: crypto.randomUUID(),
           workspaceId,
           bio: data as unknown as Prisma.JsonObject,
         },
@@ -432,6 +447,7 @@ export async function saveStepData(
       await prisma.brandContext.upsert({
         where: { workspaceId },
         create: {
+          id: crypto.randomUUID(),
           workspaceId,
           ...(bio.name ? { businessName: bio.name as string } : {}),
           ...(bio.businessType ? { industry: bio.businessType as string } : {}),
@@ -453,6 +469,7 @@ export async function saveStepData(
       await prisma.userProfile.upsert({
         where: { workspaceId },
         create: {
+          id: crypto.randomUUID(),
           workspaceId,
           audience: data as unknown as Prisma.JsonObject,
         },
@@ -466,6 +483,7 @@ export async function saveStepData(
       await prisma.brandContext.upsert({
         where: { workspaceId },
         create: {
+          id: crypto.randomUUID(),
           workspaceId,
           ...(aud.demographics ? { demographics: aud.demographics as Prisma.InputJsonValue } : {}),
           ...(aud.interests ? { interests: aud.interests as string[] } : {}),
@@ -498,6 +516,7 @@ export async function saveStepData(
         await prisma.userProfile.upsert({
           where: { workspaceId },
           create: {
+            id: crypto.randomUUID(),
             workspaceId,
             tone: updateData.tone as string | null | undefined,
             postTypes: updateData.postTypes as Prisma.InputJsonValue,
@@ -512,6 +531,7 @@ export async function saveStepData(
         await prisma.brandContext.upsert({
           where: { workspaceId },
           create: {
+            id: crypto.randomUUID(),
             workspaceId,
             tonePreset: data.tone as string,
           },
@@ -561,6 +581,7 @@ export async function saveStepData(
         await prisma.brandContext.upsert({
           where: { workspaceId },
           create: {
+            id: crypto.randomUUID(),
             workspaceId,
             ...(bcUpdate.tonePreset ? { tonePreset: bcUpdate.tonePreset as string } : {}),
             ...(bcUpdate.voiceDescription ? { voiceDescription: bcUpdate.voiceDescription as string } : {}),
@@ -595,6 +616,7 @@ export async function saveStepData(
                   },
                 },
                 create: {
+                  id: crypto.randomUUID(),
                   brandContextId: brandContext.id,
                   platform,
                   ...(config.tone ? { platformTone: config.tone } : {}),

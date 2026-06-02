@@ -1,29 +1,18 @@
 "use client";
 
 import { MediaCard } from "./media-card";
+import type { MediaAsset } from "@/lib/media/types";
 
-interface MediaAsset {
-  id: string;
-  originalName: string;
-  mimeType: string;
-  fileSize: number;
-  width: number;
-  height: number;
-  publicUrl: string;
-  status: string;
-  tags: string[];
-  createdAt: Date;
-}
-
-interface MediaGridProps {
+export interface MediaGridProps {
   assets: MediaAsset[];
   onDelete?: (id: string) => void;
   onSelect?: (asset: MediaAsset) => void;
   selectedIds?: Set<string>;
   showActions?: boolean;
+  onAssetUpdate?: (asset: MediaAsset) => void;
 }
 
-export function MediaGrid({ assets, onDelete, onSelect, selectedIds = new Set(), showActions = true }: MediaGridProps) {
+export function MediaGrid({ assets, onDelete, onSelect, selectedIds = new Set(), showActions = true, onAssetUpdate }: MediaGridProps) {
   if (assets.length === 0) {
     return null;
   }
@@ -38,6 +27,7 @@ export function MediaGrid({ assets, onDelete, onSelect, selectedIds = new Set(),
           onSelect={onSelect}
           selected={selectedIds.has(asset.id)}
           showActions={showActions}
+          onAssetUpdate={onAssetUpdate}
         />
       ))}
     </div>

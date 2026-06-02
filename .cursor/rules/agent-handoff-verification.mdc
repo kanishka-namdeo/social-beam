@@ -26,8 +26,7 @@ Task Scope Analysis:
 Use `TodoWrite` to track plan todos, then implement with Read/Write/StrReplace/Shell:
 
 1. Parse approved plan
-2. Create git checkpoint (if >3 files changing)
-3. Set first todo to in_progress
+2. Set first todo to in_progress
 4. Implement task with direct tool calls
 5. Run incremental verification (typecheck/lint on modified files)
 6. Mark todo complete, set next todo in_progress
@@ -36,21 +35,29 @@ Use `TodoWrite` to track plan todos, then implement with Read/Write/StrReplace/S
 
 ### Subagent Execution (Opt-In for Complex Tasks)
 
-When the decision tree says SUBAGENT, dispatch `Task` subagents sequentially:
+When the decision tree says SUBAGENT, dispatch `Task` subagents:
 
 1. Parse approved plan, build task queue
-2. For each task, dispatch:
+2. For independent tasks with no shared state or dependencies, dispatch in parallel:
    ```
    Task({ subagent_type: "generalPurpose",
           prompt: "[Task content + files + success criteria from plan]",
           description: "Task N: [name]",
+          readonly: false,
+          run_in_background: true })
+   // Dispatch all parallel tasks at once, then await each
+   ```
+3. For dependent tasks, dispatch sequentially with explicit handoffs:
+   ```
+   Task({ subagent_type: "generalPurpose",
+          prompt: "[Task content + files + handoff context from prior task]",
+          description: "Task N: [name]",
           readonly: false })
    ```
-3. After each subagent: verify output, run typecheck/lint on modified files
-4. Pass handoff context to next subagent dispatch
+4. After each subagent: verify output, run typecheck/lint on modified files
 5. After all tasks: full verification
 
-**NEVER** dispatch subagents in parallel. Always sequential with explicit handoffs.
+**Parallel dispatch is allowed** when tasks are independent (no shared state, no file conflicts, no sequential dependencies). Use the `dispatching-parallel-agents` skill for guidance on splitting work.
 
 ---
 
@@ -64,15 +71,7 @@ When the decision tree says SUBAGENT, dispatch `Task` subagents sequentially:
 - Note library versions and APIs to use
 - Run scope analysis: count files per task, check layer boundaries
 
-### 2. Create Git Checkpoint (REQUIRED for complex changes)
-
-```bash
-git checkout -b feature/[feature-name]
-# OR
-git add -A && git commit -m "checkpoint: before implementing [feature]"
-```
-
-### 3. Verify Research Sources
+### 2. Verify Research Sources
 - Quick WebSearch: "[library] breaking changes 2025 2026"
 - If found: update plan, notify user
 
@@ -208,6 +207,171 @@ git commit -m "checkpoint: before [change]"
 
 ---
 
+## Parallel Subagent Best Practices
+
+**Sources**: [amux Orchestration Guide 2026](https://amux.io/guides/ai-agent-orchestration-2026/), [Agentic Engineering 2026](https://amux.io/guides/agentic-engineering/), [Subagents Deep Dive](https://ranjankumar.in/subagents-parallelism-inside-session), [STORM paper (arXiv 2605.20563)](https://arxiv.org/html/2605.20563v1), [Clarion AI Multi-Agent 2026](https://clarion.ai/insights-building-multi-agent-ai-systems-orchestration-memory-tool-use/), [Cursor Subagents Complete Guide](https://medium.com/@codeandbird/cursor-subagents-complete-guide-5853e8d39176)
+
+### Coordination Pattern Selection
+
+Choose the right orchestration pattern based on task structure:
+
+```
+Is the task naturally sequential?
+├── Yes → Pipeline (stage N output feeds stage N+1)
+└── No
+    ├── Does task benefit from multiple perspectives?
+    │   ├── Yes, 2 perspectives → Debate/Negotiator
+    │   └── Yes, 3+ perspectives → Fan-out parallel
+    └── No
+        ├── Is task decomposable into clear subtasks?
+        │   ├── Yes → Supervisor + Specialists (DEFAULT)
+        │   └── No → Single agent (don't over-engineer)
+        └── Massive scale (100+ tasks)? → Swarm (rare)
+```
+
+**Default: Supervisor + Specialists** — 96.3% success rate pattern. Start here. Add complexity only when task demands it.
+
+#### Pattern Definitions
+
+|| Pattern | When to Use | Example |
+||---------|-------------|---------|
+|| **Pipeline** | Sequential dependencies, each stage feeds next | Research → Draft → Review → Publish |
+|| **Fan-out** | 3+ independent tasks, no shared state | Fix 3 separate test files in parallel |
+|| **Supervisor + Specialists** | Decomposable with different expertise | Frontend dev + Backend dev + Security auditor |
+|| **Debate** | Need multiple perspectives on same problem | Design decision with pros/cons analysis |
+
+### When to Parallelize (Rule of 3)
+
+Only dispatch parallel subagents when a task decomposes into **3+ independent, non-overlapping subtasks**. Below 3 tasks, a single agent or sequential dispatch is faster end-to-end.
+
+Each parallel subtask should take an estimated **15–45 minutes**. Under 15 minutes, the overhead of a separate agent isn't worth it. Over 45 minutes, the task is probably decomposable further.
+
+### Decomposition Criteria
+
+Parallel tasks MUST meet ALL of these criteria:
+
+| Criterion | Pass Check |
+|-----------|------------|
+| **Different files** | No two tasks touch the same file |
+| **Different entities** | No two tasks touch the same function/class (semantic, not just file-level) |
+| **Explicit interfaces** | When tasks must interact, the interface (URL, request/response shape) is pre-defined |
+| **No shared state** | No task reads another's output to do its work |
+| **Roughly equal cost** | No one subtask dominates the wall clock (slowest sets total time) |
+
+**Semantic conflicts matter more than file conflicts**: Two agents editing different functions in the same file can produce a "clean" git merge that still breaks the build because of changed signatures, removed dependencies, or conflicting imports. Task decomposition must be at the function/entity level, not just file level.
+
+### Clean Summary Discipline
+
+Subagents return only **distilled results** (~400 tokens), not raw transcripts, full file contents, or test stdout. The orchestrator's context stays sharp.
+
+```
+✅ GOOD: "3 tests failed: auth.test.ts:42 (JWT expired), auth.test.ts:58 (null token). Fixed by adding null check."
+❌ BAD: Full 20,000-token test output dumped into orchestrator context
+```
+
+### Scoped Context Injection
+
+Task descriptions to subagents must be the **minimum needed** for that specific task. Do not dump the parent's full session context, rejected approaches, or unrelated decisions into the child's fresh context window.
+
+```
+✅ GOOD: "Add OAuth callback route at /api/auth/:platform/callback. See existing /api/auth/:platform/authorize for the pattern."
+❌ BAD: [5,000-token dump of the entire auth architecture discussion, all rejected approaches, and 12 files of context]
+```
+
+### Least-Privilege Tool Access
+
+Set `readonly` appropriately per subagent role:
+
+| Role | readonly | Reason |
+|------|----------|--------|
+| Research/exploration | `true` | Cannot accidentally modify files while exploring |
+| Review/audit | `true` | Read-only analysis, findings returned as summary |
+| Implementation | `false` | Needs to write code |
+| Test runner | `false` | Needs to execute test commands |
+
+### Model Tiering by Complexity
+
+| Task Type | Model | Signal |
+|-----------|-------|--------|
+| Mechanical (1–2 files, complete spec) | Fast/cheap model | Clear file paths, simple transformation |
+| Integration (multi-file coordination) | Standard model | Cross-file imports, shared interfaces |
+| Design/judgment (architecture decisions) | Most capable model | Requires broad codebase understanding |
+
+### Post-Integration Verification
+
+After all parallel subagents return:
+
+1. **Check for conflicts**: Did agents edit the same file or function? If so, resolve before proceeding.
+2. **Run full test suite**: Parallel agents that compile individually may produce a broken build when merged.
+3. **Run full verification**: `pnpm run typecheck && pnpm run lint && pnpm run build`
+4. **Verify semantic integrity**: A merge can be "clean" but still break logic — check that changed functions still compile together.
+
+### Rate Limit Awareness
+
+Too many concurrent subagent dispatches can hit API rate limits. When dispatching 5+ parallel subagents, stagger launches by 30–60 seconds.
+
+### Timeout Specification
+
+Every subagent dispatch MUST have an expected duration. Aggressive timeouts (2-5 minutes for bounded tasks) with explicit fallback behavior are mandatory.
+
+|| Task Type | Timeout | Fallback |
+||-----------|---------|----------|
+|| Mechanical (1-2 files, complete spec) | 2 minutes | Retry with narrower scope |
+|| Integration (multi-file coordination) | 5 minutes | Escalate to human if blocked |
+|| Research/exploration | 5 minutes | Return partial findings, what was discovered |
+|| Long-running background task | No timeout | Use `run_in_background: true` |
+
+**Cascading timeout pattern**: If a subagent stalls, the orchestrator must have a recovery path — spawn a new subagent with narrower scope rather than waiting indefinitely.
+
+### Circuit Breakers: Max Limits Per Request
+
+Prevent runaway recursion and token burn:
+
+|| Limit | Value | Rationale |
+||-------|-------|-----------|
+|| Max concurrent subagents | 5 | Rate limit awareness, manageable review load |
+|| Max total per request tree | 10 | Prevent unbounded token consumption |
+|| Max retries per failed subagent | 2 | Escalate instead of infinite retry loop |
+|| Max nesting depth | 1 | Cursor model inheritance bugs at level 2+ |
+
+### Background Async Pattern
+
+For long-running tasks (research, large migrations, extensive refactoring), use background dispatch to keep the orchestrator interactive:
+
+```typescript
+Task({
+  subagent_type: "generalPurpose",
+  prompt: "[Task description with clear success criteria]",
+  description: "Background research task",
+  run_in_background: true  // Returns immediately, runs async
+})
+```
+
+**After background dispatch**:
+- Continue working on other tasks in the foreground
+- Do NOT block waiting for the background task
+- Check terminal output later or await completion notification
+- Background subagents can run while foreground work continues
+
+**Cursor 3.2 `/multitask`**: Use for queue parallelization and auto-decomposition. Each queued prompt becomes an async subagent. Works well for independent research tasks that don't need immediate results. Access via Agents Window.
+
+### Anti-Patterns
+
+| Anti-Pattern | Problem | Fix |
+|---|---|---|
+| **Over-parallelization** | 2 tasks dispatched in parallel costs more than single agent | Use Rule of 3 |
+| **Context pollution** | Subagent gets full parent context, stays polluted | Scope to minimum needed |
+| **No review bottleneck planning** | 10 agents finish, human can only review 3 | Limit parallel dispatch to review capacity |
+| **Force-push on shared branches** | Destroys other agents' work | Never force-push on branches others use |
+| **Ignoring semantic collisions** | Two agents change same function signature | Decompose at entity level, not file level |
+| **Dumping test output** | 20K tokens of test stdout floods parent context | Subagent processes, returns summary only |
+| **Nested subagents** | Level 2+ falls back to Composer, unreliable behavior | Flatten to level 1 only |
+| **CLI nesting** | CLI lacks Task tool interface for child spawning | Use IDE for any subagent work |
+| **No timeout fallback** | Stalled subagent blocks entire workflow | Define recovery path before dispatch |
+| **Blocking on background tasks** | Orchestrator stalls waiting for async work | Continue work, poll later |
+
+---
+
 ## Success Metrics
 
 - All tasks completed (direct or subagent based on scope analysis)
@@ -222,4 +386,4 @@ git commit -m "checkpoint: before [change]"
 - Code committed without verification
 - Plan acceptance criteria not met
 - Blocked tasks skipped without escalation
-- Tasks executed in parallel when subagent mode (sequential-only enforced)
+- Parallel subagents interfering with shared state or editing the same files

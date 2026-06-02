@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://socialbeam.ai/sitemap.xml
+
+# Disallow API routes and auth routes
+Disallow: /api/
+Disallow: /login
+Disallow: /register
+Disallow: /onboarding
+Disallow: /dashboard/
+Disallow: /compose/
+Disallow: /calendar/
+Disallow: /analytics/
+Disallow: /reddit/
+Disallow: /settings/

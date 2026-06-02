@@ -138,6 +138,7 @@ export async function POST(req: Request) {
         // Create database record
         const asset = await prisma.mediaAsset.create({
           data: {
+            id: crypto.randomUUID(),
             workspaceId: user.workspaceId,
             originalName,
             mimeType: `image/${processed.format}`,
@@ -145,14 +146,20 @@ export async function POST(req: Request) {
             width: processed.width,
             height: processed.height,
             storagePath,
-            publicUrl: getPublicUrl(storagePath, ""),
+            publicUrl: "", // Updated below after asset ID is known
             status: "active",
             variants: [],
             tags: [],
           },
         });
 
-        results.push(uploadResponseSchema.parse(asset));
+        // Update with correct public URL now that we have the asset ID
+        const updatedAsset = await prisma.mediaAsset.update({
+          where: { id: asset.id },
+          data: { publicUrl: getPublicUrl(storagePath, asset.id) },
+        });
+
+        results.push(uploadResponseSchema.parse(updatedAsset));
       } catch (processError) {
         log.error("media.upload.processError", {
           filename: originalName,

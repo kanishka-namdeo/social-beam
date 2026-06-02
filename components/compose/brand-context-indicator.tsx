@@ -25,7 +25,7 @@ export function BrandContextIndicator({ brandContext }: BrandContextIndicatorPro
 
   if (!brandContext) {
     return (
-      <div className="flex items-center justify-between rounded-lg border border-dashed border-border bg-muted/20 p-3">
+      <div className="flex items-center justify-between rounded-sm border border-dashed border-border bg-muted/20 p-3">
         <div className="flex items-center gap-2">
           <Megaphone className="size-4 text-muted-foreground" />
           <span className="text-xs text-muted-foreground">
@@ -52,7 +52,7 @@ export function BrandContextIndicator({ brandContext }: BrandContextIndicatorPro
 
   return (
     <>
-      <div className="flex items-center justify-between rounded-lg border border-border/50 bg-card p-3">
+      <div className="flex items-center justify-between rounded-sm border border-border/50 bg-card p-3">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-1.5">
             <Sparkle className="size-3.5 text-brand" weight="fill" />

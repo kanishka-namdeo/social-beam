@@ -4,6 +4,8 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Providers } from "@/components/providers";
+import { ThemeProvider as WrkszThemeProvider } from "@wrksz/themes/next";
+import { organizationSchema, webSiteSchema, softwareApplicationSchema, renderJsonLd } from "@/lib/seo/schemas";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -87,15 +89,34 @@ export default async function RootLayout({
 }>) {
   const session = await auth();
 
+  const orgSchema = renderJsonLd(organizationSchema());
+  const siteSchema = renderJsonLd(webSiteSchema());
+  const appSchema = renderJsonLd(softwareApplicationSchema());
+
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}
     >
       <body className="min-h-full flex flex-col">
-        <Providers session={session}>
-          {children}
-        </Providers>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: orgSchema }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: siteSchema }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: appSchema }}
+        />
+        <WrkszThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Providers session={session}>
+            {children}
+          </Providers>
+        </WrkszThemeProvider>
       </body>
     </html>
   );

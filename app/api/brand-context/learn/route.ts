@@ -10,7 +10,8 @@ const LearnRequestSchema = z.object({
   editedContent: z.string().min(1, "editedContent is required"),
   platform: z.string().min(1, "platform is required"),
   postId: z.string().optional(),
-  signalType: z.enum(["post_edit_diff", "thumbs_up", "thumbs_down", "user_feedback"]).default("post_edit_diff"),
+  signalType: z.enum(["post_edit_diff", "thumbs_up", "thumbs_down", "user_feedback", "modifier_transform"]).default("post_edit_diff"),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export async function POST(req: Request) {
@@ -39,7 +40,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { originalContent, editedContent, platform, postId, signalType } = parsed.data;
+    const { originalContent, editedContent, platform, postId, signalType, metadata } = parsed.data;
 
     // Get brand context ID for this workspace
     const brandContext = await getBrandContext(workspaceId);
@@ -66,6 +67,7 @@ export async function POST(req: Request) {
       signals,
       signalType,
       sourcePostId: postId,
+      metadata,
     });
 
     log.info("api.request.success", {

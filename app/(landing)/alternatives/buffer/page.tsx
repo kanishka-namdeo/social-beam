@@ -198,7 +198,7 @@ export default function BufferComparisonPage() {
         <div className="grid md:grid-cols-3 gap-6">
           <Card className="border-border">
             <CardHeader>
-              <div className="w-8 h-8 rounded-full bg-brand text-background flex items-center justify-center font-bold text-sm mb-3">1</div>
+              <div className="w-8 h-8 rounded-sm bg-brand text-background flex items-center justify-center font-bold text-sm mb-3">1</div>
               <CardTitle className="text-foreground">Export from Buffer</CardTitle>
             </CardHeader>
             <CardContent>
@@ -209,7 +209,7 @@ export default function BufferComparisonPage() {
           </Card>
           <Card className="border-border">
             <CardHeader>
-              <div className="w-8 h-8 rounded-full bg-brand text-background flex items-center justify-center font-bold text-sm mb-3">2</div>
+              <div className="w-8 h-8 rounded-sm bg-brand text-background flex items-center justify-center font-bold text-sm mb-3">2</div>
               <CardTitle className="text-foreground">Connect to SocialBeam</CardTitle>
             </CardHeader>
             <CardContent>
@@ -220,7 +220,7 @@ export default function BufferComparisonPage() {
           </Card>
           <Card className="border-border">
             <CardHeader>
-              <div className="w-8 h-8 rounded-full bg-brand text-background flex items-center justify-center font-bold text-sm mb-3">3</div>
+              <div className="w-8 h-8 rounded-sm bg-brand text-background flex items-center justify-center font-bold text-sm mb-3">3</div>
               <CardTitle className="text-foreground">Start publishing</CardTitle>
             </CardHeader>
             <CardContent>

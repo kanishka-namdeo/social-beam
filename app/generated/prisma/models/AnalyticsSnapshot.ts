@@ -31,13 +31,13 @@ export type AnalyticsSnapshotAvgAggregateOutputType = {
   comments: number | null
   shares: number | null
   impressions: number | null
-  reach: number | null
+  engagementRate: number | null
   clicks: number | null
+  profileVisits: number | null
+  reach: number | null
   saves: number | null
   videoViews: number | null
-  profileVisits: number | null
   websiteClicks: number | null
-  engagementRate: number | null
 }
 
 export type AnalyticsSnapshotSumAggregateOutputType = {
@@ -45,13 +45,13 @@ export type AnalyticsSnapshotSumAggregateOutputType = {
   comments: number | null
   shares: number | null
   impressions: number | null
-  reach: number | null
+  engagementRate: number | null
   clicks: number | null
+  profileVisits: number | null
+  reach: number | null
   saves: number | null
   videoViews: number | null
-  profileVisits: number | null
   websiteClicks: number | null
-  engagementRate: number | null
 }
 
 export type AnalyticsSnapshotMinAggregateOutputType = {
@@ -62,14 +62,14 @@ export type AnalyticsSnapshotMinAggregateOutputType = {
   comments: number | null
   shares: number | null
   impressions: number | null
-  reach: number | null
-  clicks: number | null
-  saves: number | null
-  videoViews: number | null
-  profileVisits: number | null
-  websiteClicks: number | null
   engagementRate: number | null
   snapshotAt: Date | null
+  clicks: number | null
+  profileVisits: number | null
+  reach: number | null
+  saves: number | null
+  videoViews: number | null
+  websiteClicks: number | null
 }
 
 export type AnalyticsSnapshotMaxAggregateOutputType = {
@@ -80,14 +80,14 @@ export type AnalyticsSnapshotMaxAggregateOutputType = {
   comments: number | null
   shares: number | null
   impressions: number | null
-  reach: number | null
-  clicks: number | null
-  saves: number | null
-  videoViews: number | null
-  profileVisits: number | null
-  websiteClicks: number | null
   engagementRate: number | null
   snapshotAt: Date | null
+  clicks: number | null
+  profileVisits: number | null
+  reach: number | null
+  saves: number | null
+  videoViews: number | null
+  websiteClicks: number | null
 }
 
 export type AnalyticsSnapshotCountAggregateOutputType = {
@@ -98,14 +98,14 @@ export type AnalyticsSnapshotCountAggregateOutputType = {
   comments: number
   shares: number
   impressions: number
-  reach: number
-  clicks: number
-  saves: number
-  videoViews: number
-  profileVisits: number
-  websiteClicks: number
   engagementRate: number
   snapshotAt: number
+  clicks: number
+  profileVisits: number
+  reach: number
+  saves: number
+  videoViews: number
+  websiteClicks: number
   _all: number
 }
 
@@ -115,13 +115,13 @@ export type AnalyticsSnapshotAvgAggregateInputType = {
   comments?: true
   shares?: true
   impressions?: true
-  reach?: true
+  engagementRate?: true
   clicks?: true
+  profileVisits?: true
+  reach?: true
   saves?: true
   videoViews?: true
-  profileVisits?: true
   websiteClicks?: true
-  engagementRate?: true
 }
 
 export type AnalyticsSnapshotSumAggregateInputType = {
@@ -129,13 +129,13 @@ export type AnalyticsSnapshotSumAggregateInputType = {
   comments?: true
   shares?: true
   impressions?: true
-  reach?: true
+  engagementRate?: true
   clicks?: true
+  profileVisits?: true
+  reach?: true
   saves?: true
   videoViews?: true
-  profileVisits?: true
   websiteClicks?: true
-  engagementRate?: true
 }
 
 export type AnalyticsSnapshotMinAggregateInputType = {
@@ -146,14 +146,14 @@ export type AnalyticsSnapshotMinAggregateInputType = {
   comments?: true
   shares?: true
   impressions?: true
-  reach?: true
-  clicks?: true
-  saves?: true
-  videoViews?: true
-  profileVisits?: true
-  websiteClicks?: true
   engagementRate?: true
   snapshotAt?: true
+  clicks?: true
+  profileVisits?: true
+  reach?: true
+  saves?: true
+  videoViews?: true
+  websiteClicks?: true
 }
 
 export type AnalyticsSnapshotMaxAggregateInputType = {
@@ -164,14 +164,14 @@ export type AnalyticsSnapshotMaxAggregateInputType = {
   comments?: true
   shares?: true
   impressions?: true
-  reach?: true
-  clicks?: true
-  saves?: true
-  videoViews?: true
-  profileVisits?: true
-  websiteClicks?: true
   engagementRate?: true
   snapshotAt?: true
+  clicks?: true
+  profileVisits?: true
+  reach?: true
+  saves?: true
+  videoViews?: true
+  websiteClicks?: true
 }
 
 export type AnalyticsSnapshotCountAggregateInputType = {
@@ -182,14 +182,14 @@ export type AnalyticsSnapshotCountAggregateInputType = {
   comments?: true
   shares?: true
   impressions?: true
-  reach?: true
-  clicks?: true
-  saves?: true
-  videoViews?: true
-  profileVisits?: true
-  websiteClicks?: true
   engagementRate?: true
   snapshotAt?: true
+  clicks?: true
+  profileVisits?: true
+  reach?: true
+  saves?: true
+  videoViews?: true
+  websiteClicks?: true
   _all?: true
 }
 
@@ -287,14 +287,14 @@ export type AnalyticsSnapshotGroupByOutputType = {
   comments: number
   shares: number
   impressions: number
-  reach: number
-  clicks: number
-  saves: number
-  videoViews: number
-  profileVisits: number
-  websiteClicks: number
   engagementRate: number | null
   snapshotAt: Date
+  clicks: number
+  profileVisits: number
+  reach: number
+  saves: number
+  videoViews: number
+  websiteClicks: number
   _count: AnalyticsSnapshotCountAggregateOutputType | null
   _avg: AnalyticsSnapshotAvgAggregateOutputType | null
   _sum: AnalyticsSnapshotSumAggregateOutputType | null
@@ -328,15 +328,15 @@ export type AnalyticsSnapshotWhereInput = {
   comments?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
   shares?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
   impressions?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
-  reach?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
-  clicks?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
-  saves?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
-  videoViews?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
-  profileVisits?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
-  websiteClicks?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
   engagementRate?: Prisma.FloatNullableFilter<"AnalyticsSnapshot"> | number | null
   snapshotAt?: Prisma.DateTimeFilter<"AnalyticsSnapshot"> | Date | string
-  post?: Prisma.XOR<Prisma.PostScalarRelationFilter, Prisma.PostWhereInput>
+  clicks?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
+  profileVisits?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
+  reach?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
+  saves?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
+  videoViews?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
+  websiteClicks?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
+  Post?: Prisma.XOR<Prisma.PostScalarRelationFilter, Prisma.PostWhereInput>
 }
 
 export type AnalyticsSnapshotOrderByWithRelationInput = {
@@ -347,15 +347,15 @@ export type AnalyticsSnapshotOrderByWithRelationInput = {
   comments?: Prisma.SortOrder
   shares?: Prisma.SortOrder
   impressions?: Prisma.SortOrder
-  reach?: Prisma.SortOrder
-  clicks?: Prisma.SortOrder
-  saves?: Prisma.SortOrder
-  videoViews?: Prisma.SortOrder
-  profileVisits?: Prisma.SortOrder
-  websiteClicks?: Prisma.SortOrder
   engagementRate?: Prisma.SortOrderInput | Prisma.SortOrder
   snapshotAt?: Prisma.SortOrder
-  post?: Prisma.PostOrderByWithRelationInput
+  clicks?: Prisma.SortOrder
+  profileVisits?: Prisma.SortOrder
+  reach?: Prisma.SortOrder
+  saves?: Prisma.SortOrder
+  videoViews?: Prisma.SortOrder
+  websiteClicks?: Prisma.SortOrder
+  Post?: Prisma.PostOrderByWithRelationInput
 }
 
 export type AnalyticsSnapshotWhereUniqueInput = Prisma.AtLeast<{
@@ -369,15 +369,15 @@ export type AnalyticsSnapshotWhereUniqueInput = Prisma.AtLeast<{
   comments?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
   shares?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
   impressions?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
-  reach?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
-  clicks?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
-  saves?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
-  videoViews?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
-  profileVisits?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
-  websiteClicks?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
   engagementRate?: Prisma.FloatNullableFilter<"AnalyticsSnapshot"> | number | null
   snapshotAt?: Prisma.DateTimeFilter<"AnalyticsSnapshot"> | Date | string
-  post?: Prisma.XOR<Prisma.PostScalarRelationFilter, Prisma.PostWhereInput>
+  clicks?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
+  profileVisits?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
+  reach?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
+  saves?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
+  videoViews?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
+  websiteClicks?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
+  Post?: Prisma.XOR<Prisma.PostScalarRelationFilter, Prisma.PostWhereInput>
 }, "id">
 
 export type AnalyticsSnapshotOrderByWithAggregationInput = {
@@ -388,14 +388,14 @@ export type AnalyticsSnapshotOrderByWithAggregationInput = {
   comments?: Prisma.SortOrder
   shares?: Prisma.SortOrder
   impressions?: Prisma.SortOrder
-  reach?: Prisma.SortOrder
-  clicks?: Prisma.SortOrder
-  saves?: Prisma.SortOrder
-  videoViews?: Prisma.SortOrder
-  profileVisits?: Prisma.SortOrder
-  websiteClicks?: Prisma.SortOrder
   engagementRate?: Prisma.SortOrderInput | Prisma.SortOrder
   snapshotAt?: Prisma.SortOrder
+  clicks?: Prisma.SortOrder
+  profileVisits?: Prisma.SortOrder
+  reach?: Prisma.SortOrder
+  saves?: Prisma.SortOrder
+  videoViews?: Prisma.SortOrder
+  websiteClicks?: Prisma.SortOrder
   _count?: Prisma.AnalyticsSnapshotCountOrderByAggregateInput
   _avg?: Prisma.AnalyticsSnapshotAvgOrderByAggregateInput
   _max?: Prisma.AnalyticsSnapshotMaxOrderByAggregateInput
@@ -414,50 +414,50 @@ export type AnalyticsSnapshotScalarWhereWithAggregatesInput = {
   comments?: Prisma.IntWithAggregatesFilter<"AnalyticsSnapshot"> | number
   shares?: Prisma.IntWithAggregatesFilter<"AnalyticsSnapshot"> | number
   impressions?: Prisma.IntWithAggregatesFilter<"AnalyticsSnapshot"> | number
-  reach?: Prisma.IntWithAggregatesFilter<"AnalyticsSnapshot"> | number
-  clicks?: Prisma.IntWithAggregatesFilter<"AnalyticsSnapshot"> | number
-  saves?: Prisma.IntWithAggregatesFilter<"AnalyticsSnapshot"> | number
-  videoViews?: Prisma.IntWithAggregatesFilter<"AnalyticsSnapshot"> | number
-  profileVisits?: Prisma.IntWithAggregatesFilter<"AnalyticsSnapshot"> | number
-  websiteClicks?: Prisma.IntWithAggregatesFilter<"AnalyticsSnapshot"> | number
   engagementRate?: Prisma.FloatNullableWithAggregatesFilter<"AnalyticsSnapshot"> | number | null
   snapshotAt?: Prisma.DateTimeWithAggregatesFilter<"AnalyticsSnapshot"> | Date | string
+  clicks?: Prisma.IntWithAggregatesFilter<"AnalyticsSnapshot"> | number
+  profileVisits?: Prisma.IntWithAggregatesFilter<"AnalyticsSnapshot"> | number
+  reach?: Prisma.IntWithAggregatesFilter<"AnalyticsSnapshot"> | number
+  saves?: Prisma.IntWithAggregatesFilter<"AnalyticsSnapshot"> | number
+  videoViews?: Prisma.IntWithAggregatesFilter<"AnalyticsSnapshot"> | number
+  websiteClicks?: Prisma.IntWithAggregatesFilter<"AnalyticsSnapshot"> | number
 }
 
 export type AnalyticsSnapshotCreateInput = {
-  id?: string
+  id: string
   platform: string
   likes?: number
   comments?: number
   shares?: number
   impressions?: number
-  reach?: number
-  clicks?: number
-  saves?: number
-  videoViews?: number
-  profileVisits?: number
-  websiteClicks?: number
   engagementRate?: number | null
   snapshotAt?: Date | string
-  post: Prisma.PostCreateNestedOneWithoutAnalyticsInput
+  clicks?: number
+  profileVisits?: number
+  reach?: number
+  saves?: number
+  videoViews?: number
+  websiteClicks?: number
+  Post: Prisma.PostCreateNestedOneWithoutAnalyticsSnapshotInput
 }
 
 export type AnalyticsSnapshotUncheckedCreateInput = {
-  id?: string
+  id: string
   postId: string
   platform: string
   likes?: number
   comments?: number
   shares?: number
   impressions?: number
-  reach?: number
-  clicks?: number
-  saves?: number
-  videoViews?: number
-  profileVisits?: number
-  websiteClicks?: number
   engagementRate?: number | null
   snapshotAt?: Date | string
+  clicks?: number
+  profileVisits?: number
+  reach?: number
+  saves?: number
+  videoViews?: number
+  websiteClicks?: number
 }
 
 export type AnalyticsSnapshotUpdateInput = {
@@ -467,15 +467,15 @@ export type AnalyticsSnapshotUpdateInput = {
   comments?: Prisma.IntFieldUpdateOperationsInput | number
   shares?: Prisma.IntFieldUpdateOperationsInput | number
   impressions?: Prisma.IntFieldUpdateOperationsInput | number
-  reach?: Prisma.IntFieldUpdateOperationsInput | number
-  clicks?: Prisma.IntFieldUpdateOperationsInput | number
-  saves?: Prisma.IntFieldUpdateOperationsInput | number
-  videoViews?: Prisma.IntFieldUpdateOperationsInput | number
-  profileVisits?: Prisma.IntFieldUpdateOperationsInput | number
-  websiteClicks?: Prisma.IntFieldUpdateOperationsInput | number
   engagementRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   snapshotAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  post?: Prisma.PostUpdateOneRequiredWithoutAnalyticsNestedInput
+  clicks?: Prisma.IntFieldUpdateOperationsInput | number
+  profileVisits?: Prisma.IntFieldUpdateOperationsInput | number
+  reach?: Prisma.IntFieldUpdateOperationsInput | number
+  saves?: Prisma.IntFieldUpdateOperationsInput | number
+  videoViews?: Prisma.IntFieldUpdateOperationsInput | number
+  websiteClicks?: Prisma.IntFieldUpdateOperationsInput | number
+  Post?: Prisma.PostUpdateOneRequiredWithoutAnalyticsSnapshotNestedInput
 }
 
 export type AnalyticsSnapshotUncheckedUpdateInput = {
@@ -486,32 +486,32 @@ export type AnalyticsSnapshotUncheckedUpdateInput = {
   comments?: Prisma.IntFieldUpdateOperationsInput | number
   shares?: Prisma.IntFieldUpdateOperationsInput | number
   impressions?: Prisma.IntFieldUpdateOperationsInput | number
-  reach?: Prisma.IntFieldUpdateOperationsInput | number
-  clicks?: Prisma.IntFieldUpdateOperationsInput | number
-  saves?: Prisma.IntFieldUpdateOperationsInput | number
-  videoViews?: Prisma.IntFieldUpdateOperationsInput | number
-  profileVisits?: Prisma.IntFieldUpdateOperationsInput | number
-  websiteClicks?: Prisma.IntFieldUpdateOperationsInput | number
   engagementRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   snapshotAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clicks?: Prisma.IntFieldUpdateOperationsInput | number
+  profileVisits?: Prisma.IntFieldUpdateOperationsInput | number
+  reach?: Prisma.IntFieldUpdateOperationsInput | number
+  saves?: Prisma.IntFieldUpdateOperationsInput | number
+  videoViews?: Prisma.IntFieldUpdateOperationsInput | number
+  websiteClicks?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type AnalyticsSnapshotCreateManyInput = {
-  id?: string
+  id: string
   postId: string
   platform: string
   likes?: number
   comments?: number
   shares?: number
   impressions?: number
-  reach?: number
-  clicks?: number
-  saves?: number
-  videoViews?: number
-  profileVisits?: number
-  websiteClicks?: number
   engagementRate?: number | null
   snapshotAt?: Date | string
+  clicks?: number
+  profileVisits?: number
+  reach?: number
+  saves?: number
+  videoViews?: number
+  websiteClicks?: number
 }
 
 export type AnalyticsSnapshotUpdateManyMutationInput = {
@@ -521,14 +521,14 @@ export type AnalyticsSnapshotUpdateManyMutationInput = {
   comments?: Prisma.IntFieldUpdateOperationsInput | number
   shares?: Prisma.IntFieldUpdateOperationsInput | number
   impressions?: Prisma.IntFieldUpdateOperationsInput | number
-  reach?: Prisma.IntFieldUpdateOperationsInput | number
-  clicks?: Prisma.IntFieldUpdateOperationsInput | number
-  saves?: Prisma.IntFieldUpdateOperationsInput | number
-  videoViews?: Prisma.IntFieldUpdateOperationsInput | number
-  profileVisits?: Prisma.IntFieldUpdateOperationsInput | number
-  websiteClicks?: Prisma.IntFieldUpdateOperationsInput | number
   engagementRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   snapshotAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clicks?: Prisma.IntFieldUpdateOperationsInput | number
+  profileVisits?: Prisma.IntFieldUpdateOperationsInput | number
+  reach?: Prisma.IntFieldUpdateOperationsInput | number
+  saves?: Prisma.IntFieldUpdateOperationsInput | number
+  videoViews?: Prisma.IntFieldUpdateOperationsInput | number
+  websiteClicks?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type AnalyticsSnapshotUncheckedUpdateManyInput = {
@@ -539,14 +539,96 @@ export type AnalyticsSnapshotUncheckedUpdateManyInput = {
   comments?: Prisma.IntFieldUpdateOperationsInput | number
   shares?: Prisma.IntFieldUpdateOperationsInput | number
   impressions?: Prisma.IntFieldUpdateOperationsInput | number
-  reach?: Prisma.IntFieldUpdateOperationsInput | number
-  clicks?: Prisma.IntFieldUpdateOperationsInput | number
-  saves?: Prisma.IntFieldUpdateOperationsInput | number
-  videoViews?: Prisma.IntFieldUpdateOperationsInput | number
-  profileVisits?: Prisma.IntFieldUpdateOperationsInput | number
-  websiteClicks?: Prisma.IntFieldUpdateOperationsInput | number
   engagementRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   snapshotAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clicks?: Prisma.IntFieldUpdateOperationsInput | number
+  profileVisits?: Prisma.IntFieldUpdateOperationsInput | number
+  reach?: Prisma.IntFieldUpdateOperationsInput | number
+  saves?: Prisma.IntFieldUpdateOperationsInput | number
+  videoViews?: Prisma.IntFieldUpdateOperationsInput | number
+  websiteClicks?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type AnalyticsSnapshotCountOrderByAggregateInput = {
+  id?: Prisma.SortOrder
+  postId?: Prisma.SortOrder
+  platform?: Prisma.SortOrder
+  likes?: Prisma.SortOrder
+  comments?: Prisma.SortOrder
+  shares?: Prisma.SortOrder
+  impressions?: Prisma.SortOrder
+  engagementRate?: Prisma.SortOrder
+  snapshotAt?: Prisma.SortOrder
+  clicks?: Prisma.SortOrder
+  profileVisits?: Prisma.SortOrder
+  reach?: Prisma.SortOrder
+  saves?: Prisma.SortOrder
+  videoViews?: Prisma.SortOrder
+  websiteClicks?: Prisma.SortOrder
+}
+
+export type AnalyticsSnapshotAvgOrderByAggregateInput = {
+  likes?: Prisma.SortOrder
+  comments?: Prisma.SortOrder
+  shares?: Prisma.SortOrder
+  impressions?: Prisma.SortOrder
+  engagementRate?: Prisma.SortOrder
+  clicks?: Prisma.SortOrder
+  profileVisits?: Prisma.SortOrder
+  reach?: Prisma.SortOrder
+  saves?: Prisma.SortOrder
+  videoViews?: Prisma.SortOrder
+  websiteClicks?: Prisma.SortOrder
+}
+
+export type AnalyticsSnapshotMaxOrderByAggregateInput = {
+  id?: Prisma.SortOrder
+  postId?: Prisma.SortOrder
+  platform?: Prisma.SortOrder
+  likes?: Prisma.SortOrder
+  comments?: Prisma.SortOrder
+  shares?: Prisma.SortOrder
+  impressions?: Prisma.SortOrder
+  engagementRate?: Prisma.SortOrder
+  snapshotAt?: Prisma.SortOrder
+  clicks?: Prisma.SortOrder
+  profileVisits?: Prisma.SortOrder
+  reach?: Prisma.SortOrder
+  saves?: Prisma.SortOrder
+  videoViews?: Prisma.SortOrder
+  websiteClicks?: Prisma.SortOrder
+}
+
+export type AnalyticsSnapshotMinOrderByAggregateInput = {
+  id?: Prisma.SortOrder
+  postId?: Prisma.SortOrder
+  platform?: Prisma.SortOrder
+  likes?: Prisma.SortOrder
+  comments?: Prisma.SortOrder
+  shares?: Prisma.SortOrder
+  impressions?: Prisma.SortOrder
+  engagementRate?: Prisma.SortOrder
+  snapshotAt?: Prisma.SortOrder
+  clicks?: Prisma.SortOrder
+  profileVisits?: Prisma.SortOrder
+  reach?: Prisma.SortOrder
+  saves?: Prisma.SortOrder
+  videoViews?: Prisma.SortOrder
+  websiteClicks?: Prisma.SortOrder
+}
+
+export type AnalyticsSnapshotSumOrderByAggregateInput = {
+  likes?: Prisma.SortOrder
+  comments?: Prisma.SortOrder
+  shares?: Prisma.SortOrder
+  impressions?: Prisma.SortOrder
+  engagementRate?: Prisma.SortOrder
+  clicks?: Prisma.SortOrder
+  profileVisits?: Prisma.SortOrder
+  reach?: Prisma.SortOrder
+  saves?: Prisma.SortOrder
+  videoViews?: Prisma.SortOrder
+  websiteClicks?: Prisma.SortOrder
 }
 
 export type AnalyticsSnapshotListRelationFilter = {
@@ -559,86 +641,28 @@ export type AnalyticsSnapshotOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type AnalyticsSnapshotCountOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  postId?: Prisma.SortOrder
-  platform?: Prisma.SortOrder
-  likes?: Prisma.SortOrder
-  comments?: Prisma.SortOrder
-  shares?: Prisma.SortOrder
-  impressions?: Prisma.SortOrder
-  reach?: Prisma.SortOrder
-  clicks?: Prisma.SortOrder
-  saves?: Prisma.SortOrder
-  videoViews?: Prisma.SortOrder
-  profileVisits?: Prisma.SortOrder
-  websiteClicks?: Prisma.SortOrder
-  engagementRate?: Prisma.SortOrder
-  snapshotAt?: Prisma.SortOrder
+export type StringFieldUpdateOperationsInput = {
+  set?: string
 }
 
-export type AnalyticsSnapshotAvgOrderByAggregateInput = {
-  likes?: Prisma.SortOrder
-  comments?: Prisma.SortOrder
-  shares?: Prisma.SortOrder
-  impressions?: Prisma.SortOrder
-  reach?: Prisma.SortOrder
-  clicks?: Prisma.SortOrder
-  saves?: Prisma.SortOrder
-  videoViews?: Prisma.SortOrder
-  profileVisits?: Prisma.SortOrder
-  websiteClicks?: Prisma.SortOrder
-  engagementRate?: Prisma.SortOrder
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
-export type AnalyticsSnapshotMaxOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  postId?: Prisma.SortOrder
-  platform?: Prisma.SortOrder
-  likes?: Prisma.SortOrder
-  comments?: Prisma.SortOrder
-  shares?: Prisma.SortOrder
-  impressions?: Prisma.SortOrder
-  reach?: Prisma.SortOrder
-  clicks?: Prisma.SortOrder
-  saves?: Prisma.SortOrder
-  videoViews?: Prisma.SortOrder
-  profileVisits?: Prisma.SortOrder
-  websiteClicks?: Prisma.SortOrder
-  engagementRate?: Prisma.SortOrder
-  snapshotAt?: Prisma.SortOrder
+export type NullableFloatFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
-export type AnalyticsSnapshotMinOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  postId?: Prisma.SortOrder
-  platform?: Prisma.SortOrder
-  likes?: Prisma.SortOrder
-  comments?: Prisma.SortOrder
-  shares?: Prisma.SortOrder
-  impressions?: Prisma.SortOrder
-  reach?: Prisma.SortOrder
-  clicks?: Prisma.SortOrder
-  saves?: Prisma.SortOrder
-  videoViews?: Prisma.SortOrder
-  profileVisits?: Prisma.SortOrder
-  websiteClicks?: Prisma.SortOrder
-  engagementRate?: Prisma.SortOrder
-  snapshotAt?: Prisma.SortOrder
-}
-
-export type AnalyticsSnapshotSumOrderByAggregateInput = {
-  likes?: Prisma.SortOrder
-  comments?: Prisma.SortOrder
-  shares?: Prisma.SortOrder
-  impressions?: Prisma.SortOrder
-  reach?: Prisma.SortOrder
-  clicks?: Prisma.SortOrder
-  saves?: Prisma.SortOrder
-  videoViews?: Prisma.SortOrder
-  profileVisits?: Prisma.SortOrder
-  websiteClicks?: Prisma.SortOrder
-  engagementRate?: Prisma.SortOrder
+export type DateTimeFieldUpdateOperationsInput = {
+  set?: Date | string
 }
 
 export type AnalyticsSnapshotCreateNestedManyWithoutPostInput = {
@@ -683,54 +707,38 @@ export type AnalyticsSnapshotUncheckedUpdateManyWithoutPostNestedInput = {
   deleteMany?: Prisma.AnalyticsSnapshotScalarWhereInput | Prisma.AnalyticsSnapshotScalarWhereInput[]
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
-export type NullableFloatFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type AnalyticsSnapshotCreateWithoutPostInput = {
-  id?: string
+  id: string
   platform: string
   likes?: number
   comments?: number
   shares?: number
   impressions?: number
-  reach?: number
-  clicks?: number
-  saves?: number
-  videoViews?: number
-  profileVisits?: number
-  websiteClicks?: number
   engagementRate?: number | null
   snapshotAt?: Date | string
+  clicks?: number
+  profileVisits?: number
+  reach?: number
+  saves?: number
+  videoViews?: number
+  websiteClicks?: number
 }
 
 export type AnalyticsSnapshotUncheckedCreateWithoutPostInput = {
-  id?: string
+  id: string
   platform: string
   likes?: number
   comments?: number
   shares?: number
   impressions?: number
-  reach?: number
-  clicks?: number
-  saves?: number
-  videoViews?: number
-  profileVisits?: number
-  websiteClicks?: number
   engagementRate?: number | null
   snapshotAt?: Date | string
+  clicks?: number
+  profileVisits?: number
+  reach?: number
+  saves?: number
+  videoViews?: number
+  websiteClicks?: number
 }
 
 export type AnalyticsSnapshotCreateOrConnectWithoutPostInput = {
@@ -770,31 +778,31 @@ export type AnalyticsSnapshotScalarWhereInput = {
   comments?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
   shares?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
   impressions?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
-  reach?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
-  clicks?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
-  saves?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
-  videoViews?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
-  profileVisits?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
-  websiteClicks?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
   engagementRate?: Prisma.FloatNullableFilter<"AnalyticsSnapshot"> | number | null
   snapshotAt?: Prisma.DateTimeFilter<"AnalyticsSnapshot"> | Date | string
+  clicks?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
+  profileVisits?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
+  reach?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
+  saves?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
+  videoViews?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
+  websiteClicks?: Prisma.IntFilter<"AnalyticsSnapshot"> | number
 }
 
 export type AnalyticsSnapshotCreateManyPostInput = {
-  id?: string
+  id: string
   platform: string
   likes?: number
   comments?: number
   shares?: number
   impressions?: number
-  reach?: number
-  clicks?: number
-  saves?: number
-  videoViews?: number
-  profileVisits?: number
-  websiteClicks?: number
   engagementRate?: number | null
   snapshotAt?: Date | string
+  clicks?: number
+  profileVisits?: number
+  reach?: number
+  saves?: number
+  videoViews?: number
+  websiteClicks?: number
 }
 
 export type AnalyticsSnapshotUpdateWithoutPostInput = {
@@ -804,14 +812,14 @@ export type AnalyticsSnapshotUpdateWithoutPostInput = {
   comments?: Prisma.IntFieldUpdateOperationsInput | number
   shares?: Prisma.IntFieldUpdateOperationsInput | number
   impressions?: Prisma.IntFieldUpdateOperationsInput | number
-  reach?: Prisma.IntFieldUpdateOperationsInput | number
-  clicks?: Prisma.IntFieldUpdateOperationsInput | number
-  saves?: Prisma.IntFieldUpdateOperationsInput | number
-  videoViews?: Prisma.IntFieldUpdateOperationsInput | number
-  profileVisits?: Prisma.IntFieldUpdateOperationsInput | number
-  websiteClicks?: Prisma.IntFieldUpdateOperationsInput | number
   engagementRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   snapshotAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clicks?: Prisma.IntFieldUpdateOperationsInput | number
+  profileVisits?: Prisma.IntFieldUpdateOperationsInput | number
+  reach?: Prisma.IntFieldUpdateOperationsInput | number
+  saves?: Prisma.IntFieldUpdateOperationsInput | number
+  videoViews?: Prisma.IntFieldUpdateOperationsInput | number
+  websiteClicks?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type AnalyticsSnapshotUncheckedUpdateWithoutPostInput = {
@@ -821,14 +829,14 @@ export type AnalyticsSnapshotUncheckedUpdateWithoutPostInput = {
   comments?: Prisma.IntFieldUpdateOperationsInput | number
   shares?: Prisma.IntFieldUpdateOperationsInput | number
   impressions?: Prisma.IntFieldUpdateOperationsInput | number
-  reach?: Prisma.IntFieldUpdateOperationsInput | number
-  clicks?: Prisma.IntFieldUpdateOperationsInput | number
-  saves?: Prisma.IntFieldUpdateOperationsInput | number
-  videoViews?: Prisma.IntFieldUpdateOperationsInput | number
-  profileVisits?: Prisma.IntFieldUpdateOperationsInput | number
-  websiteClicks?: Prisma.IntFieldUpdateOperationsInput | number
   engagementRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   snapshotAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clicks?: Prisma.IntFieldUpdateOperationsInput | number
+  profileVisits?: Prisma.IntFieldUpdateOperationsInput | number
+  reach?: Prisma.IntFieldUpdateOperationsInput | number
+  saves?: Prisma.IntFieldUpdateOperationsInput | number
+  videoViews?: Prisma.IntFieldUpdateOperationsInput | number
+  websiteClicks?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type AnalyticsSnapshotUncheckedUpdateManyWithoutPostInput = {
@@ -838,14 +846,14 @@ export type AnalyticsSnapshotUncheckedUpdateManyWithoutPostInput = {
   comments?: Prisma.IntFieldUpdateOperationsInput | number
   shares?: Prisma.IntFieldUpdateOperationsInput | number
   impressions?: Prisma.IntFieldUpdateOperationsInput | number
-  reach?: Prisma.IntFieldUpdateOperationsInput | number
-  clicks?: Prisma.IntFieldUpdateOperationsInput | number
-  saves?: Prisma.IntFieldUpdateOperationsInput | number
-  videoViews?: Prisma.IntFieldUpdateOperationsInput | number
-  profileVisits?: Prisma.IntFieldUpdateOperationsInput | number
-  websiteClicks?: Prisma.IntFieldUpdateOperationsInput | number
   engagementRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   snapshotAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clicks?: Prisma.IntFieldUpdateOperationsInput | number
+  profileVisits?: Prisma.IntFieldUpdateOperationsInput | number
+  reach?: Prisma.IntFieldUpdateOperationsInput | number
+  saves?: Prisma.IntFieldUpdateOperationsInput | number
+  videoViews?: Prisma.IntFieldUpdateOperationsInput | number
+  websiteClicks?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 
@@ -858,15 +866,15 @@ export type AnalyticsSnapshotSelect<ExtArgs extends runtime.Types.Extensions.Int
   comments?: boolean
   shares?: boolean
   impressions?: boolean
-  reach?: boolean
-  clicks?: boolean
-  saves?: boolean
-  videoViews?: boolean
-  profileVisits?: boolean
-  websiteClicks?: boolean
   engagementRate?: boolean
   snapshotAt?: boolean
-  post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
+  clicks?: boolean
+  profileVisits?: boolean
+  reach?: boolean
+  saves?: boolean
+  videoViews?: boolean
+  websiteClicks?: boolean
+  Post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["analyticsSnapshot"]>
 
 export type AnalyticsSnapshotSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -877,15 +885,15 @@ export type AnalyticsSnapshotSelectCreateManyAndReturn<ExtArgs extends runtime.T
   comments?: boolean
   shares?: boolean
   impressions?: boolean
-  reach?: boolean
-  clicks?: boolean
-  saves?: boolean
-  videoViews?: boolean
-  profileVisits?: boolean
-  websiteClicks?: boolean
   engagementRate?: boolean
   snapshotAt?: boolean
-  post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
+  clicks?: boolean
+  profileVisits?: boolean
+  reach?: boolean
+  saves?: boolean
+  videoViews?: boolean
+  websiteClicks?: boolean
+  Post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["analyticsSnapshot"]>
 
 export type AnalyticsSnapshotSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -896,15 +904,15 @@ export type AnalyticsSnapshotSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   comments?: boolean
   shares?: boolean
   impressions?: boolean
-  reach?: boolean
-  clicks?: boolean
-  saves?: boolean
-  videoViews?: boolean
-  profileVisits?: boolean
-  websiteClicks?: boolean
   engagementRate?: boolean
   snapshotAt?: boolean
-  post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
+  clicks?: boolean
+  profileVisits?: boolean
+  reach?: boolean
+  saves?: boolean
+  videoViews?: boolean
+  websiteClicks?: boolean
+  Post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["analyticsSnapshot"]>
 
 export type AnalyticsSnapshotSelectScalar = {
@@ -915,31 +923,31 @@ export type AnalyticsSnapshotSelectScalar = {
   comments?: boolean
   shares?: boolean
   impressions?: boolean
-  reach?: boolean
-  clicks?: boolean
-  saves?: boolean
-  videoViews?: boolean
-  profileVisits?: boolean
-  websiteClicks?: boolean
   engagementRate?: boolean
   snapshotAt?: boolean
+  clicks?: boolean
+  profileVisits?: boolean
+  reach?: boolean
+  saves?: boolean
+  videoViews?: boolean
+  websiteClicks?: boolean
 }
 
-export type AnalyticsSnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "postId" | "platform" | "likes" | "comments" | "shares" | "impressions" | "reach" | "clicks" | "saves" | "videoViews" | "profileVisits" | "websiteClicks" | "engagementRate" | "snapshotAt", ExtArgs["result"]["analyticsSnapshot"]>
+export type AnalyticsSnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "postId" | "platform" | "likes" | "comments" | "shares" | "impressions" | "engagementRate" | "snapshotAt" | "clicks" | "profileVisits" | "reach" | "saves" | "videoViews" | "websiteClicks", ExtArgs["result"]["analyticsSnapshot"]>
 export type AnalyticsSnapshotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
+  Post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
 }
 export type AnalyticsSnapshotIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
+  Post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
 }
 export type AnalyticsSnapshotIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
+  Post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
 }
 
 export type $AnalyticsSnapshotPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AnalyticsSnapshot"
   objects: {
-    post: Prisma.$PostPayload<ExtArgs>
+    Post: Prisma.$PostPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -949,14 +957,14 @@ export type $AnalyticsSnapshotPayload<ExtArgs extends runtime.Types.Extensions.I
     comments: number
     shares: number
     impressions: number
-    reach: number
-    clicks: number
-    saves: number
-    videoViews: number
-    profileVisits: number
-    websiteClicks: number
     engagementRate: number | null
     snapshotAt: Date
+    clicks: number
+    profileVisits: number
+    reach: number
+    saves: number
+    videoViews: number
+    websiteClicks: number
   }, ExtArgs["result"]["analyticsSnapshot"]>
   composites: {}
 }
@@ -1351,7 +1359,7 @@ readonly fields: AnalyticsSnapshotFieldRefs;
  */
 export interface Prisma__AnalyticsSnapshotClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  post<T extends Prisma.PostDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PostDefaultArgs<ExtArgs>>): Prisma.Prisma__PostClient<runtime.Types.Result.GetResult<Prisma.$PostPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Post<T extends Prisma.PostDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PostDefaultArgs<ExtArgs>>): Prisma.Prisma__PostClient<runtime.Types.Result.GetResult<Prisma.$PostPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1388,14 +1396,14 @@ export interface AnalyticsSnapshotFieldRefs {
   readonly comments: Prisma.FieldRef<"AnalyticsSnapshot", 'Int'>
   readonly shares: Prisma.FieldRef<"AnalyticsSnapshot", 'Int'>
   readonly impressions: Prisma.FieldRef<"AnalyticsSnapshot", 'Int'>
-  readonly reach: Prisma.FieldRef<"AnalyticsSnapshot", 'Int'>
-  readonly clicks: Prisma.FieldRef<"AnalyticsSnapshot", 'Int'>
-  readonly saves: Prisma.FieldRef<"AnalyticsSnapshot", 'Int'>
-  readonly videoViews: Prisma.FieldRef<"AnalyticsSnapshot", 'Int'>
-  readonly profileVisits: Prisma.FieldRef<"AnalyticsSnapshot", 'Int'>
-  readonly websiteClicks: Prisma.FieldRef<"AnalyticsSnapshot", 'Int'>
   readonly engagementRate: Prisma.FieldRef<"AnalyticsSnapshot", 'Float'>
   readonly snapshotAt: Prisma.FieldRef<"AnalyticsSnapshot", 'DateTime'>
+  readonly clicks: Prisma.FieldRef<"AnalyticsSnapshot", 'Int'>
+  readonly profileVisits: Prisma.FieldRef<"AnalyticsSnapshot", 'Int'>
+  readonly reach: Prisma.FieldRef<"AnalyticsSnapshot", 'Int'>
+  readonly saves: Prisma.FieldRef<"AnalyticsSnapshot", 'Int'>
+  readonly videoViews: Prisma.FieldRef<"AnalyticsSnapshot", 'Int'>
+  readonly websiteClicks: Prisma.FieldRef<"AnalyticsSnapshot", 'Int'>
 }
     
 

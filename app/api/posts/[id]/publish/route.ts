@@ -23,7 +23,7 @@ export async function POST(
         workspaceId: true,
         status: true,
         scheduledAt: true,
-        platforms: {
+        PostPlatform: {
           where: { status: { in: ['DRAFT', 'SCHEDULED'] } },
           select: {
             id: true,
@@ -45,7 +45,7 @@ export async function POST(
       return NextResponse.json({ error: 'Post already published' }, { status: 400 });
     }
 
-    if (post.platforms.length === 0) {
+    if (post.PostPlatform.length === 0) {
       log.warn('api.publish.no_platforms', { postId: id });
       return NextResponse.json({ error: 'Post has no target platforms' }, { status: 400 });
     }
@@ -54,7 +54,7 @@ export async function POST(
       id: post.id,
       workspaceId: post.workspaceId,
       scheduledAt: post.scheduledAt ?? new Date(),
-      platforms: post.platforms.map(p => ({
+      platforms: post.PostPlatform.map(p => ({
         platformId: p.id,
         platform: p.platform as DuePost['platforms'][number]['platform'],
         content: p.content,

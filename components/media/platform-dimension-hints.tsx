@@ -38,7 +38,7 @@ export function PlatformDimensionHints({ connectedPlatforms = [] }: PlatformDime
               <span className="flex items-center gap-2">
                 {platform.displayName}
                 {isConnected && (
-                  <Badge variant="secondary" className="text-[10px] normal-case">
+                  <Badge variant="secondary" className="text-[10px] normal-case rounded-sm">
                     Connected
                   </Badge>
                 )}

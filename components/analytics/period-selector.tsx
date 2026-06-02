@@ -21,7 +21,7 @@ export function PeriodSelector({ currentPeriod }: { currentPeriod: number }) {
   };
 
   return (
-    <div className="flex items-center gap-1 rounded-lg border bg-card p-1">
+    <div className="flex items-center gap-1 rounded-sm border bg-card p-1">
       {PERIODS.map((period) => (
         <Button
           key={period.value}
@@ -29,9 +29,9 @@ export function PeriodSelector({ currentPeriod }: { currentPeriod: number }) {
           size="sm"
           onClick={() => handlePeriodChange(period.value)}
           className={cn(
-            "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+            "rounded-sm px-3 py-1.5 text-sm font-medium tracking-tight transition-colors",
             currentPeriod === period.value
-              ? "bg-primary text-primary-foreground hover:bg-primary/90"
+              ? "bg-primary text-primary-foreground hover:bg-primary/90 border-l-2 border-l-primary-foreground"
               : "text-muted-foreground hover:bg-accent hover:text-foreground"
           )}
         >

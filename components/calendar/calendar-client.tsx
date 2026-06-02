@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   DndContext,
   type DragEndEvent,
@@ -68,7 +68,7 @@ function MonthErrorBanners({
         const [yearStr, monthStr] = key.split("-");
         const errorDate = new Date(Number(yearStr), Number(monthStr));
         return (
-          <div key={key} className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm">
+          <div key={key} className="flex items-center gap-2 rounded-sm border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm">
             <Warning className="size-4 text-destructive shrink-0" weight="fill" />
             <span className="text-destructive flex-1">
               Failed to load posts for {format(errorDate, "MMMM yyyy")}.
@@ -138,9 +138,9 @@ export function CalendarClient({
   );
 
   // Fetch posts for a given month
-  const fetchPostsForMonth = useCallback(async (date: Date) => {
+  const fetchPostsForMonth = useCallback(async (date: Date, forceRefetch = false) => {
     const key = `${date.getFullYear()}-${date.getMonth()}`;
-    if (key === lastFetchedMonthRef.current) return;
+    if (!forceRefetch && key === lastFetchedMonthRef.current) return;
     lastFetchedMonthRef.current = key;
     setMonthLoading(true);
 
@@ -174,6 +174,12 @@ export function CalendarClient({
     }
   }, []);
 
+  // Fetch posts on initial mount
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchPostsForMonth(currentDate);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Filter posts by platform
   const filteredPosts = filterPlatform === "all"
     ? posts
@@ -197,7 +203,7 @@ export function CalendarClient({
       return next;
     });
     setCurrentDate(errorMonth);
-    void fetchPostsForMonth(errorMonth);
+    void fetchPostsForMonth(errorMonth, true);
   }, [fetchPostsForMonth]);
 
   const goPrev = () => {
@@ -437,7 +443,7 @@ export function CalendarClient({
       </div>
 
       {/* Spacer between toolbar and calendar content */}
-      <div className="h-4" />
+      <div className="h-6" />
 
       {/* Month fetch error banner */}
       {monthFetchErrors.size > 0 && (
@@ -486,9 +492,9 @@ export function CalendarClient({
 
         {/* Empty state — mobile/tablet */}
         {posts.length === 0 && view !== "list" && (
-          <div className="rounded-lg border border-dashed border-border p-12 text-center">
+          <div className="rounded-sm border border-dashed border-border p-12 text-center">
             <CalendarDots className="mx-auto mb-4 size-12 text-muted-foreground/50" weight="thin" />
-            <h3 className="text-base font-semibold text-foreground">No posts scheduled</h3>
+            <h3 className="text-base font-medium tracking-tight text-foreground">No posts scheduled</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Create your first post to see it on the calendar.
             </p>
@@ -499,9 +505,9 @@ export function CalendarClient({
         )}
 
         {posts.length === 0 && view === "list" && (
-          <div className="rounded-lg border border-dashed border-border p-12 text-center">
+          <div className="rounded-sm border border-dashed border-border p-12 text-center">
             <ListBullets className="mx-auto mb-4 size-12 text-muted-foreground/50" weight="thin" />
-            <h3 className="text-base font-semibold text-foreground">No posts yet</h3>
+            <h3 className="text-base font-medium tracking-tight text-foreground">No posts yet</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Start composing to see your posts here.
             </p>
@@ -516,10 +522,10 @@ export function CalendarClient({
       <div className="hidden lg:flex flex-col h-dashboard">
         <ResizablePanelGroup orientation="horizontal" className="flex-1">
           <ResizablePanel defaultSize="65" minSize={40}>
-            <div className="h-full overflow-y-auto p-2 relative">
+            <div className="h-full overflow-y-auto p-3 relative">
               {monthLoading && (
-                <div className="absolute inset-0 z-10 bg-background/50 flex items-center justify-center rounded-lg">
-                  <Skeleton className="h-4 w-24 rounded-full" />
+                <div className="absolute inset-0 z-10 bg-background/50 flex items-center justify-center rounded-sm">
+                  <Skeleton className="h-4 w-24 rounded-sm" />
                 </div>
               )}
               {/* Calendar views */}
@@ -562,9 +568,9 @@ export function CalendarClient({
 
               {/* Empty state — desktop */}
               {posts.length === 0 && view !== "list" && (
-                <div className="rounded-lg border border-dashed border-border p-12 text-center">
+                <div className="rounded-sm border border-dashed border-border p-12 text-center">
                   <CalendarDots className="mx-auto mb-4 size-12 text-muted-foreground/50" weight="thin" />
-                  <h3 className="text-base font-semibold text-foreground">No posts scheduled</h3>
+                  <h3 className="text-base font-medium tracking-tight text-foreground">No posts scheduled</h3>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Create your first post to see it on the calendar.
                   </p>
@@ -575,9 +581,9 @@ export function CalendarClient({
               )}
 
               {posts.length === 0 && view === "list" && (
-                <div className="rounded-lg border border-dashed border-border p-12 text-center">
+                <div className="rounded-sm border border-dashed border-border p-12 text-center">
                   <ListBullets className="mx-auto mb-4 size-12 text-muted-foreground/50" weight="thin" />
-                  <h3 className="text-base font-semibold text-foreground">No posts yet</h3>
+                  <h3 className="text-base font-medium tracking-tight text-foreground">No posts yet</h3>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Start composing to see your posts here.
                   </p>

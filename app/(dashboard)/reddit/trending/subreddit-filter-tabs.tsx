@@ -22,8 +22,8 @@ export function SubredditFilterTabs({ hours, subredditFilter, subredditConfigs }
         size="sm"
         asChild
         className={cn(
-          !subredditFilter && "bg-brand text-primary-foreground hover:bg-brand/90 hover:text-primary-foreground rounded-md transition-colors",
-          subredditFilter && "rounded-md hover:bg-muted transition-colors",
+          !subredditFilter && "bg-brand text-primary-foreground hover:bg-brand/90 hover:text-primary-foreground rounded-sm border-b-2 border-b-brand transition-colors",
+          subredditFilter && "rounded-sm hover:bg-muted transition-colors",
         )}
       >
         <Link href={`/reddit/trending?hours=${hours}`}>
@@ -37,8 +37,8 @@ export function SubredditFilterTabs({ hours, subredditFilter, subredditConfigs }
           size="sm"
           asChild
           className={cn(
-            subredditFilter === cfg.subreddit && "bg-brand text-primary-foreground hover:bg-brand/90 hover:text-primary-foreground rounded-md transition-colors",
-            subredditFilter !== cfg.subreddit && "rounded-md hover:bg-muted transition-colors",
+            subredditFilter === cfg.subreddit && "bg-brand text-primary-foreground hover:bg-brand/90 hover:text-primary-foreground rounded-sm border-b-2 border-b-brand transition-colors",
+            subredditFilter !== cfg.subreddit && "rounded-sm hover:bg-muted transition-colors",
           )}
         >
           <Link href={`/reddit/trending?hours=${hours}&subreddit=${cfg.subreddit}`}>

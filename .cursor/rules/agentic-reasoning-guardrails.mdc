@@ -231,6 +231,37 @@ Before ending turn:
 
 ---
 
+## Rule 11: Subagent Nesting Discipline
+
+### Problem
+Nested subagents (level 2+) suffer from model inheritance bugs in Cursor, falling back to Composer 1.5/2 regardless of `model: inherit`. CLI does not support nesting at all. This causes unreliable behavior and wasted tokens.
+
+Sources: [Cursor Forum #152174](https://forum.cursor.com/t/task-tool-not-available-to-agent-when-subagent-delegation-context-is-injected-2-5-17-windows/152174), [Cursor Forum #149771](https://forum.cursor.com/t/task-tool-missing-for-custom-agents-in-cursor-agents-documentation-pages-return-errors/149771), [Cursor Subagents Docs](https://cursor.com/docs/subagents)
+
+### Guardrails
+
+**Avoid nesting beyond level 1**: Subagents should NOT spawn their own subagents. Flatten to single-level orchestration where the parent dispatches all tasks directly.
+
+**If multi-level orchestration is critical**: Use Claude models with Max Mode in the IDE (not CLI), and accept the model inheritance bugs at level 2+ may still occur.
+
+**Never nest in CLI**: CLI subagent sessions lack the Task tool interface needed for child spawning.
+
+**Flatten rather than nest**: If a subagent's task is too complex, decompose it at the parent level and dispatch multiple level-1 subagents instead of letting one subagent spawn children.
+
+### Anti-pattern example (DO NOT DO):
+```
+Parent dispatch → Subagent A → Subagent A1 (level 2, model inheritance broken)
+```
+
+### Correct pattern:
+```
+Parent dispatch → [Subagent A, Subagent B, Subagent C] (all level 1, parallel)
+```
+
+**When a subagent reports BLOCKED**: Do not let it spawn a child to investigate. Instead, the parent should break the task into smaller pieces and dispatch new level-1 subagents.
+
+---
+
 ## Anti-Patterns to Watch For
 
 | Anti-pattern | What happens | Correct behavior |
@@ -245,6 +276,7 @@ Before ending turn:
 | **Fragmented debug** | Dispatches 3 subagents for one bug instead of 1 comprehensive | One subagent with all hypotheses |
 | **Blind subagent trust** | Presents subagent diagnosis as fact without verification | Independently verify at least one key claim |
 | **Stale API knowledge** | Recommends OAuth scope changes based on training data | WebSearch/WebFetch current docs first |
+| **Nested subagents** | Level 2+ spawns children, falls back to Composer | Flatten to level 1, dispatch from parent |
 
 ---
 
@@ -260,3 +292,4 @@ These guardrails override general behavioral tendencies:
 6. **Escalate after 2 empty results** — strategy switch > retry
 7. **One subagent per bug** — comprehensive dispatch > fragmented narrow scopes
 8. **Research before API changes** — current docs > training memory
+9. **No nested subagents** — flatten to level 1 > unreliable level 2+

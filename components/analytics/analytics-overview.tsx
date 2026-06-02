@@ -39,23 +39,23 @@ interface AnalyticsOverviewProps {
 }
 
 const chartColors = [
-  "hsl(var(--chart-1))",
-  "hsl(var(--chart-2))",
-  "hsl(var(--chart-3))",
-  "hsl(var(--chart-4))",
-  "hsl(var(--chart-5))",
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
 ];
 
 function CustomTooltipContent({ active, payload, label }: { active?: boolean; payload?: { value: number; name: string; color: string }[]; label?: string }) {
   if (active && payload && payload.length) {
     return (
-      <div className="rounded-lg border border-border bg-card p-3 shadow-lg">
-        <p className="text-sm font-medium text-foreground mb-1">{label}</p>
+      <div className="rounded-sm border border-border bg-card p-3 shadow-lg">
+        <p className="text-sm font-medium tracking-tight text-foreground mb-1">{label}</p>
         {payload.map((entry, idx) => (
           <div key={idx} className="flex items-center gap-2 text-xs">
-            <span className="size-2 rounded-full" style={{ backgroundColor: entry.color }} />
+            <span className="size-2 rounded-sm" style={{ backgroundColor: entry.color }} />
             <span className="text-muted-foreground">{entry.name}:</span>
-            <span className="font-medium text-foreground">
+            <span className="font-medium font-mono tabular-nums text-foreground">
               {typeof entry.value === "number" ? entry.value.toLocaleString() : entry.value}
             </span>
           </div>
@@ -103,7 +103,7 @@ export function AnalyticsOverview({ timeSeries }: AnalyticsOverviewProps) {
           <CardDescription>No data available yet</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex h-64 items-center justify-center rounded-lg border border-dashed border-border">
+          <div className="flex h-64 items-center justify-center rounded-sm border border-dashed border-border bg-muted/20">
             <p className="text-sm text-muted-foreground">
               Publish posts to see performance trends.
             </p>
@@ -114,9 +114,9 @@ export function AnalyticsOverview({ timeSeries }: AnalyticsOverviewProps) {
   }
 
   return (
-    <Card>
+    <Card className="rounded-sm border border-border">
       <CardHeader>
-        <CardTitle className="text-base">Performance Overview</CardTitle>
+        <CardTitle className="text-base font-medium tracking-tight">Performance Overview</CardTitle>
         <CardDescription>Impressions and engagement trends over time</CardDescription>
       </CardHeader>
       <CardContent>
@@ -134,14 +134,14 @@ export function AnalyticsOverview({ timeSeries }: AnalyticsOverviewProps) {
                 <XAxis
                   dataKey="date"
                   className="text-xs"
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke="var(--muted-foreground)"
                   tick={{ fontSize: 11 }}
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
                   className="text-xs"
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke="var(--muted-foreground)"
                   tick={{ fontSize: 11 }}
                   tickLine={false}
                   axisLine={false}
@@ -179,14 +179,14 @@ export function AnalyticsOverview({ timeSeries }: AnalyticsOverviewProps) {
                 <XAxis
                   dataKey="date"
                   className="text-xs"
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke="var(--muted-foreground)"
                   tick={{ fontSize: 11 }}
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
                   className="text-xs"
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke="var(--muted-foreground)"
                   tick={{ fontSize: 11 }}
                   tickLine={false}
                   axisLine={false}
@@ -212,14 +212,14 @@ export function AnalyticsOverview({ timeSeries }: AnalyticsOverviewProps) {
                 <XAxis
                   dataKey="date"
                   className="text-xs"
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke="var(--muted-foreground)"
                   tick={{ fontSize: 11 }}
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
                   className="text-xs"
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke="var(--muted-foreground)"
                   tick={{ fontSize: 11 }}
                   tickLine={false}
                   axisLine={false}

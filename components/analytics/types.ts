@@ -27,6 +27,9 @@ export interface RankedPost {
   comments: number;
   shares: number;
   publishedAt: string;
+  url?: string | null;
+  isExternal?: boolean;
+  fullText?: string | null;
 }
 
 export interface HeatmapSlot {

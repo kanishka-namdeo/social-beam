@@ -57,12 +57,16 @@ const statusConfig: Record<string, { label: string; className: string; icon: Rea
 };
 
 const platformColors: Record<string, string> = {
-  instagram: "bg-chart-1",
-  facebook: "bg-chart-2",
-  x: "bg-chart-3",
-  linkedin: "bg-chart-4",
-  tiktok: "bg-chart-5",
-  pinterest: "bg-chart-6",
+  instagram: "bg-preview-instagram",
+  facebook: "bg-preview-facebook",
+  x: "bg-preview-x",
+  linkedin: "bg-preview-linkedin",
+  tiktok: "bg-preview-tiktok",
+  pinterest: "bg-preview-pinterest",
+  threads: "bg-preview-threads",
+  googleBusiness: "bg-preview-googleBusiness",
+  youtube: "bg-preview-youtube",
+  bluesky: "bg-preview-bluesky",
 };
 
 function SortIndicator({ field, sortField, sortDir }: { field: SortField; sortField: SortField; sortDir: SortDir }) {
@@ -182,7 +186,7 @@ export function ListView({
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border border-border overflow-hidden">
+      <div className="rounded-sm border border-border overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -260,7 +264,7 @@ export function ListView({
                           <span
                             key={p.platform}
                             className={cn(
-                              "size-3 rounded-full",
+                              "size-3 rounded-sm",
                               platformColors[p.platform] ?? "bg-muted",
                             )}
                             title={p.platform}

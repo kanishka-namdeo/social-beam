@@ -13,6 +13,14 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Sparkle,
   Warning,
   CheckCircle,
@@ -26,7 +34,6 @@ import {
   PencilSimple,
 } from "@phosphor-icons/react/ssr";
 import { BrandContextReview } from "./brand-context-review";
-import { BrandContextInlineEdit } from "./brand-context-inline-edit";
 
 interface Finding {
   type: string;
@@ -65,11 +72,16 @@ interface SSEEvent {
   done?: boolean;
   saved?: boolean;
   error?: string;
+  errorCode?: string;
+  suggestion?: string;
+  heartbeat?: boolean;
+  elapsedMs?: number;
   content_summary?: { pagesFound: string[]; pageCount: number };
   identity_extracted?: { businessName: string | null; tagline: string | null; industry: string | null };
   voice_extracted?: { tonePreset: string | null; voiceDescription: string | null };
   audience_extracted?: { audienceType: string | null; interests: string[]; painPoints: string[] };
   platform_ready?: { platform: string; tonePreset: string | null; contentStyle: string | null };
+  crawl_progress?: { pages: string[]; totalPages: number };
 }
 
 type Phase = "idle" | "streaming" | "review" | "editing" | "saving" | "complete" | "error";
@@ -95,12 +107,21 @@ const DESCRIPTION_EXAMPLE =
 
 const MAX_DESCRIPTION_CHARS = 2000;
 
+/** Check if a string looks like a valid URL (minimal heuristic). */
+function isValidUrlFormat(value: string): boolean {
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) return true;
+  return trimmed.includes(".") && trimmed.length >= 4;
+}
+
 interface BrandConversationalUIProps {
   initialUrl?: string;
   isReanalyzeMode?: boolean;
+  connectedPlatforms?: string[];
 }
 
-export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConversationalUIProps) {
+export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPlatforms: initialConnectedPlatforms = [] }: BrandConversationalUIProps) {
   const router = useRouter();
   const [url, setUrl] = useState(initialUrl ?? "");
   const [inputMode, setInputMode] = useState<"url" | "text">("url");
@@ -111,10 +132,9 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
   const [draft, setDraft] = useState<Record<string, unknown>>({});
   const [platforms, setPlatforms] = useState<Record<string, unknown>>({});
   const [samples, setSamples] = useState<Array<{ platform: string; content: string }>>([]);
-  const [connectedPlatforms, setConnectedPlatforms] = useState<string[]>([]);
+  const [connectedPlatforms, setConnectedPlatforms] = useState<string[]>(initialConnectedPlatforms);
   const [accountDetails, setAccountDetails] = useState<Record<string, { platformUsername?: string; followerCount?: number }>>({});
   const [error, setError] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
   const [findings, setFindings] = useState<Finding[]>([]);
   const [currentSubStep, setCurrentSubStep] = useState("");
   const [savedSummary, setSavedSummary] = useState<{
@@ -123,14 +143,55 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
     audienceType?: string;
     platformCount: number;
   } | null>(null);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [streamProgress, setStreamProgress] = useState(0);
+  const [crawledPages, setCrawledPages] = useState<string[]>([]);
+  const [errorSuggestion, setErrorSuggestion] = useState<string | null>(null);
+  const [lastHeartbeatMs, setLastHeartbeatMs] = useState(0);
   const abortControllerRef = useRef<AbortController | null>(null);
   const streamingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phaseRef = useRef<Phase>("idle");
+
+  // Track elapsed time from heartbeats
+  React.useEffect(() => {
+    if (phase !== "streaming" || lastHeartbeatMs === 0) return;
+    const interval = setInterval(() => {
+      setStreamProgress((prev) => {
+        if (prev >= 95) return 95;
+        return Math.min(prev + 1, 95);
+      });
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [phase, lastHeartbeatMs]);
 
   // Keep phaseRef in sync with current phase for timeout callbacks
   React.useEffect(() => {
     phaseRef.current = phase;
   }, [phase]);
+
+  // Slow progress animation during initial streaming (before any findings arrive)
+  React.useEffect(() => {
+    if (phase !== "streaming" || findings.length > 0) return;
+
+    const interval = setInterval(() => {
+      setStreamProgress((prev) => {
+        if (prev >= 90) return 90; // Cap at 90% until real progress arrives
+        return Math.min(prev + 1, 90);
+      });
+    }, 600); // ~54 seconds to reach 90%
+
+    return () => clearInterval(interval);
+  }, [phase, findings.length]);
+
+  // Cleanup all timers and abort streams on unmount
+  React.useEffect(() => {
+    return () => {
+      if (streamingTimeoutRef.current) {
+        clearTimeout(streamingTimeoutRef.current);
+      }
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   // Auto-start analysis in re-analyze mode
   const autoStartTriggered = React.useRef(false);
@@ -157,9 +218,9 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
       setFindings([]);
       setCurrentSubStep("");
       setError(null);
-      setIsEditing(false);
+    setStreamProgress(0);
 
-      streamingTimeoutRef.current = setTimeout(() => {
+    streamingTimeoutRef.current = setTimeout(() => {
         if (phaseRef.current === "streaming") {
           setPhase("error");
           setError("Analysis timed out. Please try again.");
@@ -242,6 +303,16 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
     setCurrentSubStep(subStepMessages[step] ?? "");
   }
 
+  /** Build the elapsed time display from heartbeat */
+  function getElapsedTimeDisplay(): string | null {
+    if (lastHeartbeatMs === 0) return null;
+    const seconds = Math.round(lastHeartbeatMs / 1000);
+    if (seconds < 60) return `(${seconds}s elapsed)`;
+    const minutes = Math.floor(seconds / 60);
+    const remaining = seconds % 60;
+    return `(${minutes}m ${remaining}s elapsed)`;
+  }
+
   /** Process an SSE stream and accumulate state */
   async function processStream(
     reader: ReadableStreamDefaultReader<Uint8Array>,
@@ -249,6 +320,11 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
   ): Promise<void> {
     const decoder = new TextDecoder();
     let hasReceivedInterrupt = false;
+    let hasReceivedError = false;
+    // Track draft locally — React state is async and stale in closures
+    let localDraft: Record<string, unknown> = {};
+    let localPlatforms: Record<string, unknown> = {};
+    let localSamples: Array<{ platform: string; content: string }> = [];
 
     while (true) {
       const { done, value } = await reader.read();
@@ -263,12 +339,19 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
           try {
             const event = JSON.parse(line.slice(6)) as SSEEvent;
 
-            if (event.content) {
-              // content tokens still contribute to sub-step updates but no longer accumulate raw text
+            // Heartbeat: track elapsed time to show progress
+            if (event.heartbeat && event.elapsedMs !== undefined) {
+              setLastHeartbeatMs(event.elapsedMs);
             }
+
             if (event.step) {
               setCurrentStep(event.step);
               updateSubStep(event.step);
+            }
+
+            // Per-page crawl progress
+            if (event.crawl_progress) {
+              setCrawledPages(event.crawl_progress.pages);
             }
 
             // Process granular findings
@@ -278,12 +361,15 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
             }
 
             if (event.draft) {
+              localDraft = { ...localDraft, ...event.draft };
               setDraft((prev) => ({ ...prev, ...event.draft }));
             }
             if (event.platforms) {
+              localPlatforms = event.platforms;
               setPlatforms(event.platforms as Record<string, unknown>);
             }
             if (event.samples) {
+              localSamples = event.samples;
               setSamples(event.samples);
             }
             if (event.connectedPlatforms) {
@@ -297,22 +383,33 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
               if (event.threadId) {
                 setThreadId(event.threadId);
               }
-              if (event.draft) setDraft(event.draft);
-              if (event.platforms) setPlatforms(event.platforms);
-              if (event.samples) setSamples(event.samples);
+              if (event.draft) {
+                localDraft = event.draft;
+                setDraft(event.draft);
+              }
+              if (event.platforms) {
+                localPlatforms = event.platforms;
+                setPlatforms(event.platforms);
+              }
+              if (event.samples) {
+                localSamples = event.samples;
+                setSamples(event.samples);
+              }
               if (event.connectedPlatforms) setConnectedPlatforms(event.connectedPlatforms);
               if (event.accountDetails) setAccountDetails(event.accountDetails);
             }
             if (event.saved) {
-              const businessName = typeof draft.businessName === "string" ? draft.businessName : undefined;
-              const tonePreset = typeof draft.tonePreset === "string" ? draft.tonePreset : undefined;
-              const audienceType = typeof draft.audienceType === "string" ? draft.audienceType : undefined;
-              const platformCount = Object.keys(platforms).length;
+              const businessName = typeof localDraft.businessName === "string" ? localDraft.businessName : undefined;
+              const tonePreset = typeof localDraft.tonePreset === "string" ? localDraft.tonePreset : undefined;
+              const audienceType = typeof localDraft.audienceType === "string" ? localDraft.audienceType : undefined;
+              const platformCount = Object.keys(localPlatforms).length;
               setSavedSummary({ businessName, tonePreset, audienceType, platformCount });
               setPhase("complete");
             }
             if (event.error) {
+              hasReceivedError = true;
               setError(event.error);
+              setErrorSuggestion(event.suggestion ?? null);
               setPhase("error");
             }
           } catch {
@@ -324,11 +421,21 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
 
     if (hasReceivedInterrupt) {
       setPhase("review");
+    } else if (Object.keys(localDraft).length > 0) {
+      // Server reached review step with data but didn't send interrupt (e.g., description-based analysis)
+      setPhase("review");
+    } else if (hasReceivedError) {
+      // Error was already handled during stream processing, don't overwrite it
+      // Phase is already set to "error" and error message is already set
+    } else if (phaseRef.current === "streaming") {
+      // Stream ended without interrupt, save, or draft data — something went wrong silently
+      setPhase("error");
+      setError("Analysis completed without results. Try again or describe your brand manually.");
     }
   }
 
   /** Start a new brand analysis from URL */
-  const startAnalysis = useCallback(async (websiteUrl: string) => {
+  const startAnalysisFromUrl = useCallback(async (websiteUrl: string) => {
     setPhase("streaming");
     setDraft({});
     setPlatforms({});
@@ -336,7 +443,7 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
     setFindings([]);
     setCurrentSubStep("");
     setError(null);
-    setIsEditing(false);
+    setStreamProgress(0);
 
     // Safety timeout — allow enough time for browser launch + crawling + LLM analysis
     streamingTimeoutRef.current = setTimeout(() => {
@@ -391,7 +498,7 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
     setFindings([]);
     setCurrentSubStep("");
     setError(null);
-    setIsEditing(false);
+    setStreamProgress(0);
 
     // Safety timeout — allow enough time for description analysis + LLM analysis
     streamingTimeoutRef.current = setTimeout(() => {
@@ -399,7 +506,7 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
         setPhase("error");
         setError("Analysis timed out. Please try again.");
       }
-    }, 180_000);
+    }, 360_000);
 
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
@@ -438,7 +545,7 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
   }, [phase]);
 
   /** Confirm the draft and save it, merging any inline edits first */
-  const confirmDraft = useCallback(async (edits: Record<string, string> = {}) => {
+  const confirmDraft = useCallback(async (edits: Record<string, unknown> = {}) => {
     if (!threadId) return;
 
     setPhase("saving");
@@ -529,62 +636,44 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
     }
   }, [threadId]);
 
-  /** Save inline edits */
-  const saveInlineEdits = useCallback(async (edits: Record<string, unknown>) => {
-    if (!threadId) return;
-
-    setPhase("saving");
-    setError(null);
-    setIsEditing(false);
-    // Merge edits into draft immediately
-    setDraft((prev) => ({ ...prev, ...edits }));
-
-    const abortController = new AbortController();
-    abortControllerRef.current = abortController;
-
-    try {
-      const response = await fetch("/api/brand-context/resume", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ threadId, action: "save_edits", edits }),
-        signal: abortController.signal,
-      });
-
-      if (!response.ok) {
-        const json = await response.json().catch(() => ({ error: "Save failed" }));
-        throw new Error(json.error ?? "Save failed");
-      }
-
-      const reader = response.body?.getReader();
-      if (!reader) {
-        throw new Error("No readable stream");
-      }
-
-      await processStream(reader, abortController.signal);
-    } catch (err) {
-      if (err instanceof Error && err.name === "AbortError") {
-        return;
-      }
-      setError(err instanceof Error ? err.message : "Save failed");
-      setPhase("review");
-    } finally {
-      if (streamingTimeoutRef.current) {
-        clearTimeout(streamingTimeoutRef.current);
-      }
-      abortControllerRef.current = null;
-    }
-  }, [threadId]);
-
   const handleCancel = () => {
+    // Show confirmation if there are findings (user has invested time)
+    if (findings.length > 0) {
+      setShowCancelConfirm(true);
+    } else {
+      forceCancel();
+    }
+  };
+
+  const forceCancel = useCallback(async () => {
+    setShowCancelConfirm(false);
     abortControllerRef.current?.abort();
+
+    // Call cancel endpoint to stop crawler and clean up
+    if (threadId) {
+      try {
+        await fetch("/api/brand-context/cancel", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ threadId }),
+        });
+      } catch {
+        // Cancel endpoint failure is non-critical
+      }
+    }
+
     setPhase("idle");
     setDraft({});
     setPlatforms({});
     setSamples([]);
     setFindings([]);
+    setCrawledPages([]);
     setCurrentSubStep("");
     setError(null);
-  };
+    setErrorSuggestion(null);
+    setLastHeartbeatMs(0);
+    setStreamProgress(0);
+  }, [threadId]);
 
   if (phase === "complete") {
     return (
@@ -599,7 +688,7 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
           </CardHeader>
           <CardContent className="space-y-4">
             {savedSummary && (
-              <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+              <div className="rounded-sm border border-border bg-muted/30 p-4 space-y-3">
                 <p className="text-sm font-medium text-foreground">What was created</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                   {savedSummary.businessName && (
@@ -684,16 +773,39 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
   }
 
   if (phase === "error") {
+    const isCrawlError = errorSuggestion?.includes("describing your brand") || errorSuggestion?.includes("Describe your brand");
     return (
       <div className="space-y-4">
         <Alert variant="destructive">
           <Warning className="size-4" weight="fill" />
-          <AlertTitle>Something went wrong</AlertTitle>
-          <AlertDescription>{error ?? "An unexpected error occurred."}</AlertDescription>
+          <AlertTitle>Analysis failed</AlertTitle>
+          <AlertDescription className="space-y-3">
+            <p>{error ?? "An unexpected error occurred."}</p>
+            {errorSuggestion && (
+              <p className="text-sm text-muted-foreground">{errorSuggestion}</p>
+            )}
+          </AlertDescription>
         </Alert>
-        <Button variant="outline" onClick={handleCancel} className="min-h-10">
-          Try Again
-        </Button>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={handleCancel} className="min-h-10">
+            Try Again
+          </Button>
+          {isCrawlError && (
+            <Button
+              variant="default"
+              onClick={() => {
+                setPhase("idle");
+                setInputMode("text");
+                setError(null);
+                setErrorSuggestion(null);
+              }}
+              className="min-h-10"
+            >
+              <PencilSimple className="size-4 mr-2" />
+              Describe brand instead
+            </Button>
+          )}
+        </div>
       </div>
     );
   }
@@ -713,6 +825,17 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
               : "Share your website URL or describe your brand and I'll extract your brand voice, audience, and platform strategy automatically."}
           </CardDescription>
         </CardHeader>
+        {connectedPlatforms.length > 0 && !isReanalyzeMode && (
+          <div className="mx-6 mb-4 rounded-sm border border-brand/20 bg-brand/5 px-3 py-2 text-xs text-muted-foreground">
+            <span className="font-medium text-foreground">I&apos;ll also analyze your existing posts on </span>
+            {connectedPlatforms.map((p, i) => (
+              <span key={p} className="capitalize text-foreground">
+                {p}{i < connectedPlatforms.length - 1 ? (i === connectedPlatforms.length - 2 ? " and " : ", ") : ""}
+              </span>
+            ))}
+            <span> to improve voice accuracy.</span>
+          </div>
+        )}
         <CardContent>
           <Tabs
             value={inputMode}
@@ -740,7 +863,7 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
                       normalizedUrl = `https://${normalizedUrl}`;
                       setUrl(normalizedUrl);
                     }
-                    startAnalysis(normalizedUrl);
+                    startAnalysisFromUrl(normalizedUrl);
                   }
                 }}
                 className="space-y-4"
@@ -754,10 +877,15 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
                       placeholder="https://example.com"
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
+                      onBlur={() => {
+                        if (url.trim() && !url.trim().startsWith("http://") && !url.trim().startsWith("https://")) {
+                          setUrl(`https://${url.trim()}`);
+                        }
+                      }}
                       required
                       className="min-h-10 border-border focus-within:border-brand"
                     />
-                    <Button type="submit" disabled={!url.trim()} className="min-h-10">
+                    <Button type="submit" disabled={!url.trim() || !isValidUrlFormat(url.trim())} className="min-h-10">
                       <Sparkle className="size-4" weight="fill" />
                       Analyze
                     </Button>
@@ -866,7 +994,7 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
                   <div key={step.id} className="flex flex-1 items-center">
                     <div className="flex flex-col items-center gap-1">
                       <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-colors ${
+                        className={`flex h-10 w-10 items-center justify-center rounded-sm border-2 transition-colors ${
                           isComplete
                             ? "border-success bg-success text-white"
                             : isCurrent
@@ -931,7 +1059,7 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
               {findings.map((finding, idx) => (
                 <div
                   key={`${finding.timestamp}-${idx}`}
-                  className="rounded-lg border bg-card p-3 space-y-2 animate-in fade-in slide-in-from-bottom-2"
+                  className="rounded-sm border bg-card p-3 space-y-2 animate-in fade-in slide-in-from-bottom-2"
                 >
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-xs">
@@ -963,40 +1091,68 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
       {isProcessing && findings.length === 0 && (
         <Card>
           <CardContent className="pt-6 space-y-3">
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-4 w-2/3" />
-            <div className="flex items-center gap-2 pt-2 text-sm text-muted-foreground">
-              <Spinner className="size-4 animate-spin" />
-              <span>This may take 30-60 seconds...</span>
+            {currentStep === "collect" && crawledPages.length > 0 ? (
+              // Show real-time crawl progress
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Spinner className="size-4 animate-spin" />
+                  <span>Crawling website pages... {crawledPages.length} page{crawledPages.length !== 1 ? "s" : ""} analyzed</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {crawledPages.map((page) => (
+                    <Badge key={page} variant="secondary" className="text-xs">
+                      {page}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <>
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-4 w-2/3" />
+                <div className="flex items-center gap-2 pt-2 text-sm text-muted-foreground">
+                  <Spinner className="size-4 animate-spin" />
+                  <span>
+                    {currentSubStep || "Analyzing your brand across multiple pages"}
+                    {getElapsedTimeDisplay() && ` ${getElapsedTimeDisplay()}`}
+                  </span>
+                </div>
+              </>
+            )}
+            <Progress value={streamProgress} className="h-1" />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Crawl progress during findings */}
+      {currentStep === "collect" && crawledPages.length > 0 && findings.length > 0 && (
+        <Card>
+          <CardContent className="pt-4">
+            <div className="text-xs text-muted-foreground mb-2">Pages crawled: {crawledPages.length}</div>
+            <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
+              {crawledPages.map((page) => (
+                <Badge key={page} variant="secondary" className="text-xs">
+                  {page}
+                </Badge>
+              ))}
             </div>
           </CardContent>
         </Card>
       )}
 
       {/* Review card */}
-      {phase === "review" && !isEditing && (
+      {(phase === "review" || phase === "saving") && (
         <BrandContextReview
           draft={draft}
           platforms={platforms}
           samples={samples}
           onConfirm={confirmDraft}
           onFeedback={sendFeedback}
-          onEditToggle={() => setIsEditing(true)}
           isStreaming={false}
-          isSaving={false}
+          isSaving={phase === "saving"}
           connectedPlatforms={connectedPlatforms}
           accountDetails={accountDetails}
-        />
-      )}
-
-      {/* Inline editing */}
-      {phase === "review" && isEditing && (
-        <BrandContextInlineEdit
-          draft={draft}
-          platforms={platforms}
-          onSave={saveInlineEdits}
-          onCancel={() => setIsEditing(false)}
         />
       )}
 
@@ -1015,9 +1171,31 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode }: BrandConv
       {/* Cancel button during processing */}
       {isProcessing && (
         <Button variant="outline" onClick={handleCancel} className="min-h-10">
-          Cancel
+          Cancel analysis
         </Button>
       )}
+
+      {/* Cancel confirmation dialog */}
+      <Dialog open={showCancelConfirm} onOpenChange={setShowCancelConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cancel brand analysis?</DialogTitle>
+            <DialogDescription>
+              {findings.length > 0
+                ? `I've already found ${findings.length} insight${findings.length > 1 ? "s" : ""}. Canceling will discard all progress.`
+                : "This will discard the current analysis. You can start a new one anytime."}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCancelConfirm(false)}>
+              Keep going
+            </Button>
+            <Button variant="destructive" onClick={forceCancel}>
+              Cancel anyway
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

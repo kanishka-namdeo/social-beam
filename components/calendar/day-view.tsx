@@ -28,10 +28,10 @@ export function DayView({ currentDate, posts, onPreview, onDelete, onDuplicate }
   const isToday = currentDate.toDateString() === now.toDateString();
 
   return (
-    <div className="rounded-lg border border-border overflow-hidden">
+    <div className="rounded-sm border border-border overflow-hidden">
       {/* Header */}
       <div className="p-3 border-b border-border bg-muted/30">
-        <div className="text-lg font-semibold text-foreground">
+        <div className="text-lg font-medium tracking-tight text-foreground">
           {format(currentDate, "EEEE, MMMM d, yyyy")}
         </div>
         <div className="text-xs text-muted-foreground mt-0.5">
@@ -85,12 +85,12 @@ export function DayView({ currentDate, posts, onPreview, onDelete, onDuplicate }
         {/* Current time indicator */}
         {isToday && now.getHours() >= HOUR_START && now.getHours() <= HOUR_END && (
           <div
-            className="absolute left-20 right-0 h-px bg-destructive z-20"
+            className="absolute left-20 right-0 h-px bg-brand z-20"
             style={{
               top: `${((now.getHours() - HOUR_START) * 60 + now.getMinutes()) * (60 / 60) + 48}px`,
             }}
           >
-            <div className="absolute -left-1.5 -top-1.5 size-3 rounded-full bg-destructive" />
+            <div className="absolute -left-1.5 -top-1.5 size-3 rounded-full bg-brand" />
           </div>
         )}
       </div>

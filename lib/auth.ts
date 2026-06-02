@@ -9,10 +9,12 @@ import authConfig from '@/auth.config';
 export const { auth, handlers, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-    }),
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? [Google({
+          clientId: process.env.GOOGLE_CLIENT_ID,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        })]
+      : []),
     Credentials({
       name: 'credentials',
       credentials: {
@@ -29,7 +31,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
         const user = await prisma.user.findUnique({
           where: { email },
-          include: { workspaces: true },
+          include: { Workspace: true },
         });
 
         if (!user) {
@@ -48,7 +50,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           id: user.id,
           email: user.email,
           name: user.name,
-          workspaceId: user.workspaces[0]?.id,
+          workspaceId: user.Workspace[0]?.id,
         };
       },
     }),
@@ -77,12 +79,13 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       if (account?.provider === 'google' && profile?.email) {
         const existingUser = await prisma.user.findUnique({
           where: { email: profile.email },
-          include: { workspaces: true },
+          include: { Workspace: true },
         });
 
         if (!existingUser) {
-          const newUser = await prisma.user.create({
+      const newUser = await prisma.user.create({
             data: {
+              id: crypto.randomUUID(),
               email: profile.email,
               name: profile.name ?? '',
               password: await bcrypt.hash(Math.random().toString(36), 12),
@@ -96,7 +99,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             user.id = newUser.id;
             user.workspaceId = workspace.id;
           }
-        } else if (existingUser.workspaces.length === 0) {
+        } else if (existingUser.Workspace.length === 0) {
           const workspace = await prisma.workspace.create({
             data: { userId: existingUser.id },
           });
@@ -109,7 +112,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           logger.info('auth.signIn.google.user_existing', { userId: existingUser.id, email: profile.email });
           if (user) {
             user.id = existingUser.id;
-            user.workspaceId = existingUser.workspaces[0].id;
+            user.workspaceId = existingUser.Workspace[0].id;
           }
         }
       }

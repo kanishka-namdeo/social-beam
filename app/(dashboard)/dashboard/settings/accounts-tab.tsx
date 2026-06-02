@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { CheckCircle, XCircle } from '@phosphor-icons/react';
+import { CheckCircle, XCircle } from '@phosphor-icons/react/ssr';
 import { AccountCard } from './components/account-card';
 import { ConnectDialog } from './components/connect-dialog';
 import { DisconnectDialog } from './components/disconnect-dialog';
+import { LinkedInSessionDialog } from './components/linkedin-session-dialog';
 import { PLATFORMS, PLATFORM_DISPLAY_NAMES } from '@/lib/oauth/platform-icons';
 
 interface OauthStatus {
@@ -26,6 +27,8 @@ interface ConnectedAccount {
   tokenExpiry?: Date | null;
   lastRefreshAt?: Date | null;
   lastSyncedAt?: Date | null;
+  sessionCookie?: string | null;
+  cookieExpiry?: Date | null;
 }
 
 interface AccountsTabProps {
@@ -40,6 +43,7 @@ export function AccountsTab({ connectedAccounts, oauthStatus }: AccountsTabProps
     id: string;
     platform: string;
   } | null>(null);
+  const [linkedinSessionOpen, setLinkedinSessionOpen] = useState(false);
 
   useEffect(() => {
     if (oauthStatus?.status === 'success') {
@@ -61,20 +65,20 @@ export function AccountsTab({ connectedAccounts, oauthStatus }: AccountsTabProps
   return (
     <div className="space-y-4">
       {oauthStatus?.status === 'success' && oauthStatus.platform && (
-        <Alert className="border-success/30 bg-success/10">
-          <CheckCircle className="size-4 text-success" weight="fill" />
-          <AlertTitle className="text-success">Connected Successfully</AlertTitle>
-          <AlertDescription className="text-success">
+        <Alert variant="success">
+          <CheckCircle className="size-4" weight="fill" />
+          <AlertTitle>Connected Successfully</AlertTitle>
+          <AlertDescription>
             {PLATFORM_DISPLAY_NAMES[oauthStatus.platform]} has been connected to your workspace.
           </AlertDescription>
         </Alert>
       )}
 
       {oauthStatus?.status === 'error' && (
-        <Alert className="border-destructive/30 bg-destructive/10">
-          <XCircle className="size-4 text-destructive" weight="fill" />
-          <AlertTitle className="text-destructive">Connection Failed</AlertTitle>
-          <AlertDescription className="text-destructive">
+        <Alert variant="destructive">
+          <XCircle className="size-4" weight="fill" />
+          <AlertTitle>Connection Failed</AlertTitle>
+          <AlertDescription>
             {oauthStatus.reason
               ? `Failed to connect: ${oauthStatus.reason}`
               : 'An error occurred while connecting your account.'}
@@ -95,6 +99,7 @@ export function AccountsTab({ connectedAccounts, oauthStatus }: AccountsTabProps
                 account={account}
                 onDisconnect={() => setDisconnectingAccount({ id: account.id, platform })}
                 onReconnect={() => setConnectingPlatform(platform)}
+                onConnectSession={() => setLinkedinSessionOpen(true)}
               />
             );
           }
@@ -131,6 +136,16 @@ export function AccountsTab({ connectedAccounts, oauthStatus }: AccountsTabProps
           onDisconnectSuccess={handleDisconnectSuccess}
         />
       )}
+
+      <LinkedInSessionDialog
+        open={linkedinSessionOpen}
+        onOpenChange={setLinkedinSessionOpen}
+        onSessionComplete={() => {
+          setLinkedinSessionOpen(false);
+          // Optionally refresh the page or refetch accounts
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }

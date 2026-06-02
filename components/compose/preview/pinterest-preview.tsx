@@ -3,38 +3,44 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { renderRichText } from "@/lib/compose/preview-helpers";
 import type { AccountInfo } from "./types";
+import { MediaPreview } from "./media-preview";
 
 interface PinterestPreviewProps {
   content: string;
   title?: string;
   account?: AccountInfo;
+  mediaUrls?: string[];
 }
 
-export function PinterestPreview({ content, title, account }: PinterestPreviewProps) {
+export function PinterestPreview({ content, title, account, mediaUrls }: PinterestPreviewProps) {
   // Use account data or fall back to defaults
   const displayName = account?.platformUsername || "You";
   const avatarSrc = account?.avatarUrl || "";
   const avatarFallback = displayName.charAt(0).toUpperCase();
   return (
     <div
-      className="w-full max-w-[236px] overflow-hidden rounded-lg bg-card border border-border shadow-sm"
+      className="w-full max-w-[236px] overflow-hidden rounded-sm bg-card border border-border shadow-sm"
       role="img"
       aria-label="Pinterest pin preview"
     >
-      {/* Image Placeholder */}
-      <div className="aspect-[2/3] w-full bg-muted flex flex-col items-center justify-center gap-2 relative group cursor-pointer">
-        <svg className="h-10 w-10 text-muted-foreground/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-          <circle cx="8.5" cy="8.5" r="1.5" />
-          <polyline points="21 15 16 10 5 21" />
-        </svg>
-        {/* Save Button (appears on hover) */}
-        <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-          <span className="inline-flex items-center rounded-full bg-[#e60023] px-3 py-1.5 text-xs font-bold text-white">
-            Save
-          </span>
+      {/* Media */}
+      {mediaUrls && mediaUrls.length > 0 ? (
+        <MediaPreview mediaUrls={mediaUrls} />
+      ) : (
+        <div className="aspect-[2/3] w-full bg-muted flex flex-col items-center justify-center gap-2 relative group cursor-pointer">
+          <svg className="h-10 w-10 text-muted-foreground/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <polyline points="21 15 16 10 5 21" />
+          </svg>
+          {/* Save Button (appears on hover) */}
+          <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+            <span className="inline-flex items-center rounded-full bg-preview-pinterest px-3 py-1.5 text-xs font-bold text-white">
+              Save
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Pin Content */}
       <div className="p-3">
@@ -58,7 +64,7 @@ export function PinterestPreview({ content, title, account }: PinterestPreviewPr
         <div className="mt-3 flex items-center gap-2">
           <Avatar className="h-6 w-6">
             <AvatarImage src={avatarSrc} alt={displayName} />
-            <AvatarFallback className="bg-[#e60023] text-[8px] font-bold text-white">
+            <AvatarFallback className="bg-preview-pinterest text-[8px] font-bold text-white">
               {avatarFallback}
             </AvatarFallback>
           </Avatar>

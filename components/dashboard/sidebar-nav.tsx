@@ -12,6 +12,7 @@ import {
   SlidersHorizontal,
   RedditLogo,
   MagnifyingGlass,
+  ChatCircle,
 } from "@phosphor-icons/react/ssr";
 import type { Icon } from "@phosphor-icons/react";
 import {
@@ -30,7 +31,8 @@ export type IconName =
   | "image"
   | "sliders-horizontal"
   | "reddit-logo"
-  | "magnifying-glass";
+  | "magnifying-glass"
+  | "chat-circle";
 
 export interface NavItem {
   label: string;
@@ -43,6 +45,7 @@ const KEYBOARD_SHORTCUTS: Record<string, string> = {
   "/compose": "N",
   "/calendar": "C",
   "/analytics": "A",
+  "/inbox": "I",
   "/reddit/trending": "R",
   "/media": "M",
   "/settings": "S",
@@ -59,6 +62,7 @@ function getIconComponent(name: IconName): Icon {
     case "sliders-horizontal": return SlidersHorizontal;
     case "reddit-logo": return RedditLogo;
     case "magnifying-glass": return MagnifyingGlass;
+    case "chat-circle": return ChatCircle;
   }
 }
 
@@ -98,33 +102,25 @@ export function SidebarNav({ items }: SidebarNavProps) {
                 align: "center",
               }}
               className={cn(
-                "gap-3 rounded-md transition-all duration-200 ease-out",
-                "hover:bg-accent",
-                // Icon mode overrides
+                "gap-3 transition-all duration-200 ease-out",
+                "hover:bg-accent/50 hover:translate-x-0.5",
+                // Icon mode overrides: square icon buttons with soft rounding
                 "group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:p-0",
-                "group-data-[collapsible=icon]:justify-center",
-                "group-data-[collapsible=icon]:rounded-xl",
-                // Active state: regular mode
-                isActive && "bg-brand/10 border-l-2 border-brand text-brand",
-                // Active state: icon mode
-                isActive && "group-data-[collapsible=icon]:bg-brand/10 group-data-[collapsible=icon]:text-brand",
-                isActive && "group-data-[collapsible=icon]:ring-1 group-data-[collapsible=icon]:ring-brand/30",
-                // Hover state
-                "group-data-[collapsible=icon]:hover:scale-105",
+                "group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center",
+                "group-data-[collapsible=icon]:rounded-md",
+                "group-data-[collapsible=icon]:hover:translate-x-0 group-data-[collapsible=icon]:hover:bg-brand/10 group-data-[collapsible=icon]:hover:text-brand",
+                // Active state: sharp left border indicator, no rounded pill
+                isActive && "border-l-2 border-brand bg-accent text-foreground font-medium rounded-none",
+                // Active state: icon mode — solid brand tint with clean edges
+                isActive && "group-data-[collapsible=icon]:bg-brand/15 group-data-[collapsible=icon]:text-brand group-data-[collapsible=icon]:border-l-brand",
               )}
             >
-              <Link href={item.href} className="group-data-[collapsible=icon]:justify-center">
+              <Link href={item.href} className="flex w-full items-center gap-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0">
                 <IconComponent
                   weight={isActive ? "fill" : "regular"}
-                  className={cn(
-                    "transition-transform duration-200",
-                    "group-data-[collapsible=icon]:size-5",
-                    "group-data-[collapsible=icon]:group-hover:scale-110",
-                    // Active icon gets brand color in icon mode
-                    isActive && "group-data-[collapsible=icon]:text-brand",
-                  )}
+                  className="size-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:size-5 group-data-[collapsible=icon]:group-hover:scale-110"
                 />
-                <span>{item.label}</span>
+                <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                 {shortcut && (
                   <span className="ml-auto text-xs font-mono text-muted-foreground/50 group-data-[collapsible=icon]:hidden">
                     {shortcut}

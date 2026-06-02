@@ -1,7 +1,9 @@
+"use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import type { HeatmapSlot } from "@/components/analytics/types";
+import { useInvisibleAI } from "@/lib/invisible-ai-context";
 
 interface PlatformMetric {
   platform: string;
@@ -27,6 +29,7 @@ interface Props {
 }
 
 export function OptimalTimesRecommendations({ heatmapData, platformMetrics }: Props) {
+  const { config } = useInvisibleAI();
   // Find top time slots by engagement
   const topSlots = [...heatmapData]
     .filter((s) => s.postCount >= 2)
@@ -43,11 +46,13 @@ export function OptimalTimesRecommendations({ heatmapData, platformMetrics }: Pr
   const recommendations = generateRecommendations(topSlots, bestPlatform, worstPlatform, heatmapData, platformMetrics);
 
   return (
-    <Card className="bg-ai-surface border-border">
+    <Card className="rounded-sm bg-ai-surface border-border">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-lg">
+        <CardTitle className="flex items-center gap-2 text-lg font-medium tracking-tight">
           <span className="text-foreground">Smart Recommendations</span>
-          <Badge variant="outline" className="text-xs">AI Insights</Badge>
+          {config.showAIInsightsBadge && (
+            <Badge variant="outline" className="rounded-sm text-xs">AI Insights</Badge>
+          )}
         </CardTitle>
         <p className="text-sm text-muted-foreground">
           Data-driven suggestions to improve your social performance
@@ -57,13 +62,13 @@ export function OptimalTimesRecommendations({ heatmapData, platformMetrics }: Pr
         {recommendations.length > 0 ? (
           <div className="space-y-3">
             {recommendations.map((rec, i) => (
-              <div key={i} className="rounded-lg border p-3">
+              <div key={i} className="rounded-sm border p-3">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-bold text-primary-foreground">
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-sm bg-brand text-xs font-bold text-primary-foreground">
                     {i + 1}
                   </div>
                   <div>
-                    <div className="text-sm font-medium">{rec.title}</div>
+                    <div className="text-sm font-medium tracking-tight">{rec.title}</div>
                     <p className="mt-0.5 text-xs text-muted-foreground">{rec.description}</p>
                   </div>
                 </div>
@@ -80,14 +85,14 @@ export function OptimalTimesRecommendations({ heatmapData, platformMetrics }: Pr
           <>
             <Separator />
             <div>
-              <h4 className="text-sm font-medium">Your Best Performing Times</h4>
+              <h4 className="text-sm font-medium tracking-tight">Your Best Performing Times</h4>
               <div className="mt-2 space-y-1">
                 {topSlots.map((slot, i) => (
-                  <div key={i} className="flex items-center justify-between rounded px-2 py-1 text-xs">
-                    <span>
+                  <div key={i} className="flex items-center justify-between rounded-sm px-2 py-1 text-xs">
+                    <span className="font-mono tabular-nums">
                       {DAY_NAMES[slot.dayOfWeek]} at {String(slot.hour).padStart(2, "0")}:00
                     </span>
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant="secondary" className="rounded-sm text-xs font-mono tabular-nums">
                       {slot.avgEngagement.toFixed(1)} avg engagement
                     </Badge>
                   </div>

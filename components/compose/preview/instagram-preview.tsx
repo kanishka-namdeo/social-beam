@@ -4,13 +4,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { renderRichText } from "@/lib/compose/preview-helpers";
 import type { AccountInfo } from "./types";
+import { MediaPreview } from "./media-preview";
 
 interface InstagramPreviewProps {
   content: string;
   account?: AccountInfo;
+  mediaUrls?: string[];
 }
 
-export function InstagramPreview({ content, account }: InstagramPreviewProps) {
+export function InstagramPreview({ content, account, mediaUrls }: InstagramPreviewProps) {
   // Use account data or fall back to defaults
   const displayName = account?.platformUsername || "yourhandle";
   const avatarSrc = account?.avatarUrl || "";
@@ -18,7 +20,7 @@ export function InstagramPreview({ content, account }: InstagramPreviewProps) {
 
   return (
     <div
-      className="w-full max-w-[470px] overflow-hidden rounded-lg border border-border bg-card"
+      className="w-full max-w-[470px] overflow-hidden rounded-sm border border-border bg-card"
       role="img"
       aria-label="Instagram post preview"
     >
@@ -44,14 +46,18 @@ export function InstagramPreview({ content, account }: InstagramPreviewProps) {
         </button>
       </div>
 
-      {/* Image Placeholder */}
-      <div className="aspect-square bg-muted flex items-center justify-center">
-        <svg className="h-12 w-12 text-muted-foreground/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-          <circle cx="8.5" cy="8.5" r="1.5" />
-          <polyline points="21 15 16 10 5 21" />
-        </svg>
-      </div>
+      {/* Media */}
+      {mediaUrls && mediaUrls.length > 0 ? (
+        <MediaPreview mediaUrls={mediaUrls} />
+      ) : (
+        <div className="aspect-square bg-muted flex items-center justify-center">
+          <svg className="h-12 w-12 text-muted-foreground/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <polyline points="21 15 16 10 5 21" />
+          </svg>
+        </div>
+      )}
 
       {/* Engagement Icons */}
       <div className="flex items-center justify-between p-3">

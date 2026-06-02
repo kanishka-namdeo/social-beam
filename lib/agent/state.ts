@@ -156,6 +156,16 @@ export const BrandAnalyzerState = Annotation.Root({
     default: () => 0,
     reducer: (_c, n) => n,
   }),
+
+  // Internal crawl tracking for SSE progress streaming
+  __crawlPages: Annotation<string[]>({
+    default: () => [],
+    reducer: (c, n) => [...c, ...n],
+  }),
+  __crawlError: Annotation<string>({
+    default: () => "",
+    reducer: (_c, n) => n,
+  }),
 });
 
 export type BrandAnalyzerStateType = typeof BrandAnalyzerState.State;

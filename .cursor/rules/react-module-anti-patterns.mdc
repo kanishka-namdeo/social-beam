@@ -1,5 +1,6 @@
 ---
-alwaysApply: false
+description: Prevent module-level JSX, Radix UI import errors, and CSS token violations. Critical for avoiding hydration errors and React context crashes. Apply to all component files.
+alwaysApply: true
 ---
 # React Module Anti-Patterns
 
@@ -241,25 +242,7 @@ export default async function Page() {
 }
 ```
 
-## CSS Variable Token Enforcement
-
-Never hardcode colors. All colors must use CSS variable tokens via Tailwind classes:
-
-```tsx
-// ✅ GOOD — semantic tokens
-<Badge className="bg-success/10 text-success" />
-<span className="text-muted-foreground" />
-<div className="border-border" />
-
-// ❌ BAD — hardcoded
-<Badge style={{ backgroundColor: "#22c55e" }} />
-<span style={{ color: "#888" }} />
-```
-
-Allowed exceptions:
-- `next.config.ts` configuration
-- Build-time scripts (`prisma/seed.ts`, `test-*.ts`)
-- Test files
+> **CSS Variable Token Enforcement**: See `design-assets-enforcement.mdc` for the authoritative rule on color tokens and styling. Do not duplicate that guidance here.
 
 ## Verification
 

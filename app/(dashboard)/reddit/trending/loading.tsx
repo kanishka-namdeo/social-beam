@@ -12,7 +12,7 @@ export default function TrendingLoading() {
       {/* Filter tabs skeleton */}
       <div className="flex gap-2">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-9 w-24 rounded-full" />
+          <Skeleton key={i} className="h-9 w-24 rounded-sm" />
         ))}
       </div>
 

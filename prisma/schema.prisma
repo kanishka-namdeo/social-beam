@@ -7,99 +7,194 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String
-  workspaces Workspace[]
-  oauthApps  UserOAuthApp[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Workspace {
-  id             String   @id @default(cuid())
-  userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name           String   @default("My Workspace")
-  autonomyLevel  String   @default("suggestions") // suggestions | review_before_publish | full_auto
-  profile        UserProfile?
-  connectedAccounts ConnectedAccount[]
-  brandVoice     BrandVoice?
-  posts          Post[]
-  redditSubredditConfigs RedditSubredditConfig[]
-  redditTrendingPosts    RedditTrendingPost[]
-  brandContext           BrandContext?
-  aiCreditBalance        AiCreditBalance?
-  mediaAssets            MediaAsset[]
-  createdAt      DateTime @default(now())
-}
-
-enum PostStatus {
-  DRAFT
-  SCHEDULED
-  PUBLISHING
-  PUBLISHED
-  FAILED
-}
-
-enum ConfidenceLevel {
-  HIGH
-  MEDIUM
-  LOW
-}
-
-model Post {
-  id           String          @id @default(cuid())
-  workspaceId  String
-  workspace    Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  title        String?
-  content      Json             // { text, media: [{ type, url }] }
-  status       PostStatus      @default(DRAFT)
-  confidence   ConfidenceLevel? // AI-generated confidence
-  scheduledAt  DateTime?
-  publishedAt  DateTime?
-  platforms    PostPlatform[]
-  analytics    AnalyticsSnapshot[]
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
-}
-
-model PostPlatform {
-  id          String     @id @default(cuid())
-  postId      String
-  post        Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
-  platform    String     // instagram | facebook | x | linkedin | tiktok | pinterest
-  content     String     // platform-specific text
-  mediaUrls   Json?      @default("[]")
-  status      PostStatus @default(DRAFT)
-  externalId  String?    // ID on the platform after publishing
-  error       String?
-  createdAt   DateTime   @default(now())
-}
-
 model AnalyticsSnapshot {
-  id               String   @id @default(cuid())
-  postId           String
-  post             Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id             String   @id
+  postId         String
+  platform       String
+  likes          Int      @default(0)
+  comments       Int      @default(0)
+  shares         Int      @default(0)
+  impressions    Int      @default(0)
+  engagementRate Float?
+  snapshotAt     DateTime @default(now())
+  clicks         Int      @default(0)
+  profileVisits  Int      @default(0)
+  reach          Int      @default(0)
+  saves          Int      @default(0)
+  videoViews     Int      @default(0)
+  websiteClicks  Int      @default(0)
+  Post           Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model BrandContext {
+  id                  String                @id
+  workspaceId         String                @unique
+  businessName        String?
+  tagline             String?
+  websiteUrl          String?
+  industry            String?
+  productDesc         String?
+  tonePreset          String?
+  voiceDescription    String?
+  bannedWords         String[]
+  voiceExamples       Json?
+  audienceType        String?
+  demographics        Json?
+  interests           String[]
+  painPoints          String[]
+  competitors         String[]
+  goals               String[]
+  trainingStatus      String                @default("untrained")
+  lastTrainedAt       DateTime?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  Workspace           Workspace             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  BrandContextVersion BrandContextVersion[]
+  BrandFieldState     BrandFieldState[]
+  BrandLearningSignal BrandLearningSignal[]
+  PlatformContext     PlatformContext[]
+
+  @@index([workspaceId])
+}
+
+model BrandContextVersion {
+  id               String       @id
+  brandContextId   String
+  snapshot         Json
+  changeReason     String?
+  platformSnapshot Json?
+  createdAt        DateTime     @default(now())
+  BrandContext     BrandContext @relation(fields: [brandContextId], references: [id], onDelete: Cascade)
+
+  @@index([brandContextId])
+  @@index([createdAt])
+}
+
+model BrandFieldState {
+  id             String       @id
+  brandContextId String
+  fieldName      String
+  currentValue   Json
+  confidence     Float        @default(0.5)
+  stability      Int          @default(0)
+  signalCount    Int          @default(0)
+  lastUpdated    DateTime     @default(now())
+  BrandContext   BrandContext @relation(fields: [brandContextId], references: [id], onDelete: Cascade)
+
+  @@unique([brandContextId, fieldName])
+}
+
+model BrandLearningSignal {
+  id             String       @id
+  brandContextId String
+  signalType     String
+  sourcePostId   String?
+  fieldName      String
+  direction      String
+  magnitude      Float
+  confidence     Float
+  createdAt      DateTime     @default(now())
+  applied        Boolean      @default(false)
+  metadata       Json?
+  BrandContext   BrandContext @relation(fields: [brandContextId], references: [id], onDelete: Cascade)
+
+  @@index([brandContextId, fieldName])
+  @@index([brandContextId, signalType])
+  @@index([createdAt])
+}
+
+model BrandVoice {
+  id          String    @id
+  workspaceId String    @unique
+  tonePreset  String?
+  description String?
+  examples    Json      @default("[]")
+  perPlatform Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model ConnectedAccount {
+  id               String    @id
+  workspaceId      String
   platform         String
-  likes            Int      @default(0)
-  comments         Int      @default(0)
-  shares           Int      @default(0)
-  impressions      Int      @default(0)
-  reach            Int      @default(0)
-  clicks           Int      @default(0)
-  saves            Int      @default(0)
-  videoViews       Int      @default(0)
-  profileVisits    Int      @default(0)
-  websiteClicks    Int      @default(0)
-  engagementRate   Float?   // (likes+comments+shares)/impressions
-  snapshotAt       DateTime @default(now())
+  platformUserId   String
+  accessToken      String
+  refreshToken     String
+  tokenExpiry      DateTime?
+  status           String    @default("connected")
+  createdAt        DateTime  @default(now())
+  avatarUrl        String?
+  followerCount    Int?
+  lastRefreshAt    DateTime?
+  lastSyncedAt     DateTime?
+  platformUsername String?
+  sourcePlatform   String?
+  sessionCookie    String?   // Encrypted li_at session cookie for browser scraping
+  cookieExpiry     DateTime? // When the session cookie expires (~1 year from extraction)
+  Workspace        Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, platform])
+}
+
+model DashboardPreference {
+  id          String    @id
+  workspaceId String    @unique
+  layout      Json      @default("{}")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+}
+
+model EngagementItem {
+  id             String           @id
+  workspaceId    String
+  platform       String
+  type           EngagementType
+  platformItemId String
+  platformUrl    String?
+  authorName     String?
+  authorAvatar   String?
+  content        String
+  parentContent  String?
+  parentId       String?
+  inReplyToId    String?
+  status         EngagementStatus @default(UNREAD)
+  sentiment      String?
+  aiDraft        String?
+  createdAt      DateTime         @default(now())
+  syncedAt       DateTime         @default(now())
+  repliedAt      DateTime?
+  Workspace      Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, platform])
+  @@index([workspaceId, type])
+  @@index([workspaceId, createdAt(sort: Desc)])
+  @@index([workspaceId, sentiment])
+  @@unique([workspaceId, platformItemId])
+}
+
+model SavedReply {
+  id         String    @id
+  workspaceId String
+  title      String
+  content    String
+  tags       String[]
+  platform   String?
+  usageCount Int       @default(0)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  Workspace  Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
 }
 
 model FollowerSnapshot {
-  id          String   @id @default(cuid())
+  id          String   @id
   workspaceId String
   platform    String
   followers   Int      @default(0)
@@ -109,172 +204,41 @@ model FollowerSnapshot {
   @@index([workspaceId, platform, snapshotAt])
 }
 
-model UserProfile {
-  id              String   @id @default(cuid())
-  workspaceId     String   @unique
-  workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  bio             Json?    // { name, businessType, industry, goals, audienceDescription }
-  tone            String?  // professional | casual | witty | educational | inspirational | bold
-  postTypes       Json?    // { text: number, image: number, video: number, carousel: number }
-  imageAnalysis   Json?    // { categories: string[], dominantThemes: string[], imageFrequency: number }
-  audience        Json?    // { demographics: Json, interests: string[], painPoints: string[] }
-  createdAt       DateTime @default(now())
-}
+model MediaAsset {
+  id           String    @id
+  workspaceId  String
+  originalName String
+  mimeType     String
+  fileSize     Int
+  width        Int
+  height       Int
+  storagePath  String
+  publicUrl    String
+  status       String    @default("active")
+  variants     Json?     @default("[]")
+  tags         String[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  Workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-model ConnectedAccount {
-  id            String    @id @default(cuid())
-  workspaceId   String
-  workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  platform      String    // instagram | facebook | x | linkedin | tiktok | pinterest
-  platformUserId String
-  accessToken   String    // encrypted
-  refreshToken  String    // encrypted
-  tokenExpiry   DateTime?
-  status        String    @default("connected") // connected | expired | revoked | error
-  platformUsername String?
-  avatarUrl     String?
-  followerCount Int?
-  lastRefreshAt DateTime?
-  lastSyncedAt  DateTime?
-  createdAt     DateTime  @default(now())
-
-  @@unique([workspaceId, platform])
+  @@index([workspaceId, createdAt(sort: Desc)])
+  @@index([workspaceId])
+  @@index([workspaceId, status])
 }
 
 model OnboardingSession {
-  id          String    @id @default(cuid())
+  id          String    @id
   userId      String    @unique
-  currentStep String    @default("greeting") // greeting | collect_info | define_audience | connect_accounts | analyze_profile | train_brand_voice | completion
-  stepData    Json?     // flexible storage for per-step data
+  currentStep String    @default("greeting")
+  stepData    Json?
   completedAt DateTime?
   createdAt   DateTime  @default(now())
 }
 
-model BrandVoice {
-  id            String   @id @default(cuid())
-  workspaceId   String   @unique
-  workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  tonePreset    String?  // professional | casual | witty | educational | inspirational | bold
-  description   String?
-  examples      Json     @default("[]")
-  perPlatform   Json?    // { instagram: { tone: ... }, linkedin: { tone: ... } }
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-model UserOAuthApp {
-  id            String    @id @default(cuid())
-  userId        String
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  platform      String    // instagram | facebook | x | linkedin | tiktok | pinterest
-  clientId      String    // encrypted
-  clientSecret  String    // encrypted
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  @@unique([userId, platform])
-}
-
-model RedditSubredditConfig {
-  id          String    @id @default(cuid())
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  subreddit   String    // e.g., "marketing", "socialmedia"
-  sortOrder   String    @default("hot") // hot | rising | new
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  @@unique([workspaceId, subreddit])
-  @@index([workspaceId])
-}
-
-model RedditTrendingPost {
-  id              String    @id @default(cuid())
-  workspaceId     String
-  workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  subreddit       String
-  postId          String?   // Reddit's post ID (from URL /comments/{id})
-  title           String
-  url             String
-  author          String
-  upvotes         Int       @default(0)
-  commentCount    Int       @default(0)
-  scrapedAt       DateTime  @default(now())
-  relevanceScore  Float?    // 0-1, AI-scored
-  relevanceReason String?   // Why it's relevant
-  isActionable    Boolean   @default(false)
-  topicTags       String[]  // AI-extracted topics
-  suggestedAction String?   // e.g., "Comment on this post", "Create related content"
-  sentiment       String    @default("neutral")  // positive | neutral | controversial
-  riskLevel       String    @default("low")      // low | medium | high
-  riskReason      String?   // Why it's risky (or not)
-  dismissedAt     DateTime? // When the user dismissed this trend
-  actedOnAt       DateTime? // When the user acted on this trend
-  analysisCostCredits Int   @default(0) // Credits spent on analyzing this post
-
-  @@index([workspaceId, scrapedAt])
-  @@index([workspaceId, relevanceScore])
-  @@index([workspaceId, postId])
-  @@index([workspaceId, dismissedAt])
-}
-
-model BrandContext {
-  id              String   @id @default(cuid())
-  workspaceId     String   @unique
-  workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  businessName    String?
-  tagline         String?
-  websiteUrl      String?
-  industry        String?
-  productDesc     String?
-  tonePreset      String?
-  voiceDescription String?
-  bannedWords     String[]
-  voiceExamples   Json?
-  audienceType    String?
-  demographics    Json?
-  interests       String[]
-  painPoints      String[]
-  competitors     String[]
-  goals           String[]
-
-  trainingStatus  String   @default("untrained")
-  lastTrainedAt   DateTime?
-
-  platformContexts  PlatformContext[]
-  learningSignals   BrandLearningSignal[]
-  fieldStates       BrandFieldState[]
-  versions          BrandContextVersion[]
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@index([workspaceId])
-}
-
-model BrandContextVersion {
-  id              String   @id @default(cuid())
-  brandContextId  String
-  brandContext    BrandContext @relation(fields: [brandContextId], references: [id], onDelete: Cascade)
-
-  snapshot        Json     // full brand context snapshot at time of save
-  changeReason    String?  // "initial_analysis" | "manual_edit" | "learning_applied" | "re_analysis" | "import"
-  platformSnapshot Json?   // snapshot of platform contexts at this version
-
-  createdAt       DateTime @default(now())
-
-  @@index([brandContextId])
-  @@index([createdAt])
-}
-
 model PlatformContext {
-  id              String   @id @default(cuid())
+  id              String       @id
   brandContextId  String
-  brandContext    BrandContext @relation(fields: [brandContextId], references: [id], onDelete: Cascade)
-
-  platform        String   // instagram | x | linkedin | facebook | tiktok
+  platform        String
   platformTone    String?
   contentMix      Json?
   postingCadence  String?
@@ -282,86 +246,208 @@ model PlatformContext {
   visualStyle     String?
   engagementStyle String?
   platformRules   String[]
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  BrandContext    BrandContext @relation(fields: [brandContextId], references: [id], onDelete: Cascade)
 
   @@unique([brandContextId, platform])
   @@index([brandContextId])
 }
 
-model AiCreditBalance {
-  id              String   @id @default(cuid())
-  workspaceId     String   @unique
-  workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+model Post {
+  id                String              @id
+  workspaceId       String
+  title             String?
+  content           Json
+  status            PostStatus          @default(DRAFT)
+  confidence        ConfidenceLevel?
+  scheduledAt       DateTime?
+  publishedAt       DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  isExternal        Boolean             @default(false)
+  AnalyticsSnapshot AnalyticsSnapshot[]
+  Workspace         Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  PostPlatform      PostPlatform[]
+}
 
-  balance         Int      @default(100)
-  tier            String   @default("free")
-  totalSpent      Int      @default(0)
-  lastRefillAt    DateTime @default(now())
+model PostPlatform {
+  id         String     @id
+  postId     String
+  platform   String
+  content    String
+  mediaUrls  Json?      @default("[]")
+  status     PostStatus @default(DRAFT)
+  externalId String?
+  postUrl    String?
+  error      String?
+  createdAt  DateTime   @default(now())
+  Post       Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+model RedditSubredditConfig {
+  id          String    @id
+  workspaceId String
+  subreddit   String
+  sortOrder   String    @default("hot")
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
+  @@unique([workspaceId, subreddit])
   @@index([workspaceId])
 }
 
-model BrandLearningSignal {
-  id              String   @id @default(cuid())
-  brandContextId  String
-  brandContext    BrandContext @relation(fields: [brandContextId], references: [id], onDelete: Cascade)
+model RedditTrendingPost {
+  id                  String    @id
+  workspaceId         String
+  subreddit           String
+  title               String
+  url                 String
+  author              String
+  upvotes             Int       @default(0)
+  commentCount        Int       @default(0)
+  scrapedAt           DateTime  @default(now())
+  relevanceScore      Float?
+  relevanceReason     String?
+  isActionable        Boolean   @default(false)
+  topicTags           String[]
+  suggestedAction     String?
+  actedOnAt           DateTime?
+  dismissedAt         DateTime?
+  postId              String?
+  riskLevel           String    @default("low")
+  riskReason          String?
+  sentiment           String    @default("neutral")
+  Workspace           Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  signalType      String   // "post_edit_diff" | "thumbs_up" | "thumbs_down" | "auto_detected" | "user_feedback"
-  fieldName       String   // which BrandContext field to adjust
-  direction       String   // "increase" | "decrease" | "avoid" | "replace"
-  magnitude       Float    // -1.0 to 1.0, strength of signal
-  confidence      Float    // 0.0 to 1.0, how confident this signal is
-  sourcePostId    String?  // Post ID that triggered this signal
-  metadata        Json?    // additional context (e.g., { originalText, editedText, diffSummary })
-  applied         Boolean  @default(false)
-
-  createdAt       DateTime @default(now())
-
-  @@index([brandContextId, signalType])
-  @@index([brandContextId, fieldName])
-  @@index([createdAt])
+  @@index([workspaceId, dismissedAt])
+  @@index([workspaceId, postId])
+  @@index([workspaceId, relevanceScore])
+  @@index([workspaceId, scrapedAt])
 }
 
-model BrandFieldState {
-  id              String   @id @default(cuid())
-  brandContextId  String
-  brandContext    BrandContext @relation(fields: [brandContextId], references: [id], onDelete: Cascade)
-
-  fieldName       String   // e.g., "voiceDescription", "tonePreset", "bannedWords"
-  currentValue    Json     // snapshot of the field value when last analyzed
-  confidence      Float    @default(0.5)  // 0.0 - 1.0, starts at 0.5
-  stability       Int      @default(0)    // how many consistent signals received
-  signalCount     Int      @default(0)    // total signals processed
-  lastUpdated     DateTime @default(now())
-
-  @@unique([brandContextId, fieldName])
+model User {
+  id           String         @id
+  email        String         @unique
+  name         String?
+  password     String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  UserOAuthApp UserOAuthApp[]
+  Workspace    Workspace[]
 }
 
-model MediaAsset {
-  id            String   @id @default(cuid())
-  workspaceId   String
-  workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+model UserOAuthApp {
+  id           String   @id
+  userId       String
+  platform     String
+  clientId     String
+  clientSecret String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  User         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  originalName  String
-  mimeType      String
-  fileSize      Int       // bytes
-  width         Int
-  height        Int
-  storagePath   String    // filesystem path
-  publicUrl     String    // URL for serving
-  status        String    @default("active") // active | archived | deleted
-  variants      Json?     @default("[]") // [{ platform, sizeType, width, height, storagePath, publicUrl }]
-  tags          String[]
+  @@unique([userId, platform])
+}
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+model UserProfile {
+  id            String    @id
+  workspaceId   String    @unique
+  bio           Json?
+  tone          String?
+  postTypes     Json?
+  imageAnalysis Json?
+  audience      Json?
+  createdAt     DateTime  @default(now())
+  Workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
 
-  @@index([workspaceId])
-  @@index([workspaceId, status])
-  @@index([workspaceId, createdAt(sort: Desc)])
+model Workspace {
+  id                    String                  @id @default(cuid())
+  userId                String
+  name                  String                  @default("My Workspace")
+  autonomyLevel         String                  @default("suggestions")
+  createdAt             DateTime                @default(now())
+  BrandContext          BrandContext?
+  BrandVoice            BrandVoice?
+  ConnectedAccount      ConnectedAccount[]
+  DashboardPreference   DashboardPreference?
+  EngagementItem        EngagementItem[]
+  MediaAsset            MediaAsset[]
+  Post                  Post[]
+  RedditSubredditConfig RedditSubredditConfig[]
+  RedditTrendingPost    RedditTrendingPost[]
+  SavedReply            SavedReply[]
+  UserProfile           UserProfile?
+  User                  User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model checkpoint_blobs {
+  thread_id     String
+  checkpoint_ns String @default("")
+  channel       String
+  version       String
+  type          String
+  blob          Bytes?
+
+  @@id([thread_id, checkpoint_ns, channel, version])
+}
+
+model checkpoint_migrations {
+  v Int @id
+}
+
+model checkpoint_writes {
+  thread_id     String
+  checkpoint_ns String  @default("")
+  checkpoint_id String
+  task_id       String
+  idx           Int
+  channel       String
+  type          String?
+  blob          Bytes
+
+  @@id([thread_id, checkpoint_ns, checkpoint_id, task_id, idx])
+}
+
+model checkpoints {
+  thread_id            String
+  checkpoint_ns        String  @default("")
+  checkpoint_id        String
+  parent_checkpoint_id String?
+  type                 String?
+  checkpoint           Json
+  metadata             Json    @default("{}")
+
+  @@id([thread_id, checkpoint_ns, checkpoint_id])
+}
+
+enum ConfidenceLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  FAILED
+  EXTERNAL
+}
+
+enum EngagementType {
+  COMMENT
+  MENTION
+  DM
+}
+
+enum EngagementStatus {
+  UNREAD
+  READ
+  REPLIED
+  DISMISSED
 }

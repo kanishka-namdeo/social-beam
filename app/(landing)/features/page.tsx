@@ -82,15 +82,15 @@ export default function FeaturesPage() {
         {features.map((feature) => {
           const Icon = feature.icon;
           return (
-            <Card key={feature.title} className="border-border">
+            <Card key={feature.title} className="border-border rounded-sm hover-lift transition-shadow">
               <CardHeader className="pb-3">
-                <div className="p-3 bg-brand/10 text-brand w-fit mb-3">
+                <div className="p-3 bg-brand/10 text-brand w-fit mb-3 rounded-sm" aria-hidden="true">
                   <Icon className="w-6 h-6" />
                 </div>
-                <CardTitle className="text-xl text-foreground">{feature.title}</CardTitle>
+                <CardTitle className="text-xl text-foreground tracking-tight">{feature.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-muted-foreground text-base">
+                <CardDescription className="text-muted-foreground text-base leading-relaxed">
                   {feature.description}
                 </CardDescription>
               </CardContent>

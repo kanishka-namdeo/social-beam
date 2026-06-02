@@ -3,20 +3,22 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PaintBrush, LinkSimple, ShieldCheck, ArrowRight, CheckCircle, Warning, Clock, InstagramLogo, XLogo, LinkedinLogo, MetaLogo, TiktokLogo, PinterestLogo, Desktop } from "@phosphor-icons/react/ssr";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { PaintBrush, LinkSimple, ShieldCheck, ArrowRight, CheckCircle, Warning, Clock, InstagramLogo, XLogo, LinkedinLogo, MetaLogo, TiktokLogo, PinterestLogo, Desktop, Code, ThreadsLogo, GoogleLogo, YoutubeLogo, ChatCircleText, Eye, Sparkle } from "@phosphor-icons/react/ssr";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DisconnectDialog } from "@/app/(dashboard)/dashboard/settings/components/disconnect-dialog";
 import Link from "next/link";
 import { toast } from "sonner";
 import { SidebarVariantSwitcher } from "@/components/dashboard/sidebar-variant-switcher";
+import { useInvisibleAI } from "@/lib/invisible-ai-context";
+import { getDisplayName } from "@/lib/oauth/platform-registry";
 
 const statusBadge: Record<string, { variant: "default" | "secondary" | "outline"; icon: React.ReactNode; label: string }> = {
   trained: { variant: "default", icon: <CheckCircle className="size-3" weight="fill" />, label: "Trained" },
@@ -82,6 +84,10 @@ const platformIcons: Record<string, React.ReactNode> = {
   linkedin: <LinkedinLogo className="size-5" weight="fill" />,
   tiktok: <TiktokLogo className="size-5" weight="fill" />,
   pinterest: <PinterestLogo className="size-5" weight="fill" />,
+  threads: <ThreadsLogo className="size-5" weight="fill" />,
+  googleBusiness: <GoogleLogo className="size-5" weight="fill" />,
+  youtube: <YoutubeLogo className="size-5" weight="fill" />,
+  bluesky: <ChatCircleText className="size-5" weight="fill" />,
 };
 
 function PlatformConnectButton({ platform, label }: { platform: string; label: string }) {
@@ -138,7 +144,7 @@ function PlatformConnectButton({ platform, label }: { platform: string; label: s
                   <div className="flex flex-col items-center gap-2">
                     <Button
                       variant="outline"
-                      className="flex h-auto w-full flex-col items-center gap-2 p-4 text-center hover:bg-accent/50 transition-colors"
+                      className="flex h-auto w-full flex-col items-center gap-2 p-4 text-center hover:bg-accent/50 transition-colors rounded-sm"
                       onClick={handleConnect}
                       disabled={connecting}
                     >
@@ -157,6 +163,190 @@ function PlatformConnectButton({ platform, label }: { platform: string; label: s
   );
 }
 
+function DeveloperAppsTabContent() {
+  const [apps, setApps] = useState<Array<{ platform: string; isConfigured: boolean; hasClientId: boolean; hasSecret: boolean }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [configuringPlatform, setConfiguringPlatform] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [clientId, setClientId] = useState("");
+  const [clientSecret, setClientSecret] = useState("");
+
+  useEffect(() => {
+    fetch("/api/settings/oauth-apps")
+      .then((res) => res.json())
+      .then((data) => {
+        setApps(data.apps ?? []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    if (!configuringPlatform || !clientId || !clientSecret) return;
+    setSaving(true);
+    try {
+      const res = await fetch("/api/settings/oauth-apps", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          platform: configuringPlatform,
+          clientId,
+          clientSecret,
+        }),
+      });
+      if (res.ok) {
+        toast.success(`${configuringPlatform} credentials saved`);
+        setApps((prev) =>
+          prev.map((a) =>
+            a.platform === configuringPlatform
+              ? { ...a, isConfigured: true, hasClientId: true, hasSecret: true }
+              : a,
+          ),
+        );
+        setConfiguringPlatform(null);
+        setClientId("");
+        setClientSecret("");
+      } else {
+        toast.error("Failed to save credentials");
+      }
+    } catch {
+      toast.error("Failed to save credentials");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card className="rounded-sm">
+        <CardHeader>
+          <Skeleton className="h-5 w-48" />
+          <Skeleton className="h-3 w-64 mt-2" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4 rounded-sm border border-border p-4">
+                <Skeleton className="h-10 w-10 rounded-sm" />
+                <div className="flex-1">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-3 w-32 mt-1" />
+                </div>
+                <Skeleton className="h-6 w-16" />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <>
+      <Card className="rounded-sm">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2 tracking-tight">
+            <Code className="size-5 text-brand" weight="fill" />
+            Developer App Credentials
+          </CardTitle>
+          <CardDescription>
+            Create OAuth apps on each platform&apos;s developer portal and paste the credentials below.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {!apps.some((a) => a.isConfigured) && (
+            <div className="flex flex-col items-center justify-center gap-3 rounded-sm border border-dashed border-border p-8 text-center">
+              <Code className="size-8 text-muted-foreground" weight="light" />
+              <p className="text-sm font-medium text-foreground">No developer apps configured yet</p>
+              <p className="text-xs text-muted-foreground max-w-sm">
+                You&apos;ll need to create OAuth apps on each platform to enable full integrations.
+              </p>
+            </div>
+          )}
+          {apps.map((app) => (
+            <div
+              key={app.platform}
+              className="flex items-center justify-between rounded-sm border border-border p-4"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-muted-foreground">
+                  {platformIcons[app.platform]}
+                </span>
+                <div>
+                  <p className="text-sm font-medium text-foreground">
+                    {getDisplayName(app.platform)}
+                  </p>
+                  {app.isConfigured ? (
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <CheckCircle className="size-3 text-success" weight="fill" />
+                      Configured
+                    </p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Warning className="size-3" weight="fill" />
+                      Not configured
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {app.isConfigured && (
+                  <Badge variant="default" className="text-[0.625rem] normal-case tracking-tight bg-success/20 text-success border-success/30">
+                    Active
+                  </Badge>
+                )}
+                <Button
+                  variant={app.isConfigured ? "outline" : "default"}
+                  size="sm"
+                  onClick={() => {
+                    setConfiguringPlatform(app.platform);
+                    setClientId("");
+                    setClientSecret("");
+                  }}
+                >
+                  {app.isConfigured ? "Edit" : "Configure"}
+                </Button>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {configuringPlatform && (
+        <Dialog open={configuringPlatform != null} onOpenChange={() => setConfiguringPlatform(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                {platformIcons[configuringPlatform]}
+                Configure {configuringPlatform === "x" ? "X (Twitter)" : configuringPlatform} App
+              </DialogTitle>
+              <DialogDescription>
+                Paste your OAuth Client ID and Client Secret from the platform&apos;s developer portal.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Client ID</Label>
+                <Input value={clientId} onChange={(e) => setClientId(e.target.value)} placeholder="Paste your Client ID" />
+              </div>
+              <div className="space-y-2">
+                <Label>Client Secret</Label>
+                <Input type="password" value={clientSecret} onChange={(e) => setClientSecret(e.target.value)} placeholder="Paste your Client Secret" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setConfiguringPlatform(null)}>Cancel</Button>
+              <Button onClick={handleSave} disabled={saving || !clientId || !clientSecret}>
+                {saving ? "Saving..." : "Save"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
+  );
+}
+
 export function SettingsContent({
   brandContext,
 }: {
@@ -169,10 +359,17 @@ export function SettingsContent({
   const [tabLoading, setTabLoading] = useState(false);
   const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>([]);
   const [accountsLoading, setAccountsLoading] = useState(false);
+  const [disconnectingPlatform, setDisconnectingPlatform] = useState<string | null>(null);
+
+  const handleDisconnectSuccess = useCallback(() => {
+    fetchConnectedAccounts().then(setConnectedAccounts);
+    toast.success("Account disconnected");
+    setDisconnectingPlatform(null);
+  }, []);
 
   const setTab = useCallback(
     (value: string) => {
-      if (!["overview", "accounts", "ai", "navigation"].includes(value)) {
+      if (!["overview", "accounts", "developer", "ai", "navigation"].includes(value)) {
         value = "overview";
       }
       setTabLoading(true);
@@ -225,12 +422,13 @@ export function SettingsContent({
   }, [tab]);
 
   return (
-    <Tabs value={tab} onValueChange={setTab} className="space-y-6">
-      <TabsList className="h-10 gap-1 bg-transparent p-0">
-        <TabsTrigger value="overview" className="data-[state=active]:bg-brand/10 data-[state=active]:text-brand rounded-md transition-all">Overview</TabsTrigger>
-        <TabsTrigger value="accounts" className="data-[state=active]:bg-brand/10 data-[state=active]:text-brand rounded-md transition-all">Connected Accounts</TabsTrigger>
-        <TabsTrigger value="ai" className="data-[state=active]:bg-brand/10 data-[state=active]:text-brand rounded-md transition-all">AI Guardrails</TabsTrigger>
-        <TabsTrigger value="navigation" className="data-[state=active]:bg-brand/10 data-[state=active]:text-brand rounded-md transition-all">Navigation</TabsTrigger>
+      <Tabs value={tab} onValueChange={setTab} className="space-y-6">
+      <TabsList className="h-10 gap-0 bg-transparent p-0 border-b border-border">
+        <TabsTrigger value="overview" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">Overview</TabsTrigger>
+        <TabsTrigger value="accounts" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">Connected Accounts</TabsTrigger>
+        <TabsTrigger value="developer" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">Developer Apps</TabsTrigger>
+        <TabsTrigger value="ai" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">AI Guardrails</TabsTrigger>
+        <TabsTrigger value="navigation" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">Navigation</TabsTrigger>
       </TabsList>
 
       {tabLoading ? (
@@ -254,9 +452,9 @@ export function SettingsContent({
           <TabsContent value="overview" className="space-y-0">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {/* Brand Context Card */}
-              <Card className="flex flex-col">
+              <Card className="flex flex-col rounded-sm">
                 <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
+                  <CardTitle className="text-base flex items-center gap-2 tracking-tight">
                     <PaintBrush className="size-5 text-brand" weight="fill" />
                     Brand Context
                   </CardTitle>
@@ -277,8 +475,8 @@ export function SettingsContent({
                     )}
                   </div>
                   <Link href="/settings/brand">
-                    <Card className="group flex items-center justify-between rounded-lg border-border p-3 hover:bg-accent transition-colors cursor-pointer">
-                      <span className="text-sm text-foreground">Configure brand context</span>
+                    <Card className="group flex items-center justify-between rounded-sm border-border p-3 hover:bg-accent transition-colors cursor-pointer">
+                      <span className="text-sm text-foreground tracking-tight">Configure brand context</span>
                       <ArrowRight className="size-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
                     </Card>
                   </Link>
@@ -286,9 +484,9 @@ export function SettingsContent({
               </Card>
 
               {/* Connected Accounts */}
-              <Card className="flex flex-col">
+              <Card className="flex flex-col rounded-sm">
                 <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
+                  <CardTitle className="text-base flex items-center gap-2 tracking-tight">
                     <LinkSimple className="size-5 text-brand" weight="fill" />
                     Connected Accounts
                   </CardTitle>
@@ -297,19 +495,19 @@ export function SettingsContent({
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col justify-end">
-                  <Card className="group flex items-center justify-between rounded-lg border-border p-3 hover:bg-accent transition-colors cursor-pointer"
+                  <Card className="group flex items-center justify-between rounded-sm border-border p-3 hover:bg-accent transition-colors cursor-pointer"
                     onClick={() => setTab("accounts")}
                   >
-                    <span className="text-sm text-foreground">Manage accounts</span>
+                    <span className="text-sm text-foreground tracking-tight">Manage accounts</span>
                     <ArrowRight className="size-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
                   </Card>
                 </CardContent>
               </Card>
 
               {/* AI Guardrails */}
-              <Card className="flex flex-col">
+              <Card className="flex flex-col rounded-sm">
                 <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
+                  <CardTitle className="text-base flex items-center gap-2 tracking-tight">
                     <ShieldCheck className="size-5 text-brand" weight="fill" />
                     AI Guardrails
                   </CardTitle>
@@ -318,19 +516,19 @@ export function SettingsContent({
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col justify-end">
-                  <Card className="group flex items-center justify-between rounded-lg border-border p-3 hover:bg-accent transition-colors cursor-pointer"
+                  <Card className="group flex items-center justify-between rounded-sm border-border p-3 hover:bg-accent transition-colors cursor-pointer"
                     onClick={() => setTab("ai")}
                   >
-                    <span className="text-sm text-foreground">Configure guardrails</span>
+                    <span className="text-sm text-foreground tracking-tight">Configure guardrails</span>
                     <ArrowRight className="size-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
                   </Card>
                 </CardContent>
               </Card>
 
               {/* Navigation */}
-              <Card className="flex flex-col">
+              <Card className="flex flex-col rounded-sm">
                 <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
+                  <CardTitle className="text-base flex items-center gap-2 tracking-tight">
                     <Desktop className="size-5 text-brand" weight="fill" />
                     Navigation
                   </CardTitle>
@@ -339,10 +537,10 @@ export function SettingsContent({
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col justify-end">
-                  <Card className="group flex items-center justify-between rounded-lg border-border p-3 hover:bg-accent transition-colors cursor-pointer"
+                  <Card className="group flex items-center justify-between rounded-sm border-border p-3 hover:bg-accent transition-colors cursor-pointer"
                     onClick={() => setTab("navigation")}
                   >
-                    <span className="text-sm text-foreground">Customize sidebar</span>
+                    <span className="text-sm text-foreground tracking-tight">Customize sidebar</span>
                     <ArrowRight className="size-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
                   </Card>
                 </CardContent>
@@ -351,9 +549,9 @@ export function SettingsContent({
           </TabsContent>
 
           <TabsContent value="accounts" className="space-y-4">
-            <Card>
+            <Card className="rounded-sm">
               <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
+                <CardTitle className="text-base flex items-center gap-2 tracking-tight">
                   <LinkSimple className="size-5 text-brand" weight="fill" />
                   Connected Accounts
                 </CardTitle>
@@ -366,8 +564,8 @@ export function SettingsContent({
                 {accountsLoading ? (
                   <div className="space-y-3">
                     {Array.from({ length: 2 }).map((_, i) => (
-                      <div key={i} className="flex items-center gap-4 rounded-lg border border-border p-4">
-                        <Skeleton className="h-10 w-10 rounded-full" />
+                      <div key={i} className="flex items-center gap-4 rounded-sm border border-border p-4">
+                        <Skeleton className="h-10 w-10 rounded-sm" />
                         <div className="flex-1">
                           <Skeleton className="h-4 w-24" />
                           <Skeleton className="h-3 w-32 mt-1" />
@@ -380,9 +578,9 @@ export function SettingsContent({
                     {connectedAccounts.map((account) => (
                       <div
                         key={account.platform}
-                        className="flex items-center gap-4 rounded-lg border border-border p-4"
+                        className="flex items-center gap-4 rounded-sm border border-border p-4"
                       >
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-muted text-muted-foreground">
                           {platformIcons[account.platform]}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -392,16 +590,26 @@ export function SettingsContent({
                           <p className="text-xs text-muted-foreground capitalize">{account.platform}</p>
                         </div>
                         <Badge
-                          variant={account.status === "connected" ? "default" : "outline"}
-                          className="bg-success/20 text-success border-success/30"
+                          variant={account.status === "connected" ? "outline" : "outline"}
+                          className="rounded-sm bg-success/20 text-success border-success/30"
                         >
                           {account.status === "connected" ? "Connected" : account.status}
                         </Badge>
+                        {account.status === "connected" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="rounded-sm"
+                            onClick={() => setDisconnectingPlatform(account.platform)}
+                          >
+                            Disconnect
+                          </Button>
+                        )}
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border p-8 text-center">
+                  <div className="flex flex-col items-center justify-center gap-3 rounded-sm border border-dashed border-border p-8 text-center">
                     <LinkSimple className="size-8 text-muted-foreground" weight="light" />
                     <p className="text-sm text-muted-foreground">
                       No accounts connected yet. Connect a social account to manage integrations.
@@ -421,16 +629,24 @@ export function SettingsContent({
                     <PlatformConnectButton platform="linkedin" label="LinkedIn" />
                     <PlatformConnectButton platform="tiktok" label="TikTok" />
                     <PlatformConnectButton platform="pinterest" label="Pinterest" />
+                    <PlatformConnectButton platform="threads" label="Threads" />
+                    <PlatformConnectButton platform="googleBusiness" label="Google Business" />
+                    <PlatformConnectButton platform="youtube" label="YouTube" />
+                    <PlatformConnectButton platform="bluesky" label="Bluesky" />
                   </div>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="ai" className="space-y-0">
-            <Card>
+          <TabsContent value="developer" className="space-y-4">
+            <DeveloperAppsTabContent />
+          </TabsContent>
+
+          <TabsContent value="ai" className="space-y-4">
+            <Card className="rounded-sm">
               <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
+                <CardTitle className="text-base flex items-center gap-2 tracking-tight">
                   <ShieldCheck className="size-5 text-brand" weight="fill" />
                   AI Guardrails
                 </CardTitle>
@@ -438,19 +654,23 @@ export function SettingsContent({
                   Configure AI autonomy levels, safety filters, and disclosure settings for content generation.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border p-8 text-center">
-                <ShieldCheck className="size-8 text-muted-foreground" weight="light" />
-                <p className="text-sm text-muted-foreground">
-                  AI guardrails configuration coming soon. Default safety settings are active.
-                </p>
+              <CardContent className="space-y-4">
+                <VisibilityToggles />
+                <Separator />
+                <div className="flex flex-col items-center justify-center gap-3 rounded-sm border border-dashed border-border p-8 text-center">
+                  <ShieldCheck className="size-8 text-muted-foreground" weight="light" />
+                  <p className="text-sm text-muted-foreground">
+                    Additional guardrails configuration coming soon. Default safety settings are active.
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="navigation" className="space-y-0">
-            <Card>
+            <Card className="rounded-sm">
               <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
+                <CardTitle className="text-base flex items-center gap-2 tracking-tight">
                   <Desktop className="size-5 text-brand" weight="fill" />
                   Navigation
                 </CardTitle>
@@ -465,6 +685,75 @@ export function SettingsContent({
           </TabsContent>
         </>
       )}
+      {disconnectingPlatform && (
+        <DisconnectDialog
+          open={disconnectingPlatform != null}
+          platform={disconnectingPlatform}
+          accountId=""
+          onClose={() => setDisconnectingPlatform(null)}
+          onDisconnectSuccess={handleDisconnectSuccess}
+        />
+      )}
     </Tabs>
+  );
+}
+
+function VisibilityToggles() {
+  const { config, updateConfig } = useInvisibleAI();
+
+  const toggleItems = [
+    {
+      key: "showAILabels" as const,
+      title: "Show AI labels on drafts",
+      description: "Display 'AI-generated' badges on content drafts",
+      icon: <ChatCircleText className="size-4 text-muted-foreground" />,
+    },
+    {
+      key: "showConfidence" as const,
+      title: "Show confidence signals",
+      description: "Display confidence level badges (High/Medium/Low) on posts",
+      icon: <Sparkle className="size-4 text-muted-foreground" />,
+    },
+    {
+      key: "showAgentStatus" as const,
+      title: "Show agent status indicator",
+      description: "Display 'Agent working...' text in the top bar",
+      icon: <Eye className="size-4 text-muted-foreground" />,
+    },
+    {
+      key: "showAIInsightsBadge" as const,
+      title: "Show AI Insights badge",
+      description: "Display 'AI Insights' labels on analytics cards",
+      icon: <ChatCircleText className="size-4 text-muted-foreground" />,
+    },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h4 className="text-sm font-medium tracking-tight">AI Visibility</h4>
+        <p className="mt-0.5 text-sm text-muted-foreground">
+          Control how AI features appear in your interface. By default, AI runs invisibly.
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        {toggleItems.map((item) => (
+          <div key={item.key} className="flex items-center justify-between gap-4 rounded-sm border p-3">
+            <div className="flex items-start gap-3">
+              {item.icon}
+              <div>
+                <p className="text-sm font-medium tracking-tight">{item.title}</p>
+                <p className="text-xs text-muted-foreground">{item.description}</p>
+              </div>
+            </div>
+            <Switch
+              checked={config[item.key]}
+              onCheckedChange={(checked) => updateConfig({ [item.key]: checked })}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

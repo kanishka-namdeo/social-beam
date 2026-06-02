@@ -11,6 +11,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useInvisibleAI } from "@/lib/invisible-ai-context";
 
 interface ConfidenceData {
   level: string;
@@ -21,10 +22,10 @@ interface ConfidenceData {
 }
 
 const CONFIDENCE_COLORS: Record<string, string> = {
-  HIGH: "hsl(var(--success))",
-  MEDIUM: "hsl(var(--warning))",
-  LOW: "hsl(var(--destructive))",
-  UNKNOWN: "hsl(var(--muted-foreground))",
+  HIGH: "var(--success)",
+  MEDIUM: "var(--warning)",
+  LOW: "var(--destructive)",
+  UNKNOWN: "var(--muted-foreground)",
 };
 
 const CONFIDENCE_LABELS: Record<string, string> = {
@@ -35,48 +36,50 @@ const CONFIDENCE_LABELS: Record<string, string> = {
 };
 
 export function ConfidenceCorrelationChart({ data }: { data: ConfidenceData[] }) {
+  const { config } = useInvisibleAI();
   const chartData = data.map((d) => ({
     name: CONFIDENCE_LABELS[d.level] ?? d.level,
     "Avg Engagement Rate": d.avgEngagementRate,
     "Post Count": d.count,
-    color: CONFIDENCE_COLORS[d.level] ?? "hsl(var(--muted-foreground))",
+    color: CONFIDENCE_COLORS[d.level] ?? "var(--muted-foreground)",
   }));
 
   const hasData = data.length > 0 && data.some((d) => d.count > 0);
 
   return (
-    <Card className="bg-ai-surface border-border">
+    <Card className="rounded-sm bg-ai-surface border-border">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <span className="text-foreground">AI Confidence vs Actual Performance</span>
-          <Badge variant="outline" className="text-xs">AI Insight</Badge>
+        <CardTitle className="flex items-center gap-2 text-lg font-medium tracking-tight">
+          <span className="text-foreground">Confidence vs Actual Performance</span>
+          {config.showAIInsightsBadge && (
+            <Badge variant="outline" className="rounded-sm text-xs">AI Insight</Badge>
+          )}
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Does higher AI confidence correlate with better post performance?
+          Does higher confidence correlate with better post performance?
         </p>
       </CardHeader>
       <CardContent>
         {hasData ? (
           <>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis
                     dataKey="name"
-                    stroke="hsl(var(--muted-foreground))"
+                    stroke="var(--muted-foreground)"
                     tick={{ fontSize: 12 }}
                   />
                   <YAxis
-                    stroke="hsl(var(--muted-foreground))"
+                    stroke="var(--muted-foreground)"
                     tick={{ fontSize: 12 }}
                     tickFormatter={(v: number) => `${(v * 100).toFixed(0)}%`}
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px",
+                      backgroundColor: "var(--card)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "2px",
                       fontSize: "12px",
                     }}
                     formatter={(value: unknown, name: unknown) => {
@@ -89,18 +92,17 @@ export function ConfidenceCorrelationChart({ data }: { data: ConfidenceData[] })
                   />
                   <Bar
                     dataKey="Avg Engagement Rate"
-                    fill="hsl(var(--brand))"
+                    fill="var(--brand)"
                     radius={[4, 4, 0, 0]}
                   />
                 </BarChart>
               </ResponsiveContainer>
-            </div>
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
               {data.map((d) => (
-                <div key={d.level} className="rounded-lg border p-3">
+                <div key={d.level} className="rounded-sm border p-3">
                   <div className="flex items-center gap-2">
                     <div
-                      className="h-3 w-3 rounded-full"
+                      className="h-3 w-3 rounded-sm"
                       style={{ backgroundColor: CONFIDENCE_COLORS[d.level] }}
                     />
                     <span className="text-sm font-medium">{CONFIDENCE_LABELS[d.level]}</span>

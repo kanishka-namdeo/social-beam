@@ -5,6 +5,7 @@ import type { Session } from 'next-auth';
 
 export async function POST() {
   const correlationId = crypto.randomUUID();
+  let userId = 'unknown';
 
   try {
     const session = await auth();
@@ -13,7 +14,7 @@ export async function POST() {
     }
 
     const typedSession = session as Session;
-    const userId = typedSession.user.id ?? '';
+    userId = typedSession.user.id ?? '';
     const logger = createLogger({ correlationId, userId });
 
     logger.info('onboarding.skipped', { userId });
@@ -22,7 +23,9 @@ export async function POST() {
     return new Response(JSON.stringify({ success: true }), {
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch {
+  } catch (error) {
+    const logger = createLogger({ correlationId, userId });
+    logger.error('onboarding.skip_failed', { userId, error: String(error) });
     return new Response(
       JSON.stringify({ error: 'Failed to skip onboarding' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }

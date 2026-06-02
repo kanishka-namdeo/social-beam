@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { encryptToken, decryptToken } from '@/lib/oauth/crypto';
 import { resolveCredentials } from '@/lib/oauth/credentials';
 import { logger } from '@/lib/logger';
+import { getRefreshUrl } from '@/lib/oauth/platform-registry';
 
 const REFRESH_REFRESH_WINDOW_MS = 24 * 60 * 60 * 1000; // 24h before expiry
 const MAX_RETRY_ATTEMPTS = 3;
@@ -16,21 +17,15 @@ interface RefreshResult {
 
 /**
  * Refresh tokens for all platforms that support refresh_token grant.
- * Meta (Facebook/Instagram) uses a different endpoint and is handled separately.
+ * Meta (Facebook/Instagram/Threads) uses a different endpoint and is handled separately.
  */
-const PLATFORM_REFRESH_URLS: Record<string, string> = {
-  x: 'https://api.twitter.com/2/oauth2/token',
-  linkedin: 'https://www.linkedin.com/oauth/v2/accessToken',
-  tiktok: 'https://open.tiktokapis.com/v2/oauth/token/',
-  pinterest: 'https://api.pinterest.com/v5/oauth/token',
-};
 
 async function refreshStandardPlatform(
   platform: string,
   refreshToken: string,
   userId: string,
 ): Promise<RefreshResult> {
-  const tokenUrl = PLATFORM_REFRESH_URLS[platform];
+  const tokenUrl = getRefreshUrl(platform);
   if (!tokenUrl) {
     return { success: false, error: `No refresh endpoint for ${platform}` };
   }
@@ -149,7 +144,7 @@ export async function refreshAccount(accountId: string): Promise<boolean> {
     return false;
   }
 
-  const isMeta = account.platform === 'instagram' || account.platform === 'facebook';
+  const isMeta = account.platform === 'instagram' || account.platform === 'facebook' || account.platform === 'threads';
   const refreshFn = isMeta ? refreshMetaPlatform : refreshStandardPlatform;
 
   let attempt = 0;

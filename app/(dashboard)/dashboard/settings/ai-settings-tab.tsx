@@ -1,6 +1,6 @@
 'use client';
 
-import { Sparkle } from '@phosphor-icons/react';
+import { Sparkle } from '@phosphor-icons/react/ssr';
 
 export function AiSettingsTab() {
   return (

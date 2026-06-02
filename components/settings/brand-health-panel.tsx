@@ -98,11 +98,11 @@ export function BrandHealthPanel() {
 
   if (loading) {
     return (
-      <Card>
+      <Card className="rounded-sm">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="space-y-2">
-              <CardTitle className="text-base flex items-center gap-2">
+              <CardTitle className="text-base flex items-center gap-2 tracking-tight">
                 <Heart className="size-5 text-brand" weight="fill" />
                 Brand Context Health
               </CardTitle>
@@ -114,7 +114,7 @@ export function BrandHealthPanel() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center gap-8">
-            <Skeleton className="size-24 rounded-full" />
+            <Skeleton className="size-24 rounded-sm" />
             <div className="flex-1 space-y-3">
               <Skeleton className="h-4 w-32" />
               <Skeleton className="h-4 w-48" />
@@ -129,9 +129,9 @@ export function BrandHealthPanel() {
 
   if (error || !health) {
     return (
-      <Card>
+      <Card className="rounded-sm">
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
+          <CardTitle className="text-base flex items-center gap-2 tracking-tight">
             <Heart className="size-5 text-brand" weight="fill" />
             Brand Context Health
           </CardTitle>
@@ -150,9 +150,9 @@ export function BrandHealthPanel() {
 
   if (!health.hasBrandContext) {
     return (
-      <Card>
+      <Card className="rounded-sm">
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
+          <CardTitle className="text-base flex items-center gap-2 tracking-tight">
             <Heart className="size-5 text-muted-foreground" weight="fill" />
             Brand Context Health
           </CardTitle>
@@ -172,11 +172,11 @@ export function BrandHealthPanel() {
   const badgeConfig = ScoreBadgeConfig({ status: health.status });
 
   return (
-    <Card>
+    <Card className="rounded-sm">
       <CardHeader>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="text-base flex items-center gap-2 tracking-tight">
               <Heart className="size-5 text-brand" weight="fill" />
               Brand Context Health
             </CardTitle>
@@ -184,7 +184,7 @@ export function BrandHealthPanel() {
               How well your brand profile is performing
             </CardDescription>
           </div>
-          <Badge className={cn(badgeConfig.className)}>
+          <Badge className={cn("rounded-sm", badgeConfig.className)}>
             {badgeConfig.icon}
             {badgeConfig.label}
           </Badge>
@@ -197,7 +197,7 @@ export function BrandHealthPanel() {
           <div className="flex flex-col items-center gap-2">
             <div
               className={cn(
-                "flex items-center justify-center size-24 rounded-full border-4",
+                "flex items-center justify-center size-24 rounded-sm border-4",
                 health.status === "healthy" && "border-success",
                 health.status === "needs_attention" && "border-warning",
                 health.status === "stale" && "border-destructive",
