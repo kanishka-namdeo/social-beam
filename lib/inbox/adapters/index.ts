@@ -3,11 +3,15 @@ import { prisma } from '@/lib/prisma';
 import type { EngagementAdapter } from '@/lib/inbox/types';
 import type { PlatformName } from '@/lib/inbox/types';
 
-import { createInstagramInboxAdapter, createInstagramHybridAdapter } from './instagram-hybrid';
-import { createFacebookInboxAdapter, createFacebookHybridAdapter } from './facebook-hybrid';
-import { createXInboxAdapter, createXHybridAdapter } from './x-hybrid';
+import { createInstagramHybridAdapter } from './instagram-hybrid';
+import { createInstagramInboxAdapter } from './instagram';
+import { createFacebookHybridAdapter } from './facebook-hybrid';
+import { createFacebookInboxAdapter } from './facebook';
+import { createXHybridAdapter } from './x-hybrid';
+import { createXInboxAdapter } from './x';
 import { createLinkedinScraperAdapter } from './linkedin-scraper-adapter';
-import { createTiktokInboxAdapter, createTikTokHybridAdapter } from './tiktok-hybrid';
+import { createTikTokHybridAdapter } from './tiktok-hybrid';
+import { createTiktokInboxAdapter } from './tiktok';
 import { createPinterestHybridAdapter } from './pinterest-hybrid';
 
 export async function createInboxAdapter(

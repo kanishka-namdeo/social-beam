@@ -1,0 +1,9 @@
+{
+	"id": "6woHK43W2seyWCR",
+	"json": "{\"id\":\"6woHK43W2seyWCR\",\"url\":\"https://buffer.com/fr/about\",\"loadedUrl\":\"https://buffer.com/fr/about\",\"uniqueKey\":\"https://buffer.com/fr/about\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"depth\":2,\"__crawlee\":{\"crawlDepth\":2,\"enqueueStrategy\":\"same-hostname\",\"state\":4}},\"handledAt\":\"2026-06-01T20:43:19.923Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://buffer.com/fr/about",
+	"url": "https://buffer.com/fr/about"
+}

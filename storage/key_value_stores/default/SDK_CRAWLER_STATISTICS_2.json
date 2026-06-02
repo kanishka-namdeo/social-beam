@@ -1,0 +1,51 @@
+{
+  "requestsFinished": 18,
+  "requestsFailed": 0,
+  "requestsRetries": 1,
+  "requestsFailedPerMinute": 0,
+  "requestsFinishedPerMinute": 11,
+  "requestMinDurationMillis": 4027,
+  "requestMaxDurationMillis": 9734,
+  "requestTotalFailedDurationMillis": 0,
+  "requestTotalFinishedDurationMillis": 100508,
+  "crawlerStartedAt": "2026-06-01T20:32:24.819Z",
+  "crawlerFinishedAt": "2026-06-01T20:34:01.104Z",
+  "statsPersistedAt": "2026-06-01T20:34:01.104Z",
+  "crawlerRuntimeMillis": 96364,
+  "crawlerLastStartTimestamp": 1780345944740,
+  "requestRetryHistogram": [
+    17,
+    null,
+    null,
+    1
+  ],
+  "statsId": 2,
+  "requestAvgFailedDurationMillis": null,
+  "requestAvgFinishedDurationMillis": 5584,
+  "requestTotalDurationMillis": 100508,
+  "requestsTotal": 18,
+  "requestsWithStatusCode": {
+    "200": 21
+  },
+  "errors": {},
+  "retryErrors": {
+    "D:\\test_agent\\social-beam\\.next\\dev\\server\\chunks\\[root-of-the-server]__0roi.~m._.js:1571:17": {
+      "missing error code": {
+        "Error": {
+          "page.$$eval: Execution context was destroyed, most likely because of a navigation": {
+            "count": 3
+          }
+        }
+      }
+    },
+    "D:\\test_agent\\social-beam\\node_modules\\.pnpm\\@crawlee+playwright@3.16.0\\node_modules\\@crawlee\\playwright\\internals\\utils\\playwright-utils.js:165:17": {
+      "missing error code": {
+        "TimeoutError": {
+          "page.goto: Timeout 30000ms exceeded.": {
+            "count": 2
+          }
+        }
+      }
+    }
+  }
+}

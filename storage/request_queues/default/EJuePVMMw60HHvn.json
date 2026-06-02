@@ -1,0 +1,9 @@
+{
+	"id": "EJuePVMMw60HHvn",
+	"json": "{\"id\":\"EJuePVMMw60HHvn\",\"url\":\"https://buffer.com/404\",\"loadedUrl\":\"https://buffer.com/404\",\"uniqueKey\":\"https://buffer.com/404\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"depth\":0,\"__crawlee\":{\"state\":4}},\"handledAt\":\"2026-06-01T17:02:57.203Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://buffer.com/404",
+	"url": "https://buffer.com/404"
+}

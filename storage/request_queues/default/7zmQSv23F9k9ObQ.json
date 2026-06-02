@@ -1,0 +1,9 @@
+{
+	"id": "7zmQSv23F9k9ObQ",
+	"json": "{\"id\":\"7zmQSv23F9k9ObQ\",\"url\":\"https://buffer.com/free-tools\",\"loadedUrl\":\"https://buffer.com/free-tools\",\"uniqueKey\":\"https://buffer.com/free-tools\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"depth\":0,\"__crawlee\":{\"state\":4}},\"handledAt\":\"2026-06-01T19:42:10.377Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://buffer.com/free-tools",
+	"url": "https://buffer.com/free-tools"
+}

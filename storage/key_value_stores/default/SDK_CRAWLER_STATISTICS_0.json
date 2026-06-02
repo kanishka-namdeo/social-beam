@@ -1,47 +1,37 @@
 {
-  "requestsFinished": 0,
-  "requestsFailed": 6,
-  "requestsRetries": 6,
-  "requestsFailedPerMinute": 127,
-  "requestsFinishedPerMinute": 0,
-  "requestMinDurationMillis": null,
-  "requestMaxDurationMillis": 0,
-  "requestTotalFailedDurationMillis": 20,
-  "requestTotalFinishedDurationMillis": 0,
-  "crawlerStartedAt": "2026-05-26T14:13:41.775Z",
-  "crawlerFinishedAt": "2026-05-26T14:13:44.352Z",
-  "statsPersistedAt": "2026-05-26T14:13:44.352Z",
-  "crawlerRuntimeMillis": 2814,
-  "crawlerLastStartTimestamp": 1779804821538,
+  "requestsFinished": 22,
+  "requestsFailed": 0,
+  "requestsRetries": 0,
+  "requestsFailedPerMinute": 0,
+  "requestsFinishedPerMinute": 24,
+  "requestMinDurationMillis": 899,
+  "requestMaxDurationMillis": 13252,
+  "requestTotalFailedDurationMillis": 0,
+  "requestTotalFinishedDurationMillis": 134085,
+  "crawlerStartedAt": "2026-06-01T17:02:34.541Z",
+  "crawlerFinishedAt": "2026-06-01T17:03:29.717Z",
+  "statsPersistedAt": "2026-06-01T17:03:29.718Z",
+  "crawlerRuntimeMillis": 55192,
+  "crawlerLastStartTimestamp": 1780333354526,
   "requestRetryHistogram": [
-    null,
-    null,
-    null,
-    6
+    22
   ],
   "statsId": 0,
-  "requestAvgFailedDurationMillis": 3,
-  "requestAvgFinishedDurationMillis": null,
-  "requestTotalDurationMillis": 20,
-  "requestsTotal": 6,
-  "requestsWithStatusCode": {},
-  "errors": {
-    "D:\\test_agent\\social-beam\\node_modules\\.pnpm\\@crawlee+browser-pool@3.16.0\\node_modules\\@crawlee\\browser-pool\\fingerprinting\\utils.js:22:31": {
-      "missing error code": {
-        "TypeError": {
-          "library.name is not a function": {
-            "count": 6
-          }
-        }
-      }
-    }
+  "requestAvgFailedDurationMillis": null,
+  "requestAvgFinishedDurationMillis": 6095,
+  "requestTotalDurationMillis": 134085,
+  "requestsTotal": 22,
+  "requestsWithStatusCode": {
+    "200": 19,
+    "404": 3
   },
+  "errors": {},
   "retryErrors": {
-    "D:\\test_agent\\social-beam\\node_modules\\.pnpm\\@crawlee+browser-pool@3.16.0\\node_modules\\@crawlee\\browser-pool\\fingerprinting\\utils.js:22:31": {
+    "D:\\test_agent\\social-beam\\node_modules\\.pnpm\\@crawlee+playwright@3.16.0\\node_modules\\@crawlee\\playwright\\internals\\utils\\playwright-utils.js:165:17": {
       "missing error code": {
-        "TypeError": {
-          "library.name is not a function": {
-            "count": 18
+        "TimeoutError": {
+          "page.goto: Timeout 15000ms exceeded.": {
+            "count": 1
           }
         }
       }

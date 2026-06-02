@@ -77,7 +77,7 @@ export async function scrapeYouTubeComments(videoUrl: string): Promise<YouTubeCo
           path: "/",
           httpOnly: true,
           secure: true,
-          sameSite: "None",
+          sameSite: "None" as const,
         },
         ...(psid ? [{
           name: "__Secure-1PSID",
@@ -86,7 +86,7 @@ export async function scrapeYouTubeComments(videoUrl: string): Promise<YouTubeCo
           path: "/",
           httpOnly: true,
           secure: true,
-          sameSite: "None",
+          sameSite: "None" as "None",
         }] : []),
       ],
       stealth: true,

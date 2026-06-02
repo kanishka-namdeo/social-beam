@@ -2,7 +2,7 @@ import { logger } from '@/lib/logger';
 import type { EngagementAdapter, RawComment, RawMention, RawDM } from '@/lib/inbox/types';
 import type { PlatformName } from '@/lib/inbox/types';
 import { createTiktokInboxAdapter } from './tiktok';
-import { scrapeTikTokPosts, scrapeTikTokComments } from '@/lib/cloakbrowser/platforms/tiktok';
+import { scrapeTikTokPosts, scrapeTikTokComments, scrapeTikTokDMs } from '@/lib/cloakbrowser/platforms/tiktok';
 
 export function createTikTokHybridAdapter(encryptedToken: string): EngagementAdapter {
   const apiAdapter = createTiktokInboxAdapter(encryptedToken);

@@ -1,0 +1,9 @@
+{
+	"id": "7dkPITQ87avQrAt",
+	"json": "{\"id\":\"7dkPITQ87avQrAt\",\"url\":\"https://buffer.com/accessibility\",\"loadedUrl\":\"https://buffer.com/accessibility\",\"uniqueKey\":\"https://buffer.com/accessibility\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"depth\":0,\"__crawlee\":{\"state\":4}},\"handledAt\":\"2026-06-01T17:03:03.340Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://buffer.com/accessibility",
+	"url": "https://buffer.com/accessibility"
+}

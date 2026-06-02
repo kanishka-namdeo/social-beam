@@ -1,0 +1,23 @@
+{"sessionId":"f94be9","location":"brand-context-collector.ts:11","message":"contextCollectorNode entering","data":{"websiteUrl":"https://buffer.com/","hasDescription":false},"runId":"run1","hypothesisId":"A","timestamp":1780346916290}
+{"sessionId":"f94be9","location":"brand-context-collector.ts:31","message":"starting crawl with timeout","data":{"url":"https://buffer.com/","timeoutMs":90000},"runId":"run1","hypothesisId":"A","timestamp":1780346916291}
+{"sessionId":"f94be9","location":"brand-context-collector.ts:44","message":"crawl started","data":{"elapsedMs":0},"runId":"run1","hypothesisId":"B","timestamp":1780346916292}
+{"sessionId":"f94be9","location":"crawler.ts:310","message":"crawler.run started","data":{"url":"https://buffer.com/"},"runId":"run1","hypothesisId":"D","timestamp":1780346917744}
+{"sessionId":"f94be9","location":"crawler.ts:241","message":"requestHandler started","data":{"url":"https://buffer.com/","elapsedMs":6950},"runId":"run1","hypothesisId":"D","timestamp":1780346924688}
+{"sessionId":"f94be9","location":"crawler.ts:258","message":"SPA wait started","data":{"pageUrl":"https://buffer.com/","depth":0,"relativePath":"/"},"runId":"run1","hypothesisId":"D","timestamp":1780346924689}
+{"sessionId":"f94be9","location":"crawler.ts:241","message":"requestHandler started","data":{"url":"https://buffer.com/about","elapsedMs":7498},"runId":"run1","hypothesisId":"D","timestamp":1780346925236}
+{"sessionId":"f94be9","location":"crawler.ts:258","message":"SPA wait started","data":{"pageUrl":"https://buffer.com/about","depth":0,"relativePath":"/about"},"runId":"run1","hypothesisId":"D","timestamp":1780346925237}
+{"sessionId":"f94be9","location":"crawler.ts:262","message":"SPA wait complete","data":{"pageUrl":"https://buffer.com/","elapsedMs":3062},"runId":"run1","hypothesisId":"D","timestamp":1780346927751}
+{"sessionId":"f94be9","location":"brand-context-collector.ts:36","message":"crawl page complete","data":{"url":"https://buffer.com/","page":"/","zoneCount":3,"totalPages":1},"runId":"run1","hypothesisId":"B","timestamp":1780346927804}
+{"sessionId":"f94be9","location":"crawler.ts:262","message":"SPA wait complete","data":{"pageUrl":"https://buffer.com/about","elapsedMs":3068},"runId":"run1","hypothesisId":"D","timestamp":1780346928305}
+{"sessionId":"f94be9","location":"brand-context-collector.ts:36","message":"crawl page complete","data":{"url":"https://buffer.com/","page":"/about","zoneCount":3,"totalPages":2},"runId":"run1","hypothesisId":"B","timestamp":1780346928390}
+{"sessionId":"f94be9","location":"crawler.ts:312","message":"crawler.run finished","data":{"url":"https://buffer.com/","elapsedMs":11058,"zoneCount":6,"pagesCrawled":2},"runId":"run1","hypothesisId":"D","timestamp":1780346928796}
+{"sessionId":"f94be9","location":"brand-context-collector.ts:50","message":"crawl completed","data":{"elapsedMs":12505},"runId":"run1","hypothesisId":"B","timestamp":1780346928797}
+{"sessionId":"f94be9","location":"timeout-guard.ts:23","message":"timeout_guard started","data":{"label":"brandAnalyzer","timeoutMs":120000},"runId":"run1","hypothesisId":"A","timestamp":1780346928829}
+{"sessionId":"f94be9","location":"timeout-guard.ts:46","message":"Promise.race started","data":{"label":"brandAnalyzer"},"runId":"run1","hypothesisId":"A","timestamp":1780346928829}
+{"sessionId":"f94be9","location":"brand-analyzer.ts:170","message":"LLM invoke starting","data":{"contentKeyCount":6},"runId":"run1","hypothesisId":"C","timestamp":1780346928831}
+{"sessionId":"f94be9","location":"brand-analyzer.ts:176","message":"LLM invoke complete","data":{"elapsedMs":65973},"runId":"run1","hypothesisId":"C","timestamp":1780346994804}
+{"sessionId":"f94be9","location":"timeout-guard.ts:48","message":"Promise.race resolved/rejected","data":{"label":"brandAnalyzer"},"runId":"run1","hypothesisId":"A","timestamp":1780346994808}
+{"sessionId":"f94be9","location":"timeout-guard.ts:23","message":"timeout_guard started","data":{"label":"platformAdapter","timeoutMs":60000},"runId":"run1","hypothesisId":"A","timestamp":1780346994815}
+{"sessionId":"f94be9","location":"timeout-guard.ts:46","message":"Promise.race started","data":{"label":"platformAdapter"},"runId":"run1","hypothesisId":"A","timestamp":1780346994816}
+{"sessionId":"f94be9","location":"timeout-guard.ts:31","message":"timeout_guard fired","data":{"label":"platformAdapter","timeoutMs":60000},"runId":"run1","hypothesisId":"A","timestamp":1780347054823}
+{"sessionId":"f94be9","location":"timeout-guard.ts:48","message":"Promise.race resolved/rejected","data":{"label":"platformAdapter"},"runId":"run1","hypothesisId":"A","timestamp":1780347054824}

@@ -1,0 +1,9 @@
+{
+	"id": "R3N4AOKB0aFs50Y",
+	"json": "{\"id\":\"R3N4AOKB0aFs50Y\",\"url\":\"https://buffer.com/insights/facebook-benchmarks\",\"loadedUrl\":\"https://buffer.com/insights/facebook-benchmarks\",\"uniqueKey\":\"https://buffer.com/insights/facebook-benchmarks\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"depth\":0,\"__crawlee\":{\"state\":4}},\"handledAt\":\"2026-06-01T20:32:53.715Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://buffer.com/insights/facebook-benchmarks",
+	"url": "https://buffer.com/insights/facebook-benchmarks"
+}

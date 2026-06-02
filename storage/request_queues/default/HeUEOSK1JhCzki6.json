@@ -1,0 +1,9 @@
+{
+	"id": "HeUEOSK1JhCzki6",
+	"json": "{\"id\":\"HeUEOSK1JhCzki6\",\"url\":\"https://buffer.com/books\",\"loadedUrl\":\"https://buffer.com/books\",\"uniqueKey\":\"https://buffer.com/books\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"depth\":0,\"__crawlee\":{\"state\":4}},\"handledAt\":\"2026-06-01T17:03:17.009Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://buffer.com/books",
+	"url": "https://buffer.com/books"
+}

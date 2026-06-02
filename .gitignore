@@ -45,3 +45,5 @@ next-env.d.ts
 
 # linkedin scraper cookie cache
 .data/
+
+.vercel
