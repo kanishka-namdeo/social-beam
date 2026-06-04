@@ -11,47 +11,9 @@ globs: app/**/*.ts,app/**/*.tsx,proxy.ts
 
 ## Server vs Client Components
 
-**Default to Server Components.** Only add `'use client'` when the component requires browser APIs or interactivity:
+> **Server/Client Component Classification**: See [react-components.mdc](.cursor/rules/react-components.mdc) for authoritative classification rules, third-party context providers, and module-level JSX patterns. This file covers Next.js-specific patterns only.
 
-```typescript
-// Server Component (default — no directive needed)
-// app/dashboard/page.tsx
-import { prisma } from '@/lib/prisma';
-
-export default async function DashboardPage() {
-  const data = await fetchDashboardData(); // runs on server
-  return <DashboardContent data={data} />;
-}
-```
-
-```typescript
-// Client Component (requires directive at file top)
-// app/dashboard/client-chart.tsx
-'use client';
-
-import { useState } from 'react';
-import { LineChart } from '@/components/charts/line-chart';
-
-export function ClientChart({ data }: { data: number[] }) {
-  const [hovered, setHovered] = useState<number | null>(null);
-  return <LineChart data={data} onHover={setHovered} />;
-}
-```
-
-**Client-only triggers**: `useState`, `useEffect`, `useReducer`, `useRef`, DOM access, browser APIs (`window`, `navigator`, `localStorage`), event handlers (`onClick`, `onChange`, `onSubmit`), custom hooks.
-
-**Pass server data as props to client components** — do not fetch data inside client components:
-
-```typescript
-// GOOD — server fetches, client renders
-// app/page.tsx
-import { DashboardContent } from '@/components/dashboard-content';
-
-export default async function Page() {
-  const data = await fetchData();
-  return <DashboardContent data={data} />;
-}
-```
+**Default to Server Components.** Only add `'use client'` when the component requires browser APIs or interactivity.
 
 ## Route Handlers (API Routes)
 
