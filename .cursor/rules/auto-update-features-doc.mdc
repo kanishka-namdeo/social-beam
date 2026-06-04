@@ -1,6 +1,6 @@
 ---
-description: Auto-update docs/features-built.md whenever features are built, removed, or edited
-alwaysApply: true
+description: Auto-update docs/features-built.md after feature implementation. Apply when completing a feature build, removal, or edit.
+alwaysApply: false
 ---
 
 # Feature Documentation Auto-Update

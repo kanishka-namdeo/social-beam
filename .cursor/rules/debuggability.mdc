@@ -1,5 +1,7 @@
 ---
-alwaysApply: true
+description: Centralized Pino logging requirements. Apply when creating/modifying API routes, agent tools, database operations, or middleware.
+globs: lib/**/*.ts,app/api/**/*.ts,proxy.ts
+alwaysApply: false
 ---
 # Debuggability & Centralized Logging
 

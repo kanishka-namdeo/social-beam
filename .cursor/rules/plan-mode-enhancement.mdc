@@ -1,6 +1,6 @@
 ---
-description: Plan mode validation and research checklist. For subagent handoff/execution patterns, see agent-handoff-verification.mdc.
-alwaysApply: true
+description: Plan mode validation checklist, research requirements, and mandatory template. Apply when user requests plan, asks how to implement, or switches to plan mode.
+alwaysApply: false
 ---
 
 # Plan Mode Enhancement

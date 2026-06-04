@@ -1,6 +1,6 @@
 ---
-description: "Guardrails for common agentic reasoning failures. Apply always to prevent tool loops, phantom tool calls, tool hallucination, lazy reasoning, context bloat, and serial drip-feeding in agentic coding workflows."
-alwaysApply: true
+description: Guardrails for agentic reasoning failures — tool loops, phantom calls, context bloat, serial drip-feeding. Apply when agent makes tool calls, chains reasoning, or encounters empty results.
+alwaysApply: false
 ---
 
 # Agentic Reasoning Guardrails

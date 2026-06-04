@@ -1,6 +1,6 @@
 ---
-description: Execution checkpoints and verification for agent mode handoff. Chooses direct or subagent execution based on task scope.
-alwaysApply: true
+description: Execution checkpoints and subagent dispatch for approved plans. Apply when user says proceed, build it, implement, or when scope analysis requires subagents.
+alwaysApply: false
 ---
 
 # Agent Mode Handoff & Verification
