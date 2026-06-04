@@ -1,4 +1,6 @@
 ---
+description: Dashboard page and layout patterns — server component data fetching, API route structure, route groups. Apply when creating app/ pages or layouts.
+globs: app/**/*.tsx
 alwaysApply: false
 ---
 
