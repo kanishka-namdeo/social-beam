@@ -231,7 +231,7 @@ function SortableWidgetItem({
       <button
         {...attributes}
         {...listeners}
-        className="cursor-grab text-muted-foreground hover:text-foreground"
+        className="cursor-grab text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/30"
         aria-label="Drag to reorder"
         type="button"
       >

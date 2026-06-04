@@ -28,6 +28,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ActionHandoffDialog } from "./action-handoff-dialog";
+import { BrandReasonBreakdown } from "./brand-reason-breakdown";
 import type { TrendingPost } from "@/lib/reddit/types";
 import { getRelevanceBadgeClass, getRelevanceLabel, isAiAnalysisFailed } from "@/lib/reddit/types";
 import { getActionIcon } from "@/lib/reddit/ui-helpers";
@@ -202,7 +203,7 @@ export function TrendingTable({ posts, hours }: TrendingTableProps) {
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2 mt-4">
+          <div className="flex flex-wrap gap-control mt-4">
             <div className="relative flex-1 min-w-0 sm:min-w-[200px]">
               <MagnifyingGlass className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
@@ -274,7 +275,7 @@ export function TrendingTable({ posts, hours }: TrendingTableProps) {
         </CardHeader>
         <CardContent>
           {filteredAndSortedPosts.length === 0 && posts.length > 0 ? (
-            <div className="flex flex-col items-center justify-center gap-3 rounded-sm border border-dashed border-border p-12 text-center">
+            <div className="flex flex-col items-center justify-center gap-3 rounded-sm border border-dashed border-border p-empty text-center">
               <MagnifyingGlass className="size-8 text-muted-foreground" weight="light" />
               <p className="text-sm font-medium text-foreground">No trending posts match your filters</p>
               <p className="text-xs text-muted-foreground max-w-sm">
@@ -312,10 +313,10 @@ export function TrendingTable({ posts, hours }: TrendingTableProps) {
                             setSortDirection(sortField === "upvotes" ? (sortDirection === "asc" ? "desc" : "asc") : "desc");
                           }}
                         >
-                          <TrendUp className="size-3.5 transition-transform duration-150" weight="bold" />
+                          <TrendUp className="size-3.5 transition-transform duration-normal" weight="bold" />
                           Upvotes
                           {sortField === "upvotes" && (
-                            <span className="inline-block transition-transform duration-150" style={{ transform: sortDirection === "asc" ? "rotate(180deg)" : "none" }}>
+                            <span className="inline-block transition-transform duration-normal" style={{ transform: sortDirection === "asc" ? "rotate(180deg)" : "none" }}>
                               ↓
                             </span>
                           )}
@@ -340,7 +341,7 @@ export function TrendingTable({ posts, hours }: TrendingTableProps) {
                         >
                           Relevance
                           {sortField === "relevance" && (
-                            <span className="inline-block transition-transform duration-150" style={{ transform: sortDirection === "asc" ? "rotate(180deg)" : "none" }}>
+                            <span className="inline-block transition-transform duration-normal" style={{ transform: sortDirection === "asc" ? "rotate(180deg)" : "none" }}>
                               ↓
                             </span>
                           )}
@@ -359,7 +360,7 @@ export function TrendingTable({ posts, hours }: TrendingTableProps) {
                     <TableRow
                       key={post.id}
                       className={cn(
-                        "transition-all duration-150",
+                        "transition-[opacity,background-color] duration-normal",
                         isDismissed && "opacity-50",
                         isActed && "bg-success/5",
                       )}
@@ -370,12 +371,12 @@ export function TrendingTable({ posts, hours }: TrendingTableProps) {
                             href={post.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm font-medium text-foreground hover:underline line-clamp-2"
+                            className="text-sm font-medium text-foreground hover:underline truncate-2"
                           >
                             {post.title}
                           </a>
                           {post.relevanceReason && (
-                            <p className="text-xs text-muted-foreground line-clamp-1">
+                            <p className="text-xs text-muted-foreground truncate">
                               {post.relevanceReason}
                             </p>
                           )}
@@ -384,14 +385,14 @@ export function TrendingTable({ posts, hours }: TrendingTableProps) {
                       <TableCell className="text-sm text-muted-foreground">
                         r/{post.subreddit}
                       </TableCell>
-                      <TableCell className="text-sm">
-                        <span className="flex items-center gap-1 text-success">
+                      <TableCell className="text-sm tabular-nums">
+                        <span className="flex-center gap-1 text-success">
                           <TrendUp className="size-3.5" weight="bold" />
-                          {post.upvotes.toLocaleString()}
+                          <span className="tabular-nums">{post.upvotes.toLocaleString()}</span>
                         </span>
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {post.commentCount.toLocaleString()}
+                      <TableCell className="text-sm text-muted-foreground tabular-nums">
+                        <span className="tabular-nums">{post.commentCount.toLocaleString()}</span>
                       </TableCell>
                       <TableCell>
                         <Badge
@@ -411,18 +412,24 @@ export function TrendingTable({ posts, hours }: TrendingTableProps) {
                       </TableCell>
                       <TableCell>
                         {post.relevanceScore != null && (
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              "text-xs cursor-help",
-                              getRelevanceBadgeClass(post.relevanceScore, isAiAnalysisFailed(post.relevanceReason)),
-                            )}
-                            title={isAiAnalysisFailed(post.relevanceReason)
-                              ? "AI analysis could not complete. Check your API configuration."
-                              : undefined}
+                          <BrandReasonBreakdown
+                            brandReasonTags={post.brandReasonTags ?? []}
+                            relevanceScore={post.relevanceScore}
+                            relevanceReason={post.relevanceReason}
                           >
-                            {getRelevanceLabel(post.relevanceScore, isAiAnalysisFailed(post.relevanceReason))}
-                          </Badge>
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                "text-xs cursor-help",
+                                getRelevanceBadgeClass(post.relevanceScore, isAiAnalysisFailed(post.relevanceReason)),
+                              )}
+                              title={isAiAnalysisFailed(post.relevanceReason)
+                                ? "AI analysis could not complete. Check your API configuration."
+                                : undefined}
+                            >
+                              {getRelevanceLabel(post.relevanceScore, isAiAnalysisFailed(post.relevanceReason))}
+                            </Badge>
+                          </BrandReasonBreakdown>
                         )}
                       </TableCell>
                       <TableCell className="text-sm">
@@ -489,9 +496,9 @@ export function TrendingTable({ posts, hours }: TrendingTableProps) {
               </div>
 
               {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4">
-                  <p className="text-xs text-muted-foreground">
-                    Page {currentPage} of {totalPages}
+                <div className="flex-between mt-4">
+                  <p className="text-xs text-muted-foreground tabular-nums">
+                    Page <span className="tabular-nums">{currentPage}</span> of <span className="tabular-nums">{totalPages}</span>
                   </p>
                   <div className="flex gap-2">
                       <Button

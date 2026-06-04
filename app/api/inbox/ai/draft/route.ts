@@ -5,6 +5,7 @@ import { logger } from "@/lib/logger";
 import { z } from "zod";
 import { ChatOpenAI } from "@langchain/openai";
 import { loadBrandContextForAI } from "@/lib/ai/brand-context-loader";
+import { requirePremium } from "@/lib/api-guards";
 
 const DraftSchema = z.object({
   engagementItemId: z.string(),
@@ -36,6 +37,10 @@ export async function POST(req: Request) {
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const premiumError = await requirePremium();
+    if (premiumError) return premiumError;
+
     const user = session.user as { id?: string; workspaceId?: string };
     const workspaceId = user.workspaceId;
     if (!workspaceId) {

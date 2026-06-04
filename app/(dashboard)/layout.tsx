@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type { NavItem } from "@/components/dashboard/sidebar-nav";
 import { OfflineIndicator } from "@/components/dashboard/offline-indicator";
+import { BrandLearningToastTrigger } from "@/components/dashboard/brand-learning-toast-trigger";
 import { InvisibleAIProvider } from "@/lib/invisible-ai-context";
 import {
   SidebarInset,
@@ -11,8 +12,9 @@ import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
 import { redirect } from "next/navigation";
 import { isOnboardingComplete } from "@/lib/db/onboarding";
+import type { UserRole } from "@/lib/role-guard";
 
-const navItems: NavItem[] = [
+const BASE_NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: "house" as const },
   { label: "Compose", href: "/compose", icon: "pencil-simple" as const },
   { label: "Calendar", href: "/calendar", icon: "calendar" as const },
@@ -21,6 +23,7 @@ const navItems: NavItem[] = [
   { label: "Research", href: "/reddit/trending", icon: "magnifying-glass" as const },
   { label: "Media Library", href: "/media", icon: "image" as const },
   { label: "Settings", href: "/settings", icon: "sliders-horizontal" as const },
+  { label: "Billing", href: "/billing", icon: "credit-card" as const },
 ];
 
 export default async function DashboardLayout({
@@ -35,6 +38,23 @@ export default async function DashboardLayout({
   if (!user?.id || !user?.workspaceId) {
     redirect("/login");
   }
+
+  // Ensure role is always present - fall back to DB if session role is missing
+  let userRole = (user?.role as UserRole);
+  if (!userRole && user.id) {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { role: true },
+    });
+    userRole = (dbUser?.role as UserRole) ?? 'FREE_USER';
+  } else {
+    userRole = userRole ?? 'FREE_USER';
+  }
+
+  // Admin-only nav item
+  const navItems = userRole === 'ADMIN'
+    ? [...BASE_NAV_ITEMS, { label: "Admin", href: "/admin", icon: "shield-check" as const }]
+    : BASE_NAV_ITEMS;
 
   if (!(await isOnboardingComplete(user.id))) {
     redirect("/onboarding");
@@ -55,16 +75,24 @@ export default async function DashboardLayout({
     }
   }
 
+  const brandContext = await prisma.brandContext.findUnique({
+    where: { workspaceId },
+    select: { trainingStatus: true, lastTrainedAt: true, businessName: true },
+  });
+
   return (
     <SidebarProvider>
-      <DashboardSidebar navItems={navItems} userName={userName} userEmail={userEmail} />
+      <DashboardSidebar navItems={navItems} userName={userName} userEmail={userEmail} userRole={userRole} />
       <SidebarInset>
         <InvisibleAIProvider>
           <DashboardShell
             userName={userName}
             workspaceName={workspaceName}
+            brandContext={brandContext}
+            userRole={userRole}
           />
           <OfflineIndicator />
+          <BrandLearningToastTrigger />
           <main className="flex-1 min-w-0 overflow-hidden p-4 lg:p-6 motion-safe:animate-[fade-in_200ms_ease-out]">
             {children}
           </main>

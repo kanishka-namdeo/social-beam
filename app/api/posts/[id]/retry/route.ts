@@ -3,6 +3,7 @@ import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { retryPost } from '@/lib/publish/orchestrator';
 import type { DuePost } from '@/lib/publish/types';
+import { auth } from '@/lib/auth';
 
 export async function POST(
   req: Request,
@@ -13,10 +14,19 @@ export async function POST(
   const { id } = await params;
 
   try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const workspaceId = (session.user as { workspaceId?: string }).workspaceId;
+    if (!workspaceId) {
+      return NextResponse.json({ error: 'No workspace' }, { status: 400 });
+    }
+
     log.info('api.retry.start', { postId: id });
 
     const post = await prisma.post.findUnique({
-      where: { id },
+      where: { id, workspaceId },
       select: {
         id: true,
         workspaceId: true,

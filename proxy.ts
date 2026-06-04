@@ -2,11 +2,13 @@ import NextAuth from "next-auth";
 import { NextResponse, type NextRequest } from "next/server";
 import authConfig from "./auth.config";
 import { logger } from "@/lib/logger";
+import { isAdmin } from "@/lib/role-guard";
 
 const { auth: middlewareAuth } = NextAuth(authConfig);
 
 const protectedRoutes = ["/onboarding", "/dashboard"];
 const authRoutes = ["/login", "/register"];
+const adminRoutes = ["/admin"];
 
 export const proxy = middlewareAuth(async function proxy(request: NextRequest) {
   const url = request.nextUrl.pathname;
@@ -17,6 +19,7 @@ export const proxy = middlewareAuth(async function proxy(request: NextRequest) {
     url.startsWith(route)
   );
   const isAuthRoute = authRoutes.some((route) => url.startsWith(route));
+  const isAdminRoute = adminRoutes.some((route) => url.startsWith(route));
 
   if (isProtectedRoute && !hasSession) {
     logger.info("middleware.redirect", {
@@ -34,6 +37,18 @@ export const proxy = middlewareAuth(async function proxy(request: NextRequest) {
       target: "/",
     });
     return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  if (isAdminRoute && hasSession) {
+    const admin = await isAdmin();
+    if (!admin) {
+      logger.info("middleware.redirect", {
+        path: url,
+        reason: "insufficient_role",
+        target: "/dashboard",
+      });
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
   }
 
   logger.debug("middleware.pass", { path: url });

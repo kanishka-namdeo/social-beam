@@ -67,6 +67,26 @@ interface RecentPostsListProps {
 export function RecentPostsList({ posts }: RecentPostsListProps) {
   const { config } = useInvisibleAI();
 
+  // Helper to determine the effective status from platform statuses
+  const getEffectiveStatus = (post: Post) => {
+    // If the post itself is published, return PUBLISHED
+    if (post.status === "PUBLISHED") return "PUBLISHED";
+    
+    // If post status is not DRAFT, use it (SCHEDULED, PUBLISHING, FAILED)
+    if (post.status !== "DRAFT") return post.status;
+    
+    // For DRAFT posts, check if any platform has a more advanced status
+    const platformStatuses = post.platforms.map(p => p.status);
+    
+    // Priority order: FAILED > PUBLISHING > PUBLISHED > SCHEDULED > DRAFT
+    if (platformStatuses.includes("FAILED")) return "FAILED";
+    if (platformStatuses.includes("PUBLISHING")) return "PUBLISHING";
+    if (platformStatuses.includes("PUBLISHED")) return "PUBLISHED";
+    if (platformStatuses.includes("SCHEDULED")) return "SCHEDULED";
+    
+    return post.status;
+  };
+
   if (posts.length === 0) {
     return (
       <Card className="h-full">
@@ -77,7 +97,7 @@ export function RecentPostsList({ posts }: RecentPostsListProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="rounded-sm border border-dashed border-border p-8 text-center">
+          <div className="rounded-sm border border-dashed border-border p-empty text-center">
             <p className="text-sm text-muted-foreground">No posts yet. Create your first post to get started.</p>
           </div>
         </CardContent>
@@ -106,9 +126,10 @@ export function RecentPostsList({ posts }: RecentPostsListProps) {
           </TableHeader>
           <TableBody>
             {posts.map((post) => {
-              const cfg = statusConfig[post.status] ?? statusConfig.DRAFT;
+              const effectiveStatus = getEffectiveStatus(post);
+              const cfg = statusConfig[effectiveStatus] ?? statusConfig.DRAFT;
               return (
-                <TableRow key={post.id} className="cursor-pointer hover:bg-muted/50">
+                <TableRow key={post.id} className="cursor-pointer hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30">
                   <TableCell>
                     <Link href={`/dashboard/compose?postId=${post.id}`} className="font-medium text-foreground hover:underline">
                       {post.title ?? "Untitled"}
@@ -117,21 +138,25 @@ export function RecentPostsList({ posts }: RecentPostsListProps) {
                   <TableCell>
                     <div className="flex gap-1.5">
                       {post.platforms.map((p) => (
-                        <TooltipProvider key={p.platform}>
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <span
-                                className={`size-2.5 rounded-sm ${platformColors[p.platform] ?? "bg-muted"}`}
-                              />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className="text-xs capitalize">{p.platform}</p>
-                              {p.error && (
+                        p.error ? (
+                          <TooltipProvider key={p.platform}>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <span
+                                  className={`size-2.5 rounded-sm ${platformColors[p.platform] ?? "bg-muted"} ring-1 ring-destructive/50`}
+                                />
+                              </TooltipTrigger>
+                              <TooltipContent>
                                 <p className="mt-1 text-xs text-destructive">{p.error}</p>
-                              )}
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          <span
+                            key={p.platform}
+                            className={`size-2.5 rounded-sm ${platformColors[p.platform] ?? "bg-muted"}`}
+                          />
+                        )
                       ))}
                     </div>
                   </TableCell>

@@ -36,7 +36,7 @@ export function PublishingReliabilityTable({ data }: { data: ReliabilityData[] }
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Summary */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid-auto-fill gap-4">
           <div className="rounded-sm border border-success/20 bg-success/5 p-4">
             <div className="text-sm font-medium tracking-tight text-muted-foreground">Overall Success Rate</div>
             <div className="mt-1 text-2xl font-semibold font-mono tabular-nums text-success">

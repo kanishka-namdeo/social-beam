@@ -12,23 +12,39 @@ import { PublishingReliabilityTable } from "@/components/analytics/publishing-re
 import { PostFrequencyChart } from "@/components/analytics/post-frequency-chart";
 import { OptimalTimesRecommendations } from "@/components/analytics/optimal-times-recommendations";
 import { PeriodSelector } from "@/components/analytics/period-selector";
+import { InlineUpgradeNudge } from "@/components/dashboard/inline-upgrade-nudge";
 import type { HeatmapSlot } from "@/components/analytics/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChartBar, TrendUp, Users, Eye, Cursor } from "@phosphor-icons/react/ssr";
+import { ChartBar, TrendUp, Users, Eye, Cursor, Clock, Check } from "@phosphor-icons/react/ssr";
 import { HintTooltip } from "@/components/ui/hint-tooltip";
 import { cn } from "@/lib/utils";
 import { subDays } from "@/lib/utils/dates";
+
+import type { UserRole } from "@/lib/role-guard";
 
 const VALID_PERIODS = [7, 30, 90] as const;
 const DEFAULT_PERIOD = 30;
 
 export default async function AnalyticsPage({ searchParams }: { searchParams: Promise<{ period?: string }> }) {
   const session = await auth();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const user = session?.user as any;
+  const user = session?.user as { id?: string; workspaceId: string; role?: UserRole };
+  const userId = user?.id as string | undefined;
   const workspaceId = user?.workspaceId as string;
+
+  // Resolve role with DB fallback
+  let userRole = user?.role;
+  if (!userRole && userId) {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+    userRole = dbUser?.role ?? 'FREE_USER';
+  } else {
+    userRole = userRole ?? 'FREE_USER';
+  }
+  const isPremiumUser = userRole === 'PREMIUM_USER' || userRole === 'ADMIN';
 
   const resolvedSearchParams = await searchParams;
   const periodDays = VALID_PERIODS.includes(Number(resolvedSearchParams?.period) as (typeof VALID_PERIODS)[number])
@@ -52,9 +68,11 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   ] = await Promise.all([
     prisma.analyticsSnapshot.findMany({
       where: { snapshotAt: { gte: currentStart }, Post: { workspaceId } },
+      include: { Post: { select: { publishedAt: true } } },
     }),
     prisma.analyticsSnapshot.findMany({
       where: { snapshotAt: { gte: previousStart, lt: currentStart }, Post: { workspaceId } },
+      include: { Post: { select: { publishedAt: true } } },
     }),
     prisma.post.findMany({
       where: { workspaceId, publishedAt: { gte: currentStart } },
@@ -225,11 +243,13 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   const topPosts = rankedPosts.slice(0, 10).map((p, i) => ({ ...p, rank: i + 1 }));
   const bottomPosts = rankedPosts.reverse().slice(0, 5).map((p, i) => ({ ...p, rank: i + 1 }));
 
-  // Heatmap
+  // Heatmap - use post publishedAt (actual posting time) instead of snapshotAt (sync time)
   const heatmapSlots: HeatmapSlot[] = [];
   const heatmapMap = new Map<string, { totalEng: number; count: number }>();
   for (const a of currentAnalytics) {
-    const d = a.snapshotAt;
+    const publishedAt = a.Post?.publishedAt;
+    if (!publishedAt) continue;
+    const d = new Date(publishedAt);
     const key = `${d.getDay()}-${d.getHours()}`;
     const existing = heatmapMap.get(key);
     if (existing) { existing.totalEng += a.likes + a.comments + a.shares; existing.count += 1; }
@@ -443,8 +463,24 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
 
       {/* New Advanced Analytics Sections */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <ConfidenceCorrelationChart data={confidenceCorrelation} />
-        <PublishingReliabilityTable data={publishingReliability} />
+        {isPremiumUser ? (
+          <ConfidenceCorrelationChart data={confidenceCorrelation} />
+        ) : (
+          <AnalyticsPlaceholderCard
+            icon={<ChartBar className="size-8" weight="light" />}
+            title="Confidence Insights"
+            description="Upgrade for AI-powered confidence insights to understand how your content quality correlates with engagement."
+          />
+        )}
+        {isPremiumUser ? (
+          <PublishingReliabilityTable data={publishingReliability} />
+        ) : (
+          <AnalyticsPlaceholderCard
+            icon={<Check className="size-8" weight="light" />}
+            title="Publishing Reliability"
+            description="Track publishing success rates and failure patterns across platforms with AI-powered reliability metrics."
+          />
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -454,10 +490,18 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
           currentStreak={currentStreak}
           engagementPerFollower={engagementPerFollower}
         />
-        <OptimalTimesRecommendations
-          heatmapData={heatmapSlots}
-          platformMetrics={platformMetrics}
-        />
+        {isPremiumUser ? (
+          <OptimalTimesRecommendations
+            heatmapData={heatmapSlots}
+            platformMetrics={platformMetrics}
+          />
+        ) : (
+          <AnalyticsPlaceholderCard
+            icon={<Clock className="size-8" weight="light" />}
+            title="Optimal Posting Times"
+            description="Get AI-powered recommendations for the best times to post based on your audience engagement patterns."
+          />
+        )}
       </div>
     </div>
   );
@@ -487,4 +531,24 @@ function computeStreak(postsPerDayData: { date: string; count: number }[]): numb
     else break;
   }
   return streak;
+}
+
+function AnalyticsPlaceholderCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+  return (
+    <Card className="h-full rounded-sm border-border">
+      <CardContent className="pt-6 text-center space-y-4">
+        <div className="mx-auto mb-2 text-muted-foreground/50">{icon}</div>
+        <CardTitle className="text-base">{title}</CardTitle>
+        <CardDescription className="mt-2 max-w-sm mx-auto">
+          {description}
+        </CardDescription>
+        <InlineUpgradeNudge
+          variant="compact"
+          title="Premium Feature"
+          description="Upgrade to unlock"
+          className="justify-center"
+        />
+      </CardContent>
+    </Card>
+  );
 }

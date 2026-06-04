@@ -151,6 +151,7 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
   const abortControllerRef = useRef<AbortController | null>(null);
   const streamingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phaseRef = useRef<Phase>("idle");
+  const mountedRef = useRef(true);
 
   // Track elapsed time from heartbeats
   React.useEffect(() => {
@@ -185,7 +186,9 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
 
   // Cleanup all timers and abort streams on unmount
   React.useEffect(() => {
+    mountedRef.current = true;
     return () => {
+      mountedRef.current = false;
       if (streamingTimeoutRef.current) {
         clearTimeout(streamingTimeoutRef.current);
       }
@@ -251,7 +254,7 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
 
           await processStream(reader, abortController.signal);
         } catch (err) {
-          if (err instanceof Error && err.name !== "AbortError") {
+          if (mountedRef.current && err instanceof Error && err.name !== "AbortError") {
             setError(err instanceof Error ? err.message : "Something went wrong");
             setPhase("error");
           }
@@ -321,6 +324,7 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
     const decoder = new TextDecoder();
     let hasReceivedInterrupt = false;
     let hasReceivedError = false;
+    let hasReceivedSaved = false;
     // Track draft locally — React state is async and stale in closures
     let localDraft: Record<string, unknown> = {};
     let localPlatforms: Record<string, unknown> = {};
@@ -354,10 +358,10 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
               setCrawledPages(event.crawl_progress.pages);
             }
 
-            // Process granular findings
+            // Process granular findings (capped to prevent unbounded growth)
             const finding = extractFinding(event);
             if (finding) {
-              setFindings((prev) => [...prev, finding]);
+              setFindings((prev) => prev.length >= 100 ? prev : [...prev, finding]);
             }
 
             if (event.draft) {
@@ -399,10 +403,20 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
               if (event.accountDetails) setAccountDetails(event.accountDetails);
             }
             if (event.saved) {
-              const businessName = typeof localDraft.businessName === "string" ? localDraft.businessName : undefined;
-              const tonePreset = typeof localDraft.tonePreset === "string" ? localDraft.tonePreset : undefined;
-              const audienceType = typeof localDraft.audienceType === "string" ? localDraft.audienceType : undefined;
-              const platformCount = Object.keys(localPlatforms).length;
+              hasReceivedSaved = true;
+              console.log("[brand-debug] processStream: received saved event", {
+                localDraftKeys: Object.keys(localDraft),
+                localPlatformsKeys: Object.keys(localPlatforms),
+                localSamplesCount: localSamples.length,
+                hasDraftState: Object.keys(draft).length > 0,
+              });
+              // Use localDraft if available (from original stream), fall back to React state
+              const effectiveDraft = Object.keys(localDraft).length > 0 ? localDraft : draft;
+              const businessName = typeof effectiveDraft.businessName === "string" ? effectiveDraft.businessName : undefined;
+              const tonePreset = typeof effectiveDraft.tonePreset === "string" ? effectiveDraft.tonePreset : undefined;
+              const audienceType = typeof effectiveDraft.audienceType === "string" ? effectiveDraft.audienceType : undefined;
+              const effectivePlatforms = Object.keys(localPlatforms).length > 0 ? localPlatforms : platforms;
+              const platformCount = Object.keys(effectivePlatforms).length;
               setSavedSummary({ businessName, tonePreset, audienceType, platformCount });
               setPhase("complete");
             }
@@ -419,7 +433,11 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
       }
     }
 
-    if (hasReceivedInterrupt) {
+    console.log("[brand-debug] processStream: stream ended", { hasReceivedInterrupt, hasReceivedError, hasReceivedSaved, phaseRef: phaseRef.current, localDraftKeys: Object.keys(localDraft).length });
+    if (!mountedRef.current) return;
+    if (hasReceivedSaved) {
+      // Save already completed — phase is already "complete"
+    } else if (hasReceivedInterrupt) {
       setPhase("review");
     } else if (Object.keys(localDraft).length > 0) {
       // Server reached review step with data but didn't send interrupt (e.g., description-based analysis)
@@ -546,7 +564,13 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
 
   /** Confirm the draft and save it, merging any inline edits first */
   const confirmDraft = useCallback(async (edits: Record<string, unknown> = {}) => {
-    if (!threadId) return;
+    console.log("[brand-debug] confirmDraft called", { hasThreadId: !!threadId, threadId, editKeys: Object.keys(edits), phase });
+    if (!threadId) {
+      console.error("[brand-debug] confirmDraft: threadId is null/undefined, bailing out silently!");
+      setError("Cannot save: no active session. Please restart the analysis.");
+      setPhase("review");
+      return;
+    }
 
     setPhase("saving");
     setError(null);
@@ -994,7 +1018,7 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
                   <div key={step.id} className="flex flex-1 items-center">
                     <div className="flex flex-col items-center gap-1">
                       <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-sm border-2 transition-colors ${
+                        className={`flex h-10 w-10 items-center justify-center rounded-sm border-strong transition-colors ${
                           isComplete
                             ? "border-success bg-success text-white"
                             : isCurrent
@@ -1066,8 +1090,11 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
                       <finding.icon className="size-3 mr-1" />
                       {finding.label}
                     </Badge>
+                    <span className="text-micro text-muted-foreground tabular-nums ml-auto">
+                      {new Date(finding.timestamp).toLocaleTimeString()}
+                    </span>
                   </div>
-                  <div className="grid gap-1 text-sm">
+                  <div className="grid-auto-fill gap-1 text-sm">
                     {finding.fields
                       .filter((f) => f.value !== null && f.value !== "" && (!Array.isArray(f.value) || f.value.length > 0))
                       .slice(0, 4)

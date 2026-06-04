@@ -82,12 +82,12 @@ function RankingTable({ posts, title }: { posts: RankedPost[]; title: string }) 
                 <td className="py-2.5 px-3">
                   <div className="flex items-center gap-1.5 max-w-[200px]">
                     <div
-                      className="group relative font-medium text-foreground hover:underline truncate cursor-pointer"
+                      className="group relative font-medium text-foreground hover:underline truncate-2 cursor-pointer"
                       title={post.fullText || undefined}
                     >
                       {post.title ?? "Untitled"}
                       {post.fullText && (
-                        <div className="pointer-events-none absolute bottom-full left-0 z-50 mb-2 hidden w-64 rounded-sm border border-border bg-popover p-3 text-xs text-popover-foreground shadow-sm group-hover:block">
+                        <div className="pointer-events-none absolute bottom-full left-0 mb-2 hidden w-64 rounded-sm border border-border bg-popover p-3 text-xs text-popover-foreground shadow-sm dark:shadow-lg dark:shadow-black/40 group-hover:block">
                           <p className="whitespace-pre-wrap break-words">{post.fullText}</p>
                         </div>
                       )}
@@ -125,17 +125,17 @@ function RankingTable({ posts, title }: { posts: RankedPost[]; title: string }) 
                     {(post.engagementRate * 100).toFixed(1)}%
                   </Badge>
                 </td>
-                <td className="py-2.5 px-3 text-right font-mono tabular-nums text-foreground hidden sm:table-cell">
-                  {post.impressions.toLocaleString()}
+                <td className="py-2.5 px-3 text-right font-mono tabular-nums hidden sm:table-cell">
+                  <span className="tabular-nums">{post.impressions.toLocaleString()}</span>
                 </td>
-                <td className="py-2.5 px-3 text-right font-mono tabular-nums text-foreground hidden md:table-cell">
-                  {post.likes.toLocaleString()}
+                <td className="py-2.5 px-3 text-right font-mono tabular-nums hidden md:table-cell">
+                  <span className="tabular-nums">{post.likes.toLocaleString()}</span>
                 </td>
-                <td className="py-2.5 px-3 text-right font-mono tabular-nums text-foreground hidden lg:table-cell">
-                  {post.comments.toLocaleString()}
+                <td className="py-2.5 px-3 text-right font-mono tabular-nums hidden lg:table-cell">
+                  <span className="tabular-nums">{post.comments.toLocaleString()}</span>
                 </td>
-                <td className="py-2.5 px-3 text-right font-mono tabular-nums text-foreground hidden lg:table-cell">
-                  {post.shares.toLocaleString()}
+                <td className="py-2.5 px-3 text-right font-mono tabular-nums hidden lg:table-cell">
+                  <span className="tabular-nums">{post.shares.toLocaleString()}</span>
                 </td>
               </tr>
             ))}

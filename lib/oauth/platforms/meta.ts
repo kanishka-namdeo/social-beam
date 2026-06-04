@@ -27,12 +27,15 @@ export async function exchangeMetaToken(
 ): Promise<OAuthToken> {
   logger.debug('oauth.meta.token_exchange_start');
 
+  const REQUEST_TIMEOUT_MS = 30000;
+
   // Step 1: Exchange authorization code for short-lived token
   const tokenResponse = await fetch(
     `${API_BASE}/oauth/access_token?grant_type=authorization_code&code=${code}&redirect_uri=${encodeURIComponent(redirectUri)}&client_id=${clientId}&client_secret=${clientSecret}`,
     {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     }
   );
 
@@ -58,6 +61,7 @@ export async function exchangeMetaToken(
     {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     }
   );
 
@@ -81,11 +85,14 @@ export async function exchangeMetaToken(
 export async function getMetaAccountInfo(
   accessToken: string
 ): Promise<ConnectedAccountInfo> {
+  const REQUEST_TIMEOUT_MS = 30000;
+  
   const response = await fetch(
     `${API_BASE}/me/accounts?access_token=${accessToken}&fields=id,name,instagram_business_account{id,username}`,
     {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     }
   );
 

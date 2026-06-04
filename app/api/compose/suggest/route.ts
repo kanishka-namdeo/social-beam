@@ -6,6 +6,7 @@ import { buildComposePrompts, buildVariantSystemPrompt, VARIANT_MODIFIERS } from
 import { logger } from "@/lib/logger";
 import { z } from "zod";
 import { PLATFORM_CHAR_LIMITS } from "@/lib/compose/constants";
+import { requirePremium } from "@/lib/api-guards";
 
 const SuggestSchema = z.object({
   prompt: z.string().min(1).max(500),
@@ -16,18 +17,53 @@ const SuggestSchema = z.object({
 const rateLimitMap = new Map<string, number[]>();
 const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
 const RATE_LIMIT_MAX_REQUESTS = 10;
+const MAX_RATE_LIMIT_ENTRIES = 1000; // Maximum number of tracked workspaces
+const WORKSPACE_INACTIVITY_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 function checkRateLimit(workspaceId: string): boolean {
   const now = Date.now();
   const timestamps = rateLimitMap.get(workspaceId) ?? [];
-  // Remove expired entries
+  // Remove expired entries within the window
   const valid = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+  
+  // If workspace has no recent activity and map is full, evict it
+  if (valid.length === 0 && rateLimitMap.size >= MAX_RATE_LIMIT_ENTRIES) {
+    // Find and evict the oldest inactive workspace
+    let oldestWorkspace: string | null = null;
+    let oldestTime = now;
+    for (const [wsId, ts] of rateLimitMap.entries()) {
+      const lastActive = ts.length > 0 ? Math.max(...ts) : 0;
+      if (now - lastActive > WORKSPACE_INACTIVITY_TTL_MS && lastActive < oldestTime) {
+        oldestTime = lastActive;
+        oldestWorkspace = wsId;
+      }
+    }
+    if (oldestWorkspace) {
+      rateLimitMap.delete(oldestWorkspace);
+    }
+  }
+  
   rateLimitMap.set(workspaceId, valid);
   if (valid.length >= RATE_LIMIT_MAX_REQUESTS) {
     return false;
   }
   valid.push(now);
   return true;
+}
+
+/**
+ * Cleanup rate limiter entries for inactive workspaces.
+ * Called periodically to prevent unbounded memory growth.
+ */
+export function cleanupRateLimiter(): void {
+  const now = Date.now();
+  for (const [workspaceId, timestamps] of rateLimitMap.entries()) {
+    // Remove entries with no activity in the last 24 hours
+    const lastActive = timestamps.length > 0 ? Math.max(...timestamps) : 0;
+    if (now - lastActive > WORKSPACE_INACTIVITY_TTL_MS) {
+      rateLimitMap.delete(workspaceId);
+    }
+  }
 }
 
 const model = new ChatOpenAI({
@@ -63,6 +99,10 @@ export async function POST(req: Request) {
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const premiumError = await requirePremium();
+    if (premiumError) return premiumError;
+
     const user = session.user as { id?: string; workspaceId?: string };
     const workspaceId = user.workspaceId;
     if (!workspaceId) {
@@ -111,8 +151,14 @@ export async function POST(req: Request) {
     const stream = new ReadableStream({
       async start(controller) {
         const enqueue = (event: string, data: Record<string, unknown>) => {
+          if (req.signal.aborted) return false;
           const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
-          controller.enqueue(encoder.encode(message));
+          try {
+            controller.enqueue(encoder.encode(message));
+            return true;
+          } catch {
+            return false;
+          }
         };
 
         // Fire all variants in parallel
@@ -128,14 +174,20 @@ export async function POST(req: Request) {
             let fullContent = "";
 
             for await (const chunk of response) {
+              // Check for client disconnect during streaming
+              if (req.signal.aborted) return;
+              
               const token = typeof chunk.content === "string" ? chunk.content : String(chunk.content);
               fullContent += token;
 
               // Stream incremental updates if under limit
               if (!charLimit || fullContent.length <= charLimit) {
-                enqueue("variant_chunk", { variantId, content: fullContent });
+                if (!enqueue("variant_chunk", { variantId, content: fullContent })) return;
               }
             }
+
+            // Abort check before final processing
+            if (req.signal.aborted) return;
 
             let sanitized = sanitizeContent(fullContent);
 

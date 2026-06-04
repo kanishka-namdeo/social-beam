@@ -73,21 +73,21 @@ export function PreviewPanel({ selectedPlatforms, content, title, connectedAccou
         </p>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2">
+      <div className="grid-auto-fill gap-preview">
         {selectedPlatforms.map((platform) => {
           const account = connectedAccounts.find((a) => a.platform === platform);
           return (
-            <Card key={platform} className="overflow-visible glass-strong rounded-sm">
-              <div className="flex items-center gap-2 p-4 pb-0">
+            <Card key={platform} className="overflow-visible rounded-sm">
+              <div className="flex-between p-preview pb-0">
                 <span className="text-muted-foreground">{platformIcon(platform)}</span>
                 <span className="text-sm font-medium text-foreground">
                   {PLATFORM_DISPLAY_NAMES[platform]}
                 </span>
-                <Badge variant="secondary" className="ml-auto text-[10px] normal-case tracking-normal rounded-sm">
+                <Badge variant="secondary" className="ml-auto text-micro normal-case tracking-normal rounded-sm">
                   Preview
                 </Badge>
               </div>
-              <CardContent className="flex items-center justify-center p-4">
+              <CardContent className="flex-center p-preview">
                 {renderPreview(platform, content, title, account, mediaUrls)}
               </CardContent>
             </Card>

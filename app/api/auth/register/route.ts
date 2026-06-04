@@ -27,23 +27,26 @@ export async function POST(req: Request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
+    const userId = crypto.randomUUID();
 
-    const user = await prisma.user.create({
-      data: {
-        id: crypto.randomUUID(),
-        name,
-        email,
-        password: hashedPassword,
-      },
-    });
+    await prisma.$transaction([
+      prisma.user.create({
+        data: {
+          id: userId,
+          name,
+          email,
+          password: hashedPassword,
+          role: 'FREE_USER',
+        },
+      }),
+      prisma.workspace.create({
+        data: { id: crypto.randomUUID(), userId },
+      }),
+    ]);
 
-    await prisma.workspace.create({
-      data: { userId: user.id },
-    });
+    log.info('user.created', { userId, email });
 
-    log.info('user.created', { userId: user.id, email });
-
-    return NextResponse.json({ success: true, userId: user.id });
+    return NextResponse.json({ success: true, userId });
   } catch (error) {
     log.error('register.failed', { requestId, error: String(error) });
     return NextResponse.json(

@@ -16,7 +16,7 @@ import { AIMessage } from '@langchain/core/messages';
 // contextCollectorNode has its own 90s timeout inside the node
 const BRAND_ANALYZER_TIMEOUT_MS = 120_000;
 const PLATFORM_ADAPTER_TIMEOUT_MS = 60_000;
-const SAMPLE_GENERATOR_TIMEOUT_MS = 30_000;
+const SAMPLE_GENERATOR_TIMEOUT_MS = 90_000; // Increased from 30s — LLM sample generation routinely takes 50-60s
 
 /** Wrap a node with timeout that converts timeout errors into error-state returns */
 function withNodeTimeout(

@@ -13,7 +13,7 @@ interface GoogleBusinessPreviewProps {
 export function GoogleBusinessPreview({ content, account, mediaUrls }: GoogleBusinessPreviewProps) {
   return (
     <Card className="rounded-lg border-border">
-      <CardContent className="p-4">
+      <CardContent className="p-preview">
         {/* Business header */}
         <div className="flex items-start gap-3">
           <div className="size-10 rounded-full bg-muted flex items-center justify-center">

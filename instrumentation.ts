@@ -17,5 +17,9 @@ export async function register() {
     // Start brand learning cron job
     const { startBrandLearningCron } = await import('./lib/cron/brand-learning');
     startBrandLearningCron();
+
+    // Start LinkedIn scraper self-healer cron job
+    const { startLinkedInScraperHealerCron } = await import('./lib/cron/linkedin-scraper-healer');
+    startLinkedInScraperHealerCron();
   }
 }

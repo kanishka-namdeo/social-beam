@@ -82,9 +82,9 @@ export function BestTimesHeatmap({ data }: BestTimesHeatmapProps) {
               {businessHours.map((hour) => (
                 <div
                   key={hour}
-                  className="flex-1 text-center text-[10px] font-mono tabular-nums text-muted-foreground"
+                  className="flex-1 text-center text-micro font-mono tabular-nums text-muted-foreground"
                 >
-                  {hour}:00
+                  <span className="tabular-nums">{hour}</span>:00
                 </div>
               ))}
             </div>
@@ -105,7 +105,7 @@ export function BestTimesHeatmap({ data }: BestTimesHeatmapProps) {
                     <div
                       key={hour}
                   className={cn(
-                    "flex-1 h-7 rounded-none flex items-center justify-center text-[10px] font-mono tabular-nums font-medium transition-colors",
+                    "flex-1 h-7 rounded-none flex items-center justify-center text-micro font-mono tabular-nums font-medium transition-colors",
                     getHeatColor(value, maxEngagement),
                     getHeatTextColor(value, maxEngagement),
                     isTopSlot && "ring-1 ring-brand ring-offset-1 ring-offset-background"

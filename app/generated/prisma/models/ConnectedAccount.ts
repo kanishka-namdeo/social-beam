@@ -50,8 +50,8 @@ export type ConnectedAccountMinAggregateOutputType = {
   lastSyncedAt: Date | null
   platformUsername: string | null
   sourcePlatform: string | null
-  sessionCookie: string | null
   cookieExpiry: Date | null
+  sessionCookie: string | null
 }
 
 export type ConnectedAccountMaxAggregateOutputType = {
@@ -70,8 +70,8 @@ export type ConnectedAccountMaxAggregateOutputType = {
   lastSyncedAt: Date | null
   platformUsername: string | null
   sourcePlatform: string | null
-  sessionCookie: string | null
   cookieExpiry: Date | null
+  sessionCookie: string | null
 }
 
 export type ConnectedAccountCountAggregateOutputType = {
@@ -90,8 +90,8 @@ export type ConnectedAccountCountAggregateOutputType = {
   lastSyncedAt: number
   platformUsername: number
   sourcePlatform: number
-  sessionCookie: number
   cookieExpiry: number
+  sessionCookie: number
   _all: number
 }
 
@@ -120,8 +120,8 @@ export type ConnectedAccountMinAggregateInputType = {
   lastSyncedAt?: true
   platformUsername?: true
   sourcePlatform?: true
-  sessionCookie?: true
   cookieExpiry?: true
+  sessionCookie?: true
 }
 
 export type ConnectedAccountMaxAggregateInputType = {
@@ -140,8 +140,8 @@ export type ConnectedAccountMaxAggregateInputType = {
   lastSyncedAt?: true
   platformUsername?: true
   sourcePlatform?: true
-  sessionCookie?: true
   cookieExpiry?: true
+  sessionCookie?: true
 }
 
 export type ConnectedAccountCountAggregateInputType = {
@@ -160,8 +160,8 @@ export type ConnectedAccountCountAggregateInputType = {
   lastSyncedAt?: true
   platformUsername?: true
   sourcePlatform?: true
-  sessionCookie?: true
   cookieExpiry?: true
+  sessionCookie?: true
   _all?: true
 }
 
@@ -267,8 +267,8 @@ export type ConnectedAccountGroupByOutputType = {
   lastSyncedAt: Date | null
   platformUsername: string | null
   sourcePlatform: string | null
-  sessionCookie: string | null
   cookieExpiry: Date | null
+  sessionCookie: string | null
   _count: ConnectedAccountCountAggregateOutputType | null
   _avg: ConnectedAccountAvgAggregateOutputType | null
   _sum: ConnectedAccountSumAggregateOutputType | null
@@ -310,8 +310,8 @@ export type ConnectedAccountWhereInput = {
   lastSyncedAt?: Prisma.DateTimeNullableFilter<"ConnectedAccount"> | Date | string | null
   platformUsername?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
   sourcePlatform?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
-  sessionCookie?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
   cookieExpiry?: Prisma.DateTimeNullableFilter<"ConnectedAccount"> | Date | string | null
+  sessionCookie?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
   Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
 }
 
@@ -331,8 +331,8 @@ export type ConnectedAccountOrderByWithRelationInput = {
   lastSyncedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   platformUsername?: Prisma.SortOrderInput | Prisma.SortOrder
   sourcePlatform?: Prisma.SortOrderInput | Prisma.SortOrder
-  sessionCookie?: Prisma.SortOrderInput | Prisma.SortOrder
   cookieExpiry?: Prisma.SortOrderInput | Prisma.SortOrder
+  sessionCookie?: Prisma.SortOrderInput | Prisma.SortOrder
   Workspace?: Prisma.WorkspaceOrderByWithRelationInput
 }
 
@@ -356,8 +356,8 @@ export type ConnectedAccountWhereUniqueInput = Prisma.AtLeast<{
   lastSyncedAt?: Prisma.DateTimeNullableFilter<"ConnectedAccount"> | Date | string | null
   platformUsername?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
   sourcePlatform?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
-  sessionCookie?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
   cookieExpiry?: Prisma.DateTimeNullableFilter<"ConnectedAccount"> | Date | string | null
+  sessionCookie?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
   Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
 }, "id" | "workspaceId_platform">
 
@@ -377,8 +377,8 @@ export type ConnectedAccountOrderByWithAggregationInput = {
   lastSyncedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   platformUsername?: Prisma.SortOrderInput | Prisma.SortOrder
   sourcePlatform?: Prisma.SortOrderInput | Prisma.SortOrder
-  sessionCookie?: Prisma.SortOrderInput | Prisma.SortOrder
   cookieExpiry?: Prisma.SortOrderInput | Prisma.SortOrder
+  sessionCookie?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ConnectedAccountCountOrderByAggregateInput
   _avg?: Prisma.ConnectedAccountAvgOrderByAggregateInput
   _max?: Prisma.ConnectedAccountMaxOrderByAggregateInput
@@ -405,8 +405,8 @@ export type ConnectedAccountScalarWhereWithAggregatesInput = {
   lastSyncedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ConnectedAccount"> | Date | string | null
   platformUsername?: Prisma.StringNullableWithAggregatesFilter<"ConnectedAccount"> | string | null
   sourcePlatform?: Prisma.StringNullableWithAggregatesFilter<"ConnectedAccount"> | string | null
-  sessionCookie?: Prisma.StringNullableWithAggregatesFilter<"ConnectedAccount"> | string | null
   cookieExpiry?: Prisma.DateTimeNullableWithAggregatesFilter<"ConnectedAccount"> | Date | string | null
+  sessionCookie?: Prisma.StringNullableWithAggregatesFilter<"ConnectedAccount"> | string | null
 }
 
 export type ConnectedAccountCreateInput = {
@@ -424,8 +424,8 @@ export type ConnectedAccountCreateInput = {
   lastSyncedAt?: Date | string | null
   platformUsername?: string | null
   sourcePlatform?: string | null
-  sessionCookie?: string | null
   cookieExpiry?: Date | string | null
+  sessionCookie?: string | null
   Workspace: Prisma.WorkspaceCreateNestedOneWithoutConnectedAccountInput
 }
 
@@ -445,8 +445,8 @@ export type ConnectedAccountUncheckedCreateInput = {
   lastSyncedAt?: Date | string | null
   platformUsername?: string | null
   sourcePlatform?: string | null
-  sessionCookie?: string | null
   cookieExpiry?: Date | string | null
+  sessionCookie?: string | null
 }
 
 export type ConnectedAccountUpdateInput = {
@@ -464,8 +464,8 @@ export type ConnectedAccountUpdateInput = {
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourcePlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cookieExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutConnectedAccountNestedInput
 }
 
@@ -485,8 +485,8 @@ export type ConnectedAccountUncheckedUpdateInput = {
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourcePlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cookieExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ConnectedAccountCreateManyInput = {
@@ -505,8 +505,8 @@ export type ConnectedAccountCreateManyInput = {
   lastSyncedAt?: Date | string | null
   platformUsername?: string | null
   sourcePlatform?: string | null
-  sessionCookie?: string | null
   cookieExpiry?: Date | string | null
+  sessionCookie?: string | null
 }
 
 export type ConnectedAccountUpdateManyMutationInput = {
@@ -524,8 +524,8 @@ export type ConnectedAccountUpdateManyMutationInput = {
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourcePlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cookieExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ConnectedAccountUncheckedUpdateManyInput = {
@@ -544,8 +544,8 @@ export type ConnectedAccountUncheckedUpdateManyInput = {
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourcePlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cookieExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ConnectedAccountWorkspaceIdPlatformCompoundUniqueInput = {
@@ -569,8 +569,8 @@ export type ConnectedAccountCountOrderByAggregateInput = {
   lastSyncedAt?: Prisma.SortOrder
   platformUsername?: Prisma.SortOrder
   sourcePlatform?: Prisma.SortOrder
-  sessionCookie?: Prisma.SortOrder
   cookieExpiry?: Prisma.SortOrder
+  sessionCookie?: Prisma.SortOrder
 }
 
 export type ConnectedAccountAvgOrderByAggregateInput = {
@@ -593,8 +593,8 @@ export type ConnectedAccountMaxOrderByAggregateInput = {
   lastSyncedAt?: Prisma.SortOrder
   platformUsername?: Prisma.SortOrder
   sourcePlatform?: Prisma.SortOrder
-  sessionCookie?: Prisma.SortOrder
   cookieExpiry?: Prisma.SortOrder
+  sessionCookie?: Prisma.SortOrder
 }
 
 export type ConnectedAccountMinOrderByAggregateInput = {
@@ -613,8 +613,8 @@ export type ConnectedAccountMinOrderByAggregateInput = {
   lastSyncedAt?: Prisma.SortOrder
   platformUsername?: Prisma.SortOrder
   sourcePlatform?: Prisma.SortOrder
-  sessionCookie?: Prisma.SortOrder
   cookieExpiry?: Prisma.SortOrder
+  sessionCookie?: Prisma.SortOrder
 }
 
 export type ConnectedAccountSumOrderByAggregateInput = {
@@ -696,8 +696,8 @@ export type ConnectedAccountCreateWithoutWorkspaceInput = {
   lastSyncedAt?: Date | string | null
   platformUsername?: string | null
   sourcePlatform?: string | null
-  sessionCookie?: string | null
   cookieExpiry?: Date | string | null
+  sessionCookie?: string | null
 }
 
 export type ConnectedAccountUncheckedCreateWithoutWorkspaceInput = {
@@ -715,8 +715,8 @@ export type ConnectedAccountUncheckedCreateWithoutWorkspaceInput = {
   lastSyncedAt?: Date | string | null
   platformUsername?: string | null
   sourcePlatform?: string | null
-  sessionCookie?: string | null
   cookieExpiry?: Date | string | null
+  sessionCookie?: string | null
 }
 
 export type ConnectedAccountCreateOrConnectWithoutWorkspaceInput = {
@@ -764,8 +764,8 @@ export type ConnectedAccountScalarWhereInput = {
   lastSyncedAt?: Prisma.DateTimeNullableFilter<"ConnectedAccount"> | Date | string | null
   platformUsername?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
   sourcePlatform?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
-  sessionCookie?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
   cookieExpiry?: Prisma.DateTimeNullableFilter<"ConnectedAccount"> | Date | string | null
+  sessionCookie?: Prisma.StringNullableFilter<"ConnectedAccount"> | string | null
 }
 
 export type ConnectedAccountCreateManyWorkspaceInput = {
@@ -783,8 +783,8 @@ export type ConnectedAccountCreateManyWorkspaceInput = {
   lastSyncedAt?: Date | string | null
   platformUsername?: string | null
   sourcePlatform?: string | null
-  sessionCookie?: string | null
   cookieExpiry?: Date | string | null
+  sessionCookie?: string | null
 }
 
 export type ConnectedAccountUpdateWithoutWorkspaceInput = {
@@ -802,8 +802,8 @@ export type ConnectedAccountUpdateWithoutWorkspaceInput = {
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourcePlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cookieExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ConnectedAccountUncheckedUpdateWithoutWorkspaceInput = {
@@ -821,8 +821,8 @@ export type ConnectedAccountUncheckedUpdateWithoutWorkspaceInput = {
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourcePlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cookieExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ConnectedAccountUncheckedUpdateManyWithoutWorkspaceInput = {
@@ -840,8 +840,8 @@ export type ConnectedAccountUncheckedUpdateManyWithoutWorkspaceInput = {
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   platformUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourcePlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cookieExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessionCookie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -862,8 +862,8 @@ export type ConnectedAccountSelect<ExtArgs extends runtime.Types.Extensions.Inte
   lastSyncedAt?: boolean
   platformUsername?: boolean
   sourcePlatform?: boolean
-  sessionCookie?: boolean
   cookieExpiry?: boolean
+  sessionCookie?: boolean
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["connectedAccount"]>
 
@@ -883,8 +883,8 @@ export type ConnectedAccountSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   lastSyncedAt?: boolean
   platformUsername?: boolean
   sourcePlatform?: boolean
-  sessionCookie?: boolean
   cookieExpiry?: boolean
+  sessionCookie?: boolean
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["connectedAccount"]>
 
@@ -904,8 +904,8 @@ export type ConnectedAccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   lastSyncedAt?: boolean
   platformUsername?: boolean
   sourcePlatform?: boolean
-  sessionCookie?: boolean
   cookieExpiry?: boolean
+  sessionCookie?: boolean
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["connectedAccount"]>
 
@@ -925,11 +925,11 @@ export type ConnectedAccountSelectScalar = {
   lastSyncedAt?: boolean
   platformUsername?: boolean
   sourcePlatform?: boolean
-  sessionCookie?: boolean
   cookieExpiry?: boolean
+  sessionCookie?: boolean
 }
 
-export type ConnectedAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "platform" | "platformUserId" | "accessToken" | "refreshToken" | "tokenExpiry" | "status" | "createdAt" | "avatarUrl" | "followerCount" | "lastRefreshAt" | "lastSyncedAt" | "platformUsername" | "sourcePlatform" | "sessionCookie" | "cookieExpiry", ExtArgs["result"]["connectedAccount"]>
+export type ConnectedAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "platform" | "platformUserId" | "accessToken" | "refreshToken" | "tokenExpiry" | "status" | "createdAt" | "avatarUrl" | "followerCount" | "lastRefreshAt" | "lastSyncedAt" | "platformUsername" | "sourcePlatform" | "cookieExpiry" | "sessionCookie", ExtArgs["result"]["connectedAccount"]>
 export type ConnectedAccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
@@ -961,8 +961,8 @@ export type $ConnectedAccountPayload<ExtArgs extends runtime.Types.Extensions.In
     lastSyncedAt: Date | null
     platformUsername: string | null
     sourcePlatform: string | null
-    sessionCookie: string | null
     cookieExpiry: Date | null
+    sessionCookie: string | null
   }, ExtArgs["result"]["connectedAccount"]>
   composites: {}
 }
@@ -1402,8 +1402,8 @@ export interface ConnectedAccountFieldRefs {
   readonly lastSyncedAt: Prisma.FieldRef<"ConnectedAccount", 'DateTime'>
   readonly platformUsername: Prisma.FieldRef<"ConnectedAccount", 'String'>
   readonly sourcePlatform: Prisma.FieldRef<"ConnectedAccount", 'String'>
-  readonly sessionCookie: Prisma.FieldRef<"ConnectedAccount", 'String'>
   readonly cookieExpiry: Prisma.FieldRef<"ConnectedAccount", 'DateTime'>
+  readonly sessionCookie: Prisma.FieldRef<"ConnectedAccount", 'String'>
 }
     
 

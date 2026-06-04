@@ -9,6 +9,15 @@
 * 🟢 You can import this file directly.
 */
 
+export const SubscriptionTier = {
+  FREE: 'FREE',
+  AI_STARTER: 'AI_STARTER',
+  AI_PRO: 'AI_PRO'
+} as const
+
+export type SubscriptionTier = (typeof SubscriptionTier)[keyof typeof SubscriptionTier]
+
+
 export const ConfidenceLevel = {
   HIGH: 'HIGH',
   MEDIUM: 'MEDIUM',
@@ -16,6 +25,34 @@ export const ConfidenceLevel = {
 } as const
 
 export type ConfidenceLevel = (typeof ConfidenceLevel)[keyof typeof ConfidenceLevel]
+
+
+export const EngagementStatus = {
+  UNREAD: 'UNREAD',
+  READ: 'READ',
+  REPLIED: 'REPLIED',
+  DISMISSED: 'DISMISSED'
+} as const
+
+export type EngagementStatus = (typeof EngagementStatus)[keyof typeof EngagementStatus]
+
+
+export const EngagementType = {
+  COMMENT: 'COMMENT',
+  MENTION: 'MENTION',
+  DM: 'DM'
+} as const
+
+export type EngagementType = (typeof EngagementType)[keyof typeof EngagementType]
+
+
+export const UserRole = {
+  ADMIN: 'ADMIN',
+  FREE_USER: 'FREE_USER',
+  PREMIUM_USER: 'PREMIUM_USER'
+} as const
+
+export type UserRole = (typeof UserRole)[keyof typeof UserRole]
 
 
 export const PostStatus = {
@@ -28,22 +65,3 @@ export const PostStatus = {
 } as const
 
 export type PostStatus = (typeof PostStatus)[keyof typeof PostStatus]
-
-
-export const EngagementType = {
-  COMMENT: 'COMMENT',
-  MENTION: 'MENTION',
-  DM: 'DM'
-} as const
-
-export type EngagementType = (typeof EngagementType)[keyof typeof EngagementType]
-
-
-export const EngagementStatus = {
-  UNREAD: 'UNREAD',
-  READ: 'READ',
-  REPLIED: 'REPLIED',
-  DISMISSED: 'DISMISSED'
-} as const
-
-export type EngagementStatus = (typeof EngagementStatus)[keyof typeof EngagementStatus]

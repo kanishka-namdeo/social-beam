@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { analyzeSinglePost } from "@/lib/reddit/trending-analysis";
 import { logger } from "@/lib/logger";
+import { requirePremium } from "@/lib/api-guards";
 
 export async function POST(
   req: Request,

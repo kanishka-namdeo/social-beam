@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PaintBrush, LinkSimple, ShieldCheck, ArrowRight, CheckCircle, Warning, Clock, InstagramLogo, XLogo, LinkedinLogo, MetaLogo, TiktokLogo, PinterestLogo, Desktop, Code, ThreadsLogo, GoogleLogo, YoutubeLogo, ChatCircleText, Eye, Sparkle } from "@phosphor-icons/react/ssr";
+import { PaintBrush, LinkSimple, ShieldCheck, ArrowRight, CheckCircle, Warning, Clock, InstagramLogo, XLogo, LinkedinLogo, MetaLogo, TiktokLogo, PinterestLogo, Desktop, Code, ThreadsLogo, GoogleLogo, YoutubeLogo, ChatCircleText, Eye, Sparkle, CreditCard } from "@phosphor-icons/react/ssr";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,11 +14,13 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DisconnectDialog } from "@/app/(dashboard)/dashboard/settings/components/disconnect-dialog";
+import { LinkedInUnifiedDialog } from "@/app/(dashboard)/dashboard/settings/components/linkedin-unified-dialog";
 import Link from "next/link";
 import { toast } from "sonner";
 import { SidebarVariantSwitcher } from "@/components/dashboard/sidebar-variant-switcher";
 import { useInvisibleAI } from "@/lib/invisible-ai-context";
 import { getDisplayName } from "@/lib/oauth/platform-registry";
+import type { UserRole } from "@/lib/role-guard";
 
 const statusBadge: Record<string, { variant: "default" | "secondary" | "outline"; icon: React.ReactNode; label: string }> = {
   trained: { variant: "default", icon: <CheckCircle className="size-3" weight="fill" />, label: "Trained" },
@@ -93,12 +95,26 @@ const platformIcons: Record<string, React.ReactNode> = {
 function PlatformConnectButton({ platform, label }: { platform: string; label: string }) {
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   const handleConnect = async () => {
     setConnecting(true);
     setError(null);
 
     const result = await initiateOAuth(platform, "settings");
+
+    if (!mountedRef.current) return;
 
     if (result.error) {
       setError(result.error);
@@ -126,17 +142,21 @@ function PlatformConnectButton({ platform, label }: { platform: string; label: s
       try {
         if (popup.closed) {
           clearInterval(poll);
-          setConnecting(false);
+          pollIntervalRef.current = null;
+          if (mountedRef.current) setConnecting(false);
           window.location.reload();
         }
       } catch {
         // Cross-origin popup, can't check — just wait for redirect
       }
     }, 500);
+    pollIntervalRef.current = poll;
 
-    setTimeout(() => {
+    timeoutRef.current = setTimeout(() => {
       clearInterval(poll);
-      setConnecting(false);
+      pollIntervalRef.current = null;
+      timeoutRef.current = null;
+      if (mountedRef.current) setConnecting(false);
     }, 120_000);
   };
 
@@ -291,7 +311,7 @@ function DeveloperAppsTabContent() {
               </div>
               <div className="flex items-center gap-2">
                 {app.isConfigured && (
-                  <Badge variant="default" className="text-[0.625rem] normal-case tracking-tight bg-success/20 text-success border-success/30">
+                  <Badge variant="default" className="text-micro normal-case tracking-tight bg-success/20 text-success border-success/30">
                     Active
                   </Badge>
                 )}
@@ -349,8 +369,10 @@ function DeveloperAppsTabContent() {
 
 export function SettingsContent({
   brandContext,
+  userRole,
 }: {
   brandContext: { trainingStatus?: string | null; lastTrainedAt?: Date | null } | null;
+  userRole: UserRole;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -360,11 +382,18 @@ export function SettingsContent({
   const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>([]);
   const [accountsLoading, setAccountsLoading] = useState(false);
   const [disconnectingPlatform, setDisconnectingPlatform] = useState<string | null>(null);
+  const [linkedinUnifiedDialogOpen, setLinkedinUnifiedDialogOpen] = useState(false);
+  const [linkedinHasOAuth, setLinkedinHasOAuth] = useState(false);
 
   const handleDisconnectSuccess = useCallback(() => {
     fetchConnectedAccounts().then(setConnectedAccounts);
     toast.success("Account disconnected");
     setDisconnectingPlatform(null);
+  }, []);
+
+  const handleLinkedinComplete = useCallback(() => {
+    fetchConnectedAccounts().then(setConnectedAccounts);
+    setLinkedinUnifiedDialogOpen(false);
   }, []);
 
   const setTab = useCallback(
@@ -381,6 +410,14 @@ export function SettingsContent({
 
   const status = brandContext?.trainingStatus ?? "untrained";
   const badgeConfig = statusBadge[status] ?? statusBadge.untrained;
+  const isAdmin = userRole === "ADMIN";
+
+  // Redirect non-admins away from developer tab if they land there via URL
+  useEffect(() => {
+    if (!isAdmin && tab === "developer") {
+      router.replace("/settings", { scroll: false });
+    }
+  }, [isAdmin, tab, router]);
 
   // Handle OAuth success/error from URL params using window.location (avoids SSR hydration mismatch)
   useEffect(() => {
@@ -426,7 +463,9 @@ export function SettingsContent({
       <TabsList className="h-10 gap-0 bg-transparent p-0 border-b border-border">
         <TabsTrigger value="overview" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">Overview</TabsTrigger>
         <TabsTrigger value="accounts" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">Connected Accounts</TabsTrigger>
-        <TabsTrigger value="developer" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">Developer Apps</TabsTrigger>
+        {isAdmin && (
+          <TabsTrigger value="developer" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">Developer Apps</TabsTrigger>
+        )}
         <TabsTrigger value="ai" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">AI Guardrails</TabsTrigger>
         <TabsTrigger value="navigation" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">Navigation</TabsTrigger>
       </TabsList>
@@ -545,6 +584,27 @@ export function SettingsContent({
                   </Card>
                 </CardContent>
               </Card>
+
+              {/* Billing & Subscription */}
+              <Card className="flex flex-col rounded-sm">
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2 tracking-tight">
+                    <CreditCard className="size-5 text-brand" weight="fill" />
+                    Billing & Subscription
+                  </CardTitle>
+                  <CardDescription>
+                    Manage your subscription, payment methods, and billing history.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-1 flex-col justify-end">
+                  <Card className="group flex items-center justify-between rounded-sm border-border p-3 hover:bg-accent transition-colors cursor-pointer"
+                    onClick={() => router.push('/billing')}
+                  >
+                    <span className="text-sm text-foreground tracking-tight">Manage billing</span>
+                    <ArrowRight className="size-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+                  </Card>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
@@ -596,14 +656,30 @@ export function SettingsContent({
                           {account.status === "connected" ? "Connected" : account.status}
                         </Badge>
                         {account.status === "connected" && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="rounded-sm"
-                            onClick={() => setDisconnectingPlatform(account.platform)}
-                          >
-                            Disconnect
-                          </Button>
+                          <div className="flex items-center gap-2">
+                            {account.platform === "linkedin" && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="rounded-sm gap-1"
+                                onClick={() => {
+                                  setLinkedinHasOAuth(true);
+                                  setLinkedinUnifiedDialogOpen(true);
+                                }}
+                              >
+                                <span className="size-3 rounded-full bg-[#0A66C2]" />
+                                Configure
+                              </Button>
+                            )}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="rounded-sm"
+                              onClick={() => setDisconnectingPlatform(account.platform)}
+                            >
+                              Disconnect
+                            </Button>
+                          </div>
                         )}
                       </div>
                     ))}
@@ -639,9 +715,11 @@ export function SettingsContent({
             </Card>
           </TabsContent>
 
+          {isAdmin && (
           <TabsContent value="developer" className="space-y-4">
             <DeveloperAppsTabContent />
           </TabsContent>
+          )}
 
           <TabsContent value="ai" className="space-y-4">
             <Card className="rounded-sm">
@@ -694,6 +772,12 @@ export function SettingsContent({
           onDisconnectSuccess={handleDisconnectSuccess}
         />
       )}
+      <LinkedInUnifiedDialog
+        open={linkedinUnifiedDialogOpen}
+        onOpenChange={setLinkedinUnifiedDialogOpen}
+        onComplete={handleLinkedinComplete}
+        hasOAuthConnected={linkedinHasOAuth}
+      />
     </Tabs>
   );
 }

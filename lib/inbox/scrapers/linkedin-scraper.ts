@@ -46,14 +46,23 @@ async function withRetry<T>(
           error: String(err),
         });
         await delayWithBackoff(attempt);
-      } else {
-        logger.error("linkedin.scraper.operation_failed", {
-          operation,
-          attempts: attempt + 1,
-          error: String(err),
-        });
-        return null;
-      }
+  } else {
+    logger.error("linkedin.scraper.operation_failed", {
+      operation,
+      attempts: attempt + 1,
+      error: String(err),
+    });
+
+    // Self-healer trigger: after all retries exhausted, trigger DOM check
+    if (attempt >= maxRetries) {
+      logger.warn("linkedin.scraper.triggering_self_healer", { operation, maxRetries });
+      import("@/lib/agent/self-healer/trigger").then(({ triggerSelfHealer }) =>
+        triggerSelfHealer("inbox").catch(() => {}),
+      ).catch(() => {});
+    }
+
+    return null;
+  }
     }
   }
   return null;

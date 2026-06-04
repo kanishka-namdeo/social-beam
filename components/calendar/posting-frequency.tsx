@@ -4,16 +4,35 @@ import { useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ChartBar, CalendarDots, TrendUp, TrendDown } from "@phosphor-icons/react/ssr";
+import { ChartBar, CalendarDots, TrendUp, TrendDown, CheckCircle, Warning } from "@phosphor-icons/react/ssr";
 import { cn } from "@/lib/utils";
 import { startOfWeek, endOfWeek, startOfMonth, isSameWeek, isSameMonth, eachDayOfInterval } from "date-fns";
 import type { PostItem } from "./types";
 
-interface PostingFrequencyProps {
-  posts: PostItem[];
+interface PlatformContext {
+  platform: string;
+  postingCadence: string | null;
 }
 
-export function PostingFrequency({ posts }: PostingFrequencyProps) {
+interface PostingFrequencyProps {
+  posts: PostItem[];
+  platformContexts?: PlatformContext[];
+}
+
+function parseWeeklyCadence(cadence: string | null): number | null {
+  if (!cadence) return null;
+  const c = cadence.toLowerCase();
+  if (c === "daily") return 7;
+  const xPerWeek = c.match(/(\d+)\s*x\s*\/?\s*week/);
+  if (xPerWeek) return parseInt(xPerWeek[1], 10);
+  const perWeek = c.match(/(\d+)\s*per\s*week/);
+  if (perWeek) return parseInt(perWeek[1], 10);
+  if (c === "weekly") return 1;
+  if (c === "biweekly" || c.includes("every 2")) return 0;
+  return null;
+}
+
+export function PostingFrequency({ posts, platformContexts }: PostingFrequencyProps) {
   const stats = useMemo(() => {
     const today = new Date();
     const scheduled = posts.filter((p) => p.status === "SCHEDULED");
@@ -100,7 +119,7 @@ export function PostingFrequency({ posts }: PostingFrequencyProps) {
               <div key={d.name} className="flex flex-col items-center gap-1 flex-1">
                 <div
                   className={cn(
-                    "w-full rounded-sm transition-all",
+                    "w-full rounded-sm transition-colors",
                     d.isToday
                       ? "bg-brand"
                       : d.count > 0
@@ -109,7 +128,7 @@ export function PostingFrequency({ posts }: PostingFrequencyProps) {
                   )}
                   style={{ height: `${Math.max((d.count / maxDaily) * 100, 8)}%` }}
                 />
-                <span className={cn("text-[0.6rem] tabular-nums", d.isToday && "font-semibold text-brand")}>
+                <span className={cn("text-micro tabular-nums", d.isToday && "font-semibold text-brand")}>
                   {d.name}
                 </span>
               </div>
@@ -140,7 +159,94 @@ export function PostingFrequency({ posts }: PostingFrequencyProps) {
             <span>{stats.weekPublished} published this week</span>
           </div>
         )}
+
+        {/* Brand Cadence Alignment */}
+        {platformContexts && platformContexts.length > 0 && (
+          <BrandCadenceAlignment
+            platformContexts={platformContexts}
+            platformCounts={stats.platformCounts}
+          />
+        )}
       </CardContent>
     </Card>
+  );
+}
+
+function BrandCadenceAlignment({
+  platformContexts,
+  platformCounts,
+}: {
+  platformContexts: PlatformContext[];
+  platformCounts: Map<string, number>;
+}) {
+  const alignmentItems = platformContexts
+    .map((ctx) => {
+      const target = parseWeeklyCadence(ctx.postingCadence);
+      if (target === null || target === 0) return null;
+      const actual = platformCounts.get(ctx.platform) ?? 0;
+      const delta = actual - target;
+      const progress = Math.min((actual / target) * 100, 100);
+      return { platform: ctx.platform, actual, target, delta, progress };
+    })
+    .filter(Boolean) as Array<{ platform: string; actual: number; target: number; delta: number; progress: number }>;
+
+  if (alignmentItems.length === 0) return null;
+
+  const onTrack = alignmentItems.filter((a) => a.delta >= 0).length;
+
+  return (
+    <div className="space-y-3">
+      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Brand Cadence Alignment</span>
+      {alignmentItems.map((item) => {
+        const colorClass =
+          item.delta >= 0
+            ? "border-success text-success"
+            : item.delta === -1
+              ? "border-warning text-warning"
+              : "border-destructive text-destructive";
+        const progressColor =
+          item.delta >= 0 ? "bg-success" : item.delta === -1 ? "bg-warning" : "bg-destructive";
+
+        return (
+          <div key={item.platform} className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                {item.delta >= 0 ? (
+                  <CheckCircle className="size-3.5 text-success" weight="fill" />
+                ) : (
+                  <Warning className="size-3.5 text-warning" weight="fill" />
+                )}
+                <span className="text-xs text-foreground capitalize">{item.platform}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Badge variant="outline" className={`text-xs ${colorClass} normal-case`}>
+                  {item.delta >= 0 ? `+${item.delta}` : item.delta}
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  {item.actual}/{item.target} scheduled
+                </span>
+              </div>
+            </div>
+            <div className="relative h-1.5 w-full rounded-full bg-muted">
+              <div
+                className={cn("h-full rounded-full transition-[width]", progressColor)}
+                style={{ width: `${item.progress}%` }}
+              />
+            </div>
+          </div>
+        );
+      })}
+      <div className="flex items-center justify-between pt-1">
+        <span className="text-xs text-muted-foreground">Overall alignment</span>
+        <Badge variant="outline" className={cn(
+          "text-xs normal-case",
+          onTrack === alignmentItems.length
+            ? "text-success border-success"
+            : "text-warning border-warning"
+        )}>
+          {onTrack}/{alignmentItems.length} platforms on track
+        </Badge>
+      </div>
+    </div>
   );
 }

@@ -101,7 +101,7 @@ export function DeveloperAppsTab({ initialApps }: DeveloperAppsTabProps) {
 
                 <div className="flex items-center gap-2">
                   {app.isConfigured && (
-                    <Badge variant="default" className="text-[0.625rem] normal-case tracking-normal bg-success/20 text-success border-success/30">
+                    <Badge variant="default" className="text-micro normal-case tracking-normal bg-success/20 text-success border-success/30">
                       Active
                     </Badge>
                   )}

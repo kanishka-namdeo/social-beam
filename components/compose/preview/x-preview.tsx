@@ -26,7 +26,7 @@ export function XPreview({ content, account, mediaUrls }: XPreviewProps) {
       aria-label="X/Twitter post preview"
     >
       {/* Author Header */}
-      <div className="flex items-start gap-3 p-4">
+      <div className="flex items-start gap-3 p-preview">
         <Avatar className="h-10 w-10">
           <AvatarImage src={avatarSrc} alt={displayName} />
         <AvatarFallback className="bg-preview-x text-sm font-semibold text-white">

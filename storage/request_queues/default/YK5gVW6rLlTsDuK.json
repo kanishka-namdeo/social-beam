@@ -1,9 +1,0 @@
-{
-	"id": "YK5gVW6rLlTsDuK",
-	"json": "{\"id\":\"YK5gVW6rLlTsDuK\",\"url\":\"https://buffer.com/bluesky\",\"loadedUrl\":\"https://buffer.com/bluesky\",\"uniqueKey\":\"https://buffer.com/bluesky\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"depth\":0,\"__crawlee\":{\"state\":4}},\"handledAt\":\"2026-06-01T17:03:20.578Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "https://buffer.com/bluesky",
-	"url": "https://buffer.com/bluesky"
-}

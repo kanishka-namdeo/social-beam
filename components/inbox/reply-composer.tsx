@@ -3,8 +3,10 @@
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkle, Spinner, ChatCircleText } from "@phosphor-icons/react";
+import { Sparkle, Spinner, ChatCircleText, Lock } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
+import { InlineUpgradeNudge } from "@/components/dashboard/inline-upgrade-nudge";
+import { usePremium } from "@/hooks/use-premium";
 
 interface ReplyComposerProps {
   engagementItemId: string;
@@ -13,10 +15,12 @@ interface ReplyComposerProps {
 }
 
 export function ReplyComposer({ engagementItemId, platform, onReplySent }: ReplyComposerProps) {
+  const { isPremium } = usePremium();
   const [text, setText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [draft, setDraft] = useState("");
+  const [showUpgradeNudge, setShowUpgradeNudge] = useState(false);
 
   const characterLimit = 280; // default X limit
   const isOverLimit = text.length > characterLimit;
@@ -93,27 +97,49 @@ export function ReplyComposer({ engagementItemId, platform, onReplySent }: Reply
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
+      <div className="flex-between">
         <span className="text-xs text-muted-foreground">
           Reply on {platform}
         </span>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={generateAIDraft}
-          disabled={isGenerating}
-          className="text-xs"
-        >
-          {isGenerating ? (
-            <Spinner className="mr-1.5 size-3.5 animate-spin" />
-          ) : (
-            <Sparkle className="mr-1.5 size-3.5" />
-          )}
-          {isGenerating ? "Generating..." : "AI Draft"}
-        </Button>
+        {isPremium ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={generateAIDraft}
+            disabled={isGenerating}
+            className="text-xs"
+          >
+            {isGenerating ? (
+              <Spinner className="mr-1.5 size-3.5 animate-spin" />
+            ) : (
+              <Sparkle className="mr-1.5 size-3.5" />
+            )}
+            {isGenerating ? "Generating..." : "AI Draft"}
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowUpgradeNudge(true)}
+            disabled
+            className="text-xs cursor-not-allowed"
+            title="Premium feature"
+          >
+            <Lock className="mr-1.5 size-3.5" weight="fill" />
+            AI Draft
+          </Button>
+        )}
       </div>
 
-      {draft && (
+      {showUpgradeNudge && !isPremium && (
+        <InlineUpgradeNudge
+          title="AI Reply Drafts"
+          description="Let AI craft a smart reply based on the conversation context."
+          variant="default"
+        />
+      )}
+
+      {draft && isPremium && (
         <div className="rounded-sm border border-ai-surface bg-ai-surface/50 p-3 text-sm text-muted-foreground animate-pulse">
           {draft}
         </div>
@@ -129,12 +155,12 @@ export function ReplyComposer({ engagementItemId, platform, onReplySent }: Reply
         )}
       />
 
-      <div className="flex items-center justify-between">
+      <div className="flex-between">
         <span className={cn(
           "text-xs tabular-nums",
           isOverLimit ? "text-destructive" : "text-muted-foreground",
         )}>
-          {text.length}/{characterLimit}
+          <span className="tabular-nums">{text.length}</span>/{characterLimit}
         </span>
         <div className="flex gap-2">
           <Button

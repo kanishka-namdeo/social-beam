@@ -1,7 +1,8 @@
-import { PrismaClient, PostStatus, ConfidenceLevel } from "@/app/generated/prisma";
+import { PrismaClient, PostStatus, ConfidenceLevel, UserRole } from "@/app/generated/prisma";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
 dotenv.config();
 
 function createPrismaClient() {
@@ -20,7 +21,7 @@ async function seedData(wsId: string, now: Date) {
     return;
   }
 
-  // Published posts
+  // Published posts — use realistic publishing hours (not midnight)
   const post1 = await prisma.post.create({
     data: {
       id: crypto.randomUUID(),
@@ -29,7 +30,7 @@ async function seedData(wsId: string, now: Date) {
       content: { text: "Our summer cold brew is here!", media: [{ type: "image", url: "/images/summer-cold-brew.jpg" }] },
       status: PostStatus.PUBLISHED,
       confidence: ConfidenceLevel.HIGH,
-      publishedAt: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
+      publishedAt: new Date(new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).setHours(9, 30, 0, 0)), // Tuesday 9:30 AM
       PostPlatform: {
         create: [
           { id: crypto.randomUUID(), platform: "instagram", content: "Summer just got a whole lot cooler. Our new Cold Brew collection drops today. Come taste the season. #ColdBrew #SummerVibes", mediaUrls: ["/images/summer-cold-brew.jpg"], status: PostStatus.PUBLISHED, externalId: "ig_post_001" },
@@ -48,7 +49,7 @@ async function seedData(wsId: string, now: Date) {
       content: { text: "Behind every great cup is a passionate barista", media: [{ type: "video", url: "/videos/barista-bts.mp4" }] },
       status: PostStatus.PUBLISHED,
       confidence: ConfidenceLevel.MEDIUM,
-      publishedAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000),
+      publishedAt: new Date(new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).setHours(14, 15, 0, 0)), // Sunday 2:15 PM
       PostPlatform: {
         create: [
           { id: crypto.randomUUID(), platform: "instagram", content: "Meet Sarah — our lead barista who's been perfecting latte art for 5 years. Every cup tells a story. Behind every great cup is a passionate barista. #BaristaLife #CoffeeArt", mediaUrls: ["/videos/barista-bts.mp4"], status: PostStatus.PUBLISHED, externalId: "ig_post_002" },
@@ -65,7 +66,7 @@ async function seedData(wsId: string, now: Date) {
       content: { text: "This weekend only — Avocado Toast + Coffee combo", media: [] },
       status: PostStatus.PUBLISHED,
       confidence: ConfidenceLevel.HIGH,
-      publishedAt: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
+      publishedAt: new Date(new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).setHours(11, 0, 0, 0)), // Friday 11:00 AM
       PostPlatform: {
         create: [
           { id: crypto.randomUUID(), platform: "instagram", content: "This weekend only: Avocado Toast + Any Coffee for $12. Tag your brunch buddy below. #WeekendBrunch #AvocadoToast", status: PostStatus.PUBLISHED, externalId: "ig_post_003" },
@@ -190,9 +191,11 @@ async function main() {
     const user = await prisma.user.create({
       data: {
         id: crypto.randomUUID(),
-        email: "demo@socialbeam.app",
-        name: "Demo User",
-        password: "$2b$10$hashedpasswordplaceholder",
+        email: "user@test.com",
+        name: "Free User",
+        password: await bcrypt.hash('password123', 12),
+        role: UserRole.FREE_USER,
+        updatedAt: now,
         Workspace: {
           create: {
             id: crypto.randomUUID(),
@@ -243,6 +246,73 @@ async function main() {
     console.log("Workspace already exists.");
     await seedData(workspace.id, now);
   }
+
+  // Create premium test user
+  const premiumUser = await prisma.user.upsert({
+    where: { email: 'premium@test.com' },
+    update: {
+      password: await bcrypt.hash('password123', 12),
+      role: UserRole.PREMIUM_USER,
+    },
+    create: {
+      id: crypto.randomUUID(),
+      email: 'premium@test.com',
+      name: 'Premium User',
+      password: await bcrypt.hash('password123', 12),
+      role: UserRole.PREMIUM_USER,
+    },
+  });
+  const premiumWorkspace = await prisma.workspace.findFirst({ where: { userId: premiumUser.id } });
+  if (!premiumWorkspace) {
+    await prisma.workspace.create({
+      data: { id: crypto.randomUUID(), userId: premiumUser.id },
+    });
+  }
+  await prisma.subscription.upsert({
+    where: { userId: premiumUser.id },
+    update: {
+      stripeCustomerId: 'cus_test_premium',
+      stripeSubscriptionId: 'sub_test_premium_active',
+      status: 'active',
+      currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    },
+    create: {
+      id: crypto.randomUUID(),
+      userId: premiumUser.id,
+      stripeCustomerId: 'cus_test_premium',
+      stripeSubscriptionId: 'sub_test_premium_active',
+      plan: 'ai_starter',
+      status: 'active',
+      currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  // Create admin test user
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'admin@test.com' },
+    update: {
+      password: await bcrypt.hash('password123', 12),
+      role: UserRole.ADMIN,
+    },
+    create: {
+      id: crypto.randomUUID(),
+      email: 'admin@test.com',
+      name: 'Admin User',
+      password: await bcrypt.hash('password123', 12),
+      role: UserRole.ADMIN,
+    },
+  });
+  const adminWorkspace = await prisma.workspace.findFirst({ where: { userId: adminUser.id } });
+  if (!adminWorkspace) {
+    await prisma.workspace.create({
+      data: { id: crypto.randomUUID(), userId: adminUser.id },
+    });
+  }
+
+  console.log('Test users created:');
+  console.log('  Free user: user@test.com / password123');
+  console.log('  Premium user: premium@test.com / password123');
+  console.log('  Admin user: admin@test.com / password123');
 }
 
 main()

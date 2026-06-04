@@ -19,7 +19,7 @@ export function PinterestPreview({ content, title, account, mediaUrls }: Pintere
   const avatarFallback = displayName.charAt(0).toUpperCase();
   return (
     <div
-      className="w-full max-w-[236px] overflow-hidden rounded-sm bg-card border border-border shadow-sm"
+      className="w-full max-w-[236px] overflow-hidden rounded-sm bg-card border border-border shadow-sm dark:shadow-lg dark:shadow-black/40"
       role="img"
       aria-label="Pinterest pin preview"
     >
@@ -43,16 +43,16 @@ export function PinterestPreview({ content, title, account, mediaUrls }: Pintere
       )}
 
       {/* Pin Content */}
-      <div className="p-3">
+      <div className="p-preview">
         {/* Title */}
         {title && title.trim() !== "" && (
-          <p className="text-sm font-semibold text-foreground leading-snug line-clamp-2">
+          <p className="text-sm font-semibold text-foreground leading-snug truncate-2">
             {title}
           </p>
         )}
 
         {/* Description */}
-        <p className="mt-1 text-xs text-muted-foreground line-clamp-2 whitespace-pre-wrap break-words">
+        <p className="mt-1 text-xs text-muted-foreground truncate-2 whitespace-pre-wrap break-words">
           {content.trim() === "" ? (
             <span>Pin description goes here...</span>
           ) : (

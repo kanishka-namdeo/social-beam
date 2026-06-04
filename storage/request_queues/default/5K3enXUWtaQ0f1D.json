@@ -1,9 +1,0 @@
-{
-	"id": "5K3enXUWtaQ0f1D",
-	"json": "{\"id\":\"5K3enXUWtaQ0f1D\",\"url\":\"https://buffer.com/collaborate\",\"loadedUrl\":\"https://buffer.com/collaborate\",\"uniqueKey\":\"https://buffer.com/collaborate\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"depth\":0,\"__crawlee\":{\"state\":4}},\"handledAt\":\"2026-06-01T17:03:22.437Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "https://buffer.com/collaborate",
-	"url": "https://buffer.com/collaborate"
-}

@@ -67,7 +67,7 @@ export function WeekView({ currentDate, posts, onPreview, onDelete, onDuplicate 
           {hours.map((hour) => (
             <div
               key={hour}
-              className="h-12 flex items-start justify-end pr-2 text-[0.625rem] text-muted-foreground tabular-nums"
+              className="h-12 flex items-start justify-end pr-2 text-micro text-muted-foreground tabular-nums"
             >
               {format(new Date().setHours(hour, 0), "h a")}
             </div>

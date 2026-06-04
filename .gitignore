@@ -46,4 +46,25 @@ next-env.d.ts
 # linkedin scraper cookie cache
 .data/
 
-.vercel
+# Apify/Crawlee storage
+storage/
+
+# debug
+.cursor/debug-*.log
+.cursor/skills/
+
+# test screenshots and results
+*.png
+test-results/
+tests/
+
+# debug/test scripts
+scripts/
+check-admin.ts
+setup-admin.ts
+
+# test files
+brand-context-test*.js
+
+# vercel
+.vercel/

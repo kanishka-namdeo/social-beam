@@ -5,6 +5,7 @@ import { loadBrandContextForAI } from "@/lib/ai/brand-context-loader";
 import { buildComposePrompts } from "@/lib/ai/compose-prompt-builder";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
+import { requirePremium } from "@/lib/api-guards";
 
 const TestSchema = z.object({
   topic: z.string().min(1).max(2000),
@@ -34,6 +35,9 @@ export async function POST(req: Request) {
     if (!workspaceId) {
       return NextResponse.json({ error: "No workspace" }, { status: 400 });
     }
+
+    const premiumGuard = await requirePremium();
+    if (premiumGuard) return premiumGuard;
 
     const body = await req.json();
     const parsed = TestSchema.safeParse(body);

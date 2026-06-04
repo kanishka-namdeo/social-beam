@@ -36,7 +36,7 @@ export function ConnectedAccountsWidget({ accounts }: ConnectedAccountsWidgetPro
       </CardHeader>
       <CardContent>
         {accounts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-3 rounded-sm border border-dashed border-border p-8 text-center">
+          <div className="flex flex-col items-center justify-center gap-3 rounded-sm border border-dashed border-border p-empty text-center">
             <GlobeHemisphereEast className="size-8 text-muted-foreground" weight="light" />
             <p className="text-sm text-muted-foreground">
               No accounts connected yet
@@ -67,7 +67,7 @@ export function ConnectedAccountsWidget({ accounts }: ConnectedAccountsWidgetPro
                 </div>
                 <Badge
                   variant={statusVariant[account.status] ?? "secondary"}
-                  className="text-[0.625rem] normal-case tracking-normal rounded-sm"
+                  className="text-micro normal-case tracking-normal rounded-sm"
                 >
                   {account.status}
                 </Badge>

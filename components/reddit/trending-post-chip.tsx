@@ -1,7 +1,6 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ArrowSquareOut, ChatText, TrendUp } from "@phosphor-icons/react/ssr";
 import { cn } from "@/lib/utils";
 
@@ -35,7 +34,7 @@ export function TrendingPostChip({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-sm border border-border bg-card p-3 hover:bg-muted/50 transition-colors",
+        "flex-center gap-3 rounded-sm border border-border bg-card p-3 hover:bg-muted/50 transition-colors",
         isActionable && "border-ai-surface bg-ai-surface/30",
         className,
       )}
@@ -51,32 +50,14 @@ export function TrendingPostChip({
         </a>
         <div className="flex items-center gap-2 mt-0.5">
           <span className="text-xs text-muted-foreground">r/{subreddit}</span>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <span className="text-xs text-muted-foreground flex items-center gap-0.5">
-                  <TrendUp className="size-3 text-success" weight="bold" />
-                  {upvotes.toLocaleString()}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="text-xs">Upvotes</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <span className="text-xs text-muted-foreground flex items-center gap-0.5">
-                  <ChatText className="size-3" weight="bold" />
-                  {commentCount.toLocaleString()}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="text-xs">Comments</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <span className="text-xs text-muted-foreground flex-center gap-0.5 tabular-nums">
+            <TrendUp className="size-3 text-success" weight="bold" />
+            <span className="tabular-nums">{upvotes.toLocaleString()}</span>
+          </span>
+          <span className="text-xs text-muted-foreground flex-center gap-0.5 tabular-nums">
+            <ChatText className="size-3" weight="bold" />
+            <span className="tabular-nums">{commentCount.toLocaleString()}</span>
+          </span>
         </div>
       </div>
       {relevanceScore != null && (

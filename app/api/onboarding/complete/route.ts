@@ -1,31 +1,33 @@
 import { auth } from '@/lib/auth';
-import { createLogger } from '@/lib/agent/logging';
+import { NextResponse } from 'next/server';
 import { markSessionComplete } from '@/lib/db/onboarding';
-import type { Session } from 'next-auth';
 
 export async function POST() {
-  const correlationId = crypto.randomUUID();
-
   try {
     const session = await auth();
     if (!session?.user) {
-      return new Response('Unauthorized', { status: 401 });
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
-    const typedSession = session as Session;
-    const userId = typedSession.user.id ?? '';
-    const logger = createLogger({ correlationId, userId });
+    const userId = (session.user as { id?: string }).id;
+    if (!userId) {
+      return new Response(JSON.stringify({ error: 'Invalid session' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
-    logger.info('onboarding.complete', { userId });
     await markSessionComplete(userId);
-
     return new Response(JSON.stringify({ success: true }), {
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch {
-    return new Response(
-      JSON.stringify({ error: 'Failed to mark onboarding complete' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+  } catch (error) {
+    return new Response(JSON.stringify({ error: String(error) }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }

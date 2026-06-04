@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { TrendUp, ArrowRight } from "@phosphor-icons/react/ssr";
 import { Skeleton } from "@/components/ui/skeleton";
+import { InlineUpgradeNudge } from "@/components/dashboard/inline-upgrade-nudge";
+import { usePremium } from "@/hooks/use-premium";
 
 interface InsightsCardProps {
   topPost?: {
@@ -28,6 +30,7 @@ interface InsightsCardProps {
 }
 
 export function InsightsCard({ topPost, trend, recommendation, loading }: InsightsCardProps) {
+  const { isPremium } = usePremium();
   return (
     <Card className="h-full rounded-sm border-ai-surface bg-ai-surface/50 border-l-2 border-l-brand">
       <CardHeader className="pb-3">
@@ -74,7 +77,7 @@ export function InsightsCard({ topPost, trend, recommendation, loading }: Insigh
                     <TrendUp className="size-3 text-success" weight="bold" />
                     {(topPost.engagementRate * 100).toFixed(1)}% engagement
                   </Badge>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-sm tabular-nums text-muted-foreground">
                     {topPost.likes} likes &middot; {topPost.comments} comments &middot; {topPost.shares} shares
                   </span>
                 </div>
@@ -101,7 +104,7 @@ export function InsightsCard({ topPost, trend, recommendation, loading }: Insigh
               </>
             )}
 
-            {recommendation && (
+            {isPremium && recommendation && (
               <>
                 <Separator />
                 <div className="space-y-2">
@@ -110,6 +113,17 @@ export function InsightsCard({ topPost, trend, recommendation, loading }: Insigh
                   </p>
                   <p className="text-sm text-muted-foreground">{recommendation}</p>
                 </div>
+              </>
+            )}
+
+            {!isPremium && (
+              <>
+                <Separator />
+                <InlineUpgradeNudge
+                  variant="compact"
+                  title="AI Recommendations"
+                  description="Get AI-powered recommendations to boost your content performance"
+                />
               </>
             )}
 

@@ -1,9 +1,0 @@
-{
-	"id": "LuUv9PMMhla7d1H",
-	"json": "{\"id\":\"LuUv9PMMhla7d1H\",\"url\":\"https://buffer.com/extensions\",\"loadedUrl\":\"https://buffer.com/extensions\",\"uniqueKey\":\"https://buffer.com/extensions\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"depth\":0,\"__crawlee\":{\"state\":4}},\"handledAt\":\"2026-06-01T19:42:01.175Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "https://buffer.com/extensions",
-	"url": "https://buffer.com/extensions"
-}

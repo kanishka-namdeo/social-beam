@@ -28,20 +28,41 @@ export class LinkedInOperationTimeoutError extends Error {
 }
 
 let liAtCookie: string | undefined;
+let liAtCookieTimestamp: number | undefined;
+const COOKIE_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours cache TTL
 
 function resolveLiAtCookie(): string | null {
+  // Check if cached cookie is stale (older than 24 hours)
+  if (liAtCookie && liAtCookieTimestamp) {
+    if (Date.now() - liAtCookieTimestamp > COOKIE_CACHE_TTL_MS) {
+      logger.debug("linkedin.browser.cookie_cache_expired");
+      liAtCookie = undefined;
+      liAtCookieTimestamp = undefined;
+    }
+  }
+  
   if (liAtCookie) return liAtCookie;
 
   const cookie = loadCookie("linkedin-li-at", LI_AT_COOKIE_ENV);
   if (cookie) {
     liAtCookie = cookie;
+    liAtCookieTimestamp = Date.now();
   }
   return cookie;
 }
 
 function cacheLiAtCookie(cookie: string): void {
   liAtCookie = cookie;
+  liAtCookieTimestamp = Date.now();
   saveCookie("linkedin-li-at", cookie);
+}
+
+/**
+ * Clear the cached cookie (useful when cookie is detected as expired).
+ */
+export function clearCachedCookie(): void {
+  liAtCookie = undefined;
+  liAtCookieTimestamp = undefined;
 }
 
 /**
@@ -175,7 +196,8 @@ export async function withLinkedInPageForUser<T>(
     return null;
   }
 
-  const options: PageOptions = {
+  // Use visible browser + storage state persistence for LinkedIn
+  const options: PageOptions & { headless?: boolean; saveStorageState?: boolean } = {
     cookies: [
       {
         name: "li_at",
@@ -188,13 +210,16 @@ export async function withLinkedInPageForUser<T>(
       },
     ],
     stealth: true,
+    headless: false,
+    saveStorageState: true,
+    timeoutMs: 120000, // LinkedIn visible browser scraping needs more time
   };
 
   try {
     return await withPage(async (page) => {
       await page.goto("https://www.linkedin.com", {
         waitUntil: "domcontentloaded",
-        timeout: 15000,
+        timeout: 30000,
       });
 
       const currentUrl = page.url();
@@ -301,6 +326,14 @@ function parseEngagementNumber(text: string): number {
   const numMatch = cleaned.replace(/,/g, "").match(/^(\d+)/);
   if (numMatch) return parseInt(numMatch[1], 10);
 
+  // Handle "Name and 2 others reacted" → extract the "2"
+  const othersMatch = cleaned.match(/(\d+)\s*others?\s+react/i);
+  if (othersMatch) return parseInt(othersMatch[1], 10);
+
+  // Handle any number anywhere in text (fallback for "244 impressions")
+  const anyNum = cleaned.match(/(\d[\d,]*)/);
+  if (anyNum) return parseInt(anyNum[1].replace(/,/g, ""), 10);
+
   return 0;
 }
 
@@ -320,35 +353,59 @@ export async function scrapePostAnalytics(postUrl: string): Promise<ScrapedPostA
 
     await delay(SHARE_STABILIZE_DELAY_MS);
 
-    const analytics = await page.evaluate(
-      ({ selectors }: { selectors: typeof ANALYTICS_SELECTORS }) => {
-        function trySelectors(selectorList: readonly string[]): string | null {
+    // Fallback: parse all visible text for engagement counts
+    // This works regardless of CSS class names since LinkedIn frequently changes them
+    const selectorsJson2 = JSON.stringify(ANALYTICS_SELECTORS);
+    const textCounts = await page.evaluate(`
+      (() => {
+        const selectors = ${selectorsJson2};
+        const allText = document.body?.innerText || '';
+        const lines = allText.split('\\n').map(l => l.trim()).filter(Boolean);
+
+        let reactionsText = null;
+        let commentsText = null;
+        let sharesText = null;
+
+        for (const line of lines) {
+          if (!reactionsText && /\\d/.test(line) && /react|like/i.test(line)) {
+            reactionsText = line;
+          }
+          if (!commentsText && /\\d/.test(line) && /comment/i.test(line)) {
+            commentsText = line;
+          }
+          if (!sharesText && /\\d/.test(line) && /repost|share/i.test(line)) {
+            sharesText = line;
+          }
+        }
+
+        function trySelectors(selectorList) {
           for (const selector of selectorList) {
-            const el = document.querySelector(selector);
-            if (el) return el.textContent?.trim() ?? null;
+            try {
+              const el = document.querySelector(selector);
+              if (el) return el.textContent?.trim() ?? null;
+            } catch {}
           }
           return null;
         }
 
-        const reactionsText = trySelectors(selectors.reactions);
-        const commentsText = trySelectors(selectors.comments);
-        const sharesText = trySelectors(selectors.shares);
-
-        return { reactionsText, commentsText, sharesText };
-      },
-      { selectors: ANALYTICS_SELECTORS },
-    );
+        return {
+          reactionsText: trySelectors(selectors.reactions) || reactionsText,
+          commentsText: trySelectors(selectors.comments) || commentsText,
+          sharesText: trySelectors(selectors.shares) || sharesText,
+        };
+      })()
+    `) as { reactionsText: string | null; commentsText: string | null; sharesText: string | null };
 
     logger.debug("linkedin.analytics.scrape.raw", {
-      reactionsText: analytics.reactionsText,
-      commentsText: analytics.commentsText,
-      sharesText: analytics.sharesText,
+      reactionsText: textCounts.reactionsText,
+      commentsText: textCounts.commentsText,
+      sharesText: textCounts.sharesText,
     });
 
     return {
-      likes: parseEngagementNumber(analytics.reactionsText ?? ""),
-      comments: parseEngagementNumber(analytics.commentsText ?? ""),
-      shares: parseEngagementNumber(analytics.sharesText ?? ""),
+      likes: parseEngagementNumber(textCounts.reactionsText ?? ""),
+      comments: parseEngagementNumber(textCounts.commentsText ?? ""),
+      shares: parseEngagementNumber(textCounts.sharesText ?? ""),
     };
   });
 
@@ -357,7 +414,90 @@ export async function scrapePostAnalytics(postUrl: string): Promise<ScrapedPostA
     return null;
   }
 
+  // Self-healer trigger: if all analytics metrics are 0, selectors may be broken
+  if (result.likes === 0 && result.comments === 0 && result.shares === 0) {
+    logger.warn("linkedin.analytics.scrape.all_zeros", { postUrl });
+    import("@/lib/agent/self-healer/trigger").then(({ triggerSelfHealer }) =>
+      triggerSelfHealer("browser-analytics").catch(() => {}),
+    ).catch(() => {});
+  }
+
   logger.debug("linkedin.analytics.scrape.complete", { postUrl, ...result });
+  return result;
+}
+
+/**
+ * Scrape engagement counts using the per-user cookie with storage state persistence.
+ * Uses text-based fallback when CSS selectors fail.
+ */
+export async function scrapePostAnalyticsForUser(
+  workspaceId: string,
+  postUrl: string,
+): Promise<ScrapedPostAnalytics | null> {
+  logger.debug("linkedin.analytics.scrape.start.user", { postUrl, workspaceId });
+
+  const result = await withLinkedInPageForUser(workspaceId, async (page) => {
+    await page.goto(postUrl, {
+      waitUntil: "domcontentloaded",
+      timeout: 30000,
+    });
+
+    await delay(SHARE_STABILIZE_DELAY_MS);
+
+    const selectorsJson3 = JSON.stringify(ANALYTICS_SELECTORS);
+    const textCounts = await page.evaluate(`
+      (() => {
+        const selectors = ${selectorsJson3};
+        const allText = document.body?.innerText || '';
+        const lines = allText.split('\\n').map(l => l.trim()).filter(Boolean);
+
+        let reactionsText = null;
+        let commentsText = null;
+        let sharesText = null;
+
+        for (const line of lines) {
+          if (!reactionsText && /\\d/.test(line) && /react|like/i.test(line)) {
+            reactionsText = line;
+          }
+          if (!commentsText && /\\d/.test(line) && /comment/i.test(line)) {
+            commentsText = line;
+          }
+          if (!sharesText && /\\d/.test(line) && /repost|share/i.test(line)) {
+            sharesText = line;
+          }
+        }
+
+        function trySelectors(selectorList) {
+          for (const selector of selectorList) {
+            try {
+              const el = document.querySelector(selector);
+              if (el) return el.textContent?.trim() ?? null;
+            } catch {}
+          }
+          return null;
+        }
+
+        return {
+          reactionsText: trySelectors(selectors.reactions) || reactionsText,
+          commentsText: trySelectors(selectors.comments) || commentsText,
+          sharesText: trySelectors(selectors.shares) || sharesText,
+        };
+      })()
+    `) as { reactionsText: string | null; commentsText: string | null; sharesText: string | null };
+
+    return {
+      likes: parseEngagementNumber(textCounts.reactionsText ?? ""),
+      comments: parseEngagementNumber(textCounts.commentsText ?? ""),
+      shares: parseEngagementNumber(textCounts.sharesText ?? ""),
+    };
+  });
+
+  if (result === null) {
+    logger.warn("linkedin.analytics.scrape.no_cookie.user", { postUrl, workspaceId });
+    return null;
+  }
+
+  logger.debug("linkedin.analytics.scrape.complete.user", { postUrl, ...result });
   return result;
 }
 
@@ -495,35 +635,32 @@ export async function scrapeEnhancedPostAnalytics(
       }
     }
 
-    // Scrape all analytics metrics using multiple selector strategies
-    const analytics = await page.evaluate(
-      ({ selectors }: { selectors: typeof ANALYTICS_DASHBOARD_SELECTORS }) => {
-        function trySelectors(selectorList: readonly string[]): string | null {
+    // Scrape all analytics metrics using multiple selector strategies (string-based evaluate)
+    const selectorsJson = JSON.stringify(ANALYTICS_DASHBOARD_SELECTORS);
+    const analytics = await page.evaluate(`
+      (() => {
+        const selectors = ${selectorsJson};
+
+        function trySelectors(selectorList) {
           for (const selector of selectorList) {
-            const el = document.querySelector(selector);
-            if (el) return el.textContent?.trim() ?? null;
+            try {
+              const el = document.querySelector(selector);
+              if (el) return el.textContent?.trim() ?? null;
+            } catch {}
           }
           return null;
         }
 
-        const impressionsText = trySelectors(selectors.impressions);
-        const uniqueImpressionsText = trySelectors(selectors.uniqueImpressions);
-        const clicksText = trySelectors(selectors.clicks);
-        const engagementRateText = trySelectors(selectors.engagementRate);
-        const savesText = trySelectors(selectors.saves);
-        const profileViewsText = trySelectors(selectors.profileViews);
-
         return {
-          impressionsText,
-          uniqueImpressionsText,
-          clicksText,
-          engagementRateText,
-          savesText,
-          profileViewsText,
+          impressionsText: trySelectors(selectors.impressions),
+          uniqueImpressionsText: trySelectors(selectors.uniqueImpressions),
+          clicksText: trySelectors(selectors.clicks),
+          engagementRateText: trySelectors(selectors.engagementRate),
+          savesText: trySelectors(selectors.saves),
+          profileViewsText: trySelectors(selectors.profileViews),
         };
-      },
-      { selectors: ANALYTICS_DASHBOARD_SELECTORS },
-    );
+      })()
+    `) as Record<string, string | null>;
 
     logger.debug("linkedin.enhanced.analytics.scrape.raw", {
       impressionsText: analytics.impressionsText,
@@ -604,51 +741,52 @@ export async function scrapeProfileData(
       throw new LinkedInCookieExpiredError("LinkedIn session expired");
     }
 
-    // Scrape profile data using multiple selector strategies
-    const profileData = await page.evaluate(() => {
-      function trySelectors(selectorList: readonly string[]): string | null {
-        for (const selector of selectorList) {
-          const el = document.querySelector(selector);
-          if (el) return el.textContent?.trim() ?? null;
+    // Scrape profile data using multiple selector strategies (string-based evaluate)
+    const profileData = await page.evaluate(`
+      (() => {
+        function trySelectors(selectorList) {
+          for (const selector of selectorList) {
+            try {
+              const el = document.querySelector(selector);
+              if (el) return el.textContent?.trim() ?? null;
+            } catch {}
+          }
+          return null;
         }
-        return null;
-      }
 
-      // Follower count selectors
-      const followerSelectors = [
-        '[data-follower-count]',
-        '.pv-member-stats__followers-count',
-        '[class*="follower-count"]',
-        '[class*="followerCount"]',
-        'a[href*="followers"] [class*="count"]',
-        '[aria-label*="followers"]',
-        'span:has-text("followers")',
-      ];
+        const followerSelectors = [
+          '[data-follower-count]',
+          '.pv-member-stats__followers-count',
+          '[class*="follower-count"]',
+          '[class*="followerCount"]',
+          'a[href*="followers"] [class*="count"]',
+          '[aria-label*="followers"]',
+          'span:has-text("followers")',
+        ];
 
-      // Connection count selectors
-      const connectionSelectors = [
-        '[data-connection-count]',
-        '.pv-member-stats__connections-count',
-        '[class*="connections"]',
-        '[class*="connectionsCount"]',
-        '[aria-label*="connections"]',
-      ];
+        const connectionSelectors = [
+          '[data-connection-count]',
+          '.pv-member-stats__connections-count',
+          '[class*="connections"]',
+          '[class*="connectionsCount"]',
+          '[aria-label*="connections"]',
+        ];
 
-      // Profile views (usually visible on own profile dashboard)
-      const profileViewSelectors = [
-        '[data-profile-views]',
-        '[class*="profile-views"]',
-        '[class*="profileViews"]',
-        'a[href*="profile-views"] [class*="count"]',
-        '[aria-label*="profile views"]',
-      ];
+        const profileViewSelectors = [
+          '[data-profile-views]',
+          '[class*="profile-views"]',
+          '[class*="profileViews"]',
+          'a[href*="profile-views"] [class*="count"]',
+          '[aria-label*="profile views"]',
+        ];
 
-      const followersText = trySelectors(followerSelectors);
-      const connectionsText = trySelectors(connectionSelectors);
-      const profileViewsText = trySelectors(profileViewSelectors);
-
-      return { followersText, connectionsText, profileViewsText };
-    });
+        return {
+          followersText: trySelectors(followerSelectors),
+          connectionsText: trySelectors(connectionSelectors),
+          profileViewsText: trySelectors(profileViewSelectors),
+        };
+      })()
+    `) as { followersText: string | null; connectionsText: string | null; profileViewsText: string | null };
 
     return {
       followerCount: parseEngagementNumber(profileData.followersText ?? ""),
@@ -687,42 +825,84 @@ export async function scrapeEnhancedPostAnalyticsForUser(
   const result = await withLinkedInPageForUser(workspaceId, async (page) => {
     await page.goto(postUrl, {
       waitUntil: "domcontentloaded",
-      timeout: 15000,
+      timeout: 30000,
     });
 
-    await delay(SHARE_STABILIZE_DELAY_MS);
+    // Wait for analytics content to render
+    await delay(5000);
 
-    const analyticsPanel = await page.$('[class*="analytics"], [class*="Analytics"]');
-    if (analyticsPanel) {
-      try {
-        await analyticsPanel.click();
-        await delay(1500);
-      } catch {
-        // Not clickable, continue anyway
-      }
-    }
+    // Scrape analytics using string-based evaluation to avoid tsx __name injection issues
+    const selectorsJson = JSON.stringify(ANALYTICS_DASHBOARD_SELECTORS);
+    const analytics = await page.evaluate(`
+      (() => {
+        const selectors = ${selectorsJson};
 
-    const analytics = await page.evaluate(
-      ({ selectors }: { selectors: typeof ANALYTICS_DASHBOARD_SELECTORS }) => {
-        function trySelectors(selectorList: readonly string[]): string | null {
+        function trySelectors(selectorList) {
           for (const selector of selectorList) {
-            const el = document.querySelector(selector);
-            if (el) return el.textContent?.trim() ?? null;
+            try {
+              const el = document.querySelector(selector);
+              if (el) return el.textContent?.trim() ?? null;
+            } catch {}
           }
           return null;
         }
 
+        const allText = document.body?.innerText || '';
+        const lines = allText.split('\\n').map(l => l.trim()).filter(Boolean);
+
+        function findNumberByLabel(label) {
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].toLowerCase();
+            if (line.includes(label)) {
+              if (i > 0) {
+                const prevMatch = lines[i - 1].match(/^([\\d,]+\\.?\\d*\\s*[kKmM]?%?)$/);
+                if (prevMatch) return prevMatch[1];
+              }
+              const sameMatch = lines[i].match(/([\\d,]+\\.?\\d*\\s*[kKmM]?)/);
+              if (sameMatch) return sameMatch[1];
+              if (i + 1 < lines.length) {
+                const nextMatch = lines[i + 1].match(/^([\\d,]+\\.?\\d*\\s*[kKmM]?%?)$/);
+                if (nextMatch) return nextMatch[1];
+              }
+            }
+          }
+          return null;
+        }
+
+        const reactionsText = trySelectors([
+          '.analytics-statistics__reactions',
+          '[class*="reactions-count"]',
+          'span[aria-label*="reactions"]',
+          'span[aria-label*="Reactions"]',
+        ]) || findNumberByLabel('reaction');
+
+        const commentsText = trySelectors([
+          '.analytics-statistics__comments',
+          '[class*="comments-count"]',
+          'span[aria-label*="comments"]',
+          'span[aria-label*="Comments"]',
+        ]) || findNumberByLabel('comment');
+
+        const repostsText = trySelectors([
+          '.analytics-statistics__reposts',
+          '[class*="reposts-count"]',
+          'span[aria-label*="reposts"]',
+          'span[aria-label*="Reposts"]',
+        ]) || findNumberByLabel('repost');
+
         return {
-          impressionsText: trySelectors(selectors.impressions),
-          uniqueImpressionsText: trySelectors(selectors.uniqueImpressions),
-          clicksText: trySelectors(selectors.clicks),
-          engagementRateText: trySelectors(selectors.engagementRate),
-          savesText: trySelectors(selectors.saves),
-          profileViewsText: trySelectors(selectors.profileViews),
+          impressionsText: trySelectors(selectors.impressions) || findNumberByLabel('discovery') || findNumberByLabel('impressions'),
+          uniqueImpressionsText: trySelectors(selectors.uniqueImpressions) || findNumberByLabel('members reached') || findNumberByLabel('unique impression'),
+          clicksText: trySelectors(selectors.clicks) || findNumberByLabel('click'),
+          engagementRateText: trySelectors(selectors.engagementRate) || findNumberByLabel('engagement rate'),
+          savesText: trySelectors(selectors.saves) || findNumberByLabel('saves'),
+          profileViewsText: trySelectors(selectors.profileViews) || findNumberByLabel('profile viewer'),
+          reactionsText,
+          commentsText,
+          repostsText,
         };
-      },
-      { selectors: ANALYTICS_DASHBOARD_SELECTORS },
-    );
+      })()
+    `) as Record<string, string | null>;
 
     return {
       impressions: parseEngagementNumber(analytics.impressionsText ?? ""),
@@ -732,6 +912,10 @@ export async function scrapeEnhancedPostAnalyticsForUser(
       saves: parseEngagementNumber(analytics.savesText ?? ""),
       profileViews: parseEngagementNumber(analytics.profileViewsText ?? ""),
       followersGained: 0,
+      // Return likes/comments/shares from the analytics page too
+      likes: parseEngagementNumber(analytics.reactionsText ?? ""),
+      comments: parseEngagementNumber(analytics.commentsText ?? ""),
+      shares: parseEngagementNumber(analytics.repostsText ?? ""),
     };
   });
 
@@ -740,15 +924,7 @@ export async function scrapeEnhancedPostAnalyticsForUser(
     return null;
   }
 
-  // Get basic engagement from public post page (doesn't need user cookie)
-  const basicAnalytics = await scrapePostAnalytics(postUrl);
-  
-  return {
-    ...result,
-    likes: basicAnalytics?.likes ?? 0,
-    comments: basicAnalytics?.comments ?? 0,
-    shares: basicAnalytics?.shares ?? 0,
-  };
+  return result;
 }
 
 /**
@@ -774,36 +950,40 @@ export async function scrapeProfileDataForUser(
       throw new LinkedInCookieExpiredError("LinkedIn session expired");
     }
 
-    const profileData = await page.evaluate(() => {
-      function trySelectors(selectorList: readonly string[]): string | null {
-        for (const selector of selectorList) {
-          const el = document.querySelector(selector);
-          if (el) return el.textContent?.trim() ?? null;
+    const profileData = await page.evaluate(`
+      (() => {
+        function trySelectors(selectorList) {
+          for (const selector of selectorList) {
+            try {
+              const el = document.querySelector(selector);
+              if (el) return el.textContent?.trim() ?? null;
+            } catch {}
+          }
+          return null;
         }
-        return null;
-      }
 
-      return {
-        followersText: trySelectors([
-          '[data-follower-count]',
-          '.pv-member-stats__followers-count',
-          '[class*="follower-count"]',
-          '[class*="followerCount"]',
-          'a[href*="followers"] [class*="count"]',
-        ]),
-        connectionsText: trySelectors([
-          '[data-connection-count]',
-          '.pv-member-stats__connections-count',
-          '[class*="connections"]',
-          '[class*="connectionsCount"]',
-        ]),
-        profileViewsText: trySelectors([
-          '[data-profile-views]',
-          '[class*="profile-views"]',
-          '[class*="profileViews"]',
-        ]),
-      };
-    });
+        return {
+          followersText: trySelectors([
+            '[data-follower-count]',
+            '.pv-member-stats__followers-count',
+            '[class*="follower-count"]',
+            '[class*="followerCount"]',
+            'a[href*="followers"] [class*="count"]',
+          ]),
+          connectionsText: trySelectors([
+            '[data-connection-count]',
+            '.pv-member-stats__connections-count',
+            '[class*="connections"]',
+            '[class*="connectionsCount"]',
+          ]),
+          profileViewsText: trySelectors([
+            '[data-profile-views]',
+            '[class*="profile-views"]',
+            '[class*="profileViews"]',
+          ]),
+        };
+      })()
+    `) as { followersText: string | null; connectionsText: string | null; profileViewsText: string | null };
 
     return {
       followerCount: parseEngagementNumber(profileData.followersText ?? ""),

@@ -238,7 +238,7 @@ export function ListView({
                           {post.title ?? "Untitled"}
                         </span>
                         {isOverdue && (
-                          <span className="text-[0.625rem] text-destructive">Overdue</span>
+                          <span className="text-micro text-destructive">Overdue</span>
                         )}
                       </div>
                     </TableCell>

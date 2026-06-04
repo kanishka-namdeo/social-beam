@@ -4,6 +4,7 @@ import { z } from "zod";
 import { logger } from "@/lib/logger";
 import { getBrandAnalyzerGraph } from "@/lib/agent/brand-analyzer-graph";
 import { shutdownCrawler } from "@/lib/agent/crawler";
+import { requirePremium } from "@/lib/api-guards";
 
 const AnalyzeRequestSchema = z.object({
   websiteUrl: z.string().url("Must be a valid URL"),
@@ -24,6 +25,9 @@ export async function POST(req: Request) {
     if (!workspaceId) {
       return NextResponse.json({ error: "No workspace" }, { status: 400 });
     }
+
+    const premiumGuard = await requirePremium();
+    if (premiumGuard) return premiumGuard;
 
     const body = await req.json();
     const parsed = AnalyzeRequestSchema.safeParse(body);

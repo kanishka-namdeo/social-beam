@@ -80,6 +80,7 @@ export interface AnalysisResult {
   relevanceScore: number;
   isRelevant: boolean;
   reason: string;
+  brandReasonTags: string[];
   topicTags: string[];
   suggestedAction: string;
   sentiment: string;
@@ -91,6 +92,7 @@ const fallbackResult: AnalysisResult = {
   relevanceScore: 0,
   isRelevant: false,
   reason: "Analysis failed — AI model unavailable. Review this post manually for social media relevance.",
+  brandReasonTags: [],
   topicTags: [],
   suggestedAction: "Review manually",
   sentiment: "neutral",
@@ -206,6 +208,7 @@ ${brandSnippet}`;
       relevanceScore: result.relevanceScore,
       isRelevant: result.isRelevant,
       reason: result.reason,
+      brandReasonTags: result.brandReasonTags ?? [],
       topicTags: result.topicTags,
       suggestedAction: result.suggestedAction,
       sentiment: result.sentiment ?? "neutral",
@@ -250,6 +253,7 @@ export async function analyzeSinglePost(
     data: {
       relevanceScore: analysis.relevanceScore,
       relevanceReason: analysis.reason,
+      brandReasonTags: analysis.brandReasonTags,
       isActionable: analysis.isRelevant && analysis.relevanceScore >= 0.5,
       topicTags: analysis.topicTags,
       suggestedAction: analysis.suggestedAction,
@@ -385,6 +389,7 @@ export async function processAndStoreTrendingPosts(
         relevanceScore: Math.min(heuristicEntry.result.keywordScore * 0.15, 0.35),
         isRelevant: false,
         reason: "Filtered by heuristic — low keyword match score",
+        brandReasonTags: [],
         topicTags: [],
         suggestedAction: "Monitor only",
         sentiment: "neutral",
@@ -396,6 +401,7 @@ export async function processAndStoreTrendingPosts(
         relevanceScore: 0,
         isRelevant: false,
         reason: "Analysis skipped",
+        brandReasonTags: [],
         topicTags: [],
         suggestedAction: "Review manually",
         sentiment: "neutral",
@@ -416,6 +422,7 @@ export async function processAndStoreTrendingPosts(
       commentCount: post.commentCount,
       relevanceScore: analysis.relevanceScore,
       relevanceReason: analysis.reason,
+      brandReasonTags: analysis.brandReasonTags,
       isActionable: analysis.isRelevant && analysis.relevanceScore >= 0.5,
       topicTags: analysis.topicTags,
       suggestedAction: analysis.suggestedAction,

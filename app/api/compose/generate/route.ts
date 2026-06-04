@@ -5,6 +5,7 @@ import { loadBrandContextForAI } from "@/lib/ai/brand-context-loader";
 import { buildComposePrompts } from "@/lib/ai/compose-prompt-builder";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
+import { requirePremium } from "@/lib/api-guards";
 
 const GenerateSchema = z.object({
   prompt: z.string().min(1).max(2000),
@@ -29,6 +30,10 @@ export async function POST(req: Request) {
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const premiumError = await requirePremium();
+    if (premiumError) return premiumError;
+
     const user = session.user as { id?: string; workspaceId?: string };
     const workspaceId = user.workspaceId;
     if (!workspaceId) {
@@ -57,15 +62,28 @@ export async function POST(req: Request) {
     const stream = new ReadableStream({
       async start(controller) {
         const enqueue = (event: string, data: Record<string, unknown>) => {
+          if (req.signal.aborted) return false;
           const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
-          controller.enqueue(encoder.encode(message));
+          try {
+            controller.enqueue(encoder.encode(message));
+            return true;
+          } catch {
+            return false;
+          }
         };
 
         try {
           const results: Array<{ platform: string; content: string; charCount: number }> = [];
 
           for (const p of prompts) {
-            enqueue("platform_start", { platform: p.platform });
+            // Check for client disconnect before each platform
+            if (req.signal.aborted) {
+              log.warn("api.compose.generate.aborted", { platformsProcessed: results.length });
+              controller.close();
+              return;
+            }
+
+            if (!enqueue("platform_start", { platform: p.platform })) break;
 
             try {
               const response = await model.invoke([
@@ -103,11 +121,17 @@ export async function POST(req: Request) {
                 platform: p.platform,
                 error: String(err),
               });
-              enqueue("platform_error", {
+              if (!enqueue("platform_error", {
                 platform: p.platform,
                 error: "Failed to generate content for this platform",
-              });
+              })) break;
             }
+          }
+
+          // Final abort check before completion
+          if (req.signal.aborted) {
+            controller.close();
+            return;
           }
 
           log.info("api.compose.generate.complete", {

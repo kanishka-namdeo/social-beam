@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { ActionHandoffDialog } from "./action-handoff-dialog";
+import { BrandReasonPill } from "./brand-reason-breakdown";
 import type { TrendingPost } from "@/lib/reddit/types";
 import { getRelevanceBadgeClass, getRelevanceLabel, isAiAnalysisFailed } from "@/lib/reddit/types";
 import { getActionIcon } from "@/lib/reddit/ui-helpers";
@@ -41,10 +42,13 @@ export function TrendingRadarCard({ posts, isLoading }: TrendingRadarCardProps) 
   const [selectedPost, setSelectedPost] = useState<TrendingPost | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mountedRef = useRef(true);
 
   // Cleanup polling timeout on unmount
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
+      mountedRef.current = false;
       if (pollRef.current) clearTimeout(pollRef.current);
     };
   }, []);
@@ -55,6 +59,7 @@ export function TrendingRadarCard({ posts, isLoading }: TrendingRadarCardProps) 
       polls++;
       if (polls > maxPolls) {
         if (pollRef.current) clearTimeout(pollRef.current);
+        if (!mountedRef.current) return;
         router.refresh();
         return;
       }
@@ -64,10 +69,12 @@ export function TrendingRadarCard({ posts, isLoading }: TrendingRadarCardProps) 
         if (res.ok) {
           const json = await res.json();
           const status: JobStatus = json.data;
+          if (!mountedRef.current) return;
           setJobStatus(status);
 
           if (status.phase === "done" || status.phase === "error") {
             if (pollRef.current) clearTimeout(pollRef.current);
+            if (!mountedRef.current) return;
             setTriggering(false);
             setJobStatus(null);
             router.refresh();
@@ -81,6 +88,7 @@ export function TrendingRadarCard({ posts, isLoading }: TrendingRadarCardProps) 
         // Silently continue polling
       }
 
+      if (!mountedRef.current) return;
       pollRef.current = setTimeout(poll, 3000);
     };
 
@@ -194,12 +202,12 @@ export function TrendingRadarCard({ posts, isLoading }: TrendingRadarCardProps) 
         {topTrend && (
           <div className="rounded-sm border border-brand/20 bg-brand/5 p-3 space-y-1.5">
             <p className="text-xs font-medium text-muted-foreground">Top trend this week</p>
-            <p className="text-sm font-medium text-foreground line-clamp-2">{topTrend.title}</p>
+            <p className="text-sm font-medium text-foreground truncate-2">{topTrend.title}</p>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span>r/{topTrend.subreddit}</span>
-              <span className="flex items-center gap-0.5">
+              <span className="flex items-center gap-0.5 tabular-nums">
                 <TrendUp className="size-3 text-success" weight="bold" />
-                {topTrend.upvotes}
+                <span className="tabular-nums">{topTrend.upvotes}</span>
               </span>
             </div>
             <div className="flex gap-2">
@@ -231,19 +239,24 @@ export function TrendingRadarCard({ posts, isLoading }: TrendingRadarCardProps) 
                   </a>
                   <div className="flex items-center gap-2 mt-0.5">
                     <span className="text-xs text-muted-foreground">r/{post.subreddit}</span>
-                    <span className="text-xs text-muted-foreground flex items-center gap-0.5">
+                    <span className="text-xs text-muted-foreground flex-center gap-0.5 tabular-nums">
                       <TrendUp className="size-3 text-success" weight="bold" />
-                      {post.upvotes}
+                      <span className="tabular-nums">{post.upvotes}</span>
                     </span>
                   </div>
                 </div>
                 {post.relevanceScore != null && (
-                  <Badge
-                    variant="outline"
-                    className={cn("text-xs shrink-0", getRelevanceBadgeClass(post.relevanceScore, isAiAnalysisFailed(post.relevanceReason)))}
-                  >
-                    {getRelevanceLabel(post.relevanceScore, isAiAnalysisFailed(post.relevanceReason))}
-                  </Badge>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {post.brandReasonTags && post.brandReasonTags.length > 0 && (
+                      <BrandReasonPill tag={post.brandReasonTags[0]} />
+                    )}
+                    <Badge
+                      variant="outline"
+                      className={cn("text-xs shrink-0", getRelevanceBadgeClass(post.relevanceScore, isAiAnalysisFailed(post.relevanceReason)))}
+                    >
+                      {getRelevanceLabel(post.relevanceScore, isAiAnalysisFailed(post.relevanceReason))}
+                    </Badge>
+                  </div>
                 )}
               </div>
               {post.suggestedAction && (

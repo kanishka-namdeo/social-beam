@@ -11,15 +11,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { SignOut } from "@phosphor-icons/react/ssr";
+import { SignOut, Sparkle } from "@phosphor-icons/react/ssr";
 import { useSidebar } from "@/components/ui/sidebar";
+import { RoleBadge } from "@/components/dashboard/role-badge";
+import type { UserRole } from "@/lib/role-guard";
+import Link from "next/link";
 
 interface UserMenuProps {
   userName: string;
   userEmail?: string;
+  userRole?: UserRole;
 }
 
-export function UserMenu({ userName, userEmail }: UserMenuProps) {
+export function UserMenu({ userName, userEmail, userRole }: UserMenuProps) {
   const { state } = useSidebar();
   const isExpanded = state === "expanded";
 
@@ -54,12 +58,26 @@ export function UserMenu({ userName, userEmail }: UserMenuProps) {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>
           <div className="flex flex-col gap-0.5">
-            <span className="truncate text-sm font-semibold">{userName}</span>
+            <div className="flex items-center gap-2">
+              <span className="truncate text-sm font-semibold">{userName}</span>
+              {userRole && <RoleBadge role={userRole} size="sm" />}
+            </div>
             {userEmail && (
               <span className="truncate text-xs text-muted-foreground">{userEmail}</span>
             )}
           </div>
         </DropdownMenuLabel>
+        {userRole === 'FREE_USER' && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/billing" className="flex items-center gap-2 text-brand">
+                <Sparkle className="size-4" weight="fill" />
+                Upgrade to Premium
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem
           variant="destructive"

@@ -42,7 +42,7 @@ export function DayCell({ date, isCurrentMonth, isToday, isWeekend = false, post
     <div
       ref={setNodeRef}
       className={cn(
-        "relative flex min-h-[120px] flex-col rounded-sm border border-border p-2 transition-colors duration-150",
+        "relative flex min-h-[120px] flex-col rounded-sm border border-border p-2 transition-colors duration-normal",
         isCurrentMonth
           ? "bg-card"
           : "border-dashed border-border/50 bg-muted/10",
@@ -59,7 +59,7 @@ export function DayCell({ date, isCurrentMonth, isToday, isWeekend = false, post
       }}
     >
       {/* Date header */}
-      <div className="flex items-center justify-between mb-1.5">
+      <div className="flex-between mb-1.5">
         <span
           className={cn(
             "text-xs font-medium tabular-nums",
@@ -72,7 +72,7 @@ export function DayCell({ date, isCurrentMonth, isToday, isWeekend = false, post
         {showGapIndicator && (
           <span className="group/gap relative">
             <CalendarPlus className="size-3.5 text-brand/60" weight="bold" />
-            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover/gap:block z-50 whitespace-nowrap rounded-sm bg-foreground px-2 py-1 text-[0.625rem] text-background shadow-lg">
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover/gap:block whitespace-nowrap rounded-sm bg-foreground px-2 py-1 text-micro text-background shadow-lg">
               {config.showAILabels ? "AI suggests posting here" : "Suggested slot"}
             </span>
           </span>

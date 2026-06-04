@@ -39,11 +39,11 @@ export function TikTokPreview({ content, account, mediaUrls }: TikTokPreviewProp
       )}
 
       {/* Overlay Info */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 pt-12">
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-preview pt-12">
         {/* Action Buttons (right side) */}
         <div className="absolute right-3 bottom-20 flex flex-col items-center gap-4">
           <div className="flex flex-col items-center gap-1">
-            <Avatar className="h-10 w-10 border-2 border-white">
+            <Avatar className="h-10 w-10 border-strong border-white">
               <AvatarImage src={avatarSrc} alt={displayName} />
               <AvatarFallback className="bg-preview-tiktok text-xs font-bold text-white">{avatarFallback}</AvatarFallback>
             </Avatar>

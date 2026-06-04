@@ -4,6 +4,9 @@ dotenv.config();
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
+  migrations: {
+    seed: "pnpm dlx tsx prisma/seed.ts",
+  },
   datasource: {
     url: process.env.DATABASE_URL!,
   },

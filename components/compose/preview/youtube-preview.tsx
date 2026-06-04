@@ -25,7 +25,7 @@ export function YoutubePreview({ title, content, account, mediaUrls }: YoutubePr
         )}
 
         {/* Channel info */}
-        <div className="p-3">
+        <div className="p-preview">
           <div className="flex items-center gap-2">
             <div className="size-8 rounded-full bg-muted" />
             <div>
@@ -42,7 +42,7 @@ export function YoutubePreview({ title, content, account, mediaUrls }: YoutubePr
 
           {/* Description */}
           {content && (
-            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{content}</p>
+            <p className="mt-1 text-xs text-muted-foreground truncate-2">{content}</p>
           )}
         </div>
       </CardContent>

@@ -5,6 +5,7 @@ import { logger } from "@/lib/logger";
 import { upsertBrandContext, getBrandContext, upsertPlatformContext } from "@/lib/db/brand-context";
 import { getBrandAnalyzerGraph } from "@/lib/agent/brand-analyzer-graph";
 import { HumanMessage } from "@langchain/core/messages";
+import { requirePremium } from "@/lib/api-guards";
 
 const ResumeRequestSchema = z.object({
   threadId: z.string().min(1),
@@ -21,6 +22,10 @@ export async function POST(req: Request) {
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const premiumError = await requirePremium();
+    if (premiumError) return premiumError;
+
     const workspaceId = (session.user as { workspaceId?: string }).workspaceId;
     if (!workspaceId) {
       return NextResponse.json({ error: "No workspace" }, { status: 400 });
@@ -42,13 +47,18 @@ export async function POST(req: Request) {
     // For confirm/save_edits actions, save brand context directly from thread state
     // and return an SSE stream so the client can transition to the "complete" phase.
     if (action === "confirm" || action === "save_edits") {
+      console.log("[brand-debug] api.brand_resume: entering confirm/save_edits path", { threadId, action, hasEdits: !!edits, editKeys: edits ? Object.keys(edits) : [] });
+
       const graph = await getBrandAnalyzerGraph();
       const currentState = await graph.getState({ configurable: { thread_id: threadId } });
       const stateValues = currentState.values as Record<string, unknown>;
       const draft = stateValues?.brandContextDraft as Record<string, unknown> | undefined;
       const platformDrafts = stateValues?.platformContextsDraft as Record<string, Record<string, unknown>> | undefined;
 
+      console.log("[brand-debug] api.brand_resume: state values", { hasDraft: !!draft, draftKeys: draft ? Object.keys(draft) : [], draftIsEmpty: !draft || Object.keys(draft).length === 0, hasPlatformDrafts: !!platformDrafts, platformKeys: platformDrafts ? Object.keys(platformDrafts) : [] });
+
       if (!draft || Object.keys(draft).length === 0) {
+        console.error("[brand-debug] api.brand_resume: no_draft error");
         log.warn("api.brand_resume.no_draft", { threadId });
         return NextResponse.json(
           { error: "No brand context data found. Please start a new analysis." },
@@ -72,41 +82,40 @@ export async function POST(req: Request) {
       const websiteUrlVal = mergedEdits.websiteUrl as string | undefined;
       const urlForSave = websiteUrlVal && (websiteUrlVal.startsWith("http://") || websiteUrlVal.startsWith("https://")) ? websiteUrlVal : undefined;
 
-      await upsertBrandContext(workspaceId, {
-        businessName: mergedEdits.businessName as string | undefined,
-        tagline: mergedEdits.tagline as string | undefined,
-        ...(urlForSave ? { websiteUrl: urlForSave } : {}),
-        industry: mergedEdits.industry as string | undefined,
-        productDesc: mergedEdits.productDesc as string | undefined,
-        tonePreset: mergedEdits.tonePreset as string | undefined,
-        voiceDescription: mergedEdits.voiceDescription as string | undefined,
-        bannedWords: (mergedEdits.bannedWords as string[]) ?? [],
-        voiceExamples: (mergedEdits.voiceExamples as Array<{ text: string; source?: string }>) ?? [],
-        audienceType: mergedEdits.audienceType as string | undefined,
-        demographics: mergedEdits.demographics as Record<string, unknown> | undefined,
-        interests: (mergedEdits.interests as string[]) ?? [],
-        painPoints: (mergedEdits.painPoints as string[]) ?? [],
-        competitors: (mergedEdits.competitors as string[]) ?? [],
-        goals: (mergedEdits.goals as string[]) ?? [],
-        trainingStatus: "trained",
-      });
+      // #region agent log
+      fetch('http://127.0.0.1:7451/ingest/b7035045-62e6-496c-836c-a051672742f3',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-Debug-Session-Id':'7dfc89'},
+        body:JSON.stringify({sessionId:'7dfc89',location:'resume/route.ts:60',message:'api.brand_resume: calling upsertBrandContext',data:{urlForSave:!!urlForSave,mergedEditsKeys:Object.keys(mergedEdits)},timestamp:Date.now(),runId:'debug1',hypothesisId:'E'}),
+        signal: AbortSignal.timeout(5000),
+      }).catch(()=>{});
+      // #endregion
 
-      if (platformDrafts && Object.keys(platformDrafts).length > 0) {
-        const brandCtx = await getBrandContext(workspaceId);
-        if (brandCtx) {
-          for (const [platform, pc] of Object.entries(platformDrafts)) {
-            await upsertPlatformContext(brandCtx.id, platform, {
-              platformTone: pc.platformTone as string | undefined,
-              contentMix: pc.contentMix as Record<string, unknown> | undefined,
-              postingCadence: pc.postingCadence as string | undefined,
-              hashtagStrategy: pc.hashtagStrategy as Record<string, unknown> | undefined,
-              visualStyle: pc.visualStyle as string | undefined,
-              engagementStyle: pc.engagementStyle as string | undefined,
-              platformRules: (pc.platformRules as string[]) ?? [],
-            });
-          }
-        }
+      try {
+        await upsertBrandContext(workspaceId, {
+          businessName: mergedEdits.businessName as string | undefined,
+          tagline: mergedEdits.tagline as string | undefined,
+          ...(urlForSave ? { websiteUrl: urlForSave } : {}),
+          industry: mergedEdits.industry as string | undefined,
+          productDesc: mergedEdits.productDesc as string | undefined,
+          tonePreset: mergedEdits.tonePreset as string | undefined,
+          voiceDescription: mergedEdits.voiceDescription as string | undefined,
+          bannedWords: (mergedEdits.bannedWords as string[]) ?? [],
+          voiceExamples: (mergedEdits.voiceExamples as Array<{ text: string; source?: string }>) ?? [],
+          audienceType: mergedEdits.audienceType as string | undefined,
+          demographics: mergedEdits.demographics as Record<string, unknown> | undefined,
+          interests: (mergedEdits.interests as string[]) ?? [],
+          painPoints: (mergedEdits.painPoints as string[]) ?? [],
+          competitors: (mergedEdits.competitors as string[]) ?? [],
+          goals: (mergedEdits.goals as string[]) ?? [],
+          trainingStatus: "trained",
+        });
+      } catch (upsertErr) {
+        console.error("[brand-debug] api.brand_resume: upsertBrandContext threw error", upsertErr instanceof Error ? upsertErr.message : String(upsertErr));
+        throw upsertErr;
       }
+
+      console.log("[brand-debug] api.brand_resume: saved successfully");
 
       log.info("api.brand_resume.saved", { threadId, workspaceId });
 

@@ -4,12 +4,22 @@ import { logger } from '@/lib/logger';
 import { PostSchema } from '@/lib/tools/schemas';
 import { buildPostPrompt } from '@/lib/tools/post-generator';
 import { checkRateLimit, recordGenerationToResponse } from '@/lib/tools/rate-limiter';
+import { auth } from '@/lib/auth';
+import { requirePremium } from '@/lib/api-guards';
 
 export async function POST(req: Request) {
   const requestId = crypto.randomUUID();
   const log = logger.child({ requestId });
 
   try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const premiumGuard = await requirePremium();
+    if (premiumGuard) return premiumGuard;
+
     const rateLimited = await checkRateLimit();
     if (rateLimited) {
       return NextResponse.json(

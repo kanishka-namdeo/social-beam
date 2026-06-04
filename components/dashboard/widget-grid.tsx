@@ -44,6 +44,7 @@ interface DashboardData {
     commentCount: number;
     relevanceScore: number | null;
     relevanceReason: string | null;
+    brandReasonTags: string[];
     isActionable: boolean;
     topicTags: string[];
     suggestedAction: string | null;
@@ -183,7 +184,7 @@ export function WidgetGrid({ layout, data }: WidgetGridProps) {
       default: {
         const meta = getWidgetMeta(entry.id);
         return (
-          <div className="flex items-center justify-between rounded-sm border border-border bg-card p-6">
+          <div className="flex items-center justify-between rounded-sm border border-border bg-card p-card">
             <div>
               <p className="text-sm font-medium text-foreground">{meta?.name ?? entry.id}</p>
               <p className="text-xs text-muted-foreground">Widget coming soon</p>

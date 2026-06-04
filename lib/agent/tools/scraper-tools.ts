@@ -39,7 +39,9 @@ export const fetchPostsTool = tool(
         params.set('fields', 'caption,media_type,media_url,timestamp,like_count,comments_count');
       }
 
-      const response = await fetch(`${endpoint}?${params}`);
+      const response = await fetch(`${endpoint}?${params}`, {
+        signal: AbortSignal.timeout(30000),
+      });
       const data = await response.json() as Record<string, unknown>;
 
       if (!response.ok) {

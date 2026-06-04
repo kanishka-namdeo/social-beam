@@ -16,29 +16,29 @@ import Link from "next/link";
 import { Sparkle } from "@phosphor-icons/react/ssr";
 import { cn } from "@/lib/utils";
 import { UserMenu } from "@/components/dashboard/user-menu";
+import type { UserRole } from "@/lib/role-guard";
 
 interface DashboardSidebarInnerProps {
   navItems: NavItem[];
   userName: string;
   userEmail?: string;
+  userRole?: UserRole;
 }
 
-function DashboardSidebarInner({ navItems, userName, userEmail }: DashboardSidebarInnerProps) {
+function DashboardSidebarInner({ navItems, userName, userEmail, userRole }: DashboardSidebarInnerProps) {
   const { config } = useSidebarPreference();
   const { setOpen } = useSidebar();
   const prevCollapsible = useRef(config.collapsible);
 
-  // Only sync open state when the collapsible *mode* changes (e.g. user toggles
-  // icon-only in Settings). After the initial sync the user can freely toggle.
+  // Sync the open/collapsed state with the collapsible mode on mount, and
+  // whenever the mode changes (e.g. user toggles icon-only in Settings).
   useEffect(() => {
-    if (prevCollapsible.current !== config.collapsible) {
-      if (config.collapsible === "icon") {
-        setOpen(false);
-      } else {
-        setOpen(true);
-      }
-      prevCollapsible.current = config.collapsible;
+    if (config.collapsible === "icon") {
+      setOpen(false);
+    } else {
+      setOpen(true);
     }
+    prevCollapsible.current = config.collapsible;
   }, [config.collapsible, setOpen]);
 
   return (
@@ -58,7 +58,7 @@ function DashboardSidebarInner({ navItems, userName, userEmail }: DashboardSideb
           >
             {/* Logo icon - always visible */}
             <div className={cn(
-              "flex items-center justify-center bg-brand text-white transition-all duration-200",
+              "flex items-center justify-center bg-brand text-white transition-[width,height,transform] duration-[var(--duration-medium)] ease-[var(--ease-decelerate)]",
               "h-8 w-8 rounded-sm",
               "group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:rounded-md",
               "group-data-[collapsible=icon]:hover:scale-105"
@@ -72,10 +72,10 @@ function DashboardSidebarInner({ navItems, userName, userEmail }: DashboardSideb
         <div className="absolute inset-x-0 bottom-0 h-px bg-sidebar-border/50" />
       </SidebarHeader>
       <SidebarContent className="group-data-[collapsible=icon]:px-1.5 group-data-[collapsible=icon]:py-3 group-data-[collapsible=icon]:gap-1">
-        <SidebarNav items={navItems} />
+        <SidebarNav items={navItems} userRole={userRole} />
       </SidebarContent>
       <SidebarFooter className="group-data-[collapsible=icon]:p-3 group-data-[collapsible=icon]:items-center">
-        <UserMenu userName={userName} userEmail={userEmail} />
+        <UserMenu userName={userName} userEmail={userEmail} userRole={userRole} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
@@ -86,8 +86,9 @@ interface DashboardSidebarProps {
   navItems: NavItem[];
   userName: string;
   userEmail?: string;
+  userRole?: UserRole;
 }
 
-export function DashboardSidebar({ navItems, userName, userEmail }: DashboardSidebarProps) {
-  return <DashboardSidebarInner navItems={navItems} userName={userName} userEmail={userEmail} />;
+export function DashboardSidebar({ navItems, userName, userEmail, userRole }: DashboardSidebarProps) {
+  return <DashboardSidebarInner navItems={navItems} userName={userName} userEmail={userEmail} userRole={userRole} />;
 }

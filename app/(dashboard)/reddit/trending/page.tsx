@@ -7,13 +7,14 @@ import {
   Sparkle,
   ArrowClockwise,
 } from "@phosphor-icons/react/ssr";
-import { SubredditManager } from "@/components/reddit/subreddit-manager";
 import { TrendingEmptyState } from "@/components/reddit/trending-empty-state";
 import { TrendingTable } from "@/components/reddit/trending-table";
 import { PeriodFilters } from "./period-filters";
 import { SubredditFilterTabs } from "./subreddit-filter-tabs";
 import { RefreshTrendsButton } from "./refresh-trends-button";
 import { subHours } from "@/lib/utils/dates";
+import { loadBrandContextForAI } from "@/lib/ai/brand-context-loader";
+import { RedditTrendingClient } from "./reddit-trending-client";
 
 const VALID_PERIODS = [6, 24, 168, 720] as const;
 const DEFAULT_PERIOD = 24;
@@ -74,6 +75,11 @@ export default async function RedditTrendingPage({
 
   const hasData = posts.length > 0;
 
+  // Load brand context for subreddit recommendations
+  const brandCtx = await loadBrandContextForAI(workspaceId);
+  const hasBrandContext = !!brandCtx && !!brandCtx.identity.industry;
+  const industry = brandCtx?.identity.industry;
+
   return (
     <div className="mx-auto max-w-7xl space-y-8">
       {/* Header */}
@@ -100,7 +106,10 @@ export default async function RedditTrendingPage({
           )}
         </div>
         <div className="flex items-center gap-2">
-            <SubredditManager />
+            <RedditTrendingClient
+              hasBrandContext={hasBrandContext}
+              industry={industry}
+            />
             {hasData && (
               <RefreshTrendsButton />
             )}
@@ -110,6 +119,12 @@ export default async function RedditTrendingPage({
             />
           </div>
       </div>
+
+      {/* Recommendation Banner */}
+      <RedditTrendingClient
+        hasBrandContext={hasBrandContext}
+        industry={industry}
+      />
 
       {/* Empty States */}
       {posts.length === 0 && (

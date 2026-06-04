@@ -17,6 +17,24 @@ const CookieExtractSchema = z.object({
 const LOGIN_POLL_INTERVAL_MS = 5000;
 const LOGIN_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
+// Rate limiting for browser launches (prevents resource exhaustion)
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_START_ATTEMPTS = 3; // 3 browser launches per minute per user
+
+const startAttempts = new Map<string, { count: number; resetTime: number }>();
+
+function checkStartRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const record = startAttempts.get(userId);
+  if (!record || now > record.resetTime) {
+    startAttempts.set(userId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (record.count >= MAX_START_ATTEMPTS) return false;
+  record.count++;
+  return true;
+}
+
 export async function POST(req: Request) {
   const requestId = crypto.randomUUID();
   const log = logger.child({ requestId });
@@ -42,12 +60,20 @@ export async function POST(req: Request) {
     }
 
     const { platform, action } = parsed.data;
+    const userId = user.id ?? "";
 
     if (platform !== "linkedin") {
       return NextResponse.json({ error: "Unsupported platform" }, { status: 400 });
     }
 
     if (action === "start") {
+      if (!checkStartRateLimit(userId)) {
+        log.warn("api.session.linkedin.rate_limited", { userId, workspaceId });
+        return NextResponse.json(
+          { error: "Too many browser launch attempts. Please try again in a minute." },
+          { status: 429 },
+        );
+      }
       return await handleStartLogin(log, workspaceId);
     }
 

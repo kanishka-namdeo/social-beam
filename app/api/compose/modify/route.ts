@@ -4,6 +4,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
 import { PLATFORM_CHAR_LIMITS } from "@/lib/compose/constants";
+import { requirePremium } from "@/lib/api-guards";
 
 const ModifySchema = z.object({
   content: z.string().min(1).max(10000),
@@ -50,6 +51,10 @@ export async function POST(req: Request) {
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const premiumError = await requirePremium();
+    if (premiumError) return premiumError;
+
     const user = session.user as { id?: string; workspaceId?: string };
     const workspaceId = user.workspaceId;
     if (!workspaceId) {
@@ -77,8 +82,14 @@ export async function POST(req: Request) {
     const stream = new ReadableStream({
       async start(controller) {
         const enqueue = (event: string, data: Record<string, unknown>) => {
+          if (req.signal.aborted) return false;
           const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
-          controller.enqueue(encoder.encode(message));
+          try {
+            controller.enqueue(encoder.encode(message));
+            return true;
+          } catch {
+            return false;
+          }
         };
 
         try {
@@ -94,9 +105,18 @@ export async function POST(req: Request) {
           let fullContent = "";
 
           for await (const chunk of response) {
+            // Check for client disconnect during streaming
+            if (req.signal.aborted) break;
+            
             const token = typeof chunk.content === "string" ? chunk.content : String(chunk.content);
             fullContent += token;
-            enqueue("content_chunk", { content: fullContent });
+            if (!enqueue("content_chunk", { content: fullContent })) break;
+          }
+
+          if (req.signal.aborted) {
+            log.warn("api.compose.modify.aborted", { modifier, platform });
+            controller.close();
+            return;
           }
 
           const sanitized = sanitizeContent(fullContent);

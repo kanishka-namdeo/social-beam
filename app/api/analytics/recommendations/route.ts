@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
+import { requirePremium } from "@/lib/api-guards";
 
 const querySchema = z.object({
   days: z.coerce.number().int().min(1).max(365).default(30),
@@ -24,6 +25,10 @@ export async function GET(req: Request) {
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const premiumError = await requirePremium();
+    if (premiumError) return premiumError;
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const workspaceId = (session.user as any).workspaceId as string | undefined;
     if (!workspaceId) {
@@ -39,11 +44,13 @@ export async function GET(req: Request) {
     const [, analyticsSnapshots] = await Promise.all([
       prisma.post.findMany({
         where: { workspaceId, publishedAt: { gte: since } },
-        select: { id: true, publishedAt: true, platforms: { select: { platform: true, status: true } } },
+        select: { id: true, publishedAt: true, PostPlatform: { select: { platform: true, status: true } } },
       }),
       prisma.analyticsSnapshot.findMany({
-        where: { snapshotAt: { gte: since }, post: { workspaceId } },
+        where: { snapshotAt: { gte: since }, Post: { workspaceId } },
         select: {
+          id: true,
+          postId: true,
           platform: true,
           likes: true,
           comments: true,
@@ -51,6 +58,9 @@ export async function GET(req: Request) {
           impressions: true,
           engagementRate: true,
           snapshotAt: true,
+          clicks: true,
+          reach: true,
+          Post: { select: { publishedAt: true } },
         },
       }),
     ]);
@@ -59,7 +69,9 @@ export async function GET(req: Request) {
     const timeSlotMap = new Map<string, { totalEng: number; count: number; totalImp: number }>();
 
     for (const snap of analyticsSnapshots) {
-      const d = snap.snapshotAt;
+      const publishedAt = snap.Post?.publishedAt;
+      if (!publishedAt) continue;
+      const d = new Date(publishedAt);
       const hour = d.getHours();
       const dayOfWeek = d.getDay();
       const key = `${dayOfWeek}-${hour}`;
@@ -96,8 +108,10 @@ export async function GET(req: Request) {
         platformTimeMap.set(snap.platform, new Map());
       }
       const pMap = platformTimeMap.get(snap.platform)!;
-      const hour = snap.snapshotAt.getHours();
-      const dayOfWeek = snap.snapshotAt.getDay();
+      const publishedAt = snap.Post?.publishedAt;
+      if (!publishedAt) continue;
+      const hour = new Date(publishedAt).getHours();
+      const dayOfWeek = new Date(publishedAt).getDay();
       const key = `${dayOfWeek}-${hour}`;
       if (!pMap.has(key)) {
         pMap.set(key, { totalEng: 0, count: 0 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Archive,
   GridFour,
@@ -29,9 +29,10 @@ interface MediaLibraryProps {
   initialAssets: MediaAsset[];
   total: number;
   connectedPlatforms?: string[];
+  brandSearchQuery?: string;
 }
 
-export function MediaLibrary({ initialAssets, total: initialTotal, connectedPlatforms = [] }: MediaLibraryProps) {
+export function MediaLibrary({ initialAssets, total: initialTotal, connectedPlatforms = [], brandSearchQuery }: MediaLibraryProps) {
   const [assets, setAssets] = useState<MediaAsset[]>(initialAssets);
   const [total, setTotal] = useState(initialTotal);
   const [search, setSearch] = useState("");
@@ -43,6 +44,7 @@ export function MediaLibrary({ initialAssets, total: initialTotal, connectedPlat
   const [hasSearched, setHasSearched] = useState(false);
   const [libraryTab, setLibraryTab] = useState<"upload" | "stock" | "gifs">("upload");
   const [showArchived, setShowArchived] = useState(false);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const filteredAssets = showArchived ? assets : assets.filter((a) => a.status !== "archived");
 
@@ -149,13 +151,27 @@ export function MediaLibrary({ initialAssets, total: initialTotal, connectedPlat
   const handleSearchChange = (value: string) => {
     setSearch(value);
     setHasSearched(false);
-    setTimeout(() => fetchAssets(), 300);
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    // Set new timeout
+    searchTimeoutRef.current = setTimeout(() => fetchAssets(), 300);
   };
+
+  // Cleanup search timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="stagger-1 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">Media Library</h1>
           <p className="text-sm text-muted-foreground">
@@ -249,7 +265,7 @@ export function MediaLibrary({ initialAssets, total: initialTotal, connectedPlat
               {/* Grid content */}
               <TabsContent value="grid" className="mt-0">
                 {searchLoading ? (
-                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                  <div className="grid-auto-fill gap-4">
                     {Array.from({ length: 4 }).map((_, i) => (
                       <div key={i} className="rounded-sm border border-border overflow-hidden">
                         <Skeleton className="aspect-square w-full rounded-none" />
@@ -261,7 +277,7 @@ export function MediaLibrary({ initialAssets, total: initialTotal, connectedPlat
                     ))}
                   </div>
                 ) : assets.length === 0 && search && hasSearched ? (
-                  <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-border p-12 text-center">
+                  <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-border p-empty text-center">
                     <MagnifyingGlass className="mb-3 size-10 text-muted-foreground" weight="thin" />
                     <p className="mb-1 text-sm font-medium text-foreground">
                       No results found for &quot;{search}&quot;
@@ -274,7 +290,7 @@ export function MediaLibrary({ initialAssets, total: initialTotal, connectedPlat
                     </Button>
                   </div>
                 ) : assets.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-border p-12 text-center">
+                  <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-border p-empty text-center">
                     <GridFour className="mb-3 size-10 text-muted-foreground" weight="thin" />
                     <p className="mb-1 text-sm font-medium text-foreground">No media yet</p>
                     <p className="mb-4 text-xs text-muted-foreground">
@@ -311,6 +327,7 @@ export function MediaLibrary({ initialAssets, total: initialTotal, connectedPlat
           <StockPhotoBrowser
             defaultProvider="all"
             onImportComplete={fetchAssets}
+            initialQuery={brandSearchQuery}
           />
         </TabsContent>
 
@@ -325,6 +342,7 @@ export function MediaLibrary({ initialAssets, total: initialTotal, connectedPlat
         open={uploadOpen}
         onOpenChange={setUploadOpen}
         onComplete={handleUploadComplete}
+        brandSearchQuery={brandSearchQuery}
       />
 
       {/* Delete confirmation */}

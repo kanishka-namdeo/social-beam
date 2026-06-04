@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -27,6 +28,7 @@ import {
 } from "@phosphor-icons/react/ssr";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { usePremium } from "@/hooks/use-premium";
 import type { TrendingPost } from "@/lib/reddit/types";
 import { getRelevanceBadgeClass, isAiAnalysisFailed } from "@/lib/reddit/types";
 
@@ -83,6 +85,7 @@ function getRiskIcon(risk: string | null | undefined, className: string) {
 }
 
 export function ActionHandoffDialog({ post, open, onOpenChange, onDismiss, onMarkActed }: ActionHandoffDialogProps) {
+  const { isPremium } = usePremium();
   const [analyzing, setAnalyzing] = useState(false);
 
   if (!post) return null;
@@ -273,10 +276,19 @@ export function ActionHandoffDialog({ post, open, onOpenChange, onDismiss, onMar
               <CheckCircle className="size-3.5" />
               Mark Acted
             </Button>
-            <Button onClick={handleCompose}>
-              Compose with this trend
-              <ArrowSquareOut className="ml-1.5 size-4" weight="bold" />
-            </Button>
+            {isPremium ? (
+              <Button onClick={handleCompose}>
+                Compose with this trend
+                <ArrowSquareOut className="ml-1.5 size-4" weight="bold" />
+              </Button>
+            ) : (
+              <Button asChild variant="outline" size="sm" className="gap-1.5">
+                <Link href="/billing">
+                  <Sparkle className="size-3.5" weight="fill" />
+                  Premium
+                </Link>
+              </Button>
+            )}
           </div>
         </DialogFooter>
       </DialogContent>

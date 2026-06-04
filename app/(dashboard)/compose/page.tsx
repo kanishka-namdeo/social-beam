@@ -4,15 +4,56 @@ import { ComposeForm } from "@/components/compose/compose-form";
 import { TrendContextBanner } from "@/components/compose/trend-context-banner";
 import { BrandContextIndicator } from "@/components/compose/brand-context-indicator";
 
+import type { UserRole } from "@/lib/role-guard";
+
+function computeBrandSearchQuery(brandContext: {
+  trainingStatus: string;
+  industry: string | null;
+  interests: string[];
+  productDesc: string | null;
+  PlatformContext: Array<{ visualStyle: string | null }>;
+} | null): string {
+  if (!brandContext || brandContext.trainingStatus !== "trained") return "";
+
+  const parts: string[] = [];
+
+  if (brandContext.industry) parts.push(brandContext.industry);
+  if (brandContext.interests?.length) parts.push(brandContext.interests.slice(0, 3).join(" "));
+  if (brandContext.productDesc) {
+    const words = brandContext.productDesc.split(/\s+/).slice(0, 3).join(" ");
+    parts.push(words);
+  }
+
+  const visualStyles = brandContext.PlatformContext
+    .map((pc) => pc.visualStyle)
+    .filter(Boolean)
+    .slice(0, 2) as string[];
+  if (visualStyles.length) parts.push(visualStyles.join(" "));
+
+  return parts.join(" ").split(/\s+/).slice(0, 10).join(" ").trim();
+}
+
 export default async function ComposePage({
   searchParams,
 }: {
   searchParams: Promise<{ trendId?: string; prompt?: string }>;
 }) {
   const session = await auth();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const user = session?.user as any;
+  const user = session?.user as { id?: string; workspaceId?: string; role?: UserRole };
+  const userId = user?.id as string | undefined;
   const workspaceId = user?.workspaceId as string;
+
+  // Resolve role with DB fallback
+  let userRole = user?.role;
+  if (!userRole && userId) {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+    userRole = dbUser?.role ?? 'FREE_USER';
+  } else {
+    userRole = userRole ?? 'FREE_USER';
+  }
 
   const [connectedAccounts, brandContext] = await Promise.all([
     prisma.connectedAccount.findMany({
@@ -30,9 +71,17 @@ export default async function ComposePage({
         businessName: true,
         tonePreset: true,
         trainingStatus: true,
+        industry: true,
+        interests: true,
+        productDesc: true,
+        PlatformContext: {
+          select: { visualStyle: true },
+        },
       },
     }),
   ]);
+
+  const brandSearchQuery = computeBrandSearchQuery(brandContext);
 
   const resolvedParams = await searchParams;
   let trendContext = null;
@@ -70,6 +119,8 @@ export default async function ComposePage({
       <ComposeForm
         connectedAccounts={connectedAccounts}
         initialPrompt={initialPrompt}
+        userRole={userRole}
+        brandSearchQuery={brandSearchQuery}
       />
     </div>
   );

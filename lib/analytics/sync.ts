@@ -139,15 +139,13 @@ async function syncLinkedinAnalytics(
     errors: [],
   };
 
-  // Get all published LinkedIn posts for this workspace
+  // Get all LinkedIn posts for this workspace (published + external scraped posts)
   const posts = await prisma.post.findMany({
     where: {
       workspaceId,
-      status: 'PUBLISHED',
       PostPlatform: {
         some: {
           platform: 'linkedin',
-          status: 'PUBLISHED',
           externalId: { not: null },
         },
       },
@@ -174,16 +172,25 @@ async function syncLinkedinAnalytics(
     }
 
     try {
-      // Build the LinkedIn share URN from the external ID
       const shareUrn = `urn:li:share:${linkedinPlatform.externalId}`;
-      const postUrl = linkedinPlatform.postUrl ?? `https://www.linkedin.com/feed/update/${encodeURIComponent(shareUrn)}`;
       
-      // Try enhanced scraper with user-specific cookie first
-      let analytics = await scrapeEnhancedPostAnalyticsForUser(workspaceId, postUrl);
+      // Use stored analyticsUrl directly when available — this skips re-scraping
+      // the public post and goes straight to the analytics dashboard page
+      let analytics: Awaited<ReturnType<typeof scrapeEnhancedPostAnalyticsForUser>> | null = null;
+      
+      if (linkedinPlatform.analyticsUrl) {
+        analytics = await scrapeEnhancedPostAnalyticsForUser(workspaceId, linkedinPlatform.analyticsUrl);
+      }
       
       // Fallback to global cookie enhanced scraper
+      if (!analytics && linkedinPlatform.analyticsUrl) {
+        analytics = await scrapeEnhancedPostAnalytics(linkedinPlatform.analyticsUrl);
+      }
+      
+      // Fallback to scraping from the public post URL (for posts without analyticsUrl)
       if (!analytics) {
-        analytics = await scrapeEnhancedPostAnalytics(postUrl);
+        const postUrl = linkedinPlatform.postUrl ?? `https://www.linkedin.com/feed/update/${encodeURIComponent(shareUrn)}`;
+        analytics = await scrapeEnhancedPostAnalyticsForUser(workspaceId, postUrl);
       }
 
       // Final fallback to basic scraper
@@ -232,6 +239,7 @@ async function syncLinkedinAnalytics(
         impressions: analytics.impressions,
         engagementRate: analytics.engagementRate,
         engagements: analytics.likes + analytics.comments + analytics.shares,
+        source: linkedinPlatform.analyticsUrl ? 'stored_analytics_url' : 'fallback',
       });
     } catch (error) {
       const errorMsg = `Post ${post.id} sync failed: ${error instanceof Error ? error.message : 'Unknown'}`;

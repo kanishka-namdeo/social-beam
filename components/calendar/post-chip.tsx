@@ -164,18 +164,18 @@ export function PostChip({
       className={cn(
         "group relative flex items-center gap-1.5 rounded-sm border border-border/30 border-l-[3px] bg-card px-2.5 py-1.5 text-xs transition-all hover-lift hover:bg-muted/50 cursor-pointer",
         cfg.borderColor,
-        isDragging && "opacity-50 shadow-md",
+        isDragging && "opacity-50 scale-95",
       )}
     >
       <span
         {...attributes}
         {...listeners}
-        className="cursor-grab opacity-0 transition-opacity group-hover:opacity-60 active:cursor-grabbing"
+        className="cursor-grab opacity-0 transition-opacity group-hover:opacity-60 active:cursor-grabbing focus-visible:ring-2 focus-visible:ring-ring/30"
         aria-label="Drag to reschedule"
       >
         <DotsSixVertical className="size-3 text-muted-foreground" />
       </span>
-      <span className="truncate font-medium text-foreground flex-1">
+      <span className="truncate-2 font-medium text-foreground flex-1">
         {title ?? "Untitled"}
       </span>
       {hasMedia && (
@@ -184,7 +184,7 @@ export function PostChip({
         </span>
       )}
       {timeStr && (
-        <span className="text-[0.625rem] text-muted-foreground tabular-nums shrink-0">
+        <span className="text-micro text-muted-foreground tabular-nums shrink-0">
           {timeStr}
         </span>
       )}
@@ -238,14 +238,14 @@ export function PostChip({
       className={cn(
         "group relative flex flex-col gap-1 rounded-sm border border-border/30 border-l-[3px] bg-card p-2 transition-all hover-lift hover:bg-muted/50 cursor-pointer",
         cfg.borderColor,
-        isDragging && "opacity-50 shadow-md",
+        isDragging && "opacity-50 scale-95",
       )}
     >
       <div className="flex items-center gap-1.5">
         <span
           {...attributes}
           {...listeners}
-          className="cursor-grab opacity-0 transition-opacity group-hover:opacity-60 active:cursor-grabbing"
+          className="cursor-grab opacity-0 transition-opacity group-hover:opacity-60 active:cursor-grabbing focus-visible:ring-2 focus-visible:ring-ring/30"
           aria-label="Drag to reschedule"
         >
           <DotsSixVertical className="size-3.5 text-muted-foreground" />
@@ -290,13 +290,13 @@ export function PostChip({
       </div>
       <div className="flex items-center gap-1.5 pl-4">
         {timeStr && (
-          <span className="text-[0.625rem] text-muted-foreground tabular-nums">
+          <span className="text-micro text-muted-foreground tabular-nums">
             {timeStr}
           </span>
         )}
         <Badge
           variant="outline"
-          className={cn("text-[0.625rem] gap-0.5 normal-case rounded-sm px-1.5 py-0", cfg.className)}
+          className={cn("text-micro gap-0.5 normal-case rounded-sm px-1.5 py-0", cfg.className)}
         >
           {cfg.icon}
           {cfg.label}
@@ -315,7 +315,7 @@ export function PostChip({
       </div>
       {confidence && (
         <div className={cn(
-          "pl-4 text-[0.625rem]",
+          "pl-4 text-micro",
           confidence === "HIGH" && "text-ai-confidence-high",
           confidence === "MEDIUM" && "text-ai-confidence-medium",
           confidence === "LOW" && "text-ai-confidence-low",

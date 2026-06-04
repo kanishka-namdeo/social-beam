@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef, useTransition } from "react";
 import { DndContext, closestCenter, type DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -8,9 +8,11 @@ import Link from "next/link";
 import { toast } from "sonner";
 import {
   Check,
+  CheckCircle,
   Clock,
   Image,
   Keyboard,
+  Lock,
   Sparkle,
   Spinner,
   TextT,
@@ -32,6 +34,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { HintTooltip } from "@/components/ui/hint-tooltip";
+import { useOneTimeNudge } from "@/hooks/use-one-time-nudge";
 import { cn } from "@/lib/utils";
 import { PLATFORM_CHAR_LIMITS } from "@/lib/compose/constants";
 import {
@@ -47,6 +50,8 @@ import type { MediaAsset } from "@/lib/media/types";
 import { VariantCard } from "./variant-card";
 import { ModifierBar, type ModifierKey } from "./modifier-bar";
 import { VARIANT_MODIFIERS } from "@/lib/ai/compose-prompt-builder";
+import { InlineUpgradeNudge } from "@/components/dashboard/inline-upgrade-nudge";
+import { useFreeFeatureUsage } from "@/components/dashboard/limited-feature-wrapper";
 
 const variantIds = Object.keys(VARIANT_MODIFIERS).map(Number);
 
@@ -60,6 +65,8 @@ interface ConnectedAccount {
 interface ComposeFormProps {
   connectedAccounts: ConnectedAccount[];
   initialPrompt?: string;
+  userRole?: string;
+  brandSearchQuery?: string;
 }
 
 function getActiveLimit(
@@ -109,7 +116,7 @@ function SortableMediaItem({ asset, onRemove }: { asset: MediaAsset; onRemove: (
       <div
         {...attributes}
         {...listeners}
-        className="absolute -top-1 -left-1 min-h-5 min-w-5 rounded-sm bg-background border border-border flex items-center justify-center cursor-grab active:cursor-grabbing hover:bg-muted opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute -top-1 -left-1 min-h-5 min-w-5 rounded-sm bg-background border border-border flex items-center justify-center cursor-grab active:cursor-grabbing hover:bg-muted opacity-0 group-hover:opacity-100 transition-opacity focus-visible:ring-2 focus-visible:ring-ring/30"
         aria-label={`Drag to reorder ${asset.originalName}`}
       >
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="text-muted-foreground">
@@ -124,7 +131,7 @@ function SortableMediaItem({ asset, onRemove }: { asset: MediaAsset; onRemove: (
       <button
         type="button"
         onClick={() => onRemove(asset.id)}
-        className="absolute -top-1.5 -right-1.5 min-h-6 min-w-6 rounded-sm bg-background border border-border flex items-center justify-center hover:bg-destructive/10"
+        className="absolute -top-1.5 -right-1.5 min-h-6 min-w-6 rounded-sm bg-background border border-border flex items-center justify-center cursor-pointer hover:bg-destructive/10"
         aria-label={`Remove ${asset.originalName}`}
       >
         <X className="size-3" weight="bold" />
@@ -133,7 +140,8 @@ function SortableMediaItem({ asset, onRemove }: { asset: MediaAsset; onRemove: (
   );
 }
 
-export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormProps) {
+export function ComposeForm({ connectedAccounts, initialPrompt, userRole, brandSearchQuery }: ComposeFormProps) {
+  const isPremium = userRole === 'PREMIUM_USER' || userRole === 'ADMIN';
   const connectedPlatforms = connectedAccounts.map((a) => a.platform);
   const [title, setTitle] = useState(initialPrompt ? initialPrompt.slice(0, 80) : "");
   const [contentHtml, setContentHtml] = useState(initialPrompt ? `<p>${initialPrompt}</p>` : "");
@@ -142,9 +150,19 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
   const [scheduleEnabled, setScheduleEnabled] = useState(false);
   const [scheduledAt, setScheduledAt] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitState, setSubmitState] = useState<"idle" | "saved" | "published" | "scheduled">("idle");
+  const [, startTransition] = useTransition();
+
+  // Auto-revert optimistic success state after 2 seconds
+  useEffect(() => {
+    if (submitState === "idle") return;
+    const timer = setTimeout(() => setSubmitState("idle"), 2000);
+    return () => clearTimeout(timer);
+  }, [submitState]);
   const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([]);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const composeTip = useOneTimeNudge("compose-tip");
   const [isMobile, setIsMobile] = useState(false);
 
   const sensors = useSensors(
@@ -184,6 +202,7 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
   const [isModifying, setIsModifying] = useState(false);
   const [activeModifier, setActiveModifier] = useState<ModifierKey | null>(null);
   const modifierAbortRef = useRef<AbortController | null>(null);
+  const [showGenerateNudge, setShowGenerateNudge] = useState(false);
 
   // Selected variant for "Use this"
   const [selectedVariantId, setSelectedVariantId] = useState<number | null>(null);
@@ -285,6 +304,19 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
   const prevContentRef = useRef<string>("");
   const learningCapturedRef = useRef<Record<string, boolean>>({});
 
+  // Unified content update function — ensures counter, dirty flag, and refs stay in sync
+  const updateContent = useCallback((html: string, text: string) => {
+    if (Object.keys(variants).length > 0) {
+      setVariants({});
+      setVariantComplete(new Set());
+    }
+    userEditedSinceLastSuggestion.current = true;
+    setContentHtml(html);
+    setContentText(text);
+    setIsDirty(true);
+    prevContentRef.current = text;
+  }, [variants]);
+
   const captureEditLearningSignal = useCallback(async (platform: string, originalContent: string, editedContent: string) => {
     if (originalContent === editedContent || Math.abs(editedContent.length - originalContent.length) < 3) return;
     try {
@@ -364,28 +396,20 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
         learningCapturedRef.current[currentPlatform] = true;
       }
     }
-    setContentHtml(html);
-    setContentText(textContent);
-    setIsDirty(true);
-    prevContentRef.current = textContent;
-  }, [selectedPlatforms, captureEditLearningSignal, variants]);
+    updateContent(html, textContent);
+  }, [selectedPlatforms, captureEditLearningSignal, variants, updateContent]);
 
   const handleSuggestionAccept = useCallback((variantId: number, content: string) => {
-    setContentText(content);
-    setContentHtml(`<p>${content.replace(/\n/g, "<br/>")}</p>`);
+    const html = `<p>${content.replace(/\n/g, "<br/>")}</p>`;
     if (suggestionPlatform) {
       aiGeneratedRef.current[suggestionPlatform] = content;
       learningCapturedRef.current[suggestionPlatform] = false;
     }
-    prevContentRef.current = "";
-    setVariants({});
-    setVariantComplete(new Set());
+    prevContentRef.current = content;
+    updateContent(html, content);
     setVariantError(null);
     setSelectedVariantId(variantId);
-    // Mark as user-edited so stale follow-up suggestions don't reappear
-    userEditedSinceLastSuggestion.current = true;
-    setIsDirty(true);
-  }, [suggestionPlatform]);
+  }, [suggestionPlatform, updateContent]);
 
   // Debounced suggestion fetch — now streams 4 variants in parallel
   useEffect(() => {
@@ -586,9 +610,7 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
           if (eventType === "done" && dataStr) {
             const data = JSON.parse(dataStr);
             const finalContent = data.content ?? modifiedContent;
-            // Single update when complete — RichTextEditor handles this cleanly
-            setContentText(finalContent);
-            setContentHtml(`<p>${finalContent.replace(/\n/g, "<br/>")}</p>`);
+            const html = `<p>${finalContent.replace(/\n/g, "<br/>")}</p>`;
             if (suggestionPlatform) {
               aiGeneratedRef.current[suggestionPlatform] = finalContent;
             }
@@ -596,6 +618,7 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
             if (originalContent !== finalContent) {
               captureModifierLearningSignal(suggestionPlatform, originalContent, finalContent, modifier);
             }
+            updateContent(html, finalContent);
           }
         }
       }
@@ -618,32 +641,37 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
       return;
     }
 
+    // Optimistically show the action-specific success state immediately
+    const optimisticState =
+      action === "draft" ? "saved" : action === "schedule" ? "scheduled" : "published";
+    setSubmitState(optimisticState);
     setIsSubmitting(true);
+
+    const body: Record<string, unknown> = {
+      action,
+      title: title || undefined,
+      content: contentText.trim(),
+      contentHtml: contentHtml || undefined,
+      platforms: selectedPlatforms,
+      mediaUrls: mediaAssets.length > 0 ? mediaAssets.map((a) => a.publicUrl) : undefined,
+    };
+    if (action === "schedule" && scheduledAt) {
+      body.scheduledAt = new Date(scheduledAt).toISOString();
+    }
+    if (action === "publish") {
+      body.scheduledAt = new Date().toISOString();
+    }
+
+    // Capture final learning signal if AI content was edited before publish
+    const publishPlatform = selectedPlatforms[0];
+    if (publishPlatform && aiGeneratedRef.current[publishPlatform]) {
+      const original = aiGeneratedRef.current[publishPlatform];
+      if (contentText.trim() !== original && !learningCapturedRef.current[publishPlatform]) {
+        await captureEditLearningSignal(publishPlatform, original, contentText.trim());
+      }
+    }
+
     try {
-      const body: Record<string, unknown> = {
-        action,
-        title: title || undefined,
-        content: contentText.trim(),
-        contentHtml: contentHtml || undefined,
-        platforms: selectedPlatforms,
-        mediaUrls: mediaAssets.length > 0 ? mediaAssets.map((a) => a.publicUrl) : undefined,
-      };
-      if (action === "schedule" && scheduledAt) {
-        body.scheduledAt = new Date(scheduledAt).toISOString();
-      }
-      if (action === "publish") {
-        body.scheduledAt = new Date().toISOString();
-      }
-
-      // Capture final learning signal if AI content was edited before publish
-      const publishPlatform = selectedPlatforms[0];
-      if (publishPlatform && aiGeneratedRef.current[publishPlatform]) {
-        const original = aiGeneratedRef.current[publishPlatform];
-        if (contentText.trim() !== original && !learningCapturedRef.current[publishPlatform]) {
-          await captureEditLearningSignal(publishPlatform, original, contentText.trim());
-        }
-      }
-
       const res = await fetch("/api/compose", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -653,6 +681,8 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: "Unknown error" }));
         toast.error(err.error ?? "Failed to create post");
+        // Revert on failure — the auto-revert effect will clear after 2s
+        setSubmitState("idle");
         return;
       }
 
@@ -669,9 +699,14 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
       // Reset learning capture refs so next AI suggestion cycle can capture again
       learningCapturedRef.current = {};
       aiGeneratedRef.current = {};
-      resetForm();
+
+      // Defer the form reset to a transition so it doesn't block the UI
+      startTransition(() => {
+        resetForm();
+      });
     } catch {
       toast.error("Failed to create post. Please try again.");
+      setSubmitState("idle");
     } finally {
       setIsSubmitting(false);
     }
@@ -736,12 +771,28 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
 
   return (
     <>
-    <div className="flex items-center justify-between mb-4">
+    <div className="flex-between mb-4">
       <h2 className="text-lg font-semibold text-foreground tracking-tight">Create Post</h2>
-      <div className="flex items-center gap-3">
-        <HintTooltip
-          hint="Tip: Use @mentions to tag accounts, #hashtags for reach, and keep posts under 280 characters for X"
-        />
+      <div className="flex items-center gap-section">
+        {composeTip.isVisible && (
+          <div className="flex items-center gap-1.5 rounded-sm border border-border bg-ai-surface/30 px-2 py-1 text-xs text-muted-foreground">
+            <Sparkle className="size-3 text-brand" weight="fill" />
+            <span>Use @mentions to tag accounts, #hashtags for reach</span>
+            <button
+              type="button"
+              onClick={composeTip.dismiss}
+              className="ml-1 text-muted-foreground hover:text-foreground"
+              aria-label="Dismiss tip"
+            >
+              <X className="size-3" weight="bold" />
+            </button>
+          </div>
+        )}
+        {!composeTip.isVisible && (
+          <HintTooltip
+            hint="Tip: Use @mentions to tag accounts, #hashtags for reach, and keep posts under 280 characters for X"
+          />
+        )}
         <Dialog open={shortcutsOpen} onOpenChange={setShortcutsOpen}>
           <DialogTrigger asChild>
             <Button variant="ghost" size="icon" className="size-7 text-muted-foreground hover:text-foreground" aria-label="Keyboard shortcuts">
@@ -773,7 +824,7 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
     </div>
 
     <div className="space-y-6 mt-4">
-      {/* Topic input with platform switcher */}
+      {/* Topic input with platform switcher — AI feature */}
       <div className="space-y-2">
         <Label htmlFor="topic-prompt" className="text-xs font-medium normal-case tracking-tight">
           What do you want to post about?
@@ -797,7 +848,7 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
                     type="button"
                     onClick={() => setSuggestionPlatform(p)}
                     className={cn(
-                      "rounded-sm border px-2 py-1 text-xs transition-all min-h-7",
+                      "rounded-sm border px-2 py-1 text-xs transition-colors min-h-7",
                       isActive ? "border-l-brand border-l-2 bg-brand/5" : "border-border hover:bg-muted",
                     )}
                   >
@@ -809,7 +860,14 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
           )}
         </div>
         {topicPrompt.length > 400 && (
-          <p className="text-xs text-muted-foreground">{topicPrompt.length}/500</p>
+          <p className="text-xs text-muted-foreground tabular-nums">{topicPrompt.length}/500</p>
+        )}
+        {!isPremium && showGenerateNudge && (
+          <InlineUpgradeNudge
+            title="AI Compose"
+            description="Upgrade to Premium for AI-powered content generation with 4 style variants."
+            variant="default"
+          />
         )}
         {connectedPlatforms.length === 0 && (
           <p className="text-xs text-muted-foreground">
@@ -835,18 +893,18 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
       </div>
 
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label className="text-xs font-medium">
-            Content
-          </Label>
-          {activeLimit != null && (
-            <span
-              className={cn("text-xs font-mono tabular-nums transition-colors duration-200", COUNTER_COLOR[counterState])}
-            >
-              {contentText.length}/{activeLimit}
-            </span>
-          )}
-        </div>
+      <div className="flex-between">
+        <Label className="text-xs font-medium">
+          Content
+        </Label>
+        {activeLimit != null && (
+          <span
+            className={cn("text-xs font-mono tabular-nums transition-colors duration-normal", COUNTER_COLOR[counterState])}
+          >
+            <span className="tabular-nums">{contentText.length}</span>/{activeLimit}
+          </span>
+        )}
+      </div>
         <RichTextEditor
           content={contentHtml}
           onContentChange={handleContentChange}
@@ -857,7 +915,7 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
           )}
         />
 
-        {/* Variant cards — rendered when AI suggestions are generating */}
+        {/* Variant cards — rendered when AI suggestions are generating — AI feature */}
         {isSuggestionLoading && Object.keys(variants).length === 0 && (
           <p className="text-xs text-muted-foreground flex items-center gap-1.5">
             <Spinner className="size-3 animate-spin text-brand" weight="bold" />
@@ -872,41 +930,61 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
           </p>
         )}
 
-        {/* Variant card grid */}
+        {/* Variant card grid — AI feature */}
         {Object.keys(variants).length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+              <p className="text-xs font-medium text-muted-foreground flex-center gap-1.5">
                 <Sparkle className="size-3 text-brand" weight="fill" />
                 {config.showAILabels ? "AI suggestions — pick one to use" : "Suggestions — pick one"}
               </p>
               {!isSuggestionLoading && (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground tabular-nums">
                   {variantComplete.size}/{Object.keys(VARIANT_MODIFIERS).length} ready
                 </p>
               )}
             </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {variantIds.map((vid) => (
-                <VariantCard
-                  key={vid}
-                  variantId={vid}
-                  content={variants[vid] ?? ""}
-                  isComplete={variantComplete.has(vid)}
-                  isSelected={selectedVariantId === vid}
-                  onSelect={handleSuggestionAccept}
-                />
-              ))}
+            <div className="grid gap-section sm:grid-cols-2 lg:grid-cols-4">
+              {variantIds.map((vid) => {
+                const isFreeVariant = vid === 0;
+                return isPremium || isFreeVariant ? (
+                  <VariantCard
+                    key={vid}
+                    variantId={vid}
+                    content={variants[vid] ?? ""}
+                    isComplete={variantComplete.has(vid)}
+                    isSelected={selectedVariantId === vid}
+                    onSelect={handleSuggestionAccept}
+                  />
+                ) : (
+                  <div key={vid} className="relative rounded-sm border border-border bg-muted/30 flex flex-col items-center justify-center min-h-[120px]">
+                    <div className="pointer-events-none select-none opacity-30 blur-[1px] absolute inset-0 flex items-center justify-center">
+                      <VariantCard
+                        variantId={vid}
+                        content={variants[vid] ?? ""}
+                        isComplete={false}
+                        isSelected={false}
+                        onSelect={() => {}}
+                      />
+                    </div>
+                    <div className="relative z-10 flex flex-col items-center gap-1 text-muted-foreground">
+                      <Lock className="size-5" weight="fill" />
+                      <span className="text-xs font-medium">Premium</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
 
-        {/* Modifier bar — shown after content exists in editor */}
+        {/* Modifier bar — shown after content exists in editor — AI feature */}
         {contentText.trim().length > 0 && !isSuggestionLoading && (
-          <ModifierBar
-            onModify={handleModifier}
+          <ModifierBarWithPremiumGate
+            onModify={isPremium ? handleModifier : undefined}
             isModifying={isModifying}
             activeModifier={activeModifier}
+            onPremiumClick={() => setShowGenerateNudge(true)}
           />
         )}
 
@@ -916,8 +994,8 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
           </p>
         )}
         {isOverLimit && activeLimit != null && (
-          <p className="text-xs text-compose-counter-error">
-            Content exceeds limit by {contentText.length - activeLimit} characters.
+          <p className="text-xs text-compose-counter-error tabular-nums">
+            Content exceeds limit by <span className="tabular-nums">{contentText.length - activeLimit}</span> characters.
           </p>
         )}
       </div>
@@ -927,7 +1005,7 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
           Platforms
         </p>
         {connectedPlatforms.length === 0 ? (
-          <div className="rounded-sm border border-dashed border-border p-6 text-center">
+          <div className="rounded-sm border border-dashed border-border p-card text-center">
             <p className="text-sm text-muted-foreground">
               No accounts connected yet.{" "}
               <a href="/settings?tab=accounts" className="text-brand underline underline-offset-2">
@@ -947,7 +1025,7 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
                   variant={isSelected ? "default" : "outline"}
                   onClick={() => togglePlatform(platform)}
                   className={cn(
-                    "flex min-h-10 items-center gap-3 rounded-sm justify-start p-3 text-left transition-all duration-150 hover-scale",
+                    "flex min-h-10 items-center gap-3 rounded-sm justify-start p-3 text-left hover-scale",
                     isSelected
                       ? "border-l-2 border-l-brand bg-brand/5"
                       : "border-border hover:bg-muted",
@@ -1029,7 +1107,7 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
         mediaAssets={mediaAssets}
       />
 
-      <div className="flex items-center justify-between rounded-sm border border-border bg-card p-4">
+      <div className="flex items-center justify-between rounded-sm border border-border bg-card p-card">
         <div className="space-y-0.5">
           <p className="text-sm font-medium text-foreground normal-case tracking-normal">
             Schedule for later
@@ -1064,15 +1142,23 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
         </div>
       )}
 
-      <div className="flex items-center gap-3 pt-2">
+      <div className="flex items-center gap-section pt-2">
         <Button
           variant="outline"
           size="default"
           onClick={() => handleSubmit("draft")}
-          disabled={!hasPlatforms || !hasContent || isOverLimit || isSubmitting}
-          className="hover-scale"
+          disabled={!hasPlatforms || !hasContent || isOverLimit || (isSubmitting && submitState !== "saved")}
+          className={cn(
+            "hover-scale transition-all duration-slow",
+            submitState === "saved" && "bg-success hover:bg-success/90 text-white border-success",
+          )}
         >
-          {isSubmitting ? (
+          {submitState === "saved" ? (
+            <>
+              <CheckCircle className="mr-1.5 size-4" weight="bold" />
+              Saved
+            </>
+          ) : isSubmitting ? (
             <>
               <Spinner className="mr-1.5 size-4 animate-spin" />
               Saving...
@@ -1088,10 +1174,18 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
           <Button
             size="default"
             onClick={() => handleSubmit("publish")}
-            disabled={!canSubmit}
-            className="hover-scale"
+            disabled={!canSubmit && submitState !== "published"}
+            className={cn(
+              "hover-scale transition-all duration-slow",
+              submitState === "published" && "bg-success hover:bg-success/90 text-white",
+            )}
           >
-            {isSubmitting ? (
+            {submitState === "published" ? (
+              <>
+                <CheckCircle className="mr-1.5 size-4" weight="bold" />
+                Published
+              </>
+            ) : isSubmitting ? (
               <>
                 <Spinner className="mr-1.5 size-4 animate-spin" />
                 Publishing...
@@ -1105,10 +1199,18 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
           <Button
             size="default"
             onClick={() => handleSubmit("schedule")}
-            disabled={!canSchedule}
-            className="hover-scale"
+            disabled={!canSchedule && submitState !== "scheduled"}
+            className={cn(
+              "hover-scale transition-all duration-slow",
+              submitState === "scheduled" && "bg-success hover:bg-success/90 text-white",
+            )}
           >
-            {isSubmitting ? (
+            {submitState === "scheduled" ? (
+              <>
+                <CheckCircle className="mr-1.5 size-4" weight="bold" />
+                Scheduled
+              </>
+            ) : isSubmitting ? (
               <>
                 <Spinner className="mr-1.5 size-4 animate-spin" />
                 Scheduling...
@@ -1150,7 +1252,69 @@ export function ComposeForm({ connectedAccounts, initialPrompt }: ComposeFormPro
       onOpenChange={setMediaPickerOpen}
       selectedAssets={mediaAssets}
       onSelect={setMediaAssets}
+      brandSearchQuery={brandSearchQuery}
     />
     </>
+  );
+}
+
+/** Modifier bar that shows premium badges and gates premium actions for free users */
+function ModifierBarWithPremiumGate({
+  onModify,
+  isModifying,
+  activeModifier,
+  onPremiumClick,
+}: {
+  onModify?: (modifier: ModifierKey) => void;
+  isModifying: boolean;
+  activeModifier: ModifierKey | null;
+  onPremiumClick: () => void;
+}) {
+  const MODIFIERS = [
+    { key: "shorten" as const, label: "— Shorten", description: "Make it ~30% shorter" },
+    { key: "expand" as const, label: "+ Expand", description: "Add ~30% more detail" },
+    { key: "casual" as const, label: "More Casual", description: "Relaxed, conversational" },
+    { key: "formal" as const, label: "More Formal", description: "Professional, polished" },
+  ];
+  const isPremium = onModify !== undefined;
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {MODIFIERS.map((m) => {
+        const isActive = activeModifier === m.key;
+        return (
+          <Button
+            key={m.key}
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={!isPremium || isModifying}
+            onClick={() => {
+              if (isPremium && onModify) {
+                onModify(m.key);
+              } else {
+                onPremiumClick();
+              }
+            }}
+            className={cn(
+              "gap-1.5 text-xs normal-case hover-scale transition-colors",
+              isActive && "border-brand bg-brand/5 text-brand",
+              !isPremium && "opacity-60",
+            )}
+            title={isPremium ? m.description : "Premium feature — upgrade to use"}
+          >
+            {!isPremium && <Lock className="size-3" weight="fill" />}
+            {isModifying && isActive ? (
+              <>
+                <Spinner className="size-3 animate-spin" weight="bold" />
+                Modifying...
+              </>
+            ) : (
+              m.label
+            )}
+          </Button>
+        );
+      })}
+    </div>
   );
 }

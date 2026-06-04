@@ -262,7 +262,7 @@ export type WorkspaceScalarWhereWithAggregatesInput = {
 }
 
 export type WorkspaceCreateInput = {
-  id?: string
+  id: string
   name?: string
   autonomyLevel?: string
   createdAt?: Date | string
@@ -281,7 +281,7 @@ export type WorkspaceCreateInput = {
 }
 
 export type WorkspaceUncheckedCreateInput = {
-  id?: string
+  id: string
   userId: string
   name?: string
   autonomyLevel?: string
@@ -338,7 +338,7 @@ export type WorkspaceUncheckedUpdateInput = {
 }
 
 export type WorkspaceCreateManyInput = {
-  id?: string
+  id: string
   userId: string
   name?: string
   autonomyLevel?: string
@@ -469,20 +469,6 @@ export type WorkspaceUpdateOneRequiredWithoutEngagementItemNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutEngagementItemInput, Prisma.WorkspaceUpdateWithoutEngagementItemInput>, Prisma.WorkspaceUncheckedUpdateWithoutEngagementItemInput>
 }
 
-export type WorkspaceCreateNestedOneWithoutSavedReplyInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutSavedReplyInput, Prisma.WorkspaceUncheckedCreateWithoutSavedReplyInput>
-  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutSavedReplyInput
-  connect?: Prisma.WorkspaceWhereUniqueInput
-}
-
-export type WorkspaceUpdateOneRequiredWithoutSavedReplyNestedInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutSavedReplyInput, Prisma.WorkspaceUncheckedCreateWithoutSavedReplyInput>
-  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutSavedReplyInput
-  upsert?: Prisma.WorkspaceUpsertWithoutSavedReplyInput
-  connect?: Prisma.WorkspaceWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutSavedReplyInput, Prisma.WorkspaceUpdateWithoutSavedReplyInput>, Prisma.WorkspaceUncheckedUpdateWithoutSavedReplyInput>
-}
-
 export type WorkspaceCreateNestedOneWithoutMediaAssetInput = {
   create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutMediaAssetInput, Prisma.WorkspaceUncheckedCreateWithoutMediaAssetInput>
   connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutMediaAssetInput
@@ -537,6 +523,20 @@ export type WorkspaceUpdateOneRequiredWithoutRedditTrendingPostNestedInput = {
   upsert?: Prisma.WorkspaceUpsertWithoutRedditTrendingPostInput
   connect?: Prisma.WorkspaceWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutRedditTrendingPostInput, Prisma.WorkspaceUpdateWithoutRedditTrendingPostInput>, Prisma.WorkspaceUncheckedUpdateWithoutRedditTrendingPostInput>
+}
+
+export type WorkspaceCreateNestedOneWithoutSavedReplyInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutSavedReplyInput, Prisma.WorkspaceUncheckedCreateWithoutSavedReplyInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutSavedReplyInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+}
+
+export type WorkspaceUpdateOneRequiredWithoutSavedReplyNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutSavedReplyInput, Prisma.WorkspaceUncheckedCreateWithoutSavedReplyInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutSavedReplyInput
+  upsert?: Prisma.WorkspaceUpsertWithoutSavedReplyInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutSavedReplyInput, Prisma.WorkspaceUpdateWithoutSavedReplyInput>, Prisma.WorkspaceUncheckedUpdateWithoutSavedReplyInput>
 }
 
 export type WorkspaceCreateNestedManyWithoutUserInput = {
@@ -596,7 +596,7 @@ export type WorkspaceUpdateOneRequiredWithoutUserProfileNestedInput = {
 }
 
 export type WorkspaceCreateWithoutBrandContextInput = {
-  id?: string
+  id: string
   name?: string
   autonomyLevel?: string
   createdAt?: Date | string
@@ -614,7 +614,7 @@ export type WorkspaceCreateWithoutBrandContextInput = {
 }
 
 export type WorkspaceUncheckedCreateWithoutBrandContextInput = {
-  id?: string
+  id: string
   userId: string
   name?: string
   autonomyLevel?: string
@@ -684,7 +684,7 @@ export type WorkspaceUncheckedUpdateWithoutBrandContextInput = {
 }
 
 export type WorkspaceCreateWithoutBrandVoiceInput = {
-  id?: string
+  id: string
   name?: string
   autonomyLevel?: string
   createdAt?: Date | string
@@ -702,7 +702,7 @@ export type WorkspaceCreateWithoutBrandVoiceInput = {
 }
 
 export type WorkspaceUncheckedCreateWithoutBrandVoiceInput = {
-  id?: string
+  id: string
   userId: string
   name?: string
   autonomyLevel?: string
@@ -772,7 +772,7 @@ export type WorkspaceUncheckedUpdateWithoutBrandVoiceInput = {
 }
 
 export type WorkspaceCreateWithoutConnectedAccountInput = {
-  id?: string
+  id: string
   name?: string
   autonomyLevel?: string
   createdAt?: Date | string
@@ -790,7 +790,7 @@ export type WorkspaceCreateWithoutConnectedAccountInput = {
 }
 
 export type WorkspaceUncheckedCreateWithoutConnectedAccountInput = {
-  id?: string
+  id: string
   userId: string
   name?: string
   autonomyLevel?: string
@@ -860,7 +860,7 @@ export type WorkspaceUncheckedUpdateWithoutConnectedAccountInput = {
 }
 
 export type WorkspaceCreateWithoutDashboardPreferenceInput = {
-  id?: string
+  id: string
   name?: string
   autonomyLevel?: string
   createdAt?: Date | string
@@ -878,7 +878,7 @@ export type WorkspaceCreateWithoutDashboardPreferenceInput = {
 }
 
 export type WorkspaceUncheckedCreateWithoutDashboardPreferenceInput = {
-  id?: string
+  id: string
   userId: string
   name?: string
   autonomyLevel?: string
@@ -948,7 +948,7 @@ export type WorkspaceUncheckedUpdateWithoutDashboardPreferenceInput = {
 }
 
 export type WorkspaceCreateWithoutEngagementItemInput = {
-  id?: string
+  id: string
   name?: string
   autonomyLevel?: string
   createdAt?: Date | string
@@ -966,7 +966,7 @@ export type WorkspaceCreateWithoutEngagementItemInput = {
 }
 
 export type WorkspaceUncheckedCreateWithoutEngagementItemInput = {
-  id?: string
+  id: string
   userId: string
   name?: string
   autonomyLevel?: string
@@ -1035,96 +1035,8 @@ export type WorkspaceUncheckedUpdateWithoutEngagementItemInput = {
   UserProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutWorkspaceNestedInput
 }
 
-export type WorkspaceCreateWithoutSavedReplyInput = {
-  id?: string
-  name?: string
-  autonomyLevel?: string
-  createdAt?: Date | string
-  BrandContext?: Prisma.BrandContextCreateNestedOneWithoutWorkspaceInput
-  BrandVoice?: Prisma.BrandVoiceCreateNestedOneWithoutWorkspaceInput
-  ConnectedAccount?: Prisma.ConnectedAccountCreateNestedManyWithoutWorkspaceInput
-  DashboardPreference?: Prisma.DashboardPreferenceCreateNestedOneWithoutWorkspaceInput
-  EngagementItem?: Prisma.EngagementItemCreateNestedManyWithoutWorkspaceInput
-  MediaAsset?: Prisma.MediaAssetCreateNestedManyWithoutWorkspaceInput
-  Post?: Prisma.PostCreateNestedManyWithoutWorkspaceInput
-  RedditSubredditConfig?: Prisma.RedditSubredditConfigCreateNestedManyWithoutWorkspaceInput
-  RedditTrendingPost?: Prisma.RedditTrendingPostCreateNestedManyWithoutWorkspaceInput
-  UserProfile?: Prisma.UserProfileCreateNestedOneWithoutWorkspaceInput
-  User: Prisma.UserCreateNestedOneWithoutWorkspaceInput
-}
-
-export type WorkspaceUncheckedCreateWithoutSavedReplyInput = {
-  id?: string
-  userId: string
-  name?: string
-  autonomyLevel?: string
-  createdAt?: Date | string
-  BrandContext?: Prisma.BrandContextUncheckedCreateNestedOneWithoutWorkspaceInput
-  BrandVoice?: Prisma.BrandVoiceUncheckedCreateNestedOneWithoutWorkspaceInput
-  ConnectedAccount?: Prisma.ConnectedAccountUncheckedCreateNestedManyWithoutWorkspaceInput
-  DashboardPreference?: Prisma.DashboardPreferenceUncheckedCreateNestedOneWithoutWorkspaceInput
-  EngagementItem?: Prisma.EngagementItemUncheckedCreateNestedManyWithoutWorkspaceInput
-  MediaAsset?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutWorkspaceInput
-  Post?: Prisma.PostUncheckedCreateNestedManyWithoutWorkspaceInput
-  RedditSubredditConfig?: Prisma.RedditSubredditConfigUncheckedCreateNestedManyWithoutWorkspaceInput
-  RedditTrendingPost?: Prisma.RedditTrendingPostUncheckedCreateNestedManyWithoutWorkspaceInput
-  UserProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutWorkspaceInput
-}
-
-export type WorkspaceCreateOrConnectWithoutSavedReplyInput = {
-  where: Prisma.WorkspaceWhereUniqueInput
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutSavedReplyInput, Prisma.WorkspaceUncheckedCreateWithoutSavedReplyInput>
-}
-
-export type WorkspaceUpsertWithoutSavedReplyInput = {
-  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutSavedReplyInput, Prisma.WorkspaceUncheckedUpdateWithoutSavedReplyInput>
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutSavedReplyInput, Prisma.WorkspaceUncheckedCreateWithoutSavedReplyInput>
-  where?: Prisma.WorkspaceWhereInput
-}
-
-export type WorkspaceUpdateToOneWithWhereWithoutSavedReplyInput = {
-  where?: Prisma.WorkspaceWhereInput
-  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutSavedReplyInput, Prisma.WorkspaceUncheckedUpdateWithoutSavedReplyInput>
-}
-
-export type WorkspaceUpdateWithoutSavedReplyInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  autonomyLevel?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  BrandContext?: Prisma.BrandContextUpdateOneWithoutWorkspaceNestedInput
-  BrandVoice?: Prisma.BrandVoiceUpdateOneWithoutWorkspaceNestedInput
-  ConnectedAccount?: Prisma.ConnectedAccountUpdateManyWithoutWorkspaceNestedInput
-  DashboardPreference?: Prisma.DashboardPreferenceUpdateOneWithoutWorkspaceNestedInput
-  EngagementItem?: Prisma.EngagementItemUpdateManyWithoutWorkspaceNestedInput
-  MediaAsset?: Prisma.MediaAssetUpdateManyWithoutWorkspaceNestedInput
-  Post?: Prisma.PostUpdateManyWithoutWorkspaceNestedInput
-  RedditSubredditConfig?: Prisma.RedditSubredditConfigUpdateManyWithoutWorkspaceNestedInput
-  RedditTrendingPost?: Prisma.RedditTrendingPostUpdateManyWithoutWorkspaceNestedInput
-  UserProfile?: Prisma.UserProfileUpdateOneWithoutWorkspaceNestedInput
-  User?: Prisma.UserUpdateOneRequiredWithoutWorkspaceNestedInput
-}
-
-export type WorkspaceUncheckedUpdateWithoutSavedReplyInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  autonomyLevel?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  BrandContext?: Prisma.BrandContextUncheckedUpdateOneWithoutWorkspaceNestedInput
-  BrandVoice?: Prisma.BrandVoiceUncheckedUpdateOneWithoutWorkspaceNestedInput
-  ConnectedAccount?: Prisma.ConnectedAccountUncheckedUpdateManyWithoutWorkspaceNestedInput
-  DashboardPreference?: Prisma.DashboardPreferenceUncheckedUpdateOneWithoutWorkspaceNestedInput
-  EngagementItem?: Prisma.EngagementItemUncheckedUpdateManyWithoutWorkspaceNestedInput
-  MediaAsset?: Prisma.MediaAssetUncheckedUpdateManyWithoutWorkspaceNestedInput
-  Post?: Prisma.PostUncheckedUpdateManyWithoutWorkspaceNestedInput
-  RedditSubredditConfig?: Prisma.RedditSubredditConfigUncheckedUpdateManyWithoutWorkspaceNestedInput
-  RedditTrendingPost?: Prisma.RedditTrendingPostUncheckedUpdateManyWithoutWorkspaceNestedInput
-  UserProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutWorkspaceNestedInput
-}
-
 export type WorkspaceCreateWithoutMediaAssetInput = {
-  id?: string
+  id: string
   name?: string
   autonomyLevel?: string
   createdAt?: Date | string
@@ -1142,7 +1054,7 @@ export type WorkspaceCreateWithoutMediaAssetInput = {
 }
 
 export type WorkspaceUncheckedCreateWithoutMediaAssetInput = {
-  id?: string
+  id: string
   userId: string
   name?: string
   autonomyLevel?: string
@@ -1212,7 +1124,7 @@ export type WorkspaceUncheckedUpdateWithoutMediaAssetInput = {
 }
 
 export type WorkspaceCreateWithoutPostInput = {
-  id?: string
+  id: string
   name?: string
   autonomyLevel?: string
   createdAt?: Date | string
@@ -1230,7 +1142,7 @@ export type WorkspaceCreateWithoutPostInput = {
 }
 
 export type WorkspaceUncheckedCreateWithoutPostInput = {
-  id?: string
+  id: string
   userId: string
   name?: string
   autonomyLevel?: string
@@ -1300,7 +1212,7 @@ export type WorkspaceUncheckedUpdateWithoutPostInput = {
 }
 
 export type WorkspaceCreateWithoutRedditSubredditConfigInput = {
-  id?: string
+  id: string
   name?: string
   autonomyLevel?: string
   createdAt?: Date | string
@@ -1318,7 +1230,7 @@ export type WorkspaceCreateWithoutRedditSubredditConfigInput = {
 }
 
 export type WorkspaceUncheckedCreateWithoutRedditSubredditConfigInput = {
-  id?: string
+  id: string
   userId: string
   name?: string
   autonomyLevel?: string
@@ -1388,7 +1300,7 @@ export type WorkspaceUncheckedUpdateWithoutRedditSubredditConfigInput = {
 }
 
 export type WorkspaceCreateWithoutRedditTrendingPostInput = {
-  id?: string
+  id: string
   name?: string
   autonomyLevel?: string
   createdAt?: Date | string
@@ -1406,7 +1318,7 @@ export type WorkspaceCreateWithoutRedditTrendingPostInput = {
 }
 
 export type WorkspaceUncheckedCreateWithoutRedditTrendingPostInput = {
-  id?: string
+  id: string
   userId: string
   name?: string
   autonomyLevel?: string
@@ -1475,8 +1387,96 @@ export type WorkspaceUncheckedUpdateWithoutRedditTrendingPostInput = {
   UserProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutWorkspaceNestedInput
 }
 
+export type WorkspaceCreateWithoutSavedReplyInput = {
+  id: string
+  name?: string
+  autonomyLevel?: string
+  createdAt?: Date | string
+  BrandContext?: Prisma.BrandContextCreateNestedOneWithoutWorkspaceInput
+  BrandVoice?: Prisma.BrandVoiceCreateNestedOneWithoutWorkspaceInput
+  ConnectedAccount?: Prisma.ConnectedAccountCreateNestedManyWithoutWorkspaceInput
+  DashboardPreference?: Prisma.DashboardPreferenceCreateNestedOneWithoutWorkspaceInput
+  EngagementItem?: Prisma.EngagementItemCreateNestedManyWithoutWorkspaceInput
+  MediaAsset?: Prisma.MediaAssetCreateNestedManyWithoutWorkspaceInput
+  Post?: Prisma.PostCreateNestedManyWithoutWorkspaceInput
+  RedditSubredditConfig?: Prisma.RedditSubredditConfigCreateNestedManyWithoutWorkspaceInput
+  RedditTrendingPost?: Prisma.RedditTrendingPostCreateNestedManyWithoutWorkspaceInput
+  UserProfile?: Prisma.UserProfileCreateNestedOneWithoutWorkspaceInput
+  User: Prisma.UserCreateNestedOneWithoutWorkspaceInput
+}
+
+export type WorkspaceUncheckedCreateWithoutSavedReplyInput = {
+  id: string
+  userId: string
+  name?: string
+  autonomyLevel?: string
+  createdAt?: Date | string
+  BrandContext?: Prisma.BrandContextUncheckedCreateNestedOneWithoutWorkspaceInput
+  BrandVoice?: Prisma.BrandVoiceUncheckedCreateNestedOneWithoutWorkspaceInput
+  ConnectedAccount?: Prisma.ConnectedAccountUncheckedCreateNestedManyWithoutWorkspaceInput
+  DashboardPreference?: Prisma.DashboardPreferenceUncheckedCreateNestedOneWithoutWorkspaceInput
+  EngagementItem?: Prisma.EngagementItemUncheckedCreateNestedManyWithoutWorkspaceInput
+  MediaAsset?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutWorkspaceInput
+  Post?: Prisma.PostUncheckedCreateNestedManyWithoutWorkspaceInput
+  RedditSubredditConfig?: Prisma.RedditSubredditConfigUncheckedCreateNestedManyWithoutWorkspaceInput
+  RedditTrendingPost?: Prisma.RedditTrendingPostUncheckedCreateNestedManyWithoutWorkspaceInput
+  UserProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutWorkspaceInput
+}
+
+export type WorkspaceCreateOrConnectWithoutSavedReplyInput = {
+  where: Prisma.WorkspaceWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutSavedReplyInput, Prisma.WorkspaceUncheckedCreateWithoutSavedReplyInput>
+}
+
+export type WorkspaceUpsertWithoutSavedReplyInput = {
+  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutSavedReplyInput, Prisma.WorkspaceUncheckedUpdateWithoutSavedReplyInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutSavedReplyInput, Prisma.WorkspaceUncheckedCreateWithoutSavedReplyInput>
+  where?: Prisma.WorkspaceWhereInput
+}
+
+export type WorkspaceUpdateToOneWithWhereWithoutSavedReplyInput = {
+  where?: Prisma.WorkspaceWhereInput
+  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutSavedReplyInput, Prisma.WorkspaceUncheckedUpdateWithoutSavedReplyInput>
+}
+
+export type WorkspaceUpdateWithoutSavedReplyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  autonomyLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  BrandContext?: Prisma.BrandContextUpdateOneWithoutWorkspaceNestedInput
+  BrandVoice?: Prisma.BrandVoiceUpdateOneWithoutWorkspaceNestedInput
+  ConnectedAccount?: Prisma.ConnectedAccountUpdateManyWithoutWorkspaceNestedInput
+  DashboardPreference?: Prisma.DashboardPreferenceUpdateOneWithoutWorkspaceNestedInput
+  EngagementItem?: Prisma.EngagementItemUpdateManyWithoutWorkspaceNestedInput
+  MediaAsset?: Prisma.MediaAssetUpdateManyWithoutWorkspaceNestedInput
+  Post?: Prisma.PostUpdateManyWithoutWorkspaceNestedInput
+  RedditSubredditConfig?: Prisma.RedditSubredditConfigUpdateManyWithoutWorkspaceNestedInput
+  RedditTrendingPost?: Prisma.RedditTrendingPostUpdateManyWithoutWorkspaceNestedInput
+  UserProfile?: Prisma.UserProfileUpdateOneWithoutWorkspaceNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceUncheckedUpdateWithoutSavedReplyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  autonomyLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  BrandContext?: Prisma.BrandContextUncheckedUpdateOneWithoutWorkspaceNestedInput
+  BrandVoice?: Prisma.BrandVoiceUncheckedUpdateOneWithoutWorkspaceNestedInput
+  ConnectedAccount?: Prisma.ConnectedAccountUncheckedUpdateManyWithoutWorkspaceNestedInput
+  DashboardPreference?: Prisma.DashboardPreferenceUncheckedUpdateOneWithoutWorkspaceNestedInput
+  EngagementItem?: Prisma.EngagementItemUncheckedUpdateManyWithoutWorkspaceNestedInput
+  MediaAsset?: Prisma.MediaAssetUncheckedUpdateManyWithoutWorkspaceNestedInput
+  Post?: Prisma.PostUncheckedUpdateManyWithoutWorkspaceNestedInput
+  RedditSubredditConfig?: Prisma.RedditSubredditConfigUncheckedUpdateManyWithoutWorkspaceNestedInput
+  RedditTrendingPost?: Prisma.RedditTrendingPostUncheckedUpdateManyWithoutWorkspaceNestedInput
+  UserProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutWorkspaceNestedInput
+}
+
 export type WorkspaceCreateWithoutUserInput = {
-  id?: string
+  id: string
   name?: string
   autonomyLevel?: string
   createdAt?: Date | string
@@ -1494,7 +1494,7 @@ export type WorkspaceCreateWithoutUserInput = {
 }
 
 export type WorkspaceUncheckedCreateWithoutUserInput = {
-  id?: string
+  id: string
   name?: string
   autonomyLevel?: string
   createdAt?: Date | string
@@ -1549,7 +1549,7 @@ export type WorkspaceScalarWhereInput = {
 }
 
 export type WorkspaceCreateWithoutUserProfileInput = {
-  id?: string
+  id: string
   name?: string
   autonomyLevel?: string
   createdAt?: Date | string
@@ -1567,7 +1567,7 @@ export type WorkspaceCreateWithoutUserProfileInput = {
 }
 
 export type WorkspaceUncheckedCreateWithoutUserProfileInput = {
-  id?: string
+  id: string
   userId: string
   name?: string
   autonomyLevel?: string
@@ -1637,7 +1637,7 @@ export type WorkspaceUncheckedUpdateWithoutUserProfileInput = {
 }
 
 export type WorkspaceCreateManyUserInput = {
-  id?: string
+  id: string
   name?: string
   autonomyLevel?: string
   createdAt?: Date | string

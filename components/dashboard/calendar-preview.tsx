@@ -81,7 +81,7 @@ export function CalendarPreview({ posts }: CalendarPreviewProps) {
                       : "border-dashed border-border/50 bg-muted/20"
                   )}
                 >
-                  <span className="text-[0.625rem] font-medium uppercase text-muted-foreground">
+                  <span className="text-micro font-medium uppercase text-muted-foreground">
                     {day.dayName}
                   </span>
                   <span className="text-lg font-semibold text-foreground">{day.dayNum}</span>
@@ -92,7 +92,7 @@ export function CalendarPreview({ posts }: CalendarPreviewProps) {
                         href={`/dashboard/compose?postId=${post.id}`}
                         className="group"
                       >
-                        <div className="rounded-sm px-1.5 py-0.5 text-[0.625rem] font-medium truncate bg-brand/10 text-brand group-hover:bg-brand/20 transition-colors">
+                        <div className="rounded-sm px-1.5 py-0.5 text-micro font-medium truncate bg-brand/10 text-brand group-hover:bg-brand/20 transition-colors">
                           {post.title ?? "Untitled"}
                         </div>
                         <div className="flex gap-0.5 mt-0.5">
@@ -125,7 +125,7 @@ export function CalendarPreview({ posts }: CalendarPreviewProps) {
                   )}
                 >
                   <div className="flex flex-col items-center min-w-[36px]">
-                    <span className="text-[0.625rem] font-medium uppercase text-muted-foreground">
+                    <span className="text-micro font-medium uppercase text-muted-foreground">
                       {day.dayName}
                     </span>
                     <span className="text-sm font-semibold text-foreground">{day.dayNum}</span>

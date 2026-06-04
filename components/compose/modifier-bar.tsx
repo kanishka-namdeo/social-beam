@@ -22,7 +22,7 @@ interface ModifierBarProps {
 
 export function ModifierBar({ onModify, isModifying, activeModifier, className }: ModifierBarProps) {
   return (
-    <div className={cn("flex flex-wrap items-center gap-2", className)}>
+    <div className={cn("flex flex-wrap items-center gap-control", className)}>
       {MODIFIERS.map((m) => (
         <Button
           key={m.key}
@@ -32,7 +32,7 @@ export function ModifierBar({ onModify, isModifying, activeModifier, className }
           disabled={isModifying}
           onClick={() => onModify(m.key)}
           className={cn(
-            "gap-1.5 text-xs normal-case hover-scale transition-all",
+            "gap-1.5 text-xs normal-case hover-scale transition-colors",
             activeModifier === m.key && "border-brand bg-brand/5 text-brand",
           )}
           title={m.description}

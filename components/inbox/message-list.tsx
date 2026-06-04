@@ -1,6 +1,7 @@
 "use client";
 
 import { EngagementItemCard } from "./engagement-item-card";
+import { STAGGER_CLASSES } from "@/components/ui/stagger-page";
 
 interface MessageListProps {
   items: Array<{
@@ -33,13 +34,14 @@ export function MessageList({ items, selectedId, onSelect, onLoadMore, hasMore }
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-auto">
-        {items.map((item) => (
-          <EngagementItemCard
-            key={item.id}
-            item={item}
-            isSelected={selectedId === item.id}
-            onClick={() => onSelect(item.id)}
-          />
+        {items.map((item, i) => (
+          <div key={item.id} className={STAGGER_CLASSES[i % STAGGER_CLASSES.length]}>
+            <EngagementItemCard
+              item={item}
+              isSelected={selectedId === item.id}
+              onClick={() => onSelect(item.id)}
+            />
+          </div>
         ))}
       </div>
 

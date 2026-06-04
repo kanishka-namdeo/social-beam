@@ -31,9 +31,10 @@ export type PostPlatformMinAggregateOutputType = {
   content: string | null
   status: $Enums.PostStatus | null
   externalId: string | null
-  postUrl: string | null
   error: string | null
   createdAt: Date | null
+  postUrl: string | null
+  analyticsUrl: string | null
 }
 
 export type PostPlatformMaxAggregateOutputType = {
@@ -43,9 +44,10 @@ export type PostPlatformMaxAggregateOutputType = {
   content: string | null
   status: $Enums.PostStatus | null
   externalId: string | null
-  postUrl: string | null
   error: string | null
   createdAt: Date | null
+  postUrl: string | null
+  analyticsUrl: string | null
 }
 
 export type PostPlatformCountAggregateOutputType = {
@@ -56,9 +58,10 @@ export type PostPlatformCountAggregateOutputType = {
   mediaUrls: number
   status: number
   externalId: number
-  postUrl: number
   error: number
   createdAt: number
+  postUrl: number
+  analyticsUrl: number
   _all: number
 }
 
@@ -70,9 +73,10 @@ export type PostPlatformMinAggregateInputType = {
   content?: true
   status?: true
   externalId?: true
-  postUrl?: true
   error?: true
   createdAt?: true
+  postUrl?: true
+  analyticsUrl?: true
 }
 
 export type PostPlatformMaxAggregateInputType = {
@@ -82,9 +86,10 @@ export type PostPlatformMaxAggregateInputType = {
   content?: true
   status?: true
   externalId?: true
-  postUrl?: true
   error?: true
   createdAt?: true
+  postUrl?: true
+  analyticsUrl?: true
 }
 
 export type PostPlatformCountAggregateInputType = {
@@ -95,9 +100,10 @@ export type PostPlatformCountAggregateInputType = {
   mediaUrls?: true
   status?: true
   externalId?: true
-  postUrl?: true
   error?: true
   createdAt?: true
+  postUrl?: true
+  analyticsUrl?: true
   _all?: true
 }
 
@@ -181,9 +187,10 @@ export type PostPlatformGroupByOutputType = {
   mediaUrls: runtime.JsonValue | null
   status: $Enums.PostStatus
   externalId: string | null
-  postUrl: string | null
   error: string | null
   createdAt: Date
+  postUrl: string | null
+  analyticsUrl: string | null
   _count: PostPlatformCountAggregateOutputType | null
   _min: PostPlatformMinAggregateOutputType | null
   _max: PostPlatformMaxAggregateOutputType | null
@@ -215,9 +222,10 @@ export type PostPlatformWhereInput = {
   mediaUrls?: Prisma.JsonNullableFilter<"PostPlatform">
   status?: Prisma.EnumPostStatusFilter<"PostPlatform"> | $Enums.PostStatus
   externalId?: Prisma.StringNullableFilter<"PostPlatform"> | string | null
-  postUrl?: Prisma.StringNullableFilter<"PostPlatform"> | string | null
   error?: Prisma.StringNullableFilter<"PostPlatform"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PostPlatform"> | Date | string
+  postUrl?: Prisma.StringNullableFilter<"PostPlatform"> | string | null
+  analyticsUrl?: Prisma.StringNullableFilter<"PostPlatform"> | string | null
   Post?: Prisma.XOR<Prisma.PostScalarRelationFilter, Prisma.PostWhereInput>
 }
 
@@ -229,9 +237,10 @@ export type PostPlatformOrderByWithRelationInput = {
   mediaUrls?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   externalId?: Prisma.SortOrderInput | Prisma.SortOrder
-  postUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   error?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  postUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  analyticsUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   Post?: Prisma.PostOrderByWithRelationInput
 }
 
@@ -246,9 +255,10 @@ export type PostPlatformWhereUniqueInput = Prisma.AtLeast<{
   mediaUrls?: Prisma.JsonNullableFilter<"PostPlatform">
   status?: Prisma.EnumPostStatusFilter<"PostPlatform"> | $Enums.PostStatus
   externalId?: Prisma.StringNullableFilter<"PostPlatform"> | string | null
-  postUrl?: Prisma.StringNullableFilter<"PostPlatform"> | string | null
   error?: Prisma.StringNullableFilter<"PostPlatform"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PostPlatform"> | Date | string
+  postUrl?: Prisma.StringNullableFilter<"PostPlatform"> | string | null
+  analyticsUrl?: Prisma.StringNullableFilter<"PostPlatform"> | string | null
   Post?: Prisma.XOR<Prisma.PostScalarRelationFilter, Prisma.PostWhereInput>
 }, "id">
 
@@ -260,9 +270,10 @@ export type PostPlatformOrderByWithAggregationInput = {
   mediaUrls?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   externalId?: Prisma.SortOrderInput | Prisma.SortOrder
-  postUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   error?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  postUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  analyticsUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.PostPlatformCountOrderByAggregateInput
   _max?: Prisma.PostPlatformMaxOrderByAggregateInput
   _min?: Prisma.PostPlatformMinOrderByAggregateInput
@@ -279,9 +290,10 @@ export type PostPlatformScalarWhereWithAggregatesInput = {
   mediaUrls?: Prisma.JsonNullableWithAggregatesFilter<"PostPlatform">
   status?: Prisma.EnumPostStatusWithAggregatesFilter<"PostPlatform"> | $Enums.PostStatus
   externalId?: Prisma.StringNullableWithAggregatesFilter<"PostPlatform"> | string | null
-  postUrl?: Prisma.StringNullableWithAggregatesFilter<"PostPlatform"> | string | null
   error?: Prisma.StringNullableWithAggregatesFilter<"PostPlatform"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PostPlatform"> | Date | string
+  postUrl?: Prisma.StringNullableWithAggregatesFilter<"PostPlatform"> | string | null
+  analyticsUrl?: Prisma.StringNullableWithAggregatesFilter<"PostPlatform"> | string | null
 }
 
 export type PostPlatformCreateInput = {
@@ -291,9 +303,10 @@ export type PostPlatformCreateInput = {
   mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.PostStatus
   externalId?: string | null
-  postUrl?: string | null
   error?: string | null
   createdAt?: Date | string
+  postUrl?: string | null
+  analyticsUrl?: string | null
   Post: Prisma.PostCreateNestedOneWithoutPostPlatformInput
 }
 
@@ -305,9 +318,10 @@ export type PostPlatformUncheckedCreateInput = {
   mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.PostStatus
   externalId?: string | null
-  postUrl?: string | null
   error?: string | null
   createdAt?: Date | string
+  postUrl?: string | null
+  analyticsUrl?: string | null
 }
 
 export type PostPlatformUpdateInput = {
@@ -317,9 +331,10 @@ export type PostPlatformUpdateInput = {
   mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
   externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  analyticsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Post?: Prisma.PostUpdateOneRequiredWithoutPostPlatformNestedInput
 }
 
@@ -331,9 +346,10 @@ export type PostPlatformUncheckedUpdateInput = {
   mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
   externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  analyticsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PostPlatformCreateManyInput = {
@@ -344,9 +360,10 @@ export type PostPlatformCreateManyInput = {
   mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.PostStatus
   externalId?: string | null
-  postUrl?: string | null
   error?: string | null
   createdAt?: Date | string
+  postUrl?: string | null
+  analyticsUrl?: string | null
 }
 
 export type PostPlatformUpdateManyMutationInput = {
@@ -356,9 +373,10 @@ export type PostPlatformUpdateManyMutationInput = {
   mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
   externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  analyticsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PostPlatformUncheckedUpdateManyInput = {
@@ -369,9 +387,10 @@ export type PostPlatformUncheckedUpdateManyInput = {
   mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
   externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  analyticsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PostPlatformListRelationFilter = {
@@ -392,9 +411,10 @@ export type PostPlatformCountOrderByAggregateInput = {
   mediaUrls?: Prisma.SortOrder
   status?: Prisma.SortOrder
   externalId?: Prisma.SortOrder
-  postUrl?: Prisma.SortOrder
   error?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  postUrl?: Prisma.SortOrder
+  analyticsUrl?: Prisma.SortOrder
 }
 
 export type PostPlatformMaxOrderByAggregateInput = {
@@ -404,9 +424,10 @@ export type PostPlatformMaxOrderByAggregateInput = {
   content?: Prisma.SortOrder
   status?: Prisma.SortOrder
   externalId?: Prisma.SortOrder
-  postUrl?: Prisma.SortOrder
   error?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  postUrl?: Prisma.SortOrder
+  analyticsUrl?: Prisma.SortOrder
 }
 
 export type PostPlatformMinOrderByAggregateInput = {
@@ -416,9 +437,10 @@ export type PostPlatformMinOrderByAggregateInput = {
   content?: Prisma.SortOrder
   status?: Prisma.SortOrder
   externalId?: Prisma.SortOrder
-  postUrl?: Prisma.SortOrder
   error?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  postUrl?: Prisma.SortOrder
+  analyticsUrl?: Prisma.SortOrder
 }
 
 export type PostPlatformCreateNestedManyWithoutPostInput = {
@@ -470,9 +492,10 @@ export type PostPlatformCreateWithoutPostInput = {
   mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.PostStatus
   externalId?: string | null
-  postUrl?: string | null
   error?: string | null
   createdAt?: Date | string
+  postUrl?: string | null
+  analyticsUrl?: string | null
 }
 
 export type PostPlatformUncheckedCreateWithoutPostInput = {
@@ -482,9 +505,10 @@ export type PostPlatformUncheckedCreateWithoutPostInput = {
   mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.PostStatus
   externalId?: string | null
-  postUrl?: string | null
   error?: string | null
   createdAt?: Date | string
+  postUrl?: string | null
+  analyticsUrl?: string | null
 }
 
 export type PostPlatformCreateOrConnectWithoutPostInput = {
@@ -524,9 +548,10 @@ export type PostPlatformScalarWhereInput = {
   mediaUrls?: Prisma.JsonNullableFilter<"PostPlatform">
   status?: Prisma.EnumPostStatusFilter<"PostPlatform"> | $Enums.PostStatus
   externalId?: Prisma.StringNullableFilter<"PostPlatform"> | string | null
-  postUrl?: Prisma.StringNullableFilter<"PostPlatform"> | string | null
   error?: Prisma.StringNullableFilter<"PostPlatform"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PostPlatform"> | Date | string
+  postUrl?: Prisma.StringNullableFilter<"PostPlatform"> | string | null
+  analyticsUrl?: Prisma.StringNullableFilter<"PostPlatform"> | string | null
 }
 
 export type PostPlatformCreateManyPostInput = {
@@ -536,9 +561,10 @@ export type PostPlatformCreateManyPostInput = {
   mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.PostStatus
   externalId?: string | null
-  postUrl?: string | null
   error?: string | null
   createdAt?: Date | string
+  postUrl?: string | null
+  analyticsUrl?: string | null
 }
 
 export type PostPlatformUpdateWithoutPostInput = {
@@ -548,9 +574,10 @@ export type PostPlatformUpdateWithoutPostInput = {
   mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
   externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  analyticsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PostPlatformUncheckedUpdateWithoutPostInput = {
@@ -560,9 +587,10 @@ export type PostPlatformUncheckedUpdateWithoutPostInput = {
   mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
   externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  analyticsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PostPlatformUncheckedUpdateManyWithoutPostInput = {
@@ -572,9 +600,10 @@ export type PostPlatformUncheckedUpdateManyWithoutPostInput = {
   mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
   externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  analyticsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -587,9 +616,10 @@ export type PostPlatformSelect<ExtArgs extends runtime.Types.Extensions.Internal
   mediaUrls?: boolean
   status?: boolean
   externalId?: boolean
-  postUrl?: boolean
   error?: boolean
   createdAt?: boolean
+  postUrl?: boolean
+  analyticsUrl?: boolean
   Post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["postPlatform"]>
 
@@ -601,9 +631,10 @@ export type PostPlatformSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   mediaUrls?: boolean
   status?: boolean
   externalId?: boolean
-  postUrl?: boolean
   error?: boolean
   createdAt?: boolean
+  postUrl?: boolean
+  analyticsUrl?: boolean
   Post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["postPlatform"]>
 
@@ -615,9 +646,10 @@ export type PostPlatformSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   mediaUrls?: boolean
   status?: boolean
   externalId?: boolean
-  postUrl?: boolean
   error?: boolean
   createdAt?: boolean
+  postUrl?: boolean
+  analyticsUrl?: boolean
   Post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["postPlatform"]>
 
@@ -629,12 +661,13 @@ export type PostPlatformSelectScalar = {
   mediaUrls?: boolean
   status?: boolean
   externalId?: boolean
-  postUrl?: boolean
   error?: boolean
   createdAt?: boolean
+  postUrl?: boolean
+  analyticsUrl?: boolean
 }
 
-export type PostPlatformOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "postId" | "platform" | "content" | "mediaUrls" | "status" | "externalId" | "postUrl" | "error" | "createdAt", ExtArgs["result"]["postPlatform"]>
+export type PostPlatformOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "postId" | "platform" | "content" | "mediaUrls" | "status" | "externalId" | "error" | "createdAt" | "postUrl" | "analyticsUrl", ExtArgs["result"]["postPlatform"]>
 export type PostPlatformInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
 }
@@ -658,9 +691,10 @@ export type $PostPlatformPayload<ExtArgs extends runtime.Types.Extensions.Intern
     mediaUrls: runtime.JsonValue | null
     status: $Enums.PostStatus
     externalId: string | null
-    postUrl: string | null
     error: string | null
     createdAt: Date
+    postUrl: string | null
+    analyticsUrl: string | null
   }, ExtArgs["result"]["postPlatform"]>
   composites: {}
 }
@@ -1092,9 +1126,10 @@ export interface PostPlatformFieldRefs {
   readonly mediaUrls: Prisma.FieldRef<"PostPlatform", 'Json'>
   readonly status: Prisma.FieldRef<"PostPlatform", 'PostStatus'>
   readonly externalId: Prisma.FieldRef<"PostPlatform", 'String'>
-  readonly postUrl: Prisma.FieldRef<"PostPlatform", 'String'>
   readonly error: Prisma.FieldRef<"PostPlatform", 'String'>
   readonly createdAt: Prisma.FieldRef<"PostPlatform", 'DateTime'>
+  readonly postUrl: Prisma.FieldRef<"PostPlatform", 'String'>
+  readonly analyticsUrl: Prisma.FieldRef<"PostPlatform", 'String'>
 }
     
 

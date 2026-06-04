@@ -393,15 +393,16 @@ export const ModelName = {
   ConnectedAccount: 'ConnectedAccount',
   DashboardPreference: 'DashboardPreference',
   EngagementItem: 'EngagementItem',
-  SavedReply: 'SavedReply',
   FollowerSnapshot: 'FollowerSnapshot',
   MediaAsset: 'MediaAsset',
+  Subscription: 'Subscription',
   OnboardingSession: 'OnboardingSession',
   PlatformContext: 'PlatformContext',
   Post: 'Post',
   PostPlatform: 'PostPlatform',
   RedditSubredditConfig: 'RedditSubredditConfig',
   RedditTrendingPost: 'RedditTrendingPost',
+  SavedReply: 'SavedReply',
   User: 'User',
   UserOAuthApp: 'UserOAuthApp',
   UserProfile: 'UserProfile',
@@ -425,7 +426,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "analyticsSnapshot" | "brandContext" | "brandContextVersion" | "brandFieldState" | "brandLearningSignal" | "brandVoice" | "connectedAccount" | "dashboardPreference" | "engagementItem" | "savedReply" | "followerSnapshot" | "mediaAsset" | "onboardingSession" | "platformContext" | "post" | "postPlatform" | "redditSubredditConfig" | "redditTrendingPost" | "user" | "userOAuthApp" | "userProfile" | "workspace" | "checkpoint_blobs" | "checkpoint_migrations" | "checkpoint_writes" | "checkpoints"
+    modelProps: "analyticsSnapshot" | "brandContext" | "brandContextVersion" | "brandFieldState" | "brandLearningSignal" | "brandVoice" | "connectedAccount" | "dashboardPreference" | "engagementItem" | "followerSnapshot" | "mediaAsset" | "subscription" | "onboardingSession" | "platformContext" | "post" | "postPlatform" | "redditSubredditConfig" | "redditTrendingPost" | "savedReply" | "user" | "userOAuthApp" | "userProfile" | "workspace" | "checkpoint_blobs" | "checkpoint_migrations" | "checkpoint_writes" | "checkpoints"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1095,80 +1096,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    SavedReply: {
-      payload: Prisma.$SavedReplyPayload<ExtArgs>
-      fields: Prisma.SavedReplyFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.SavedReplyFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.SavedReplyFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload>
-        }
-        findFirst: {
-          args: Prisma.SavedReplyFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.SavedReplyFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload>
-        }
-        findMany: {
-          args: Prisma.SavedReplyFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload>[]
-        }
-        create: {
-          args: Prisma.SavedReplyCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload>
-        }
-        createMany: {
-          args: Prisma.SavedReplyCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.SavedReplyCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload>[]
-        }
-        delete: {
-          args: Prisma.SavedReplyDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload>
-        }
-        update: {
-          args: Prisma.SavedReplyUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload>
-        }
-        deleteMany: {
-          args: Prisma.SavedReplyDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.SavedReplyUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.SavedReplyUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload>[]
-        }
-        upsert: {
-          args: Prisma.SavedReplyUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload>
-        }
-        aggregate: {
-          args: Prisma.SavedReplyAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateSavedReply>
-        }
-        groupBy: {
-          args: Prisma.SavedReplyGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.SavedReplyGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.SavedReplyCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.SavedReplyCountAggregateOutputType> | number
-        }
-      }
-    }
     FollowerSnapshot: {
       payload: Prisma.$FollowerSnapshotPayload<ExtArgs>
       fields: Prisma.FollowerSnapshotFieldRefs
@@ -1314,6 +1241,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.MediaAssetCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.MediaAssetCountAggregateOutputType> | number
+        }
+      }
+    }
+    Subscription: {
+      payload: Prisma.$SubscriptionPayload<ExtArgs>
+      fields: Prisma.SubscriptionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SubscriptionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SubscriptionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+        }
+        findFirst: {
+          args: Prisma.SubscriptionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SubscriptionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+        }
+        findMany: {
+          args: Prisma.SubscriptionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>[]
+        }
+        create: {
+          args: Prisma.SubscriptionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+        }
+        createMany: {
+          args: Prisma.SubscriptionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SubscriptionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>[]
+        }
+        delete: {
+          args: Prisma.SubscriptionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+        }
+        update: {
+          args: Prisma.SubscriptionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+        }
+        deleteMany: {
+          args: Prisma.SubscriptionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SubscriptionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SubscriptionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>[]
+        }
+        upsert: {
+          args: Prisma.SubscriptionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+        }
+        aggregate: {
+          args: Prisma.SubscriptionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSubscription>
+        }
+        groupBy: {
+          args: Prisma.SubscriptionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SubscriptionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SubscriptionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SubscriptionCountAggregateOutputType> | number
         }
       }
     }
@@ -1758,6 +1759,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.RedditTrendingPostCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.RedditTrendingPostCountAggregateOutputType> | number
+        }
+      }
+    }
+    SavedReply: {
+      payload: Prisma.$SavedReplyPayload<ExtArgs>
+      fields: Prisma.SavedReplyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SavedReplyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SavedReplyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload>
+        }
+        findFirst: {
+          args: Prisma.SavedReplyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SavedReplyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload>
+        }
+        findMany: {
+          args: Prisma.SavedReplyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload>[]
+        }
+        create: {
+          args: Prisma.SavedReplyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload>
+        }
+        createMany: {
+          args: Prisma.SavedReplyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SavedReplyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload>[]
+        }
+        delete: {
+          args: Prisma.SavedReplyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload>
+        }
+        update: {
+          args: Prisma.SavedReplyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload>
+        }
+        deleteMany: {
+          args: Prisma.SavedReplyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SavedReplyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SavedReplyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload>[]
+        }
+        upsert: {
+          args: Prisma.SavedReplyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SavedReplyPayload>
+        }
+        aggregate: {
+          args: Prisma.SavedReplyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSavedReply>
+        }
+        groupBy: {
+          args: Prisma.SavedReplyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SavedReplyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SavedReplyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SavedReplyCountAggregateOutputType> | number
         }
       }
     }
@@ -2513,8 +2588,8 @@ export const ConnectedAccountScalarFieldEnum = {
   lastSyncedAt: 'lastSyncedAt',
   platformUsername: 'platformUsername',
   sourcePlatform: 'sourcePlatform',
-  sessionCookie: 'sessionCookie',
-  cookieExpiry: 'cookieExpiry'
+  cookieExpiry: 'cookieExpiry',
+  sessionCookie: 'sessionCookie'
 } as const
 
 export type ConnectedAccountScalarFieldEnum = (typeof ConnectedAccountScalarFieldEnum)[keyof typeof ConnectedAccountScalarFieldEnum]
@@ -2555,21 +2630,6 @@ export const EngagementItemScalarFieldEnum = {
 export type EngagementItemScalarFieldEnum = (typeof EngagementItemScalarFieldEnum)[keyof typeof EngagementItemScalarFieldEnum]
 
 
-export const SavedReplyScalarFieldEnum = {
-  id: 'id',
-  workspaceId: 'workspaceId',
-  title: 'title',
-  content: 'content',
-  tags: 'tags',
-  platform: 'platform',
-  usageCount: 'usageCount',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type SavedReplyScalarFieldEnum = (typeof SavedReplyScalarFieldEnum)[keyof typeof SavedReplyScalarFieldEnum]
-
-
 export const FollowerSnapshotScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
@@ -2600,6 +2660,23 @@ export const MediaAssetScalarFieldEnum = {
 } as const
 
 export type MediaAssetScalarFieldEnum = (typeof MediaAssetScalarFieldEnum)[keyof typeof MediaAssetScalarFieldEnum]
+
+
+export const SubscriptionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  stripeCustomerId: 'stripeCustomerId',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  stripePriceId: 'stripePriceId',
+  plan: 'plan',
+  tier: 'tier',
+  status: 'status',
+  currentPeriodEnd: 'currentPeriodEnd',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
 
 
 export const OnboardingSessionScalarFieldEnum = {
@@ -2657,9 +2734,10 @@ export const PostPlatformScalarFieldEnum = {
   mediaUrls: 'mediaUrls',
   status: 'status',
   externalId: 'externalId',
-  postUrl: 'postUrl',
   error: 'error',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  postUrl: 'postUrl',
+  analyticsUrl: 'analyticsUrl'
 } as const
 
 export type PostPlatformScalarFieldEnum = (typeof PostPlatformScalarFieldEnum)[keyof typeof PostPlatformScalarFieldEnum]
@@ -2671,6 +2749,8 @@ export const RedditSubredditConfigScalarFieldEnum = {
   subreddit: 'subreddit',
   sortOrder: 'sortOrder',
   isActive: 'isActive',
+  source: 'source',
+  relevanceScore: 'relevanceScore',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2698,10 +2778,26 @@ export const RedditTrendingPostScalarFieldEnum = {
   postId: 'postId',
   riskLevel: 'riskLevel',
   riskReason: 'riskReason',
-  sentiment: 'sentiment'
+  sentiment: 'sentiment',
+  brandReasonTags: 'brandReasonTags'
 } as const
 
 export type RedditTrendingPostScalarFieldEnum = (typeof RedditTrendingPostScalarFieldEnum)[keyof typeof RedditTrendingPostScalarFieldEnum]
+
+
+export const SavedReplyScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  title: 'title',
+  content: 'content',
+  tags: 'tags',
+  platform: 'platform',
+  usageCount: 'usageCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SavedReplyScalarFieldEnum = (typeof SavedReplyScalarFieldEnum)[keyof typeof SavedReplyScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {
@@ -2709,6 +2805,8 @@ export const UserScalarFieldEnum = {
   email: 'email',
   name: 'name',
   password: 'password',
+  role: 'role',
+  lastRoleChangeAt: 'lastRoleChangeAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2960,6 +3058,20 @@ export type ListEnumEngagementStatusFieldRefInput<$PrismaModel> = FieldRefInputT
 
 
 /**
+ * Reference to a field of type 'SubscriptionTier'
+ */
+export type EnumSubscriptionTierFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionTier'>
+    
+
+
+/**
+ * Reference to a field of type 'SubscriptionTier[]'
+ */
+export type ListEnumSubscriptionTierFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionTier[]'>
+    
+
+
+/**
  * Reference to a field of type 'PostStatus'
  */
 export type EnumPostStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PostStatus'>
@@ -2984,6 +3096,20 @@ export type EnumConfidenceLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$
  * Reference to a field of type 'ConfidenceLevel[]'
  */
 export type ListEnumConfidenceLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ConfidenceLevel[]'>
+    
+
+
+/**
+ * Reference to a field of type 'UserRole'
+ */
+export type EnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole'>
+    
+
+
+/**
+ * Reference to a field of type 'UserRole[]'
+ */
+export type ListEnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole[]'>
     
 
 
@@ -3119,15 +3245,16 @@ export type GlobalOmitConfig = {
   connectedAccount?: Prisma.ConnectedAccountOmit
   dashboardPreference?: Prisma.DashboardPreferenceOmit
   engagementItem?: Prisma.EngagementItemOmit
-  savedReply?: Prisma.SavedReplyOmit
   followerSnapshot?: Prisma.FollowerSnapshotOmit
   mediaAsset?: Prisma.MediaAssetOmit
+  subscription?: Prisma.SubscriptionOmit
   onboardingSession?: Prisma.OnboardingSessionOmit
   platformContext?: Prisma.PlatformContextOmit
   post?: Prisma.PostOmit
   postPlatform?: Prisma.PostPlatformOmit
   redditSubredditConfig?: Prisma.RedditSubredditConfigOmit
   redditTrendingPost?: Prisma.RedditTrendingPostOmit
+  savedReply?: Prisma.SavedReplyOmit
   user?: Prisma.UserOmit
   userOAuthApp?: Prisma.UserOAuthAppOmit
   userProfile?: Prisma.UserProfileOmit

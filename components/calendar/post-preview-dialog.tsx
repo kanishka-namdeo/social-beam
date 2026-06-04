@@ -116,7 +116,7 @@ export function PostPreviewDialog({
               {p.platform.charAt(0).toUpperCase() + p.platform.slice(1)}
                 <Badge
                   variant="outline"
-                  className="text-[0.5rem] normal-case px-1 py-0"
+                  className="text-micro normal-case px-1 py-0"
                 >
                   {p.status.toLowerCase()}
                 </Badge>
@@ -166,7 +166,7 @@ export function PostPreviewDialog({
                   <div className="absolute top-1.5 left-1.5">
                     <Badge
                       variant="secondary"
-                      className="text-[0.5rem] normal-case px-1 py-0 gap-1"
+                      className="text-micro normal-case px-1 py-0 gap-1"
                     >
                       {media.type === "image" ? (
                         <Image className="size-3" alt="" />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { startTransition, useState, useCallback, useTransition } from "react";
 import { toast } from "sonner";
 import { Sparkle } from "@phosphor-icons/react/ssr";
 import {
@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { pushNotification } from "@/components/dashboard/notification-bell";
 
 interface RescheduleDialogProps {
   open: boolean;
@@ -50,12 +51,14 @@ export function RescheduleDialog({
   onConfirm,
 }: RescheduleDialogProps) {
   const [selectedTime, setSelectedTime] = useState(() => getDefaultTime(targetDate));
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPending, startTransition_] = useTransition();
+  const [optimisticSuccess, setOptimisticSuccess] = useState(false);
 
   // Reset time when dialog opens with a new target
   const handleOpenChange = useCallback((isOpen: boolean) => {
     if (!isOpen) {
       onClose();
+      setOptimisticSuccess(false);
     } else if (targetDate) {
       setSelectedTime(getDefaultTime(targetDate));
     }
@@ -72,18 +75,18 @@ export function RescheduleDialog({
   const handleConfirm = async () => {
     if (!postId || !selectedTime) return;
 
-    setIsSubmitting(true);
-    try {
-      await onConfirm(postId, new Date(selectedTime).toISOString());
-      toast.success("Post rescheduled", {
-        description: `New time: ${new Date(selectedTime).toLocaleString()}`,
-      });
-    } catch {
-      toast.error("Failed to reschedule post");
-    } finally {
-      setIsSubmitting(false);
-      onClose();
-    }
+    setOptimisticSuccess(true);
+    startTransition_(async () => {
+      try {
+        await onConfirm(postId, new Date(selectedTime).toISOString());
+        toast.success("Post rescheduled", {
+          description: `New time: ${new Date(selectedTime).toLocaleString()}`,
+        });
+      } catch {
+        setOptimisticSuccess(false);
+        toast.error("Failed to reschedule post");
+      }
+    });
   };
 
   return (
@@ -133,13 +136,13 @@ export function RescheduleDialog({
                       <span className="text-xs font-medium text-foreground">
                         {st.label}
                       </span>
-                      <span className="text-[0.625rem] text-muted-foreground">
+                      <span className="text-micro text-muted-foreground">
                         {st.reason}
                       </span>
                       {isSelected && (
                         <Badge
                           variant="default"
-                          className="mt-1 text-[0.5rem] normal-case px-1 py-0"
+                          className="mt-1 text-micro normal-case px-1 py-0"
                         >
                           Selected
                         </Badge>
@@ -153,14 +156,15 @@ export function RescheduleDialog({
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
-          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+          <Button variant="outline" onClick={onClose} disabled={isPending}>
             Cancel
           </Button>
           <Button
             onClick={handleConfirm}
-            disabled={!selectedTime || isSubmitting}
+            disabled={!selectedTime || isPending}
+            className={optimisticSuccess ? "bg-success hover:bg-success/90" : ""}
           >
-            {isSubmitting ? "Rescheduling..." : "Confirm Reschedule"}
+            {optimisticSuccess ? "✓ Rescheduled" : isPending ? "Rescheduling..." : "Confirm Reschedule"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { deleteUserCredentials } from '@/lib/oauth/credentials';
 import { logger } from '@/lib/logger';
+import { requireAdmin } from '@/lib/api-guards';
 
 export async function DELETE(
   _req: NextRequest,
@@ -11,13 +12,12 @@ export async function DELETE(
   const log = logger.child({ requestId });
 
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const adminGuard = await requireAdmin();
+    if (adminGuard) return adminGuard;
 
     const { platform } = await params;
-    const userId = session.user.id ?? '';
+    const session = await auth();
+    const userId = session!.user!.id ?? '';
 
     if (!platform) {
       return NextResponse.json({ error: 'Missing platform' }, { status: 400 });

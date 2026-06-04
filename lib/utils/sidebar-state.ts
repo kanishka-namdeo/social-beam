@@ -11,7 +11,7 @@ export interface SidebarConfig {
 const STORAGE_KEY = "sidebar-config";
 
 const DEFAULT_CONFIG: SidebarConfig = {
-  collapsible: "offcanvas",
+  collapsible: "icon",
 };
 
 function loadConfig(): SidebarConfig {

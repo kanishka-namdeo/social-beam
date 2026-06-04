@@ -60,15 +60,16 @@ export const ModelName = {
   ConnectedAccount: 'ConnectedAccount',
   DashboardPreference: 'DashboardPreference',
   EngagementItem: 'EngagementItem',
-  SavedReply: 'SavedReply',
   FollowerSnapshot: 'FollowerSnapshot',
   MediaAsset: 'MediaAsset',
+  Subscription: 'Subscription',
   OnboardingSession: 'OnboardingSession',
   PlatformContext: 'PlatformContext',
   Post: 'Post',
   PostPlatform: 'PostPlatform',
   RedditSubredditConfig: 'RedditSubredditConfig',
   RedditTrendingPost: 'RedditTrendingPost',
+  SavedReply: 'SavedReply',
   User: 'User',
   UserOAuthApp: 'UserOAuthApp',
   UserProfile: 'UserProfile',
@@ -216,8 +217,8 @@ export const ConnectedAccountScalarFieldEnum = {
   lastSyncedAt: 'lastSyncedAt',
   platformUsername: 'platformUsername',
   sourcePlatform: 'sourcePlatform',
-  sessionCookie: 'sessionCookie',
-  cookieExpiry: 'cookieExpiry'
+  cookieExpiry: 'cookieExpiry',
+  sessionCookie: 'sessionCookie'
 } as const
 
 export type ConnectedAccountScalarFieldEnum = (typeof ConnectedAccountScalarFieldEnum)[keyof typeof ConnectedAccountScalarFieldEnum]
@@ -258,21 +259,6 @@ export const EngagementItemScalarFieldEnum = {
 export type EngagementItemScalarFieldEnum = (typeof EngagementItemScalarFieldEnum)[keyof typeof EngagementItemScalarFieldEnum]
 
 
-export const SavedReplyScalarFieldEnum = {
-  id: 'id',
-  workspaceId: 'workspaceId',
-  title: 'title',
-  content: 'content',
-  tags: 'tags',
-  platform: 'platform',
-  usageCount: 'usageCount',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type SavedReplyScalarFieldEnum = (typeof SavedReplyScalarFieldEnum)[keyof typeof SavedReplyScalarFieldEnum]
-
-
 export const FollowerSnapshotScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
@@ -303,6 +289,23 @@ export const MediaAssetScalarFieldEnum = {
 } as const
 
 export type MediaAssetScalarFieldEnum = (typeof MediaAssetScalarFieldEnum)[keyof typeof MediaAssetScalarFieldEnum]
+
+
+export const SubscriptionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  stripeCustomerId: 'stripeCustomerId',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  stripePriceId: 'stripePriceId',
+  plan: 'plan',
+  tier: 'tier',
+  status: 'status',
+  currentPeriodEnd: 'currentPeriodEnd',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
 
 
 export const OnboardingSessionScalarFieldEnum = {
@@ -360,9 +363,10 @@ export const PostPlatformScalarFieldEnum = {
   mediaUrls: 'mediaUrls',
   status: 'status',
   externalId: 'externalId',
-  postUrl: 'postUrl',
   error: 'error',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  postUrl: 'postUrl',
+  analyticsUrl: 'analyticsUrl'
 } as const
 
 export type PostPlatformScalarFieldEnum = (typeof PostPlatformScalarFieldEnum)[keyof typeof PostPlatformScalarFieldEnum]
@@ -374,6 +378,8 @@ export const RedditSubredditConfigScalarFieldEnum = {
   subreddit: 'subreddit',
   sortOrder: 'sortOrder',
   isActive: 'isActive',
+  source: 'source',
+  relevanceScore: 'relevanceScore',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -401,10 +407,26 @@ export const RedditTrendingPostScalarFieldEnum = {
   postId: 'postId',
   riskLevel: 'riskLevel',
   riskReason: 'riskReason',
-  sentiment: 'sentiment'
+  sentiment: 'sentiment',
+  brandReasonTags: 'brandReasonTags'
 } as const
 
 export type RedditTrendingPostScalarFieldEnum = (typeof RedditTrendingPostScalarFieldEnum)[keyof typeof RedditTrendingPostScalarFieldEnum]
+
+
+export const SavedReplyScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  title: 'title',
+  content: 'content',
+  tags: 'tags',
+  platform: 'platform',
+  usageCount: 'usageCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SavedReplyScalarFieldEnum = (typeof SavedReplyScalarFieldEnum)[keyof typeof SavedReplyScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {
@@ -412,6 +434,8 @@ export const UserScalarFieldEnum = {
   email: 'email',
   name: 'name',
   password: 'password',
+  role: 'role',
+  lastRoleChangeAt: 'lastRoleChangeAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

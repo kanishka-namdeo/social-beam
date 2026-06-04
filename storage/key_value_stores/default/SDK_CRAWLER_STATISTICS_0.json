@@ -1,40 +1,30 @@
 {
-  "requestsFinished": 22,
+  "requestsFinished": 16,
   "requestsFailed": 0,
   "requestsRetries": 0,
   "requestsFailedPerMinute": 0,
-  "requestsFinishedPerMinute": 24,
-  "requestMinDurationMillis": 899,
-  "requestMaxDurationMillis": 13252,
+  "requestsFinishedPerMinute": 28,
+  "requestMinDurationMillis": 4158,
+  "requestMaxDurationMillis": 10307,
   "requestTotalFailedDurationMillis": 0,
-  "requestTotalFinishedDurationMillis": 134085,
-  "crawlerStartedAt": "2026-06-01T17:02:34.541Z",
-  "crawlerFinishedAt": "2026-06-01T17:03:29.717Z",
-  "statsPersistedAt": "2026-06-01T17:03:29.718Z",
-  "crawlerRuntimeMillis": 55192,
-  "crawlerLastStartTimestamp": 1780333354526,
+  "requestTotalFinishedDurationMillis": 82985,
+  "crawlerStartedAt": "2026-06-02T13:25:03.699Z",
+  "crawlerFinishedAt": "2026-06-02T13:25:37.870Z",
+  "statsPersistedAt": "2026-06-02T13:25:37.870Z",
+  "crawlerRuntimeMillis": 34178,
+  "crawlerLastStartTimestamp": 1780406703692,
   "requestRetryHistogram": [
-    22
+    16
   ],
   "statsId": 0,
   "requestAvgFailedDurationMillis": null,
-  "requestAvgFinishedDurationMillis": 6095,
-  "requestTotalDurationMillis": 134085,
-  "requestsTotal": 22,
+  "requestAvgFinishedDurationMillis": 5187,
+  "requestTotalDurationMillis": 82985,
+  "requestsTotal": 16,
   "requestsWithStatusCode": {
-    "200": 19,
-    "404": 3
+    "200": 14,
+    "404": 2
   },
   "errors": {},
-  "retryErrors": {
-    "D:\\test_agent\\social-beam\\node_modules\\.pnpm\\@crawlee+playwright@3.16.0\\node_modules\\@crawlee\\playwright\\internals\\utils\\playwright-utils.js:165:17": {
-      "missing error code": {
-        "TimeoutError": {
-          "page.goto: Timeout 15000ms exceeded.": {
-            "count": 1
-          }
-        }
-      }
-    }
-  }
+  "retryErrors": {}
 }

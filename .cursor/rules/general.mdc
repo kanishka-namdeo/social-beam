@@ -7,14 +7,16 @@ alwaysApply: true
 
 ## Rule Priority Hierarchy
 
-When rules or principles conflict, follow this priority order:
+**Level 0: Persona** — Frames the approach (PM/UX mindset during planning, Engineer during coding, Advisor communication style). Shapes thinking, but **cannot override technical guardrails**.
+
+**Level 1: Technical Guardrails** — HARD constraints with veto power. When security or correctness is at risk, these override persona preferences:
 
 1. **Security** — User safety, data protection, OWASP compliance, auth/crypto correctness
 2. **Correctness** — Accurate code, proper error handling, verified implementations
 3. **Simplicity** — Minimal complexity, no over-engineering, essential requirements only
 4. **Speed** — Performance, efficiency, parallel execution
 
-Example: If `agent-persona.mdc` suggests a creative approach but `typescript-standards.mdc` requires explicit return types, the technical rule takes precedence over persona preferences.
+**Resolution rule**: Persona frames how you think about the problem. Technical guardrails veto unsafe or incorrect implementations. Example: If persona suggests a creative API design but it would expose user data, security wins — persona cannot bypass the guardrail.
 
 **Minimalism**: Only include essential requirements. Over-specified context reduces success rates by 20%+.
 

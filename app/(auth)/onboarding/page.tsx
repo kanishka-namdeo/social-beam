@@ -48,6 +48,8 @@ function checkOnboardingComplete(): boolean {
 function markOnboardingComplete(): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem(ONBOARDING_COMPLETE_KEY, 'true');
+  // Also persist to server for authoritative state
+  fetch('/api/onboarding/complete', { method: 'POST' }).catch(() => {});
 }
 
 function relaunchTour(): void {
@@ -223,6 +225,16 @@ export default function OnboardingPage() {
   const abortControllerRef = useRef<AbortController | null>(null);
   const oauthChannelRef = useRef<BroadcastChannel | null>(null);
   const streamingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const popupPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -245,6 +257,13 @@ export default function OnboardingPage() {
         window.history.replaceState({}, '', '/onboarding');
       }
     }
+  }, []);
+
+  // Cleanup popup polling interval on unmount
+  useEffect(() => {
+    return () => {
+      if (popupPollRef.current) clearInterval(popupPollRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -331,15 +350,17 @@ export default function OnboardingPage() {
       if (error instanceof Error && error.name === 'AbortError') {
         return;
       }
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: 'Sorry, something went wrong. Please try again.',
-          timestamp: new Date(),
-        },
-      ]);
+      if (mountedRef.current) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content: 'Sorry, something went wrong. Please try again.',
+            timestamp: new Date(),
+          },
+        ]);
+      }
     } finally {
       if (streamingTimeoutRef.current) {
         clearTimeout(streamingTimeoutRef.current);
@@ -418,15 +439,17 @@ export default function OnboardingPage() {
       if (error instanceof Error && error.name === 'AbortError') {
         return;
       }
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: 'Sorry, something went wrong. Please try again.',
-          timestamp: new Date(),
-        },
-      ]);
+      if (mountedRef.current) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content: 'Sorry, something went wrong. Please try again.',
+            timestamp: new Date(),
+          },
+        ]);
+      }
     } finally {
       if (streamingTimeoutRef.current) {
         clearTimeout(streamingTimeoutRef.current);
@@ -439,17 +462,26 @@ export default function OnboardingPage() {
   // Check for stored threadId from a previous session and resume
   useEffect(() => {
     const storedThreadId = localStorage.getItem('onboarding_thread_id');
+    let animationFrameId = 0;
     if (storedThreadId && status === 'authenticated') {
       // Use requestAnimationFrame to avoid synchronous setState in effect
-      requestAnimationFrame(() => {
+      animationFrameId = requestAnimationFrame(() => {
         setThreadId(storedThreadId);
         setPhase('in-progress');
         // Resume the session - this will trigger the backend to load existing data
-        setTimeout(() => {
+        resumeTimeoutRef.current = setTimeout(() => {
           sendResume('resume');
         }, 100);
       });
     }
+    // Cleanup animation frame and resume timeout on unmount or status change
+    return () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      if (resumeTimeoutRef.current) {
+        clearTimeout(resumeTimeoutRef.current);
+        resumeTimeoutRef.current = null;
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
@@ -540,8 +572,10 @@ export default function OnboardingPage() {
       const poll = setInterval(() => {
         if (popup?.closed) {
           clearInterval(poll);
+          popupPollRef.current = null;
         }
       }, 500);
+      popupPollRef.current = poll;
     } catch {
       setMessages((prev) => [
         ...prev,

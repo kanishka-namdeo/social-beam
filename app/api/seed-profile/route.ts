@@ -1,7 +1,17 @@
 import { prisma } from '@/lib/prisma';
 import { randomUUID } from 'crypto';
+import { auth } from '@/lib/auth';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
+  const session = await auth();
+  if (!session?.user || (session.user as { role?: string })?.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Debug endpoints disabled in production' }, { status: 403 });
+  }
+
   try {
     const workspace = await prisma.workspace.findFirst();
     if (!workspace) {

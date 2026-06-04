@@ -33,30 +33,32 @@ export default async function InboxPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-1.5">
-        <h1 className="text-2xl font-medium tracking-tight text-foreground">Inbox</h1>
+      <div className="stagger-1 flex flex-col gap-1.5">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Inbox</h1>
         <p className="text-sm text-muted-foreground">
           Manage comments, mentions, and messages across all your social platforms.
         </p>
       </div>
-      <InboxClient
-        initialItems={initialItems.map((item) => ({
-          id: item.id,
-          platform: item.platform,
-          type: item.type,
-          authorName: item.authorName,
-          authorAvatar: item.authorAvatar,
-          content: item.content,
-          parentContent: item.parentContent,
-          platformUrl: item.platformUrl,
-          status: item.status,
-          createdAt: item.createdAt.toISOString(),
-          sentiment: item.sentiment,
-          aiDraft: item.aiDraft,
-        }))}
-        connectedPlatforms={connectedAccounts.map((a) => a.platform)}
-        initialUnreadCount={unreadCount}
-      />
+      <div className="stagger-2">
+        <InboxClient
+          initialItems={initialItems.map((item) => ({
+            id: item.id,
+            platform: item.platform,
+            type: item.type,
+            authorName: item.authorName,
+            authorAvatar: item.authorAvatar,
+            content: item.content,
+            parentContent: item.parentContent,
+            platformUrl: item.platformUrl,
+            status: item.status,
+            createdAt: item.createdAt.toISOString(),
+            sentiment: item.sentiment,
+            aiDraft: item.aiDraft,
+          }))}
+          connectedPlatforms={connectedAccounts.map((a) => a.platform)}
+          initialUnreadCount={unreadCount}
+        />
+      </div>
     </div>
   );
 }

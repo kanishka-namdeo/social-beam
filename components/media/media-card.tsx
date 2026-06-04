@@ -192,7 +192,7 @@ export function MediaCard({ asset, onDelete, onSelect, selected = false, showAct
       {/* Archive badge */}
       {asset.status === "archived" && (
         <div className="absolute left-2 top-2 z-10">
-          <Badge variant="secondary" className="text-[10px] normal-case gap-1">
+          <Badge variant="secondary" className="text-micro normal-case gap-1">
             <Archive className="size-3" /> Archived
           </Badge>
         </div>
@@ -244,7 +244,7 @@ export function MediaCard({ asset, onDelete, onSelect, selected = false, showAct
           <p className="truncate text-xs font-medium text-foreground" title={asset.originalName}>
             {truncateFilename(asset.originalName)}
           </p>
-          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-micro text-muted-foreground">
             <span>{asset.width}×{asset.height}</span>
             <span>·</span>
             <span>{formatFileSize(asset.fileSize)}</span>
@@ -304,12 +304,12 @@ export function MediaCard({ asset, onDelete, onSelect, selected = false, showAct
       {asset.tags.length > 0 && (
         <div className="flex flex-wrap gap-1 px-2 pb-2">
           {asset.tags.slice(0, 2).map((tag) => (
-            <Badge key={tag} variant="secondary" className="text-[10px] normal-case">
+            <Badge key={tag} variant="secondary" className="text-micro normal-case">
               {tag}
             </Badge>
           ))}
           {asset.tags.length > 2 && (
-            <Badge variant="secondary" className="text-[10px] normal-case">
+            <Badge variant="secondary" className="text-micro normal-case">
               +{asset.tags.length - 2}
             </Badge>
           )}
@@ -319,7 +319,7 @@ export function MediaCard({ asset, onDelete, onSelect, selected = false, showAct
 
     {/* Rename dialog */}
     {renameOpen && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay">
+      <div className="fixed inset-0 z-overlay flex items-center justify-center bg-overlay">
         <div className="w-full max-w-sm rounded-lg bg-card p-6 shadow-lg">
           <h3 className="text-sm font-semibold text-foreground">Rename Asset</h3>
           <input
@@ -340,7 +340,7 @@ export function MediaCard({ asset, onDelete, onSelect, selected = false, showAct
 
     {/* Tag edit dialog */}
     {tagEditOpen && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay">
+      <div className="fixed inset-0 z-overlay flex items-center justify-center bg-overlay">
         <div className="w-full max-w-sm rounded-lg bg-card p-6 shadow-lg">
           <h3 className="text-sm font-semibold text-foreground">Edit Tags</h3>
           <p className="mt-1 text-xs text-muted-foreground">Separate tags with commas</p>

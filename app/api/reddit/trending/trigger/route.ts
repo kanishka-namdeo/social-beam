@@ -61,7 +61,7 @@ export async function POST() {
       }, { status: 400 });
     }
 
-    const jobId = `job_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const jobId = `${workspaceId}:job_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const initialStatus: JobStatus = {
       phase: "scraping",
       progress: 0,

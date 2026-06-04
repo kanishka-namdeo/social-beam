@@ -48,15 +48,20 @@ export function WidgetCard({
     <div
       ref={setNodeRef}
       style={style}
-      className={cn(COL_SPAN_CLASSES[colSpan], isDragging && "opacity-50", className)}
+      className={cn(
+        COL_SPAN_CLASSES[colSpan],
+        "group",
+        isDragging && "opacity-50 scale-95",
+        className
+      )}
     >
-      {/* Control bar — overlaid on top-right of the child widget */}
-      <div className="absolute top-2 right-2 z-10 flex items-center gap-1 bg-background/80 backdrop-blur-sm rounded-md border border-border/50 px-1 py-0.5">
+      {/* Control bar — overlaid on top-right of the child widget, positioned outside card bounds */}
+      <div className="absolute -top-1 -right-1 z-dropdown flex items-center gap-1 bg-background/80 backdrop-blur-sm rounded-md border border-border/50 px-1 py-0.5 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
         <button
           {...attributes}
           {...listeners}
           type="button"
-          className="flex items-center justify-center rounded-sm p-1 text-muted-foreground hover:text-foreground hover:bg-muted/80 cursor-grab active:cursor-grabbing transition-colors"
+          className="flex-center rounded-sm p-1 text-muted-foreground hover:text-foreground hover:bg-muted/80 cursor-grab active:cursor-grabbing transition-colors focus-visible:ring-2 focus-visible:ring-ring/30"
           aria-label="Drag to reorder"
         >
           <DotsSixVertical className="size-4" weight="bold" />

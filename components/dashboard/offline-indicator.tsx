@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { WifiSlash, Spinner } from "@phosphor-icons/react/ssr";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -8,6 +8,7 @@ type NetworkStatus = "online" | "offline" | "reconnecting";
 
 export function OfflineIndicator() {
   const [status, setStatus] = useState<NetworkStatus>("online");
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!navigator.onLine) {
@@ -21,10 +22,11 @@ export function OfflineIndicator() {
 
     const handleOnline = () => {
       setStatus("reconnecting");
-      const timer = setTimeout(() => {
+      if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = setTimeout(() => {
         setStatus("online");
+        reconnectTimerRef.current = null;
       }, 3000);
-      return () => clearTimeout(timer);
     };
 
     window.addEventListener("offline", handleOffline);
@@ -33,6 +35,7 @@ export function OfflineIndicator() {
     return () => {
       window.removeEventListener("offline", handleOffline);
       window.removeEventListener("online", handleOnline);
+      if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
     };
   }, []);
 

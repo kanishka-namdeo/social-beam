@@ -46,7 +46,7 @@ export function ExternalMediaGrid({
 
   const textClass = viewMode === "large"
     ? "text-xs"
-    : "text-[10px]";
+    : "text-micro";
 
   return (
     <div className="space-y-4">

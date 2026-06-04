@@ -1,9 +1,0 @@
-{
-	"id": "1LwLobSJ3J8rCnJ",
-	"json": "{\"id\":\"1LwLobSJ3J8rCnJ\",\"url\":\"https://buffer.com/analyze\",\"loadedUrl\":\"https://buffer.com/analyze\",\"uniqueKey\":\"https://buffer.com/analyze\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"depth\":0,\"__crawlee\":{\"state\":4}},\"handledAt\":\"2026-06-01T17:03:14.605Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "https://buffer.com/analyze",
-	"url": "https://buffer.com/analyze"
-}

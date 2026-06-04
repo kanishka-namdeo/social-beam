@@ -1,9 +1,0 @@
-{
-	"id": "33zMQJgtn4onAXR",
-	"json": "{\"id\":\"33zMQJgtn4onAXR\",\"url\":\"https://buffer.com/free-tools/utm-generator\",\"loadedUrl\":\"https://buffer.com/free-tools/utm-generator\",\"uniqueKey\":\"https://buffer.com/free-tools/utm-generator\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"depth\":0,\"__crawlee\":{\"state\":4}},\"handledAt\":\"2026-06-01T19:42:24.828Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "https://buffer.com/free-tools/utm-generator",
-	"url": "https://buffer.com/free-tools/utm-generator"
-}

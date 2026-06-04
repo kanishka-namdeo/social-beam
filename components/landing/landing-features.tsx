@@ -41,7 +41,7 @@ export function LandingFeatures() {
           {features.map((feature) => {
             const Icon = feature.icon;
             return (
-              <Card key={feature.title} className="border-border rounded-sm hover-lift transition-shadow">
+              <Card key={feature.title} className="border-border rounded-sm transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="p-3 bg-brand/10 text-brand w-fit mb-3 rounded-sm" aria-hidden="true">
                     <Icon className="w-6 h-6" />

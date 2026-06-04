@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isOnboardingComplete } from "@/lib/db/onboarding";
+import { getBrandContext } from "@/lib/db/brand-context";
 import { redirect } from "next/navigation";
 import { CalendarClient } from "@/components/calendar/calendar-client";
 
@@ -20,7 +21,7 @@ export default async function CalendarPage() {
   const monthStart = new Date(Date.UTC(now.getFullYear(), now.getMonth(), 1, 0, 0, 0));
   const monthEnd = new Date(Date.UTC(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999));
 
-  const [posts, connectedAccounts] = await Promise.all([
+  const [posts, connectedAccounts, brandContext] = await Promise.all([
     prisma.post.findMany({
       where: {
         workspaceId: user.workspaceId,
@@ -52,13 +53,14 @@ export default async function CalendarPage() {
       where: { workspaceId: user.workspaceId, status: "connected" },
       select: { platform: true },
     }),
+    getBrandContext(user.workspaceId),
   ]);
 
   return (
     <div className="space-y-4">
       {/* Page header */}
       <div className="flex flex-col gap-1.5">
-        <h1 className="text-2xl font-medium tracking-tight text-foreground">Calendar</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Calendar</h1>
         <p className="text-sm text-muted-foreground">
           Schedule, preview, and manage your posts across all platforms.
         </p>
@@ -83,6 +85,7 @@ export default async function CalendarPage() {
         })}
         initialDate={now.toISOString()}
         connectedPlatforms={connectedAccounts.map((a) => a.platform)}
+        platformContexts={brandContext?.PlatformContext ?? []}
       />
     </div>
   );

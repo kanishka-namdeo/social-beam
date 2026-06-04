@@ -37,7 +37,7 @@ export function LinkedInPreview({ content, account, mediaUrls }: LinkedInPreview
       aria-label="LinkedIn post preview"
     >
       {/* Author Header */}
-      <div className="flex items-start gap-3 p-4 pb-0">
+      <div className="flex items-start gap-3 p-preview pb-0">
         <Avatar className="h-12 w-12 shrink-0 rounded-full">
           <AvatarImage src={avatarSrc} alt={displayName} />
           <AvatarFallback
@@ -135,16 +135,16 @@ export function LinkedInPreview({ content, account, mediaUrls }: LinkedInPreview
       {/* Engagement Bar */}
       <div className="px-4 pb-3 pt-2">
         {/* Reaction counts — left & right aligned on same baseline */}
-        <div className="flex items-center justify-between text-xs leading-5 text-muted-foreground">
+        <div className="flex-between text-xs leading-5 text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <div className="flex -space-x-1">
               <span
-                className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-preview-linkedin text-[10px] leading-none"
+                className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-preview-linkedin text-micro leading-none"
               >
                 👍
               </span>
               <span
-                className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-brand text-[10px] leading-none"
+                className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-brand text-micro leading-none"
               >
                 ❤️
               </span>

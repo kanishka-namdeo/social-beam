@@ -25,7 +25,7 @@ export function InstagramPreview({ content, account, mediaUrls }: InstagramPrevi
       aria-label="Instagram post preview"
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-3">
+      <div className="flex-between p-preview">
         <div className="flex items-center gap-3">
           <Avatar className="h-8 w-8">
             <AvatarImage src={avatarSrc} alt={displayName} />
@@ -60,7 +60,7 @@ export function InstagramPreview({ content, account, mediaUrls }: InstagramPrevi
       )}
 
       {/* Engagement Icons */}
-      <div className="flex items-center justify-between p-3">
+      <div className="flex items-center justify-between p-preview">
         <div className="flex items-center gap-4">
           <button type="button" className="text-foreground hover:text-muted-foreground transition-colors" aria-label="Like">
             <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -116,7 +116,7 @@ export function InstagramPreview({ content, account, mediaUrls }: InstagramPrevi
 
       {/* Timestamp */}
       <div className="px-3 pb-3">
-        <p className="text-[10px] uppercase text-muted-foreground tracking-wide">2 hours ago</p>
+        <p className="text-micro uppercase text-muted-foreground tracking-wide">2 hours ago</p>
       </div>
     </div>
   );

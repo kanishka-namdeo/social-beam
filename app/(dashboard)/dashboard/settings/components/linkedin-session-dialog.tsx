@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -23,6 +23,7 @@ export function LinkedInSessionDialog({ open, onOpenChange, onSessionComplete }:
   const [cookieExpiry, setCookieExpiry] = useState<Date | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [pollCount, setPollCount] = useState(0);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const MAX_POLLS = 60; // 5 minutes at 5s intervals
 
@@ -37,9 +38,17 @@ export function LinkedInSessionDialog({ open, onOpenChange, onSessionComplete }:
 
   useEffect(() => {
     if (!open) {
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
       resetState();
     }
   }, [open, resetState]);
+
+  // Cleanup polling interval on unmount
+  useEffect(() => {
+    return () => {
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    };
+  }, []);
 
   const checkCookieStatus = useCallback(async () => {
     try {
@@ -58,13 +67,15 @@ export function LinkedInSessionDialog({ open, onOpenChange, onSessionComplete }:
     setStep('waiting');
     setPollCount(0);
 
-    const pollInterval = setInterval(async () => {
+    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    pollIntervalRef.current = setInterval(async () => {
       setPollCount((prev) => {
         const newCount = prev + 1;
         setProgress(Math.min((newCount / MAX_POLLS) * 100, 100));
 
         if (newCount >= MAX_POLLS) {
-          clearInterval(pollInterval);
+          clearInterval(pollIntervalRef.current!);
+          pollIntervalRef.current = null;
           setStep('error');
           setMessage('Login timed out. Please try again.');
           toast.error('LinkedIn connection timed out');
@@ -74,7 +85,8 @@ export function LinkedInSessionDialog({ open, onOpenChange, onSessionComplete }:
         // Check if cookie was saved
         checkCookieStatus().then((status) => {
           if (status?.cookieValid) {
-            clearInterval(pollInterval);
+            clearInterval(pollIntervalRef.current!);
+            pollIntervalRef.current = null;
             setCookieExpiry(status.cookieExpiry ? new Date(status.cookieExpiry) : null);
             setStep('success');
             toast.success('LinkedIn session connected');
@@ -85,8 +97,6 @@ export function LinkedInSessionDialog({ open, onOpenChange, onSessionComplete }:
         return newCount;
       });
     }, 5000);
-
-    return () => clearInterval(pollInterval);
   }, [checkCookieStatus, onSessionComplete]);
 
   const handleStartConnection = async () => {

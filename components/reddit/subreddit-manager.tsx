@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -24,14 +24,38 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, X, Gear } from "@phosphor-icons/react/ssr";
+import {
+  Plus,
+  X,
+  Gear,
+  MagnifyingGlass,
+  Users,
+  Sparkle,
+  CheckCircle,
+} from "@phosphor-icons/react/ssr";
 import { Skeleton } from "@/components/ui/skeleton";
+
+interface SubredditSearchResult {
+  name: string;
+  title: string;
+  description: string;
+  subscribers?: number;
+  activeUsers?: number;
+}
 
 interface SubredditConfig {
   id: string;
   subreddit: string;
   sortOrder: string;
   isActive: boolean;
+}
+
+interface SubredditRecommendation {
+  subreddit: string;
+  relevanceScore: number;
+  reason: string;
+  category: "industry" | "audience" | "goals" | "competitors";
+  isTracked: boolean;
 }
 
 const COMMON_SUBREDDITS = [
@@ -52,14 +76,45 @@ const COMMON_SUBREDDITS = [
   "freelance",
 ];
 
-export function SubredditManager() {
+function getRelevanceBadgeColor(score: number): string {
+  if (score >= 0.7) return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+  if (score >= 0.4) return "bg-amber-500/10 text-amber-500 border-amber-500/20";
+  return "bg-muted text-muted-foreground border-border";
+}
+
+function getRelevanceLabel(score: number): string {
+  if (score >= 0.7) return "High";
+  if (score >= 0.4) return "Medium";
+  return "Low";
+}
+
+export interface SubredditManagerProps {
+  dialogOpen?: boolean;
+  onDialogOpenChange?: (open: boolean) => void;
+  onRecommendationCountChange?: (count: number) => void;
+}
+
+export function SubredditManager({ dialogOpen, onDialogOpenChange, onRecommendationCountChange }: SubredditManagerProps) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = dialogOpen !== undefined ? dialogOpen : internalOpen;
+  const setOpen = onDialogOpenChange !== undefined ? onDialogOpenChange : setInternalOpen;
   const [configs, setConfigs] = useState<SubredditConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState("");
   const [newSort, setNewSort] = useState("hot");
   const [saving, setSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<SubredditSearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [validating, setValidating] = useState<string | null>(null);
+  const searchAbortRef = useRef<AbortController | null>(null);
+
+  // Recommendation state
+  const [recommendations, setRecommendations] = useState<SubredditRecommendation[]>([]);
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
+  const [addingRecommendation, setAddingRecommendation] = useState<string | null>(null);
 
   const refreshPage = useCallback(() => {
     router.refresh();
@@ -83,6 +138,56 @@ export function SubredditManager() {
     if (isOpen) {
       setLoading(true);
       void fetchConfigs();
+      void fetchRecommendations();
+    }
+  };
+
+  const fetchRecommendations = async () => {
+    setLoadingRecommendations(true);
+    try {
+      const res = await fetch("/api/reddit/subreddits/recommend");
+      if (!res.ok) {
+        setRecommendations([]);
+        onRecommendationCountChange?.(0);
+        return;
+      }
+      const json = await res.json();
+      const recs = json.data?.recommendations ?? [];
+      setRecommendations(recs);
+      onRecommendationCountChange?.(recs.length);
+    } catch {
+      setRecommendations([]);
+      onRecommendationCountChange?.(0);
+    } finally {
+      setLoadingRecommendations(false);
+    }
+  };
+
+  const handleAddRecommendation = async (rec: SubredditRecommendation) => {
+    if (rec.isTracked) return;
+    setAddingRecommendation(rec.subreddit);
+    try {
+      const res = await fetch("/api/reddit/subreddit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subreddit: rec.subreddit, sortOrder: "hot" }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        toast.success(`Now tracking r/${rec.subreddit}`);
+        await fetchConfigs();
+        await fetchRecommendations();
+        refreshPage();
+      } else if (res.status === 409) {
+        toast.info(json.error ?? "Already tracked");
+        await fetchRecommendations();
+      } else {
+        toast.error(json.error ?? "Failed to add subreddit");
+      }
+    } catch {
+      toast.error("Failed to add subreddit");
+    } finally {
+      setAddingRecommendation(null);
     }
   };
 
@@ -146,6 +251,95 @@ export function SubredditManager() {
     }
   };
 
+  // Debounced search
+  useEffect(() => {
+    if (searchAbortRef.current) {
+      searchAbortRef.current.abort();
+    }
+
+    const trimmed = searchQuery.trim();
+    if (trimmed.length < 3) {
+      setSearchResults([]);
+      setSearchError(null);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      searchAbortRef.current = new AbortController();
+      const controller = searchAbortRef.current;
+
+      const doSearch = async () => {
+        setSearching(true);
+        setSearchError(null);
+        try {
+          const excludeList = configs.map((c) => c.subreddit).join(",");
+          const res = await fetch(
+            `/api/reddit/subreddits/search?q=${encodeURIComponent(trimmed)}&exclude=${encodeURIComponent(excludeList)}`,
+            { signal: controller.signal }
+          );
+          if (!res.ok) {
+            const json = await res.json();
+            if (res.status === 429) {
+              setSearchError(json.error ?? "Rate limited");
+            } else {
+              setSearchError(json.error ?? "Search failed");
+            }
+            return;
+          }
+          const json = await res.json();
+          setSearchResults(json.data?.results ?? []);
+        } catch {
+          if (!controller.signal.aborted) {
+            setSearchError("Search failed");
+          }
+        } finally {
+          setSearching(false);
+        }
+      };
+
+      void doSearch();
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, configs]);
+
+  const handleAddFromSearch = async (name: string) => {
+    setValidating(name);
+    try {
+      const validateRes = await fetch(`/api/reddit/subreddits/validate?name=${encodeURIComponent(name)}`);
+      if (!validateRes.ok) {
+        const json = await validateRes.json();
+        toast.error(json.error ?? "Validation failed");
+        return;
+      }
+      const validateJson = await validateRes.json();
+      if (!validateJson.data?.exists) {
+        toast.error(`r/${name} doesn't exist`);
+        return;
+      }
+
+      const res = await fetch("/api/reddit/subreddit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subreddit: name, sortOrder: "hot" }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        toast.success(`Now tracking r/${name}`);
+        await fetchConfigs();
+        refreshPage();
+      } else if (res.status === 409) {
+        toast.info(json.error ?? "Already tracked");
+      } else {
+        toast.error(json.error ?? "Failed to add subreddit");
+      }
+    } catch {
+      toast.error("Failed to add subreddit");
+    } finally {
+      setValidating(null);
+    }
+  };
+
   const activeConfigs = configs.filter((c) => c.isActive);
   const inactiveConfigs = configs.filter((c) => !c.isActive);
 
@@ -166,7 +360,96 @@ export function SubredditManager() {
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Add new */}
+          {/* Brand Recommendations */}
+          {loadingRecommendations ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Sparkle className="size-4 text-brand animate-pulse" weight="fill" />
+                <Label className="text-xs text-muted-foreground">Finding recommendations...</Label>
+              </div>
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between rounded-sm border border-border bg-muted/20 p-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-3 w-32" />
+                  </div>
+                  <Skeleton className="h-7 w-16" />
+                </div>
+              ))}
+            </div>
+          ) : recommendations.length > 0 ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Sparkle className="size-4 text-brand" weight="fill" />
+                <Label className="text-sm font-medium">Recommended for your brand</Label>
+                <Badge variant="secondary" className="text-xs">
+                  {recommendations.length}
+                </Badge>
+              </div>
+              <div className="space-y-1 max-h-64 overflow-y-auto rounded-sm border border-border bg-muted/20">
+                {recommendations.map((rec) => {
+                  const isAdding = addingRecommendation === rec.subreddit;
+                  return (
+                    <div
+                      key={rec.subreddit}
+                      className="flex items-start justify-between p-3 hover:bg-muted/40 transition-colors border-b border-border last:border-b-0"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-sm font-medium text-foreground">
+                            r/{rec.subreddit}
+                          </p>
+                          <Badge
+                            variant="outline"
+                            className={`text-xs ${getRelevanceBadgeColor(rec.relevanceScore)}`}
+                          >
+                            {getRelevanceLabel(rec.relevanceScore)}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs capitalize">
+                            {rec.category}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {rec.reason}
+                        </p>
+                      </div>
+                      <div className="ml-2 shrink-0">
+                        {rec.isTracked ? (
+                          <div className="flex items-center gap-1 text-xs text-emerald-500 h-7 px-2">
+                            <CheckCircle className="size-3" weight="bold" />
+                            Tracked
+                          </div>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={isAdding}
+                            onClick={() => handleAddRecommendation(rec)}
+                            className="h-7 text-xs gap-1"
+                          >
+                            {isAdding ? (
+                              <>
+                                <MagnifyingGlass className="size-3 animate-spin" />
+                                Adding...
+                              </>
+                            ) : (
+                              <>
+                                <Plus className="size-3" weight="bold" />
+                                Add
+                              </>
+                            )}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
           <div className="space-y-2">
             <Label>Add subreddit</Label>
             <div className="flex gap-2">
@@ -200,8 +483,114 @@ export function SubredditManager() {
             </div>
           </div>
 
-          {/* Suggestions */}
-          {configs.length < 3 && (
+          {/* Search Reddit */}
+          <div className="space-y-2">
+            <Label>Search Reddit</Label>
+            <div className="relative">
+              <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search communities (e.g. marketing, AI, startups)"
+                className="pl-9"
+              />
+            </div>
+
+            {searchQuery.trim().length > 0 && searchQuery.trim().length < 3 && (
+              <p className="text-xs text-muted-foreground">Type 3+ characters to search</p>
+            )}
+
+            {searching && (
+              <div className="space-y-2 py-1">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between rounded-sm border border-border bg-muted/20 p-2.5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                    <Skeleton className="h-7 w-14" />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {searchError && !searching && (
+              <div className="rounded-sm border border-warning/20 bg-warning/5 p-3 text-xs text-muted-foreground">
+                {searchError}
+              </div>
+            )}
+
+            {searchResults.length > 0 && !searching && (
+              <div className="space-y-1 max-h-48 overflow-y-auto rounded-sm border border-border bg-muted/20">
+                {searchResults.map((result) => {
+                  const isAdding = validating === result.name;
+                  return (
+                    <div
+                      key={result.name}
+                      className="flex items-center justify-between p-2.5 hover:bg-muted/40 transition-colors"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">
+                          r/{result.name}
+                        </p>
+                        {result.description && (
+                          <p className="text-xs text-muted-foreground truncate mt-0.5">
+                            {result.description}
+                          </p>
+                        )}
+                        {result.subscribers != null && (
+                          <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                            <Users className="size-3" />
+                            {result.subscribers >= 1000
+                              ? `${(result.subscribers / 1000).toFixed(1)}k`
+                              : result.subscribers.toLocaleString()}{" "}
+                            members
+                            {result.activeUsers != null
+                              ? ` · ${(result.activeUsers / 1000).toFixed(1)}k online`
+                              : ""}
+                          </div>
+                        )}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={isAdding}
+                        onClick={() => handleAddFromSearch(result.name)}
+                        className="ml-2 shrink-0 h-7 text-xs gap-1"
+                      >
+                        {isAdding ? (
+                          <>
+                            <MagnifyingGlass className="size-3 animate-spin" />
+                            Adding...
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="size-3" weight="bold" />
+                            Add
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {!searching &&
+              searchQuery.trim().length >= 3 &&
+              searchResults.length === 0 &&
+              !searchError && (
+                <p className="text-xs text-muted-foreground">
+                  No communities found for &quot;{searchQuery.trim()}&quot;. Try a different term.
+                </p>
+              )}
+          </div>
+
+          {/* Suggestions - only show popular subreddits when few configs and no brand recs */}
+          {configs.length < 3 && recommendations.length === 0 && (
             <div className="space-y-2">
               <Label className="text-xs text-muted-foreground">Popular subreddits to track</Label>
               <div className="flex flex-wrap gap-1.5">

@@ -97,7 +97,7 @@ export function ConfidenceCorrelationChart({ data }: { data: ConfidenceData[] })
                   />
                 </BarChart>
               </ResponsiveContainer>
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="mt-4 grid-auto-fill gap-3">
               {data.map((d) => (
                 <div key={d.level} className="rounded-sm border p-3">
                   <div className="flex items-center gap-2">

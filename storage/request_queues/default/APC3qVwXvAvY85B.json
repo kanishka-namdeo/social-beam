@@ -1,9 +1,0 @@
-{
-	"id": "APC3qVwXvAvY85B",
-	"json": "{\"id\":\"APC3qVwXvAvY85B\",\"url\":\"https://buffer.com/google-business-profile\",\"loadedUrl\":\"https://buffer.com/google-business-profile\",\"uniqueKey\":\"https://buffer.com/google-business-profile\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"depth\":0,\"__crawlee\":{\"state\":4}},\"handledAt\":\"2026-06-01T20:32:50.230Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "https://buffer.com/google-business-profile",
-	"url": "https://buffer.com/google-business-profile"
-}

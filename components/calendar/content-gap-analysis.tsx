@@ -12,6 +12,7 @@ import type { PostItem } from "./types";
 interface ContentGapAnalysisProps {
   posts: PostItem[];
   onComposeForSlot: (date: Date) => void;
+  platformContexts?: Array<{ platform: string; postingCadence: string | null }>;
 }
 
 const OPTIMAL_POSTS_PER_WEEK = 5;
@@ -103,7 +104,7 @@ export function ContentGapAnalysis({
                   <span className="text-sm font-medium text-foreground">
                     {format(day.date, "EEEE, MMM d")}
                     {day.isToday && (
-                      <Badge variant="secondary" className="ml-2 text-[0.6rem] normal-case">
+                      <Badge variant="secondary" className="ml-2 text-micro normal-case">
                         Today
                       </Badge>
                     )}

@@ -15,11 +15,26 @@ import { logger } from "@/lib/logger";
  * The raw `launch` function from cloakbrowser doesn't satisfy this interface,
  * so we wrap it to match what Crawlee's browser pool expects.
  */
-const cloakbrowserLauncher = {
+interface LauncherLike {
+  name: () => string;
+  launch: (options?: Record<string, unknown>) => Promise<Browser>;
+  launchPersistentContext: (userDataDir: string, options?: Record<string, unknown>) => Promise<BrowserContext>;
+  connectOverCDP: () => never;
+  connect: () => never;
+  executablePath: () => string;
+  launchServer: () => never;
+}
+
+const cloakbrowserLauncher: LauncherLike = {
   name: () => "cloakbrowser" as const,
   launch: async (options?: Record<string, unknown>) => launch(options) as Promise<Browser>,
   launchPersistentContext: async (userDataDir: string, options?: Record<string, unknown>) =>
     launchPersistentContext({ userDataDir, ...options } as Parameters<typeof launchPersistentContext>[0]) as Promise<BrowserContext>,
+  // Stubs for BrowserType methods Crawlee may type-check but doesn't call
+  connectOverCDP: () => { throw new Error("connectOverCDP not supported"); },
+  connect: () => { throw new Error("connect not supported"); },
+  executablePath: () => "",
+  launchServer: () => { throw new Error("launchServer not supported"); },
 };
 
 const FALLBACK_VOICE_PATHS = ["/", "/about", "/blog", "/mission", "/team", "/our-story"];
@@ -51,6 +66,21 @@ interface ZoneContent {
 }
 
 let activeCrawler: PlaywrightCrawler | undefined;
+let crawlerLastUsed: number = Date.now();
+const CRAWLER_IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+
+// Register cleanup handlers for graceful crawler shutdown
+if (typeof process !== 'undefined') {
+  process.on('beforeExit', shutdownCrawler);
+  process.on('SIGTERM', async () => {
+    await shutdownCrawler();
+    process.exit(0);
+  });
+  process.on('SIGINT', async () => {
+    await shutdownCrawler();
+    process.exit(0);
+  });
+}
 
 function validateUrl(url: string): boolean {
   try {
@@ -195,7 +225,7 @@ export async function crawlWebsite(url: string, options?: CrawlOptions): Promise
       useFingerprints: false,
     },
     launchContext: {
-      launcher: cloakbrowserLauncher,
+      launcher: cloakbrowserLauncher as unknown as import("playwright-core").BrowserType,
       launchOptions: {
         headless: true,
       },
@@ -286,6 +316,7 @@ export async function crawlWebsite(url: string, options?: CrawlOptions): Promise
   });
 
   activeCrawler = crawler;
+  crawlerLastUsed = Date.now();
 
   try {
     await crawler.run();
@@ -309,6 +340,8 @@ export async function shutdownCrawler(): Promise<void> {
   if (activeCrawler) {
     try {
       activeCrawler.stop();
+      // Wait briefly for crawler to clean up its browser pool
+      await new Promise(resolve => setTimeout(resolve, 1000));
     } catch {
       // Crawler may have already finished or be in an invalid state
     }

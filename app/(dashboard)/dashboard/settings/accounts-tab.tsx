@@ -7,7 +7,7 @@ import { CheckCircle, XCircle } from '@phosphor-icons/react/ssr';
 import { AccountCard } from './components/account-card';
 import { ConnectDialog } from './components/connect-dialog';
 import { DisconnectDialog } from './components/disconnect-dialog';
-import { LinkedInSessionDialog } from './components/linkedin-session-dialog';
+import { LinkedInUnifiedDialog } from './components/linkedin-unified-dialog';
 import { PLATFORMS, PLATFORM_DISPLAY_NAMES } from '@/lib/oauth/platform-icons';
 
 interface OauthStatus {
@@ -43,12 +43,19 @@ export function AccountsTab({ connectedAccounts, oauthStatus }: AccountsTabProps
     id: string;
     platform: string;
   } | null>(null);
-  const [linkedinSessionOpen, setLinkedinSessionOpen] = useState(false);
+  const [linkedinUnifiedOpen, setLinkedinUnifiedOpen] = useState(false);
+  const [linkedinHasOAuth, setLinkedinHasOAuth] = useState(false);
 
   useEffect(() => {
     if (oauthStatus?.status === 'success') {
       const platformName = PLATFORM_DISPLAY_NAMES[oauthStatus.platform ?? ''] ?? oauthStatus.platform;
       toast.success('Account connected', { description: `${platformName} has been connected to your workspace.` });
+
+      // After LinkedIn OAuth, automatically prompt for session cookie
+      if (oauthStatus.platform === 'linkedin') {
+        setLinkedinHasOAuth(true);
+        setLinkedinUnifiedOpen(true);
+      }
     }
   }, [oauthStatus]);
 
@@ -99,7 +106,10 @@ export function AccountsTab({ connectedAccounts, oauthStatus }: AccountsTabProps
                 account={account}
                 onDisconnect={() => setDisconnectingAccount({ id: account.id, platform })}
                 onReconnect={() => setConnectingPlatform(platform)}
-                onConnectSession={() => setLinkedinSessionOpen(true)}
+                onConnectSession={() => {
+                  setLinkedinHasOAuth(true);
+                  setLinkedinUnifiedOpen(true);
+                }}
               />
             );
           }
@@ -137,14 +147,14 @@ export function AccountsTab({ connectedAccounts, oauthStatus }: AccountsTabProps
         />
       )}
 
-      <LinkedInSessionDialog
-        open={linkedinSessionOpen}
-        onOpenChange={setLinkedinSessionOpen}
-        onSessionComplete={() => {
-          setLinkedinSessionOpen(false);
-          // Optionally refresh the page or refetch accounts
+      <LinkedInUnifiedDialog
+        open={linkedinUnifiedOpen}
+        onOpenChange={setLinkedinUnifiedOpen}
+        onComplete={() => {
+          setLinkedinUnifiedOpen(false);
           window.location.reload();
         }}
+        hasOAuthConnected={linkedinHasOAuth}
       />
     </div>
   );

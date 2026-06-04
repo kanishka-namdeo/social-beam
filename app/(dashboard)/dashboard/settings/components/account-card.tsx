@@ -36,6 +36,8 @@ interface AccountCardProps {
   onDisconnect?: () => void;
   onReconnect?: () => void;
   onConnectSession?: () => void;
+  /** Callback when OAuth connect completes - used to trigger session connection for LinkedIn */
+  onOAuthComplete?: () => void;
 }
 
 /**
@@ -72,7 +74,7 @@ function formatFollowerCount(count: number | null | undefined): string | null {
   return count.toString();
 }
 
-export function AccountCard({ platform: platformProp, status: statusProp, account, onConnect, onDisconnect, onReconnect, onConnectSession }: AccountCardProps) {
+export function AccountCard({ platform: platformProp, status: statusProp, account, onConnect, onDisconnect, onReconnect, onConnectSession, onOAuthComplete }: AccountCardProps) {
   const isFullAccount = account != null;
   const platform = isFullAccount ? account.platform : platformProp!;
   const status = isFullAccount ? account.status : statusProp!;
@@ -163,8 +165,8 @@ export function AccountCard({ platform: platformProp, status: statusProp, accoun
 
               {isConnected && platform === 'linkedin' && (
                 <Button variant="outline" size="sm" className="rounded-sm gap-1" onClick={onConnectSession}>
-                  <span className="size-3 rounded-full bg-[#0A66C2]" />
-                  Connect Session
+                  <span className={`size-3 rounded-full ${hasSession ? 'bg-green-500' : 'bg-[#0A66C2]'}`} />
+                  {hasSession ? 'Reconfigure' : 'Configure'}
                 </Button>
               )}
 
@@ -176,7 +178,7 @@ export function AccountCard({ platform: platformProp, status: statusProp, accoun
 
               {status === 'disconnected' && (
                 <Button size="sm" className="rounded-sm" onClick={onConnect}>
-                  Connect
+                  {platform === 'linkedin' ? 'Connect LinkedIn' : 'Connect'}
                 </Button>
               )}
             </div>

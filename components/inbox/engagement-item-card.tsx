@@ -74,15 +74,15 @@ export function EngagementItemCard({ item, isSelected, onClick }: EngagementItem
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-medium text-foreground truncate">
+            <span className="text-sm font-medium text-foreground truncate-2 flex-1">
               {item.authorName ?? "Unknown"}
             </span>
-            <span className="text-xs text-muted-foreground ml-auto flex-shrink-0">
+            <span className="text-xs text-muted-foreground ml-auto flex-shrink-0 tabular-nums">
               {formatDistanceToNow(timeStr, { addSuffix: true })}
             </span>
           </div>
 
-          <p className="text-sm text-foreground line-clamp-2 mb-2">
+          <p className="text-sm text-foreground truncate-2 mb-2">
             {item.content}
           </p>
 

@@ -15,6 +15,7 @@ import {
   CaretLeft,
   CaretRight,
   CalendarDots,
+  Info,
   ListBullets,
   Sidebar,
   Spinner,
@@ -33,6 +34,7 @@ import {
 } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { HintTooltip } from "@/components/ui/hint-tooltip";
+import { useOneTimeNudge } from "@/hooks/use-one-time-nudge";
 import {
   Sheet,
   SheetContent,
@@ -87,12 +89,14 @@ interface CalendarClientProps {
   initialPosts: PostItem[];
   initialDate: string;
   connectedPlatforms: string[];
+  platformContexts?: Array<{ platform: string; postingCadence: string | null }>;
 }
 
 export function CalendarClient({
   initialPosts,
   initialDate,
   connectedPlatforms,
+  platformContexts,
 }: CalendarClientProps) {
   const [currentDate, setCurrentDate] = useState(() => new Date(initialDate));
   const [view, setView] = useState<CalendarView>("month");
@@ -107,6 +111,7 @@ export function CalendarClient({
 
   // Loading state for month navigation
   const [monthLoading, setMonthLoading] = useState(false);
+  const dragDropTip = useOneTimeNudge("calendar-drag-drop");
 
   // Track fetch errors per month (key: "YYYY-M")
   const [monthFetchErrors, setMonthFetchErrors] = useState<Map<string, number>>(new Map());
@@ -355,11 +360,27 @@ export function CalendarClient({
       onDragEnd={handleDragEnd}
     >
       {/* Toolbar — shared across all breakpoints */}
-      <div className="flex flex-wrap items-center gap-3">
-        <HintTooltip
-          hint="Tip: Drag posts to reschedule them. Drop on AI-suggested times (marked with *) for optimal engagement"
-          icon="info"
-        />
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        {dragDropTip.isVisible && (
+          <div className="flex items-center gap-1.5 rounded-sm border border-border bg-ai-surface/30 px-2 py-1 text-xs text-muted-foreground">
+            <Info className="size-3 text-brand" weight="fill" />
+            <span>Drag posts to reschedule them. Drop on AI-suggested times (marked with *) for optimal engagement</span>
+            <button
+              type="button"
+              onClick={dragDropTip.dismiss}
+              className="ml-1 text-muted-foreground hover:text-foreground"
+              aria-label="Dismiss tip"
+            >
+              <X className="size-3" weight="bold" />
+            </button>
+          </div>
+        )}
+        {!dragDropTip.isVisible && (
+          <HintTooltip
+            hint="Tip: Drag posts to reschedule them. Drop on AI-suggested times (marked with *) for optimal engagement"
+            icon="info"
+          />
+        )}
         {/* Navigation */}
         {view !== "list" && (
           <div className="flex items-center gap-2">
@@ -397,7 +418,7 @@ export function CalendarClient({
         </h2>
 
         {/* View selector with Tabs — line variant */}
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex-between gap-2">
           <Tabs value={view} onValueChange={(v) => setView(v as CalendarView)}>
             <TabsList variant="line">
               <TabsTrigger value="month">Month</TabsTrigger>
@@ -443,7 +464,6 @@ export function CalendarClient({
       </div>
 
       {/* Spacer between toolbar and calendar content */}
-      <div className="h-6" />
 
       {/* Month fetch error banner */}
       {monthFetchErrors.size > 0 && (
@@ -492,7 +512,7 @@ export function CalendarClient({
 
         {/* Empty state — mobile/tablet */}
         {posts.length === 0 && view !== "list" && (
-          <div className="rounded-sm border border-dashed border-border p-12 text-center">
+          <div className="rounded-sm border border-dashed border-border p-empty text-center">
             <CalendarDots className="mx-auto mb-4 size-12 text-muted-foreground/50" weight="thin" />
             <h3 className="text-base font-medium tracking-tight text-foreground">No posts scheduled</h3>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -505,7 +525,7 @@ export function CalendarClient({
         )}
 
         {posts.length === 0 && view === "list" && (
-          <div className="rounded-sm border border-dashed border-border p-12 text-center">
+          <div className="rounded-sm border border-dashed border-border p-empty text-center">
             <ListBullets className="mx-auto mb-4 size-12 text-muted-foreground/50" weight="thin" />
             <h3 className="text-base font-medium tracking-tight text-foreground">No posts yet</h3>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -568,7 +588,7 @@ export function CalendarClient({
 
               {/* Empty state — desktop */}
               {posts.length === 0 && view !== "list" && (
-                <div className="rounded-sm border border-dashed border-border p-12 text-center">
+                <div className="rounded-sm border border-dashed border-border p-empty text-center">
                   <CalendarDots className="mx-auto mb-4 size-12 text-muted-foreground/50" weight="thin" />
                   <h3 className="text-base font-medium tracking-tight text-foreground">No posts scheduled</h3>
                   <p className="mt-1 text-sm text-muted-foreground">
@@ -581,7 +601,7 @@ export function CalendarClient({
               )}
 
               {posts.length === 0 && view === "list" && (
-                <div className="rounded-sm border border-dashed border-border p-12 text-center">
+                <div className="rounded-sm border border-dashed border-border p-empty text-center">
                   <ListBullets className="mx-auto mb-4 size-12 text-muted-foreground/50" weight="thin" />
                   <h3 className="text-base font-medium tracking-tight text-foreground">No posts yet</h3>
                   <p className="mt-1 text-sm text-muted-foreground">
@@ -605,6 +625,7 @@ export function CalendarClient({
                 view={view}
                 filteredPosts={filteredPosts}
                 onComposeForSlot={handleComposeForSlot}
+                platformContexts={platformContexts}
               />
             </div>
           </ResizablePanel>
@@ -613,11 +634,12 @@ export function CalendarClient({
 
       {/* Insights Sheet — mobile/tablet */}
       <Sheet open={insightsOpen} onOpenChange={setInsightsOpen}>
-        <SheetContent side="right" className="w-80 sm:w-96 overflow-y-auto p-0">
+        <SheetContent side="right" className="w-80 sm:w-96 md:w-[24rem] overflow-y-auto p-0">
           <InsightsSidebar
             view={view}
             filteredPosts={filteredPosts}
             onComposeForSlot={handleComposeForSlot}
+            platformContexts={platformContexts}
           />
         </SheetContent>
       </Sheet>

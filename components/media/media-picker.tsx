@@ -33,9 +33,10 @@ interface MediaPickerProps {
   onOpenChange: (open: boolean) => void;
   selectedAssets?: MediaAsset[];
   onSelect?: (assets: MediaAsset[]) => void;
+  brandSearchQuery?: string;
 }
 
-export function MediaPicker({ open, onOpenChange, selectedAssets = [], onSelect }: MediaPickerProps) {
+export function MediaPicker({ open, onOpenChange, selectedAssets = [], onSelect, brandSearchQuery }: MediaPickerProps) {
   const [assets, setAssets] = useState<MediaAsset[]>([]);
   const [search, setSearch] = useState("");
   const [uploadOpen, setUploadOpen] = useState(false);
@@ -234,7 +235,7 @@ export function MediaPicker({ open, onOpenChange, selectedAssets = [], onSelect 
                   ))}
                 </div>
               ) : assets.length === 0 ? (
-                <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-border p-8 text-center">
+                <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-border p-empty text-center">
                   <Image className="mb-3 size-10 text-muted-foreground" weight="thin" />
                   <p className="mb-1 text-sm font-medium text-foreground">No media yet</p>
                   <p className="mb-4 text-xs text-muted-foreground">Upload images to get started.</p>
@@ -261,6 +262,7 @@ export function MediaPicker({ open, onOpenChange, selectedAssets = [], onSelect 
               <StockPhotoBrowser
                 defaultProvider="all"
                 onImportComplete={handleStockImportComplete}
+                initialQuery={brandSearchQuery}
               />
             </TabsContent>
 
@@ -286,6 +288,7 @@ export function MediaPicker({ open, onOpenChange, selectedAssets = [], onSelect 
         open={uploadOpen}
         onOpenChange={setUploadOpen}
         onComplete={handleUploadComplete}
+        brandSearchQuery={brandSearchQuery}
       />
     </>
   );

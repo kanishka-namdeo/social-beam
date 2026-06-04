@@ -22,6 +22,7 @@ export const TrendAnalysisSchema = z.object({
   relevanceScore: z.number().min(0).max(1),
   isRelevant: z.boolean(),
   reason: z.string(),
+  brandReasonTags: z.array(z.string()).optional().default([]),
   topicTags: z.array(z.string()),
   suggestedAction: z.string(),
   sentiment: TrendSentimentSchema.default("neutral"),
@@ -30,6 +31,18 @@ export const TrendAnalysisSchema = z.object({
 });
 
 export type TrendAnalysis = z.infer<typeof TrendAnalysisSchema>;
+
+export interface AnalysisResult {
+  relevanceScore: number;
+  isRelevant: boolean;
+  reason: string;
+  brandReasonTags: string[];
+  topicTags: string[];
+  suggestedAction: string;
+  sentiment: string;
+  riskLevel: string;
+  riskReason: string;
+}
 
 export interface TrendingPost {
   id: string;
@@ -41,6 +54,7 @@ export interface TrendingPost {
   commentCount: number;
   relevanceScore: number | null;
   relevanceReason: string | null;
+  brandReasonTags: string[];
   isActionable: boolean;
   topicTags: string[];
   suggestedAction: string | null;

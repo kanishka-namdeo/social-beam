@@ -55,10 +55,13 @@ export function TrendingEmptyState({ hasSubreddits, onOpenManager }: TrendingEmp
   const [addingSubreddit, setAddingSubreddit] = useState<string | null>(null);
   const [jobPhase, setJobPhase] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mountedRef = useRef(true);
 
   // Cleanup polling timeout on unmount
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
+      mountedRef.current = false;
       if (pollRef.current) clearTimeout(pollRef.current);
     };
   }, []);
@@ -69,6 +72,7 @@ export function TrendingEmptyState({ hasSubreddits, onOpenManager }: TrendingEmp
       polls++;
       if (polls > maxPolls) {
         if (pollRef.current) clearTimeout(pollRef.current);
+        if (!mountedRef.current) return;
         setTriggering(false);
         setScrapingProgress(0);
         router.refresh();
@@ -80,11 +84,13 @@ export function TrendingEmptyState({ hasSubreddits, onOpenManager }: TrendingEmp
         if (res.ok) {
           const json = await res.json();
           const status = json.data;
+          if (!mountedRef.current) return;
           setJobPhase(status.phase);
           setScrapingProgress(status.progress);
 
           if (status.phase === "done" || status.phase === "error") {
             if (pollRef.current) clearTimeout(pollRef.current);
+            if (!mountedRef.current) return;
             setTriggering(false);
             setScrapingProgress(0);
             setJobPhase(null);
@@ -101,6 +107,7 @@ export function TrendingEmptyState({ hasSubreddits, onOpenManager }: TrendingEmp
         // Silently continue polling
       }
 
+      if (!mountedRef.current) return;
       pollRef.current = setTimeout(poll, 3000);
     };
 
@@ -180,19 +187,19 @@ export function TrendingEmptyState({ hasSubreddits, onOpenManager }: TrendingEmp
                     </p>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span>r/{trend.subreddit}</span>
-                      <span className="flex items-center gap-0.5">
+                      <span className="flex items-center gap-0.5 tabular-nums">
                         <TrendUp className="size-3 text-success" weight="bold" />
-                        {trend.upvotes}
+                        <span className="tabular-nums">{trend.upvotes}</span>
                       </span>
-                      <span className="flex items-center gap-0.5">
+                      <span className="flex items-center gap-0.5 tabular-nums">
                         <ChatText className="size-3" weight="bold" />
-                        {trend.comments}
+                        <span className="tabular-nums">{trend.comments}</span>
                       </span>
                       <Badge
                         variant="outline"
-                        className={cn("text-xs", getRelevanceBadgeClass(trend.relevance))}
+                        className={cn("text-xs tabular-nums", getRelevanceBadgeClass(trend.relevance))}
                       >
-                        {(trend.relevance * 100).toFixed(0)}%
+                        <span className="tabular-nums">{(trend.relevance * 100).toFixed(0)}%</span>
                       </Badge>
                     </div>
                     <div className="flex items-center gap-1.5 text-xs text-foreground">

@@ -25,6 +25,7 @@ async function refreshStandardPlatform(
   refreshToken: string,
   userId: string,
 ): Promise<RefreshResult> {
+  const REQUEST_TIMEOUT_MS = 30000;
   const tokenUrl = getRefreshUrl(platform);
   if (!tokenUrl) {
     return { success: false, error: `No refresh endpoint for ${platform}` };
@@ -46,6 +47,7 @@ async function refreshStandardPlatform(
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body,
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
 
   const data = await response.json();
@@ -75,6 +77,8 @@ async function refreshMetaPlatform(
   refreshToken: string,
   userId: string,
 ): Promise<RefreshResult> {
+  const REQUEST_TIMEOUT_MS = 30000;
+  
   const credentials = await resolveCredentials(userId, platform);
   if (!credentials) {
     return { success: false, error: `No credentials for ${platform}` };
@@ -89,7 +93,11 @@ async function refreshMetaPlatform(
 
   const response = await fetch(
     `https://graph.facebook.com/v22.0/oauth/access_token?${params.toString()}`,
-    { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+    { 
+      method: 'GET', 
+      headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    }
   );
 
   const data = await response.json();

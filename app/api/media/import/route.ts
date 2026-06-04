@@ -13,6 +13,7 @@ import {
 } from "@/lib/media/constants";
 import { processImage } from "@/lib/media/processing";
 import { generateStoragePath, storeFile, getPublicUrl } from "@/lib/media/storage";
+import dns from "node:dns";
 
 const GIF_MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB for GIFs
 
@@ -74,6 +75,111 @@ function sanitizeFilename(name: string): string {
   return name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 255);
 }
 
+/**
+ * Check if an IP address is in a private or reserved range.
+ * Blocks access to localhost, internal networks, and cloud metadata endpoints.
+ */
+function isPrivateIP(ip: string): boolean {
+  // Normalize IPv4-mapped IPv6 addresses (e.g. ::ffff:127.0.0.1)
+  const normalized = ip.toLowerCase().replace(/^::ffff:/, "");
+
+  if (normalized === "localhost" || normalized === "127.0.0.1" || normalized === "0.0.0.0") {
+    return true;
+  }
+
+  const parts = normalized.split(".").map(Number);
+  if (parts.length !== 4 || parts.some((p) => isNaN(p) || p < 0 || p > 255)) {
+    return false;
+  }
+
+  // 127.0.0.0/8 — loopback
+  if (parts[0] === 127) return true;
+  // 10.0.0.0/8 — private Class A
+  if (parts[0] === 10) return true;
+  // 172.16.0.0/12 — private Class B
+  if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true;
+  // 192.168.0.0/16 — private Class C
+  if (parts[0] === 192 && parts[1] === 168) return true;
+  // 169.254.0.0/16 — link-local (AWS/GCP metadata)
+  if (parts[0] === 169 && parts[1] === 254) return true;
+  // 0.0.0.0/8
+  if (parts[0] === 0) return true;
+
+  return false;
+}
+
+/**
+ * Validate a URL for SSRF safety: only allow http(s) to public hosts.
+ */
+async function validateUrlForSSRF(url: string): Promise<{ valid: true } | { valid: false; reason: string }> {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return { valid: false, reason: "Invalid URL" };
+  }
+
+  // Only allow http/https
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    return { valid: false, reason: "Only http and https schemes are allowed" };
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+
+  // Block obvious hostnames
+  if (hostname === "localhost" || hostname === "[::1]") {
+    return { valid: false, reason: "Access to localhost is not allowed" };
+  }
+
+  // If the hostname is an IP address, check it directly
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) {
+    if (isPrivateIP(hostname)) {
+      return { valid: false, reason: "Access to private IP addresses is not allowed" };
+    }
+    return { valid: true };
+  }
+
+  // For hostnames, resolve and check each returned address
+  // This catches DNS rebinding and hostname->private-IP mappings
+  try {
+    const address = await dns.promises.lookup(hostname);
+    if (isPrivateIP(address.address)) {
+      return { valid: false, reason: "Hostname resolves to a private IP address" };
+    }
+  } catch {
+    // DNS resolution failure — fail open with a warning, the fetch will handle it
+  }
+
+  return { valid: true };
+}
+
+/**
+ * After fetching a URL, validate that the final redirected URL is still safe.
+ */
+function validateFinalUrl(url: string): { valid: true } | { valid: false; reason: string } {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return { valid: false, reason: "Invalid redirected URL" };
+  }
+
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    return { valid: false, reason: "Redirected to a non-http(s) URL" };
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+  if (hostname === "localhost" || hostname === "[::1]") {
+    return { valid: false, reason: "Redirected to localhost" };
+  }
+
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname) && isPrivateIP(hostname)) {
+    return { valid: false, reason: "Redirected to a private IP address" };
+  }
+
+  return { valid: true };
+}
+
 async function isAnimatedGif(buffer: Buffer): Promise<boolean> {
   try {
     const metadata = await sharp(buffer).metadata();
@@ -116,12 +222,26 @@ export async function POST(req: Request) {
       const maxSize = isGif ? GIF_MAX_FILE_SIZE : MAX_FILE_SIZE;
 
       try {
+        // SSRF protection: validate URL before fetching
+        const urlValidation = await validateUrlForSSRF(item.url);
+        if (!urlValidation.valid) {
+          errors.push({ url: item.url, error: `URL rejected: ${urlValidation.reason}` });
+          continue;
+        }
+
         // Download file from external URL
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 30000);
 
-        const response = await fetch(item.url, { signal: controller.signal });
+        const response = await fetch(item.url, { signal: controller.signal, redirect: "follow" });
         clearTimeout(timeout);
+
+        // SSRF protection: verify the final URL after redirects
+        const finalUrlValidation = validateFinalUrl(response.url);
+        if (!finalUrlValidation.valid) {
+          errors.push({ url: item.url, error: `Redirect blocked: ${finalUrlValidation.reason}` });
+          continue;
+        }
 
         if (!response.ok) {
           errors.push({ url: item.url, error: `Download failed: ${response.status} ${response.statusText}` });

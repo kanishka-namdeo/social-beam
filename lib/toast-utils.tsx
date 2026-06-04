@@ -1,18 +1,6 @@
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
-function shouldShowAILabels(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    const stored = localStorage.getItem("socialbeam-invisible-ai");
-    if (stored) {
-      const config = JSON.parse(stored);
-      return config.showAILabels ?? false;
-    }
-  } catch {}
-  return false;
-}
-
 export function toastWithUndo(
   message: string,
   undoAction: () => void,

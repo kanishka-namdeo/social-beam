@@ -75,15 +75,15 @@ export function updateSuggestionDecoration(view: EditorView, suggestion: string,
       acceptBtn.style.cssText =
         "pointer-events: auto; cursor: pointer; margin-left: 6px; display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 4px; border: 1px solid var(--border); background: var(--card); transition: all 0.15s ease; font-size: 12px; line-height: 1; color: var(--success); vertical-align: middle; flex-shrink: 0;";
       acceptBtn.textContent = "\u2713";
-      acceptBtn.addEventListener("mouseenter", () => {
+      acceptBtn.onmouseenter = () => {
         acceptBtn.style.background = "oklch(from var(--success) l c h / 0.1)";
         acceptBtn.style.borderColor = "var(--success)";
-      });
-      acceptBtn.addEventListener("mouseleave", () => {
+      };
+      acceptBtn.onmouseleave = () => {
         acceptBtn.style.background = "var(--card)";
         acceptBtn.style.borderColor = "var(--border)";
-      });
-      acceptBtn.addEventListener("pointerdown", acceptAction);
+      };
+      acceptBtn.onpointerdown = acceptAction;
       wrapper.appendChild(acceptBtn);
 
       return wrapper;

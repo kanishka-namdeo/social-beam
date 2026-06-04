@@ -1,9 +1,0 @@
-{
-	"id": "ZrL3eVAp0XbYh5C",
-	"json": "{\"id\":\"ZrL3eVAp0XbYh5C\",\"url\":\"https://buffer.com/docs-footer\",\"loadedUrl\":\"https://buffer.com/docs-footer\",\"uniqueKey\":\"https://buffer.com/docs-footer\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"depth\":0,\"__crawlee\":{\"state\":4}},\"handledAt\":\"2026-06-01T19:41:57.278Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "https://buffer.com/docs-footer",
-	"url": "https://buffer.com/docs-footer"
-}

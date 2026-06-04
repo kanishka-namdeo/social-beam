@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowClockwise } from "@phosphor-icons/react/ssr";
@@ -12,6 +12,15 @@ export function RefreshTrendsButton() {
   const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState<string>("scraping");
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      if (pollRef.current) clearTimeout(pollRef.current);
+    };
+  }, []);
 
   const pollForJobStatus = useCallback(async (jobId: string, maxPolls = 50) => {
     let polls = 0;
@@ -19,6 +28,7 @@ export function RefreshTrendsButton() {
       polls++;
       if (polls > maxPolls) {
         if (pollRef.current) clearTimeout(pollRef.current);
+        if (!mountedRef.current) return;
         setTriggering(false);
         router.refresh();
         return;
@@ -29,11 +39,13 @@ export function RefreshTrendsButton() {
         if (res.ok) {
           const json = await res.json();
           const status = json.data;
+          if (!mountedRef.current) return;
           setProgress(status.progress);
           setPhase(status.phase);
 
           if (status.phase === "done" || status.phase === "error") {
             if (pollRef.current) clearTimeout(pollRef.current);
+            if (!mountedRef.current) return;
             setTriggering(false);
             router.refresh();
             if (status.phase === "done") {
@@ -48,6 +60,7 @@ export function RefreshTrendsButton() {
         // Silently continue polling
       }
 
+      if (!mountedRef.current) return;
       pollRef.current = setTimeout(poll, 3000);
     };
 

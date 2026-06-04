@@ -1,51 +1,48 @@
 "use client";
 
-import { CalendarDots, Sparkle } from "@phosphor-icons/react/ssr";
+import { useState } from "react";
+import { Sparkle, Lock } from "@phosphor-icons/react/ssr";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ContentGapAnalysis } from "./content-gap-analysis";
 import { PostingFrequency } from "./posting-frequency";
 import type { PostItem } from "./types";
+import { usePremium } from "@/hooks/use-premium";
+import { InlineUpgradeNudge } from "@/components/dashboard/inline-upgrade-nudge";
 
 interface InsightsSidebarProps {
   view: "month" | "week" | "day" | "list";
   filteredPosts: PostItem[];
   onComposeForSlot: (date: Date) => void;
+  platformContexts?: Array<{ platform: string; postingCadence: string | null }>;
 }
 
 export function InsightsSidebar({
   view,
   filteredPosts,
   onComposeForSlot,
+  platformContexts,
 }: InsightsSidebarProps) {
+  const { isPremium } = usePremium();
+
   return (
     <div
       className="flex h-full flex-col gap-4 overflow-y-auto p-3"
       aria-label="Calendar insights"
       role="region"
     >
-      {/* AI tip banner — calendar views only */}
-      {view !== "list" && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="glass-strong flex items-start gap-2 rounded-sm border border-border px-3 py-2.5 text-xs text-muted-foreground"
-        >
-          <Sparkle className="mt-0.5 size-3.5 shrink-0 text-brand" weight="fill" />
-          <span>
-            Click any post to preview. Drag between days to reschedule. Empty days with a{" "}
-            <CalendarDots className="size-3 inline" /> icon are suggested posting
-            opportunities.
-          </span>
-        </div>
-      )}
-
-      {/* Content gap analysis — month view only */}
+      {/* Content gap analysis — month view only — AI feature */}
       {view === "month" && (
-        <ContentGapAnalysis posts={filteredPosts} onComposeForSlot={onComposeForSlot} />
+        isPremium ? (
+          <ContentGapAnalysis posts={filteredPosts} onComposeForSlot={onComposeForSlot} platformContexts={platformContexts} />
+        ) : (
+          <ContentGapTeaser posts={filteredPosts} />
+        )
       )}
 
       {/* Posting frequency — month view only */}
-      {view === "month" && <PostingFrequency posts={filteredPosts} />}
+      {view === "month" && <PostingFrequency posts={filteredPosts} platformContexts={platformContexts} />}
 
       {/* Empty state for sidebar when not month view and not list view */}
       {view !== "month" && view !== "list" && (
@@ -82,5 +79,50 @@ export function InsightsSidebar({
         </Card>
       )}
     </div>
+  );
+}
+
+/** Teaser card showing summary count but gating the detailed gap list */
+function ContentGapTeaser({ posts }: { posts: PostItem[] }) {
+  const scheduled = posts.filter((p) => p.status === "SCHEDULED" || p.status === "DRAFT").length;
+  const totalDeficit = Math.max(0, 5 - scheduled);
+
+  return (
+    <Card className="rounded-sm border-border">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkle className="size-5 text-brand" weight="fill" />
+            <CardTitle className="text-sm font-medium tracking-tight">Weekly Content Analysis</CardTitle>
+          </div>
+          <Badge variant="outline" className="normal-case gap-1 text-warning border-warning">
+            <Lock className="size-3" />
+            Premium
+          </Badge>
+        </div>
+        <CardDescription>
+          {totalDeficit > 0
+            ? `${totalDeficit} more post${totalDeficit > 1 ? "s" : ""} recommended this week`
+            : "Your schedule looks great this week!"}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="rounded-sm border border-border bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
+          {scheduled} / 5 posts scheduled this week
+        </div>
+        <div className="mt-2 pointer-events-none select-none opacity-30 blur-[1px]">
+          <div className="space-y-2">
+            <div className="h-8 rounded-sm border border-border bg-card" />
+            <div className="h-8 rounded-sm border border-border bg-card" />
+          </div>
+        </div>
+        <InlineUpgradeNudge
+          variant="compact"
+          title="AI Content Gaps"
+          description="Get specific gap recommendations"
+          className="mt-3"
+        />
+      </CardContent>
+    </Card>
   );
 }

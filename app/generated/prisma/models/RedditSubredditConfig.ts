@@ -20,8 +20,18 @@ export type RedditSubredditConfigModel = runtime.Types.Result.DefaultSelection<P
 
 export type AggregateRedditSubredditConfig = {
   _count: RedditSubredditConfigCountAggregateOutputType | null
+  _avg: RedditSubredditConfigAvgAggregateOutputType | null
+  _sum: RedditSubredditConfigSumAggregateOutputType | null
   _min: RedditSubredditConfigMinAggregateOutputType | null
   _max: RedditSubredditConfigMaxAggregateOutputType | null
+}
+
+export type RedditSubredditConfigAvgAggregateOutputType = {
+  relevanceScore: number | null
+}
+
+export type RedditSubredditConfigSumAggregateOutputType = {
+  relevanceScore: number | null
 }
 
 export type RedditSubredditConfigMinAggregateOutputType = {
@@ -30,6 +40,8 @@ export type RedditSubredditConfigMinAggregateOutputType = {
   subreddit: string | null
   sortOrder: string | null
   isActive: boolean | null
+  source: string | null
+  relevanceScore: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -40,6 +52,8 @@ export type RedditSubredditConfigMaxAggregateOutputType = {
   subreddit: string | null
   sortOrder: string | null
   isActive: boolean | null
+  source: string | null
+  relevanceScore: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -50,11 +64,21 @@ export type RedditSubredditConfigCountAggregateOutputType = {
   subreddit: number
   sortOrder: number
   isActive: number
+  source: number
+  relevanceScore: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type RedditSubredditConfigAvgAggregateInputType = {
+  relevanceScore?: true
+}
+
+export type RedditSubredditConfigSumAggregateInputType = {
+  relevanceScore?: true
+}
 
 export type RedditSubredditConfigMinAggregateInputType = {
   id?: true
@@ -62,6 +86,8 @@ export type RedditSubredditConfigMinAggregateInputType = {
   subreddit?: true
   sortOrder?: true
   isActive?: true
+  source?: true
+  relevanceScore?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -72,6 +98,8 @@ export type RedditSubredditConfigMaxAggregateInputType = {
   subreddit?: true
   sortOrder?: true
   isActive?: true
+  source?: true
+  relevanceScore?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -82,6 +110,8 @@ export type RedditSubredditConfigCountAggregateInputType = {
   subreddit?: true
   sortOrder?: true
   isActive?: true
+  source?: true
+  relevanceScore?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -125,6 +155,18 @@ export type RedditSubredditConfigAggregateArgs<ExtArgs extends runtime.Types.Ext
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: RedditSubredditConfigAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: RedditSubredditConfigSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: RedditSubredditConfigMinAggregateInputType
@@ -155,6 +197,8 @@ export type RedditSubredditConfigGroupByArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   _count?: RedditSubredditConfigCountAggregateInputType | true
+  _avg?: RedditSubredditConfigAvgAggregateInputType
+  _sum?: RedditSubredditConfigSumAggregateInputType
   _min?: RedditSubredditConfigMinAggregateInputType
   _max?: RedditSubredditConfigMaxAggregateInputType
 }
@@ -165,9 +209,13 @@ export type RedditSubredditConfigGroupByOutputType = {
   subreddit: string
   sortOrder: string
   isActive: boolean
+  source: string
+  relevanceScore: number | null
   createdAt: Date
   updatedAt: Date
   _count: RedditSubredditConfigCountAggregateOutputType | null
+  _avg: RedditSubredditConfigAvgAggregateOutputType | null
+  _sum: RedditSubredditConfigSumAggregateOutputType | null
   _min: RedditSubredditConfigMinAggregateOutputType | null
   _max: RedditSubredditConfigMaxAggregateOutputType | null
 }
@@ -196,6 +244,8 @@ export type RedditSubredditConfigWhereInput = {
   subreddit?: Prisma.StringFilter<"RedditSubredditConfig"> | string
   sortOrder?: Prisma.StringFilter<"RedditSubredditConfig"> | string
   isActive?: Prisma.BoolFilter<"RedditSubredditConfig"> | boolean
+  source?: Prisma.StringFilter<"RedditSubredditConfig"> | string
+  relevanceScore?: Prisma.FloatNullableFilter<"RedditSubredditConfig"> | number | null
   createdAt?: Prisma.DateTimeFilter<"RedditSubredditConfig"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RedditSubredditConfig"> | Date | string
   Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
@@ -207,6 +257,8 @@ export type RedditSubredditConfigOrderByWithRelationInput = {
   subreddit?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  source?: Prisma.SortOrder
+  relevanceScore?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   Workspace?: Prisma.WorkspaceOrderByWithRelationInput
@@ -222,6 +274,8 @@ export type RedditSubredditConfigWhereUniqueInput = Prisma.AtLeast<{
   subreddit?: Prisma.StringFilter<"RedditSubredditConfig"> | string
   sortOrder?: Prisma.StringFilter<"RedditSubredditConfig"> | string
   isActive?: Prisma.BoolFilter<"RedditSubredditConfig"> | boolean
+  source?: Prisma.StringFilter<"RedditSubredditConfig"> | string
+  relevanceScore?: Prisma.FloatNullableFilter<"RedditSubredditConfig"> | number | null
   createdAt?: Prisma.DateTimeFilter<"RedditSubredditConfig"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RedditSubredditConfig"> | Date | string
   Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
@@ -233,11 +287,15 @@ export type RedditSubredditConfigOrderByWithAggregationInput = {
   subreddit?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  source?: Prisma.SortOrder
+  relevanceScore?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.RedditSubredditConfigCountOrderByAggregateInput
+  _avg?: Prisma.RedditSubredditConfigAvgOrderByAggregateInput
   _max?: Prisma.RedditSubredditConfigMaxOrderByAggregateInput
   _min?: Prisma.RedditSubredditConfigMinOrderByAggregateInput
+  _sum?: Prisma.RedditSubredditConfigSumOrderByAggregateInput
 }
 
 export type RedditSubredditConfigScalarWhereWithAggregatesInput = {
@@ -249,6 +307,8 @@ export type RedditSubredditConfigScalarWhereWithAggregatesInput = {
   subreddit?: Prisma.StringWithAggregatesFilter<"RedditSubredditConfig"> | string
   sortOrder?: Prisma.StringWithAggregatesFilter<"RedditSubredditConfig"> | string
   isActive?: Prisma.BoolWithAggregatesFilter<"RedditSubredditConfig"> | boolean
+  source?: Prisma.StringWithAggregatesFilter<"RedditSubredditConfig"> | string
+  relevanceScore?: Prisma.FloatNullableWithAggregatesFilter<"RedditSubredditConfig"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"RedditSubredditConfig"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"RedditSubredditConfig"> | Date | string
 }
@@ -258,6 +318,8 @@ export type RedditSubredditConfigCreateInput = {
   subreddit: string
   sortOrder?: string
   isActive?: boolean
+  source?: string
+  relevanceScore?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   Workspace: Prisma.WorkspaceCreateNestedOneWithoutRedditSubredditConfigInput
@@ -269,6 +331,8 @@ export type RedditSubredditConfigUncheckedCreateInput = {
   subreddit: string
   sortOrder?: string
   isActive?: boolean
+  source?: string
+  relevanceScore?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -278,6 +342,8 @@ export type RedditSubredditConfigUpdateInput = {
   subreddit?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutRedditSubredditConfigNestedInput
@@ -289,6 +355,8 @@ export type RedditSubredditConfigUncheckedUpdateInput = {
   subreddit?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -299,6 +367,8 @@ export type RedditSubredditConfigCreateManyInput = {
   subreddit: string
   sortOrder?: string
   isActive?: boolean
+  source?: string
+  relevanceScore?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -308,6 +378,8 @@ export type RedditSubredditConfigUpdateManyMutationInput = {
   subreddit?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -318,6 +390,8 @@ export type RedditSubredditConfigUncheckedUpdateManyInput = {
   subreddit?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -333,8 +407,14 @@ export type RedditSubredditConfigCountOrderByAggregateInput = {
   subreddit?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  source?: Prisma.SortOrder
+  relevanceScore?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type RedditSubredditConfigAvgOrderByAggregateInput = {
+  relevanceScore?: Prisma.SortOrder
 }
 
 export type RedditSubredditConfigMaxOrderByAggregateInput = {
@@ -343,6 +423,8 @@ export type RedditSubredditConfigMaxOrderByAggregateInput = {
   subreddit?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  source?: Prisma.SortOrder
+  relevanceScore?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -353,8 +435,14 @@ export type RedditSubredditConfigMinOrderByAggregateInput = {
   subreddit?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  source?: Prisma.SortOrder
+  relevanceScore?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type RedditSubredditConfigSumOrderByAggregateInput = {
+  relevanceScore?: Prisma.SortOrder
 }
 
 export type RedditSubredditConfigListRelationFilter = {
@@ -414,6 +502,8 @@ export type RedditSubredditConfigCreateWithoutWorkspaceInput = {
   subreddit: string
   sortOrder?: string
   isActive?: boolean
+  source?: string
+  relevanceScore?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -423,6 +513,8 @@ export type RedditSubredditConfigUncheckedCreateWithoutWorkspaceInput = {
   subreddit: string
   sortOrder?: string
   isActive?: boolean
+  source?: string
+  relevanceScore?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -462,6 +554,8 @@ export type RedditSubredditConfigScalarWhereInput = {
   subreddit?: Prisma.StringFilter<"RedditSubredditConfig"> | string
   sortOrder?: Prisma.StringFilter<"RedditSubredditConfig"> | string
   isActive?: Prisma.BoolFilter<"RedditSubredditConfig"> | boolean
+  source?: Prisma.StringFilter<"RedditSubredditConfig"> | string
+  relevanceScore?: Prisma.FloatNullableFilter<"RedditSubredditConfig"> | number | null
   createdAt?: Prisma.DateTimeFilter<"RedditSubredditConfig"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RedditSubredditConfig"> | Date | string
 }
@@ -471,6 +565,8 @@ export type RedditSubredditConfigCreateManyWorkspaceInput = {
   subreddit: string
   sortOrder?: string
   isActive?: boolean
+  source?: string
+  relevanceScore?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -480,6 +576,8 @@ export type RedditSubredditConfigUpdateWithoutWorkspaceInput = {
   subreddit?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -489,6 +587,8 @@ export type RedditSubredditConfigUncheckedUpdateWithoutWorkspaceInput = {
   subreddit?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -498,6 +598,8 @@ export type RedditSubredditConfigUncheckedUpdateManyWithoutWorkspaceInput = {
   subreddit?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -510,6 +612,8 @@ export type RedditSubredditConfigSelect<ExtArgs extends runtime.Types.Extensions
   subreddit?: boolean
   sortOrder?: boolean
   isActive?: boolean
+  source?: boolean
+  relevanceScore?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
@@ -521,6 +625,8 @@ export type RedditSubredditConfigSelectCreateManyAndReturn<ExtArgs extends runti
   subreddit?: boolean
   sortOrder?: boolean
   isActive?: boolean
+  source?: boolean
+  relevanceScore?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
@@ -532,6 +638,8 @@ export type RedditSubredditConfigSelectUpdateManyAndReturn<ExtArgs extends runti
   subreddit?: boolean
   sortOrder?: boolean
   isActive?: boolean
+  source?: boolean
+  relevanceScore?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
@@ -543,11 +651,13 @@ export type RedditSubredditConfigSelectScalar = {
   subreddit?: boolean
   sortOrder?: boolean
   isActive?: boolean
+  source?: boolean
+  relevanceScore?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RedditSubredditConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "subreddit" | "sortOrder" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["redditSubredditConfig"]>
+export type RedditSubredditConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "subreddit" | "sortOrder" | "isActive" | "source" | "relevanceScore" | "createdAt" | "updatedAt", ExtArgs["result"]["redditSubredditConfig"]>
 export type RedditSubredditConfigInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
@@ -569,6 +679,8 @@ export type $RedditSubredditConfigPayload<ExtArgs extends runtime.Types.Extensio
     subreddit: string
     sortOrder: string
     isActive: boolean
+    source: string
+    relevanceScore: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["redditSubredditConfig"]>
@@ -1000,6 +1112,8 @@ export interface RedditSubredditConfigFieldRefs {
   readonly subreddit: Prisma.FieldRef<"RedditSubredditConfig", 'String'>
   readonly sortOrder: Prisma.FieldRef<"RedditSubredditConfig", 'String'>
   readonly isActive: Prisma.FieldRef<"RedditSubredditConfig", 'Boolean'>
+  readonly source: Prisma.FieldRef<"RedditSubredditConfig", 'String'>
+  readonly relevanceScore: Prisma.FieldRef<"RedditSubredditConfig", 'Float'>
   readonly createdAt: Prisma.FieldRef<"RedditSubredditConfig", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"RedditSubredditConfig", 'DateTime'>
 }

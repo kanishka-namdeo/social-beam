@@ -63,11 +63,6 @@ export type DashboardPreference = Prisma.DashboardPreferenceModel
  */
 export type EngagementItem = Prisma.EngagementItemModel
 /**
- * Model SavedReply
- * 
- */
-export type SavedReply = Prisma.SavedReplyModel
-/**
  * Model FollowerSnapshot
  * 
  */
@@ -77,6 +72,11 @@ export type FollowerSnapshot = Prisma.FollowerSnapshotModel
  * 
  */
 export type MediaAsset = Prisma.MediaAssetModel
+/**
+ * Model Subscription
+ * 
+ */
+export type Subscription = Prisma.SubscriptionModel
 /**
  * Model OnboardingSession
  * 
@@ -107,6 +107,11 @@ export type RedditSubredditConfig = Prisma.RedditSubredditConfigModel
  * 
  */
 export type RedditTrendingPost = Prisma.RedditTrendingPostModel
+/**
+ * Model SavedReply
+ * 
+ */
+export type SavedReply = Prisma.SavedReplyModel
 /**
  * Model User
  * 

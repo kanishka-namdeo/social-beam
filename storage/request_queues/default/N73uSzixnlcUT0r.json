@@ -1,9 +1,0 @@
-{
-	"id": "N73uSzixnlcUT0r",
-	"json": "{\"id\":\"N73uSzixnlcUT0r\",\"url\":\"https://buffer.com/dmca/notice\",\"loadedUrl\":\"https://buffer.com/dmca/notice\",\"uniqueKey\":\"https://buffer.com/dmca/notice\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"depth\":0,\"__crawlee\":{\"state\":4}},\"handledAt\":\"2026-06-01T19:41:53.738Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "https://buffer.com/dmca/notice",
-	"url": "https://buffer.com/dmca/notice"
-}

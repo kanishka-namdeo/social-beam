@@ -5,6 +5,7 @@ import { logger } from "@/lib/logger";
 import { getBrandAnalyzerGraph } from "@/lib/agent/brand-analyzer-graph";
 import { shutdownCrawler } from "@/lib/agent/crawler";
 import { HumanMessage } from "@langchain/core/messages";
+import { requirePremium } from "@/lib/api-guards";
 
 const StreamRequestSchema = z.object({
   websiteUrl: z.string().url("Must be a valid URL").optional(),
@@ -78,6 +79,10 @@ export async function POST(req: Request) {
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const premiumError = await requirePremium();
+    if (premiumError) return premiumError;
+
     const workspaceId = (session.user as { workspaceId?: string }).workspaceId;
     if (!workspaceId) {
       return NextResponse.json({ error: "No workspace" }, { status: 400 });
@@ -105,27 +110,47 @@ export async function POST(req: Request) {
         // Heartbeat: keep SSE connection alive during long operations
         const startTime = Date.now();
         let heartbeatId: ReturnType<typeof setInterval> | undefined;
-        heartbeatId = setInterval(() => {
-          const elapsed = Date.now() - startTime;
-          const data = `data: ${JSON.stringify({ heartbeat: true, elapsedMs: elapsed })}\n\n`;
-          try {
-            controller.enqueue(encoder.encode(data));
-          } catch {
-            // Stream may already be closed
-            if (heartbeatId) clearInterval(heartbeatId);
-          }
-        }, HEARTBEAT_INTERVAL_MS);
-
+        
         const clearHeartbeat = () => {
           if (heartbeatId) clearInterval(heartbeatId);
           heartbeatId = undefined;
         };
+
+        // Check for client disconnect before enqueuing
+        const safeEnqueue = (data: Uint8Array) => {
+          if (req.signal.aborted) {
+            clearHeartbeat();
+            return false;
+          }
+          try {
+            controller.enqueue(data);
+            return true;
+          } catch {
+            clearHeartbeat();
+            return false;
+          }
+        };
+
+        heartbeatId = setInterval(() => {
+          const elapsed = Date.now() - startTime;
+          const data = `data: ${JSON.stringify({ heartbeat: true, elapsedMs: elapsed })}\n\n`;
+          if (!safeEnqueue(encoder.encode(data))) {
+            // Stream closed, stop heartbeat
+          }
+        }, HEARTBEAT_INTERVAL_MS);
 
         try {
           // Track which granular events have already been emitted
           const emittedEvents = new Set<string>();
           // Track last known crawl pages for per-page progress
           let lastCrawlPageCount = 0;
+
+          // Check for abort before starting streaming
+          if (req.signal.aborted) {
+            clearHeartbeat();
+            controller.close();
+            return;
+          }
 
           const nodeStream = await graph.stream(
             {
@@ -149,13 +174,21 @@ export async function POST(req: Request) {
           );
 
           for await (const stateValue of nodeStream) {
+            // Check for client disconnect during streaming
+            if (req.signal.aborted) {
+              clearHeartbeat();
+              await shutdownCrawler();
+              controller.close();
+              return;
+            }
+
             if (!stateValue || typeof stateValue !== "object") continue;
             const output = stateValue as Record<string, unknown>;
 
             // Stream current step for progress indicator
             if (output?.currentStep) {
               const stepData = `data: ${JSON.stringify({ step: output.currentStep })}\n\n`;
-              controller.enqueue(encoder.encode(stepData));
+              if (!safeEnqueue(encoder.encode(stepData))) return;
             }
 
             // Emit per-page crawl progress as pages are crawled (streamed in real-time)
@@ -168,7 +201,7 @@ export async function POST(req: Request) {
                   totalPages: crawlPages.length,
                 },
               })}\n\n`;
-              controller.enqueue(encoder.encode(pageData));
+              if (!safeEnqueue(encoder.encode(pageData))) return;
               lastCrawlPageCount = crawlPages.length;
             }
 
@@ -183,7 +216,7 @@ export async function POST(req: Request) {
                     pageCount: pages.length,
                   },
                 })}\n\n`;
-                controller.enqueue(encoder.encode(summaryData));
+                if (!safeEnqueue(encoder.encode(summaryData))) return;
                 emittedEvents.add("content_summary");
               }
             }
@@ -204,12 +237,12 @@ export async function POST(req: Request) {
                 errorCode: categorized.errorCode,
                 suggestion: categorized.suggestion,
               })}\n\n`;
-              controller.enqueue(encoder.encode(errorData));
+              if (!safeEnqueue(encoder.encode(errorData))) return;
               log.warn("api.brand_stream.graph_error", { threadId, errorCode: categorized.errorCode });
               clearHeartbeat();
               log.info("api.brand_stream.done", { correlationId: requestId, threadId });
               const doneData = `data: ${JSON.stringify({ done: true, threadId })}\n\n`;
-              controller.enqueue(encoder.encode(doneData));
+              if (!safeEnqueue(encoder.encode(doneData))) return;
               controller.close();
               return;
             }
@@ -226,7 +259,7 @@ export async function POST(req: Request) {
                     industry: draft.industry ?? null,
                   },
                 })}\n\n`;
-                controller.enqueue(encoder.encode(identityData));
+                if (!safeEnqueue(encoder.encode(identityData))) return;
               }
 
               if (draft.tonePreset || draft.voiceDescription) {
@@ -236,7 +269,7 @@ export async function POST(req: Request) {
                     voiceDescription: draft.voiceDescription ?? null,
                   },
                 })}\n\n`;
-                controller.enqueue(encoder.encode(voiceData));
+                if (!safeEnqueue(encoder.encode(voiceData))) return;
               }
 
               if (draft.audienceType || draft.interests || draft.painPoints) {
@@ -247,7 +280,7 @@ export async function POST(req: Request) {
                     painPoints: Array.isArray(draft.painPoints) ? draft.painPoints : [],
                   },
                 })}\n\n`;
-                controller.enqueue(encoder.encode(audienceData));
+                if (!safeEnqueue(encoder.encode(audienceData))) return;
               }
 
               emittedEvents.add("findings");
@@ -264,7 +297,7 @@ export async function POST(req: Request) {
                     contentStyle: (ctx as Record<string, unknown>).contentStyle ?? null,
                   },
                 })}\n\n`;
-                controller.enqueue(encoder.encode(platformData));
+                if (!safeEnqueue(encoder.encode(platformData))) return;
               }
               emittedEvents.add("platforms_finding");
             }
@@ -272,25 +305,25 @@ export async function POST(req: Request) {
             // Stream brand context draft when available
             if (output?.brandContextDraft && Object.keys(output.brandContextDraft as object).length > 0) {
               const draftData = `data: ${JSON.stringify({ draft: output.brandContextDraft })}\n\n`;
-              controller.enqueue(encoder.encode(draftData));
+              if (!safeEnqueue(encoder.encode(draftData))) return;
             }
 
             // Stream platform contexts draft
             if (output?.platformContextsDraft && Object.keys(output.platformContextsDraft as object).length > 0) {
               const platformData = `data: ${JSON.stringify({ platforms: output.platformContextsDraft })}\n\n`;
-              controller.enqueue(encoder.encode(platformData));
+              if (!safeEnqueue(encoder.encode(platformData))) return;
             }
 
             // Stream connected platforms and account details (Phase 4)
             if (output?.connectedPlatforms && Array.isArray(output.connectedPlatforms) && (output.connectedPlatforms as unknown[]).length > 0) {
               const connectedData = `data: ${JSON.stringify({ connectedPlatforms: output.connectedPlatforms, accountDetails: output.connectedAccountDetails })}\n\n`;
-              controller.enqueue(encoder.encode(connectedData));
+              if (!safeEnqueue(encoder.encode(connectedData))) return;
             }
 
             // Stream sample posts
             if (output?.samplePosts && Array.isArray(output.samplePosts) && (output.samplePosts as unknown[]).length > 0) {
               const samplesData = `data: ${JSON.stringify({ samples: output.samplePosts })}\n\n`;
-              controller.enqueue(encoder.encode(samplesData));
+              if (!safeEnqueue(encoder.encode(samplesData))) return;
             }
           }
 

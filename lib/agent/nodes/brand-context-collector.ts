@@ -38,12 +38,20 @@ export async function contextCollectorNode(state: BrandAnalyzerStateType): Promi
       });
     };
 
-    const crawlResult = await Promise.race([
-      crawlWebsite(state.websiteUrl, { onProgress }),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error(`Crawl timed out after ${CRAWL_TIMEOUT_MS / 1000}s`)), CRAWL_TIMEOUT_MS),
-      ),
-    ]);
+    // Proper timeout pattern with cleanup
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    const crawlPromise = crawlWebsite(state.websiteUrl, { onProgress });
+    
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => {
+        reject(new Error(`Crawl timed out after ${CRAWL_TIMEOUT_MS / 1000}s`));
+      }, CRAWL_TIMEOUT_MS);
+    });
+
+    const crawlResult = await Promise.race([crawlPromise, timeoutPromise]);
+
+    // Clear timeout after successful completion
+    if (timeoutId) clearTimeout(timeoutId);
 
     log.info('contextCollectorNode: crawl complete', {
       zoneCount: Object.keys(crawlResult).length,

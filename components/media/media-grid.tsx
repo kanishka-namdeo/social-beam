@@ -1,6 +1,7 @@
 "use client";
 
 import { MediaCard } from "./media-card";
+import { STAGGER_CLASSES } from "@/components/ui/stagger-page";
 import type { MediaAsset } from "@/lib/media/types";
 
 export interface MediaGridProps {
@@ -18,17 +19,18 @@ export function MediaGrid({ assets, onDelete, onSelect, selectedIds = new Set(),
   }
 
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-      {assets.map((asset) => (
-        <MediaCard
-          key={asset.id}
-          asset={asset}
-          onDelete={onDelete}
-          onSelect={onSelect}
-          selected={selectedIds.has(asset.id)}
-          showActions={showActions}
-          onAssetUpdate={onAssetUpdate}
-        />
+    <div className="grid-auto-fill gap-4">
+      {assets.map((asset, i) => (
+        <div key={asset.id} className={STAGGER_CLASSES[i % STAGGER_CLASSES.length]}>
+          <MediaCard
+            asset={asset}
+            onDelete={onDelete}
+            onSelect={onSelect}
+            selected={selectedIds.has(asset.id)}
+            showActions={showActions}
+            onAssetUpdate={onAssetUpdate}
+          />
+        </div>
       ))}
     </div>
   );

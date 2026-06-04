@@ -26,7 +26,9 @@ export function KeyboardShortcuts() {
       const isInput =
         target?.tagName === "INPUT" ||
         target?.tagName === "TEXTAREA" ||
-        target?.getAttribute("contenteditable") === "true";
+        target?.getAttribute("contenteditable") === "true" ||
+        target?.closest('[role="button"]') ||
+        target?.tagName === "BUTTON";
 
       if (isInput) return;
       if (e.ctrlKey || e.metaKey || e.altKey) return;

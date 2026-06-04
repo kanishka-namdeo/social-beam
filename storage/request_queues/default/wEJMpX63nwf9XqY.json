@@ -1,9 +1,0 @@
-{
-	"id": "wEJMpX63nwf9XqY",
-	"json": "{\"id\":\"wEJMpX63nwf9XqY\",\"url\":\"https://buffer.com/es/about\",\"loadedUrl\":\"https://buffer.com/es/about\",\"uniqueKey\":\"https://buffer.com/es/about\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"depth\":2,\"__crawlee\":{\"crawlDepth\":2,\"enqueueStrategy\":\"same-hostname\",\"state\":4}},\"handledAt\":\"2026-06-01T20:43:19.346Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "https://buffer.com/es/about",
-	"url": "https://buffer.com/es/about"
-}

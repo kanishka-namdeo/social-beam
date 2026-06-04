@@ -1,9 +1,0 @@
-{
-	"id": "mRk6tffbbYKeCgF",
-	"json": "{\"id\":\"mRk6tffbbYKeCgF\",\"url\":\"https://buffer.com/integrations\",\"loadedUrl\":\"https://buffer.com/integrations\",\"uniqueKey\":\"https://buffer.com/integrations\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"depth\":0,\"__crawlee\":{\"state\":4}},\"handledAt\":\"2026-06-01T20:33:00.407Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "https://buffer.com/integrations",
-	"url": "https://buffer.com/integrations"
-}

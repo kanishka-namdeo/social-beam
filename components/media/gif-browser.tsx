@@ -199,7 +199,7 @@ export function GifBrowser({ onImportComplete }: GifBrowserProps) {
 
       {/* Empty state */}
       {!loading && !error && items.length === 0 && hasSearched && (
-        <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-border p-12 text-center">
+        <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-border p-empty text-center">
           <MagnifyingGlass className="mb-3 size-10 text-muted-foreground" weight="thin" />
           <p className="mb-1 text-sm font-medium text-foreground">No GIFs found</p>
           <p className="mb-4 text-xs text-muted-foreground">
@@ -210,7 +210,7 @@ export function GifBrowser({ onImportComplete }: GifBrowserProps) {
 
       {/* Initial loading state */}
       {!loading && !error && items.length === 0 && !hasSearched && (
-        <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-border p-12 text-center">
+        <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-border p-empty text-center">
           <MagnifyingGlass className="mb-3 size-10 text-muted-foreground animate-pulse" weight="thin" />
           <p className="mb-1 text-sm font-medium text-foreground">Loading trending GIFs...</p>
         </div>

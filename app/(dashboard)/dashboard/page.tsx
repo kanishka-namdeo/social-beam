@@ -3,16 +3,22 @@ import { prisma } from "@/lib/prisma";
 import { isOnboardingComplete } from "@/lib/onboarding";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { PencilSimple, Calendar, ChartBar, MagnifyingGlass, GearSix } from "@phosphor-icons/react/ssr";
+import { PencilSimple, Calendar, ChartBar, MagnifyingGlass, GearSix, Sparkle } from "@phosphor-icons/react/ssr";
 import { StartingVerbs } from "@/components/dashboard/starting-verbs";
 import { AIComposePrompt } from "@/components/dashboard/ai-compose-prompt";
 import { WorkedExampleEmptyState } from "@/components/dashboard/worked-example-empty-state";
+import { StaggerPage } from "@/components/ui/stagger-page";
 import { OnboardingBanner } from "@/components/dashboard/onboarding-banner";
+import { BrandContextStatusBannerClient } from "@/components/dashboard/brand-context-status-banner-client";
+import { BrandLearningWidget } from "@/components/dashboard/brand-learning-widget";
 import { WidgetGrid } from "@/components/dashboard/widget-grid";
 import { CustomizeDashboardDialogContainer } from "@/components/dashboard/customize-dashboard-dialog";
 import type { WidgetLayout } from "@/lib/dashboard/widget-registry";
 import { DEFAULT_WIDGET_LAYOUT } from "@/lib/dashboard/widget-registry";
 import { subHours } from "@/lib/utils/dates";
+import { Card, CardContent } from "@/components/ui/card";
+import Link from "next/link";
+import type { UserRole } from "@/lib/role-guard";
 
 async function fetchDashboardData(workspaceId: string) {
   const [recentPosts, scheduledPosts, trendingPosts, totalPosts, scheduledCount, publishedThisWeek, failedCount] =
@@ -157,6 +163,7 @@ async function fetchDashboardData(workspaceId: string) {
       commentCount: p.commentCount,
       relevanceScore: p.relevanceScore,
       relevanceReason: p.relevanceReason,
+      brandReasonTags: p.brandReasonTags ?? [],
       isActionable: p.isActionable,
       topicTags: p.topicTags,
       suggestedAction: p.suggestedAction,
@@ -245,13 +252,24 @@ function calculateConsistencyScore(publishedPosts: { publishedAt: Date | null }[
 
 export default async function DashboardPage() {
   const session = await auth();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const user = session?.user as any;
+  const user = session?.user as { id?: string; workspaceId?: string; name?: string; role?: UserRole };
   const userId = user?.id as string | undefined;
-  const userName = (user?.name as string | undefined) ?? "there";
+  const userName = user?.name ?? "there";
 
   if (!userId) {
     redirect("/login");
+  }
+
+  // Resolve role with DB fallback
+  let userRole = user?.role;
+  if (!userRole && userId) {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+    userRole = dbUser?.role ?? 'FREE_USER';
+  } else {
+    userRole = userRole ?? 'FREE_USER';
   }
 
   const onboardingDone = await isOnboardingComplete(userId);
@@ -266,13 +284,17 @@ export default async function DashboardPage() {
     );
   }
 
-  const [profile, connectedAccounts, preferences] = await Promise.all([
+  const [profile, connectedAccounts, preferences, brandContext] = await Promise.all([
     prisma.userProfile.findUnique({ where: { workspaceId } }),
     prisma.connectedAccount.findMany({
       where: { workspaceId },
       orderBy: { createdAt: "desc" },
     }),
     prisma.dashboardPreference.findUnique({ where: { workspaceId } }),
+    prisma.brandContext.findUnique({
+      where: { workspaceId },
+      select: { trainingStatus: true, lastTrainedAt: true, businessName: true },
+    }),
   ]);
 
   const hour = new Date().getHours();
@@ -295,16 +317,19 @@ export default async function DashboardPage() {
   const dashboardData = await fetchDashboardData(workspaceId);
 
   return (
-    <div className="space-y-6">
+    <StaggerPage>
       {/* Onboarding incomplete banner */}
       {!onboardingDone && (
         <OnboardingBanner />
       )}
 
+      {/* Brand context status banner */}
+      <BrandContextStatusBannerClient brandContext={brandContext} />
+
       {/* Header row: Greeting + Customize button */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-medium tracking-tight text-foreground" suppressHydrationWarning>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground" suppressHydrationWarning>
             {greeting}, {userName}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -321,6 +346,22 @@ export default async function DashboardPage() {
           }
         />
       </div>
+
+      {/* Free user upgrade CTA */}
+      {userRole === 'FREE_USER' && (
+        <Card className="rounded-sm border-brand/30 bg-brand/5">
+          <CardContent className="pt-6">
+            <Sparkle className="size-8 text-brand mb-2" weight="fill" />
+            <h3 className="text-lg font-semibold">Unlock AI-powered features</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Generate posts, get AI insights, and automate your social media.
+            </p>
+            <Button className="mt-4" asChild>
+              <Link href="/billing">Start your free trial</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Quick-action bar */}
       <div className="flex flex-wrap gap-2">
@@ -355,6 +396,7 @@ export default async function DashboardPage() {
         <div className="space-y-6">
           <AIComposePrompt />
           <StartingVerbs />
+          <BrandLearningWidget />
           <WidgetGrid
             layout={layout}
             data={{
@@ -376,6 +418,7 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <div className="space-y-6">
+          <BrandLearningWidget />
           {/* Widget Grid */}
           <WidgetGrid
             layout={layout}
@@ -397,6 +440,6 @@ export default async function DashboardPage() {
           />
         </div>
       )}
-    </div>
+    </StaggerPage>
   );
 }

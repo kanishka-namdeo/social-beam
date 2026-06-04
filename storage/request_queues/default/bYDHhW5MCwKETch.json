@@ -1,9 +1,0 @@
-{
-	"id": "bYDHhW5MCwKETch",
-	"json": "{\"id\":\"bYDHhW5MCwKETch\",\"url\":\"https://buffer.com/free-trial\",\"loadedUrl\":\"https://buffer.com/free-trial\",\"uniqueKey\":\"https://buffer.com/free-trial\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"depth\":0,\"__crawlee\":{\"state\":4}},\"handledAt\":\"2026-06-01T20:32:40.887Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "https://buffer.com/free-trial",
-	"url": "https://buffer.com/free-trial"
-}

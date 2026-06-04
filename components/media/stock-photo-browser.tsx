@@ -14,11 +14,12 @@ interface StockPhotoBrowserProps {
   defaultProvider?: "all" | "unsplash" | "pexels";
   hideProviderSwitcher?: boolean;
   onImportComplete?: () => void;
+  initialQuery?: string;
 }
 
-export function StockPhotoBrowser({ defaultProvider = "all", hideProviderSwitcher = false, onImportComplete }: StockPhotoBrowserProps) {
+export function StockPhotoBrowser({ defaultProvider = "all", hideProviderSwitcher = false, onImportComplete, initialQuery }: StockPhotoBrowserProps) {
   const [provider, setProvider] = useState<"all" | "unsplash" | "pexels">(defaultProvider);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery ?? "");
   const [searchTerm, setSearchTerm] = useState("");
   const [items, setItems] = useState<ExternalMediaItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -106,6 +107,13 @@ export function StockPhotoBrowser({ defaultProvider = "all", hideProviderSwitche
     }, 300);
     return () => clearTimeout(timer);
   }, [query]);
+
+  // Trigger initial search when initialQuery is provided
+  useEffect(() => {
+    if (initialQuery && !hasSearched) {
+      setSearchTerm(initialQuery);
+    }
+  }, [initialQuery]);
 
   // Fetch when searchTerm or page changes
   useEffect(() => {
@@ -247,7 +255,7 @@ export function StockPhotoBrowser({ defaultProvider = "all", hideProviderSwitche
 
       {/* Empty state */}
       {!loading && !error && items.length === 0 && hasSearched && (
-        <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-border p-12 text-center">
+        <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-border p-empty text-center">
           <MagnifyingGlass className="mb-3 size-10 text-muted-foreground" weight="thin" />
           <p className="mb-1 text-sm font-medium text-foreground">No results found</p>
           <p className="mb-4 text-xs text-muted-foreground">
@@ -258,7 +266,7 @@ export function StockPhotoBrowser({ defaultProvider = "all", hideProviderSwitche
 
       {/* Initial empty state */}
       {!loading && !error && items.length === 0 && !hasSearched && (
-        <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-border p-12 text-center">
+        <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-border p-empty text-center">
           <MagnifyingGlass className="mb-3 size-10 text-muted-foreground" weight="thin" />
           <p className="mb-1 text-sm font-medium text-foreground">Search for stock photos</p>
           <p className="text-xs text-muted-foreground">

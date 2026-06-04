@@ -27,13 +27,13 @@ export function VariantCard({ variantId, content, isComplete, isSelected, onSele
   return (
     <div
       className={cn(
-        "relative flex flex-col rounded-sm border bg-card p-4 transition-all duration-200 hover-lift",
+        "relative flex flex-col rounded-sm border bg-card p-4 hover-lift",
         isSelected
           ? "border-brand ring-2 ring-brand/20"
           : "border-border hover:bg-muted",
       )}
     >
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex-between mb-3">
         <div className="flex items-center gap-2">
           <Badge
             variant="outline"

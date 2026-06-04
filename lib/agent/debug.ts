@@ -4,6 +4,10 @@ import { logger as baseLogger, type AppLogger } from '@/lib/logger';
 // Node execution tracing middleware
 // ---------------------------------------------------------------------------
 
+// Bounded eviction constants to prevent unbounded growth in long-running servers
+const MAX_TRACE_ENTRIES_PER_THREAD = 100;
+const MAX_INTERRUPT_LOG_SIZE = 1000;
+
 interface NodeTraceEntry {
   node: string;
   threadId: string;
@@ -137,6 +141,10 @@ function stripInternalKeys(obj: Record<string, unknown>): Record<string, unknown
 function appendNodeTrace(threadId: string, entry: NodeTraceEntry): void {
   const existing = nodeTraces.get(threadId) ?? [];
   existing.push(entry);
+  // Cap per-thread entries to prevent unbounded growth
+  if (existing.length > MAX_TRACE_ENTRIES_PER_THREAD) {
+    existing.splice(0, existing.length - MAX_TRACE_ENTRIES_PER_THREAD);
+  }
   nodeTraces.set(threadId, existing);
 }
 
@@ -224,6 +232,10 @@ export function getInterruptLog(): InterruptEvent[] {
 
 export function logInterrupt(event: Omit<InterruptEvent, 'timestamp'>): void {
   interruptLog.push({ ...event, timestamp: new Date().toISOString() });
+  // Cap interrupt log to prevent unbounded growth
+  if (interruptLog.length > MAX_INTERRUPT_LOG_SIZE) {
+    interruptLog.splice(0, interruptLog.length - MAX_INTERRUPT_LOG_SIZE);
+  }
 }
 
 export function getAgentDebugReport(threadId?: string): {

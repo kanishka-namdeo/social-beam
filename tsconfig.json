@@ -30,5 +30,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "seed-profile.ts", "test-profile-setup.ts", "seed-inbox-test-data.ts", "check-users.js", "fix-demo-password.js", "cleanup-workspaces.ts", "fix-media-urls.mts", "test-crawlee-cloakbrowser.mts", "scripts/*.js", "verify-password.js", "test-check-users.js", "debug-*.ts", "debug-*.mjs", "query-*.ts", "query-*.mjs", "check-*.mjs", "reset-password.ts", "trigger-real-sync.mjs", "disconnect-li.mjs", "clear-test-li-items.mjs", "test-li-*.mjs", "verify-seed.mjs", "seed-li-account.mjs", "*.mjs"]
+  "exclude": ["node_modules", "scripts/*.ts", "seed-profile.ts", "test-profile-setup.ts", "seed-inbox-test-data.ts", "check-users.js", "fix-demo-password.js", "cleanup-workspaces.ts", "fix-media-urls.mts", "test-crawlee-cloakbrowser.mts", "scripts/*.js", "verify-password.js", "test-check-users.js", "debug-*.ts", "debug-*.mjs", "query-*.ts", "query-*.mjs", "check-*.mjs", "reset-password.ts", "trigger-real-sync.mjs", "disconnect-li.mjs", "clear-test-li-items.mjs", "test-li-*.mjs", "verify-seed.mjs", "seed-li-account.mjs", "*.mjs"]
 }

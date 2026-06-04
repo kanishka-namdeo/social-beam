@@ -13,6 +13,9 @@ import {
   RedditLogo,
   MagnifyingGlass,
   ChatCircle,
+  Lock,
+  CreditCard,
+  ShieldCheck,
 } from "@phosphor-icons/react/ssr";
 import type { Icon } from "@phosphor-icons/react";
 import {
@@ -21,6 +24,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import type { UserRole } from "@/lib/role-guard";
 
 export type IconName =
   | "house"
@@ -32,12 +36,15 @@ export type IconName =
   | "sliders-horizontal"
   | "reddit-logo"
   | "magnifying-glass"
-  | "chat-circle";
+  | "chat-circle"
+  | "credit-card"
+  | "shield-check";
 
 export interface NavItem {
   label: string;
   href: string;
   icon: IconName;
+  premiumOnly?: boolean;
 }
 
 const KEYBOARD_SHORTCUTS: Record<string, string> = {
@@ -63,15 +70,19 @@ function getIconComponent(name: IconName): Icon {
     case "reddit-logo": return RedditLogo;
     case "magnifying-glass": return MagnifyingGlass;
     case "chat-circle": return ChatCircle;
+    case "credit-card": return CreditCard;
+    case "shield-check": return ShieldCheck;
   }
 }
 
 interface SidebarNavProps {
   items: NavItem[];
+  userRole?: UserRole;
 }
 
-export function SidebarNav({ items }: SidebarNavProps) {
+export function SidebarNav({ items, userRole }: SidebarNavProps) {
   const pathname = usePathname();
+  const isPremium = userRole === 'PREMIUM_USER' || userRole === 'ADMIN';
 
   return (
     <SidebarMenu className="gap-1">
@@ -92,7 +103,7 @@ export function SidebarNav({ items }: SidebarNavProps) {
                   <div className="flex items-center gap-2">
                     <span>{item.label}</span>
                     {shortcut && (
-                      <kbd className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
+                      <kbd className="rounded bg-muted px-1.5 py-0.5 text-micro font-mono text-muted-foreground">
                         {shortcut}
                       </kbd>
                     )}
@@ -102,7 +113,7 @@ export function SidebarNav({ items }: SidebarNavProps) {
                 align: "center",
               }}
               className={cn(
-                "gap-3 transition-all duration-200 ease-out",
+                "gap-3 transition-all duration-normal ease-decelerate",
                 "hover:bg-accent/50 hover:translate-x-0.5",
                 // Icon mode overrides: square icon buttons with soft rounding
                 "group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:p-0",
@@ -118,10 +129,16 @@ export function SidebarNav({ items }: SidebarNavProps) {
               <Link href={item.href} className="flex w-full items-center gap-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0">
                 <IconComponent
                   weight={isActive ? "fill" : "regular"}
-                  className="size-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:size-5 group-data-[collapsible=icon]:group-hover:scale-110"
+                  className="size-4 shrink-0 transition-transform duration-normal group-data-[collapsible=icon]:size-5 group-data-[collapsible=icon]:group-hover:scale-110"
                 />
                 <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-                {shortcut && (
+                {item.premiumOnly && !isPremium && (
+                  <Lock
+                    weight="fill"
+                    className="ml-auto size-3.5 text-muted-foreground/50 group-data-[collapsible=icon]:hidden"
+                  />
+                )}
+                {shortcut && item.href !== "/compose" && item.href !== "/calendar" ? null : shortcut && (
                   <span className="ml-auto text-xs font-mono text-muted-foreground/50 group-data-[collapsible=icon]:hidden">
                     {shortcut}
                   </span>

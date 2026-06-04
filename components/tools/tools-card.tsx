@@ -13,9 +13,9 @@ interface ToolsCardProps {
 export function ToolsCard({ icon: Icon, title, description, href }: ToolsCardProps) {
   return (
     <Link href={href} className="block">
-      <Card className="border-border rounded-sm hover-lift transition-shadow h-full">
+      <Card className="border-border rounded-sm h-full hover:shadow-md">
         <CardHeader className="pb-3">
-          <div className="p-3 bg-brand/10 text-brand w-fit mb-3 rounded-sm" aria-hidden="true">
+          <div className="flex-center p-3 bg-brand/10 text-brand w-fit mb-3 rounded-sm" aria-hidden="true">
             <Icon className="w-6 h-6" />
           </div>
           <CardTitle className="text-xl text-foreground tracking-tight">{title}</CardTitle>
@@ -24,7 +24,7 @@ export function ToolsCard({ icon: Icon, title, description, href }: ToolsCardPro
           <CardDescription className="text-muted-foreground text-base leading-relaxed">
             {description}
           </CardDescription>
-          <div className="mt-4 flex items-center gap-2 text-sm text-brand font-medium">
+          <div className="flex-center gap-2 mt-4 text-sm text-brand font-medium">
             Try it free
             <ArrowRight weight="bold" className="w-4 h-4" />
           </div>

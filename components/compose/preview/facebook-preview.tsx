@@ -20,12 +20,12 @@ export function FacebookPreview({ content, account, mediaUrls }: FacebookPreview
 
   return (
     <div
-      className="w-full max-w-[500px] rounded-sm border border-border bg-card shadow-sm"
+      className="w-full max-w-[500px] rounded-sm border border-border bg-card shadow-sm dark:shadow-lg dark:shadow-black/40"
       role="img"
       aria-label="Facebook post preview"
     >
       {/* Author Header */}
-      <div className="flex items-start justify-between p-4 pb-2">
+      <div className="flex items-start justify-between p-preview pb-2">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
             <AvatarImage src={avatarSrc} alt={displayName} />
@@ -72,13 +72,13 @@ export function FacebookPreview({ content, account, mediaUrls }: FacebookPreview
       <Separator className="bg-border" />
 
       {/* Reactions Summary */}
-      <div className="flex items-center justify-between px-4 py-2 text-xs text-muted-foreground">
+      <div className="flex-between px-4 py-2 text-xs text-muted-foreground">
         <div className="flex items-center gap-1.5">
           <div className="flex -space-x-1">
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-preview-facebook text-[10px] text-white">
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-preview-facebook text-micro text-white">
               
             </span>
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand text-[10px]">
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand text-micro">
               ❤️
             </span>
           </div>

@@ -42,7 +42,7 @@ export function PreviewDrawer({ item, onClose, onAdd, isSelected = false, classN
     <div
       ref={panelRef}
       className={cn(
-        "absolute right-0 top-0 z-20 flex h-full w-full max-w-sm flex-col border-l border-border bg-card shadow-2xl sm:w-96",
+        "absolute right-0 top-0 z-overlay flex h-full w-full max-w-sm flex-col border-l border-border bg-card shadow-2xl sm:w-96",
         className,
       )}
     >

@@ -35,22 +35,27 @@ interface UploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onComplete?: () => void;
+  brandSearchQuery?: string;
 }
 
-export function UploadDialog({ open, onOpenChange, onComplete }: UploadDialogProps) {
+export function UploadDialog({ open, onOpenChange, onComplete, brandSearchQuery }: UploadDialogProps) {
   const [uploads, setUploads] = useState<UploadState[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [sourceTab, setSourceTab] = useState("upload");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isUploading = uploads.some((u) => u.status === "uploading");
   const mountedRef = useRef(true);
+  const nextIndexRef = useRef(0);
   const progressIntervalsRef = useRef<Map<number, ReturnType<typeof setInterval>>>(new Map());
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Track mount status to prevent setState after unmount
   useEffect(() => {
     mountedRef.current = true;
+    abortControllerRef.current = new AbortController();
     return () => {
       mountedRef.current = false;
+      abortControllerRef.current?.abort();
       // eslint-disable-next-line react-hooks/exhaustive-deps
       for (const interval of progressIntervalsRef.current.values()) {
         clearInterval(interval);
@@ -58,6 +63,14 @@ export function UploadDialog({ open, onOpenChange, onComplete }: UploadDialogPro
       progressIntervalsRef.current.clear();
     };
   }, []);
+
+  // Reset index counter when dialog opens
+  useEffect(() => {
+    if (open) {
+      setUploads([]);
+      nextIndexRef.current = 0;
+    }
+  }, [open]);
 
   // Reset source tab when dialog opens
   useEffect(() => {
@@ -73,12 +86,15 @@ export function UploadDialog({ open, onOpenChange, onComplete }: UploadDialogPro
       status: "pending" as const,
     }));
 
+    const startIndex = nextIndexRef.current;
+    nextIndexRef.current += files.length;
+
     setUploads((prev) => [...prev, ...newUploads]);
 
     newUploads.forEach((upload, index) => {
-      uploadFile(upload.file, uploads.length + index);
+      uploadFile(upload.file, startIndex + index);
     });
-  }, [uploads.length]);
+  }, []);
 
   const uploadFile = async (file: File, index: number) => {
     setUploads((prev) =>
@@ -103,6 +119,7 @@ export function UploadDialog({ open, onOpenChange, onComplete }: UploadDialogPro
       const response = await fetch("/api/media/upload", {
         method: "POST",
         body: formData,
+        signal: abortControllerRef.current?.signal,
       });
 
       clearInterval(progressInterval);
@@ -226,7 +243,7 @@ export function UploadDialog({ open, onOpenChange, onComplete }: UploadDialogPro
             {/* Drop zone */}
             <div
               className={cn(
-                "flex flex-col items-center justify-center rounded-sm border-2 border-dashed p-8 transition-colors",
+                "flex flex-col items-center justify-center rounded-sm border-2 border-dashed p-empty transition-colors",
                 isDragging
                   ? "border-brand bg-brand/5"
                   : "border-border hover:border-muted-foreground/50",
@@ -299,14 +316,14 @@ export function UploadDialog({ open, onOpenChange, onComplete }: UploadDialogPro
                         <p className="truncate text-xs font-medium text-foreground">
                           {upload.file.name}
                         </p>
-                        <p className="text-[10px] text-muted-foreground">
+                        <p className="text-micro text-muted-foreground">
                           {(upload.file.size / 1024).toFixed(0)} KB
                         </p>
                         {upload.status === "uploading" && (
                           <Progress value={upload.progress} className="mt-1 h-1" />
                         )}
                         {upload.status === "error" && (
-                          <p className="text-[10px] text-destructive">{upload.error}</p>
+                          <p className="text-micro text-destructive">{upload.error}</p>
                         )}
                       </div>
 
@@ -333,6 +350,7 @@ export function UploadDialog({ open, onOpenChange, onComplete }: UploadDialogPro
               defaultProvider="unsplash"
               hideProviderSwitcher
               onImportComplete={handleImportComplete}
+              initialQuery={brandSearchQuery}
             />
           </TabsContent>
 
@@ -342,6 +360,7 @@ export function UploadDialog({ open, onOpenChange, onComplete }: UploadDialogPro
               defaultProvider="pexels"
               hideProviderSwitcher
               onImportComplete={handleImportComplete}
+              initialQuery={brandSearchQuery}
             />
           </TabsContent>
 

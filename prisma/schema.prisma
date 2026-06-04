@@ -131,8 +131,8 @@ model ConnectedAccount {
   lastSyncedAt     DateTime?
   platformUsername String?
   sourcePlatform   String?
-  sessionCookie    String?   // Encrypted li_at session cookie for browser scraping
-  cookieExpiry     DateTime? // When the session cookie expires (~1 year from extraction)
+  cookieExpiry     DateTime?
+  sessionCookie    String?
   Workspace        Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@unique([workspaceId, platform])
@@ -170,27 +170,12 @@ model EngagementItem {
   repliedAt      DateTime?
   Workspace      Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  @@index([workspaceId, status])
-  @@index([workspaceId, platform])
-  @@index([workspaceId, type])
-  @@index([workspaceId, createdAt(sort: Desc)])
-  @@index([workspaceId, sentiment])
   @@unique([workspaceId, platformItemId])
-}
-
-model SavedReply {
-  id         String    @id
-  workspaceId String
-  title      String
-  content    String
-  tags       String[]
-  platform   String?
-  usageCount Int       @default(0)
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  Workspace  Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@index([workspaceId])
+  @@index([workspaceId, createdAt(sort: Desc)])
+  @@index([workspaceId, platform])
+  @@index([workspaceId, sentiment])
+  @@index([workspaceId, status])
+  @@index([workspaceId, type])
 }
 
 model FollowerSnapshot {
@@ -224,6 +209,24 @@ model MediaAsset {
   @@index([workspaceId, createdAt(sort: Desc)])
   @@index([workspaceId])
   @@index([workspaceId, status])
+}
+
+model Subscription {
+  id                     String           @id
+  userId                 String
+  stripeCustomerId       String?
+  stripeSubscriptionId   String?
+  stripePriceId          String?
+  plan                   String           @default("free")
+  tier                   SubscriptionTier @default(FREE)
+  status                 String           @default("active")
+  currentPeriodEnd       DateTime?
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  User                   User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
+  @@index([stripeCustomerId])
 }
 
 model OnboardingSession {
@@ -272,17 +275,18 @@ model Post {
 }
 
 model PostPlatform {
-  id         String     @id
-  postId     String
-  platform   String
-  content    String
-  mediaUrls  Json?      @default("[]")
-  status     PostStatus @default(DRAFT)
-  externalId String?
-  postUrl    String?
-  error      String?
-  createdAt  DateTime   @default(now())
-  Post       Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id           String     @id
+  postId       String
+  platform     String
+  content      String
+  mediaUrls    Json?      @default("[]")
+  status       PostStatus @default(DRAFT)
+  externalId   String?
+  error        String?
+  createdAt    DateTime   @default(now())
+  postUrl      String?
+  analyticsUrl String?
+  Post         Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
 
 model RedditSubredditConfig {
@@ -291,6 +295,8 @@ model RedditSubredditConfig {
   subreddit   String
   sortOrder   String    @default("hot")
   isActive    Boolean   @default(true)
+  source      String    @default("manual")   // "manual" | "recommended" | "default"
+  relevanceScore Float?                       // AI-assigned relevance 0-1 for recommended ones
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   Workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
@@ -300,27 +306,28 @@ model RedditSubredditConfig {
 }
 
 model RedditTrendingPost {
-  id                  String    @id
-  workspaceId         String
-  subreddit           String
-  title               String
-  url                 String
-  author              String
-  upvotes             Int       @default(0)
-  commentCount        Int       @default(0)
-  scrapedAt           DateTime  @default(now())
-  relevanceScore      Float?
-  relevanceReason     String?
-  isActionable        Boolean   @default(false)
-  topicTags           String[]
-  suggestedAction     String?
-  actedOnAt           DateTime?
-  dismissedAt         DateTime?
-  postId              String?
-  riskLevel           String    @default("low")
-  riskReason          String?
-  sentiment           String    @default("neutral")
-  Workspace           Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  id              String    @id
+  workspaceId     String
+  subreddit       String
+  title           String
+  url             String
+  author          String
+  upvotes         Int       @default(0)
+  commentCount    Int       @default(0)
+  scrapedAt       DateTime  @default(now())
+  relevanceScore  Float?
+  relevanceReason String?
+  isActionable    Boolean   @default(false)
+  topicTags       String[]
+  suggestedAction String?
+  actedOnAt       DateTime?
+  dismissedAt     DateTime?
+  postId          String?
+  riskLevel       String    @default("low")
+  riskReason      String?
+  sentiment       String    @default("neutral")
+  brandReasonTags String[]
+  Workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([workspaceId, dismissedAt])
   @@index([workspaceId, postId])
@@ -328,15 +335,33 @@ model RedditTrendingPost {
   @@index([workspaceId, scrapedAt])
 }
 
+model SavedReply {
+  id          String    @id
+  workspaceId String
+  title       String
+  content     String
+  tags        String[]
+  platform    String?
+  usageCount  Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+}
+
 model User {
-  id           String         @id
-  email        String         @unique
-  name         String?
-  password     String
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  UserOAuthApp UserOAuthApp[]
-  Workspace    Workspace[]
+  id               String         @id
+  email            String         @unique
+  name             String?
+  password         String
+  role             UserRole       @default(FREE_USER)
+  lastRoleChangeAt DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  UserOAuthApp     UserOAuthApp[]
+  Workspace        Workspace[]
+  Subscription     Subscription?
 }
 
 model UserOAuthApp {
@@ -365,7 +390,7 @@ model UserProfile {
 }
 
 model Workspace {
-  id                    String                  @id @default(cuid())
+  id                    String                  @id
   userId                String
   name                  String                  @default("My Workspace")
   autonomyLevel         String                  @default("suggestions")
@@ -424,10 +449,35 @@ model checkpoints {
   @@id([thread_id, checkpoint_ns, checkpoint_id])
 }
 
+enum SubscriptionTier {
+  FREE
+  AI_STARTER
+  AI_PRO
+}
+
 enum ConfidenceLevel {
   HIGH
   MEDIUM
   LOW
+}
+
+enum EngagementStatus {
+  UNREAD
+  READ
+  REPLIED
+  DISMISSED
+}
+
+enum EngagementType {
+  COMMENT
+  MENTION
+  DM
+}
+
+enum UserRole {
+  ADMIN
+  FREE_USER
+  PREMIUM_USER
 }
 
 enum PostStatus {
@@ -437,17 +487,4 @@ enum PostStatus {
   PUBLISHED
   FAILED
   EXTERNAL
-}
-
-enum EngagementType {
-  COMMENT
-  MENTION
-  DM
-}
-
-enum EngagementStatus {
-  UNREAD
-  READ
-  REPLIED
-  DISMISSED
 }

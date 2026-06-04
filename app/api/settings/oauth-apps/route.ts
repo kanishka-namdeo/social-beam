@@ -3,17 +3,17 @@ import { auth } from '@/lib/auth';
 import { listUserOAuthApps, upsertUserCredentials } from '@/lib/oauth/credentials';
 import { z } from 'zod';
 import { logger } from '@/lib/logger';
+import { requireAdmin } from '@/lib/api-guards';
 
 export async function GET() {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const adminGuard = await requireAdmin();
+  if (adminGuard) return adminGuard;
 
-  const userId = session.user.id ?? '';
+  const session = await auth();
+  const userId = session!.user!.id ?? '';
   const apps = await listUserOAuthApps(userId);
 
-  return NextResponse.json({ platforms: apps });
+  return NextResponse.json({ apps });
 }
 
 const saveSchema = z.object({
@@ -27,12 +27,11 @@ export async function PUT(req: NextRequest) {
   const log = logger.child({ requestId });
 
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const adminGuard = await requireAdmin();
+    if (adminGuard) return adminGuard;
 
-    const userId = session.user.id ?? '';
+    const session = await auth();
+    const userId = session!.user!.id ?? '';
     const body = await req.json();
     const parsed = saveSchema.safeParse(body);
 

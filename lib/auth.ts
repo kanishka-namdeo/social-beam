@@ -50,6 +50,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           id: user.id,
           email: user.email,
           name: user.name,
+          role: user.role,
           workspaceId: user.Workspace[0]?.id,
         };
       },
@@ -59,6 +60,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
+        token.role = user.role;
         token.workspaceId = user.workspaceId;
       }
       if (trigger === 'update' && session?.workspaceId) {
@@ -70,7 +72,23 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         const user = session.user as unknown as Record<string, unknown>;
-        user.id = token.id;
+        user.id = token.id as string;
+
+        // Ensure role is always present - fall back to DB if token.role is missing
+        if (token.role) {
+          user.role = token.role;
+        } else if (token.id) {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            select: { role: true },
+          });
+          if (dbUser) {
+            user.role = dbUser.role;
+            // Update token for future calls
+            token.role = dbUser.role;
+          }
+        }
+
         user.workspaceId = token.workspaceId;
       }
       return session;
@@ -89,29 +107,33 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
               email: profile.email,
               name: profile.name ?? '',
               password: await bcrypt.hash(Math.random().toString(36), 12),
+              role: 'FREE_USER',
             },
           });
           const workspace = await prisma.workspace.create({
-            data: { userId: newUser.id },
+            data: { id: crypto.randomUUID(), userId: newUser.id },
           });
           logger.info('auth.signIn.google.user_created', { userId: newUser.id, email: profile.email });
           if (user) {
             user.id = newUser.id;
+            user.role = newUser.role;
             user.workspaceId = workspace.id;
           }
         } else if (existingUser.Workspace.length === 0) {
           const workspace = await prisma.workspace.create({
-            data: { userId: existingUser.id },
+            data: { id: crypto.randomUUID(), userId: existingUser.id },
           });
           logger.info('auth.signIn.google.workspace_created', { userId: existingUser.id, email: profile.email });
           if (user) {
             user.id = existingUser.id;
+            user.role = existingUser.role;
             user.workspaceId = workspace.id;
           }
         } else {
           logger.info('auth.signIn.google.user_existing', { userId: existingUser.id, email: profile.email });
           if (user) {
             user.id = existingUser.id;
+            user.role = existingUser.role;
             user.workspaceId = existingUser.Workspace[0].id;
           }
         }

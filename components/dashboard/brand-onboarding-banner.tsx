@@ -38,27 +38,30 @@ const POWERS = [
   },
 ];
 
-const DISMISSED_KEY = "social-beam-brand-onboarding-dismissed";
-
 export function BrandOnboardingBanner({
   onGetStarted,
-  onDismiss,
+  initialDismissed = false,
 }: {
   onGetStarted: () => void;
-  onDismiss: () => void;
+  initialDismissed?: boolean;
 }) {
-  const [dismissed, setDismissed] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem(DISMISSED_KEY) === "true";
-    }
-    return false;
-  });
+  const [dismissed, setDismissed] = useState(initialDismissed);
 
-  const handleDismiss = () => {
-    localStorage.setItem(DISMISSED_KEY, "true");
+  const handleDismiss = async () => {
+    try {
+      await fetch("/api/preferences/dismiss-banner", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ banner: "brand-onboarding" }),
+      });
+    } catch {
+      toast.error("Failed to save preference. Please try again.");
+      return;
+    }
     setDismissed(true);
-    toast.info("Onboarding skipped. You can always complete it later in Settings.");
-    onDismiss();
+    toast.info(
+      "Onboarding skipped. You can always complete it later in Settings."
+    );
   };
 
   if (dismissed) {
@@ -86,7 +89,8 @@ export function BrandOnboardingBanner({
             </h3>
           </div>
           <p className="text-sm text-muted-foreground">
-            Brand context powers everything in Social Beam. Tell us about your brand and the AI handles the rest.
+            Brand context powers everything in Social Beam. Tell us about your
+            brand and the AI handles the rest.
           </p>
         </div>
 
@@ -103,8 +107,12 @@ export function BrandOnboardingBanner({
                   <Icon className="size-4 text-brand" weight="duotone" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">{power.title}</p>
-                  <p className="text-xs text-muted-foreground">{power.description}</p>
+                  <p className="text-sm font-medium text-foreground">
+                    {power.title}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {power.description}
+                  </p>
                 </div>
               </div>
             );
@@ -114,19 +122,22 @@ export function BrandOnboardingBanner({
         {/* Social proof + CTA */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <Badge variant="secondary" className="flex items-center gap-1 min-h-6 rounded-sm">
+            <Badge
+              variant="secondary"
+              className="flex items-center gap-1 min-h-6 rounded-sm"
+            >
               <Clock className="size-3" />
               ~30 seconds
             </Badge>
-            <Badge variant="secondary" className="flex items-center gap-1 min-h-6 rounded-sm">
+            <Badge
+              variant="secondary"
+              className="flex items-center gap-1 min-h-6 rounded-sm"
+            >
               <LinkSimple className="size-3" />
               Just paste your website URL
             </Badge>
           </div>
-          <Button
-            onClick={onGetStarted}
-            className="min-h-10 rounded-sm"
-          >
+          <Button onClick={onGetStarted} className="min-h-10 rounded-sm">
             Set up your brand context
             <Sparkle className="size-4 ml-1" weight="fill" />
           </Button>
