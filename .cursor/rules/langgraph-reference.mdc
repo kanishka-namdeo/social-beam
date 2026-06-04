@@ -1,0 +1,195 @@
+---
+description: LangGraph extended reference — checkpointer setup, graph structure patterns, anti-patterns table, verification checklist. Apply when building new agents or debugging LangGraph issues.
+alwaysApply: false
+---
+
+# LangGraph Reference
+
+**Trigger**: Reference material for LangGraph implementation. Read when building new agents, debugging graph issues, or verifying agent structure.
+
+> **Core patterns**: See [langgraph-patterns.mdc](.cursor/rules/langgraph-patterns.mdc) for state design, node purity, tool loops, routing, and interrupts.
+
+## Checkpointer & Persistence
+
+The checkpointer MUST be `PostgresSaver` from `@langchain/langgraph-checkpoint-postgres`. Never use `MemorySaver` in production.
+
+### Setup Pattern
+
+```typescript
+import { PostgresSaver } from '@langchain/langgraph-checkpoint-postgres';
+
+let checkpointer: PostgresSaver | undefined;
+
+async function ensureCheckpointer() {
+  if (!checkpointer) {
+    checkpointer = PostgresSaver.fromConnString(process.env.DATABASE_URL!);
+    await checkpointer.setup();
+  }
+  return checkpointer;
+}
+```
+
+### Checkpointer Rules
+
+- **Lazy initialization**: Create checkpointer once, cache it
+- **Call `setup()` once**: Only on first creation
+- **Thread isolation**: Each user session gets unique `thread_id`
+- **No manual DB writes in nodes**: Let the checkpointer handle persistence
+
+### Graph Compilation
+
+```typescript
+async function compileGraph() {
+  const cp = await ensureCheckpointer();
+  return buildWorkflow().compile({ checkpointer: cp });
+}
+```
+
+---
+
+## Graph Structure
+
+### Build Pattern
+
+```typescript
+function buildWorkflow() {
+  return new StateGraph(OnboardingState)
+    .addNode('nodeA', nodeA)
+    .addNode('nodeB', nodeB)
+    .addEdge(START, 'nodeA')
+    .addConditionalEdges('nodeA', router, { nodeB: 'nodeB', nodeC: 'nodeC' })
+    .addEdge('nodeB', 'nodeA')  // tool loop back
+    .addEdge('nodeC', END);
+}
+```
+
+### Keep getGraphStructure() in Sync
+
+Update `getGraphStructure()` in `graph.ts` every time the graph changes:
+
+```typescript
+export function getGraphStructure() {
+  return {
+    nodes: ['nodeA', 'nodeB', 'nodeC'],
+    edges: [[START, 'nodeA'], ['nodeB', 'nodeA'], ['nodeC', END]],
+    conditionals: [
+      { from: 'nodeA', router: 'router', routes: ['nodeB', 'nodeC'] },
+    ],
+  };
+}
+```
+
+---
+
+## State Design Example
+
+```typescript
+import { Annotation, MessagesAnnotation } from '@langchain/langgraph';
+
+export const OnboardingState = Annotation.Root({
+  ...MessagesAnnotation.spec,
+  userId: Annotation<string>(),
+  currentStep: Annotation<string>({
+    default: () => 'greeting',
+    reducer: (_current, next) => next,
+  }),
+  userInfo: Annotation<Record<string, unknown>>({
+    default: () => ({}),
+    reducer: (current, next) => ({ ...current, ...next }),
+  }),
+  uiComponents: Annotation<Array<{ type: string; props: Record<string, unknown> }>>({
+    default: () => [],
+    reducer: (current, next) => [...current, ...next],
+  }),
+});
+```
+
+---
+
+## Node Purity Example
+
+```typescript
+// WRONG — mutates state, side effects
+async function badNode(state: OnboardingStateType) {
+  state.currentStep = 'next';           // mutation
+  await prisma.user.update(...);        // side effect
+  return state;
+}
+
+// RIGHT — pure transformation
+async function goodNode(state: OnboardingStateType): Promise<Partial<OnboardingStateType>> {
+  return { currentStep: 'next' };
+}
+```
+
+---
+
+## Tool Loop Example
+
+```typescript
+// WRONG — LLM node handles tools internally
+.addEdge('modelNode', 'waitNode')
+
+// RIGHT — explicit tool loop
+.addConditionalEdges('modelNode', routeAfterModel, {
+  modelTools: 'modelTools',
+  modelWait: 'modelWait',
+})
+.addEdge('modelTools', 'modelNode')   // loop back
+
+// Tool node with iteration counter
+.addNode('myTools', withDebugTrace('myTools', async (state) => {
+  const iteration = ((state as Record<string, unknown>).__tool_loop_iteration as number ?? 0) + 1;
+  const result = await myTools.invoke(state);
+  return {
+    ...(result as unknown as Partial<OnboardingStateType>),
+    __tool_loop_iteration: iteration,
+  };
+}))
+```
+
+---
+
+## Anti-Patterns
+
+| Anti-Pattern | Why It's Bad | Fix |
+|---|---|---|
+| **Unwired tool loops** | LLM calls tools but graph routes past them | Add `ToolNode` + conditional edge + loop-back |
+| **Unconditional step advancement in wait nodes** | No multi-turn conversations within step | Check state before advancing `currentStep` |
+| **State mutation in nodes** | Breaks reducer merge logic | Return new partial state objects |
+| **Side effects in nodes (DB writes)** | Breaks replay semantics | Use checkpointer for persistence |
+| **Blocking operations in nodes** | Blocks event loop | Use `interrupt()` + resume pattern |
+| **Side effects in routing functions** | Non-deterministic routing | Pure inspection only |
+| **God nodes** | Multiple responsibilities | Split into focused single-purpose nodes |
+| **Missing tool-loop guard** | Infinite loops burn tokens | `__tool_loop_iteration` counter + max 10 |
+| **Manual DB writes + checkpointer** | Double-write, inconsistent state | Choose one — use checkpointer |
+
+---
+
+## Debugging & Observability
+
+Wrap all nodes with debug traces: `withDebugTrace('nodeName', nodeFn)`
+
+Every agent node MUST log at entry and exit:
+
+```typescript
+const logger = createLogger({ correlationId: state.correlationId ?? 'unknown', userId: state.userId ?? 'unknown' });
+logger.info('nodeName: entering', { messageCount: state.messages.length });
+logger.info('nodeName: exiting', { result });
+```
+
+---
+
+## Verification Checklist
+
+Before committing agent changes:
+
+- [ ] All new nodes use `Annotation.Root` state types
+- [ ] All tool-enabled steps have: model node + `ToolNode` + router + wait node + loop-back edge
+- [ ] All routing functions are pure (no mutation, no side effects)
+- [ ] All wait nodes check state before advancing `currentStep`
+- [ ] Tool-loop guards present with `__tool_loop_iteration` tracking
+- [ ] `getGraphStructure()` updated with new nodes/edges/conditionals
+- [ ] All nodes wrapped with `withDebugTrace`
+- [ ] No manual DB writes in node functions
+- [ ] No console.log in agent code
