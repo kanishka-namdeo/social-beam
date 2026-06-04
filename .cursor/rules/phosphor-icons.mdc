@@ -134,12 +134,15 @@ const IconComponent = getIcon(item.icon);
 
 ## Next.js Configuration
 
-The `next.config.ts` already has `optimizePackageImports` set via `serverExternalPackages`. Do not remove it. This ensures Next.js only bundles the icons actually used.
+**Do NOT add `@phosphor-icons/react` to `serverExternalPackages`**. This causes SSR errors because Node.js cannot correctly resolve the `/ssr` export path when the package is external.
+
+The package has `sideEffects: false` in its package.json, so tree-shaking works correctly when bundled by Next.js. Only the icons you actually import will be included in the bundle.
 
 ```tsx
-// next.config.ts — already configured
+// next.config.ts — DO NOT add @phosphor-icons/react to serverExternalPackages
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["@phosphor-icons/react"],
+  // serverExternalPackages should NOT include "@phosphor-icons/react"
+  // The package handles SSR exports correctly when bundled
 };
 ```
 
