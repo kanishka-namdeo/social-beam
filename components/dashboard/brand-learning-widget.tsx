@@ -3,17 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Sparkle, CheckCircle, X } from "@phosphor-icons/react/ssr";
+import { BaseWidget } from "@/components/dashboard/base-widget";
+import type { WidgetSizeToken } from "@/lib/dashboard/widget-types";
+import { getSizeDerivatives } from "@/lib/dashboard/widget-types";
 
 interface FieldSuggestion {
   fieldName: string;
@@ -25,9 +20,13 @@ interface FieldSuggestion {
   createdAt: string | Date;
 }
 
+interface BrandLearningWidgetProps {
+  size?: WidgetSizeToken;
+}
+
 function getConfidenceBadge(confidence: number): string {
-  if (confidence >= 0.7) return "bg-success/10 text-success border-success/20";
-  if (confidence >= 0.5) return "bg-warning/10 text-warning border-warning/20";
+  if (confidence >= 0.7) return "bg-alert-success text-success border-alert-success-border";
+  if (confidence >= 0.5) return "bg-alert-warning text-warning border-alert-warning-border";
   return "bg-muted text-muted-foreground";
 }
 
@@ -41,12 +40,15 @@ function formatFieldName(name: string): string {
   return name.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
 }
 
-export function BrandLearningWidget() {
+export function BrandLearningWidget({ size = "10x3" }: BrandLearningWidgetProps) {
   const router = useRouter();
   const [suggestions, setSuggestions] = useState<FieldSuggestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState<string | null>(null);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const { isWide, isTall } = getSizeDerivatives(size);
+
+  const maxSuggestions = isTall ? 3 : isWide ? 2 : 1;
 
   async function loadSuggestions() {
     setLoading(true);
@@ -63,7 +65,18 @@ export function BrandLearningWidget() {
   }
 
   useEffect(() => {
-    void loadSuggestions();
+    let cancelled = false;
+
+    async function fetchSuggestions() {
+      if (cancelled) return;
+      await loadSuggestions();
+    }
+
+    void fetchSuggestions();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function handleApply(fieldName: string, newValue: unknown) {
@@ -91,90 +104,50 @@ export function BrandLearningWidget() {
 
   const visibleSuggestions = suggestions
     .filter((s) => !dismissed.has(s.fieldName))
-    .slice(0, 3);
-
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <Sparkle className="size-5 text-brand" weight="fill" />
-            Suggested Updates
-          </CardTitle>
-          <CardDescription>Loading learning signals...</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {[...Array(2)].map((_, i) => (
-            <div key={i} className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-5 w-12 rounded-full" />
-              </div>
-              <Skeleton className="h-3 w-48" />
-              <Skeleton className="h-3 w-full" />
-              <div className="flex gap-2">
-                <Skeleton className="h-8 w-20 rounded-sm" />
-                <Skeleton className="h-8 w-20 rounded-sm" />
-              </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (visibleSuggestions.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <Sparkle className="size-5 text-brand" weight="fill" />
-            Suggested Updates
-          </CardTitle>
-          <CardDescription>
-            No learning suggestions right now. Keep using AI Compose and editing posts to create signals.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
+    .slice(0, maxSuggestions);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base flex items-center gap-2">
-          <Sparkle className="size-5 text-brand" weight="fill" />
-          Suggested Updates
-        </CardTitle>
-        <CardDescription>
-          Changes inferred from your recent post edits.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <BaseWidget
+      size={size}
+      isLoading={loading}
+      isEmpty={visibleSuggestions.length === 0}
+      emptyState={{
+        icon: <Sparkle className="size-8" weight="light" />,
+        message: "No learning suggestions",
+        description: "Keep using AI Compose and editing posts to create signals.",
+      }}
+      className="border-ai-surface bg-ai-surface border-l-2 border-l-brand"
+      header={{
+        title: "Suggested Updates",
+        icon: <Sparkle className="size-5 text-brand" weight="fill" />,
+        description: "Changes inferred from your recent post edits.",
+      }}
+    >
+      <div className={cn("space-y-panel", isWide && "grid grid-cols-2 gap-panel")}>
         {visibleSuggestions.map((suggestion) => (
-          <div key={suggestion.fieldName} className="space-y-3">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-medium text-foreground">
+          <div key={suggestion.fieldName} className="space-y-section">
+            <div className="space-y-tight min-w-0">
+              <div className="flex items-center gap-control min-w-0">
+                <p className="text-body font-medium text-foreground truncate flex-1 min-w-0">
                   {formatFieldName(suggestion.fieldName)}
                 </p>
                 <Badge
                   variant="outline"
                   className={cn(
-                    "text-xs normal-case tracking-normal",
+                    "text-micro normal-case tracking-normal shrink-0",
                     getConfidenceBadge(suggestion.confidence),
                   )}
                 >
                   {getConfidenceLabel(suggestion.confidence)}
                 </Badge>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-caption text-muted-foreground tabular-nums">
                 Based on {suggestion.signalCount} edit{suggestion.signalCount !== 1 ? "s" : ""}
               </p>
-              <p className="text-sm text-foreground">{suggestion.reasoning}</p>
+              <p className="text-body text-foreground line-clamp-3">{suggestion.reasoning}</p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-control">
               <Button
                 variant="default"
                 size="sm"
@@ -198,7 +171,7 @@ export function BrandLearningWidget() {
             </div>
           </div>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </BaseWidget>
   );
 }

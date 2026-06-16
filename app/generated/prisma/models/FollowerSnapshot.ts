@@ -228,6 +228,7 @@ export type FollowerSnapshotWhereInput = {
   followers?: Prisma.IntFilter<"FollowerSnapshot"> | number
   following?: Prisma.IntFilter<"FollowerSnapshot"> | number
   snapshotAt?: Prisma.DateTimeFilter<"FollowerSnapshot"> | Date | string
+  Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
 }
 
 export type FollowerSnapshotOrderByWithRelationInput = {
@@ -237,6 +238,7 @@ export type FollowerSnapshotOrderByWithRelationInput = {
   followers?: Prisma.SortOrder
   following?: Prisma.SortOrder
   snapshotAt?: Prisma.SortOrder
+  Workspace?: Prisma.WorkspaceOrderByWithRelationInput
 }
 
 export type FollowerSnapshotWhereUniqueInput = Prisma.AtLeast<{
@@ -249,6 +251,7 @@ export type FollowerSnapshotWhereUniqueInput = Prisma.AtLeast<{
   followers?: Prisma.IntFilter<"FollowerSnapshot"> | number
   following?: Prisma.IntFilter<"FollowerSnapshot"> | number
   snapshotAt?: Prisma.DateTimeFilter<"FollowerSnapshot"> | Date | string
+  Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
 }, "id">
 
 export type FollowerSnapshotOrderByWithAggregationInput = {
@@ -278,16 +281,16 @@ export type FollowerSnapshotScalarWhereWithAggregatesInput = {
 }
 
 export type FollowerSnapshotCreateInput = {
-  id: string
-  workspaceId: string
+  id?: string
   platform: string
   followers?: number
   following?: number
   snapshotAt?: Date | string
+  Workspace: Prisma.WorkspaceCreateNestedOneWithoutFollowerSnapshotInput
 }
 
 export type FollowerSnapshotUncheckedCreateInput = {
-  id: string
+  id?: string
   workspaceId: string
   platform: string
   followers?: number
@@ -297,11 +300,11 @@ export type FollowerSnapshotUncheckedCreateInput = {
 
 export type FollowerSnapshotUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   platform?: Prisma.StringFieldUpdateOperationsInput | string
   followers?: Prisma.IntFieldUpdateOperationsInput | number
   following?: Prisma.IntFieldUpdateOperationsInput | number
   snapshotAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutFollowerSnapshotNestedInput
 }
 
 export type FollowerSnapshotUncheckedUpdateInput = {
@@ -314,7 +317,7 @@ export type FollowerSnapshotUncheckedUpdateInput = {
 }
 
 export type FollowerSnapshotCreateManyInput = {
-  id: string
+  id?: string
   workspaceId: string
   platform: string
   followers?: number
@@ -324,7 +327,6 @@ export type FollowerSnapshotCreateManyInput = {
 
 export type FollowerSnapshotUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   platform?: Prisma.StringFieldUpdateOperationsInput | string
   followers?: Prisma.IntFieldUpdateOperationsInput | number
   following?: Prisma.IntFieldUpdateOperationsInput | number
@@ -377,6 +379,144 @@ export type FollowerSnapshotSumOrderByAggregateInput = {
   following?: Prisma.SortOrder
 }
 
+export type FollowerSnapshotListRelationFilter = {
+  every?: Prisma.FollowerSnapshotWhereInput
+  some?: Prisma.FollowerSnapshotWhereInput
+  none?: Prisma.FollowerSnapshotWhereInput
+}
+
+export type FollowerSnapshotOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type FollowerSnapshotCreateNestedManyWithoutWorkspaceInput = {
+  create?: Prisma.XOR<Prisma.FollowerSnapshotCreateWithoutWorkspaceInput, Prisma.FollowerSnapshotUncheckedCreateWithoutWorkspaceInput> | Prisma.FollowerSnapshotCreateWithoutWorkspaceInput[] | Prisma.FollowerSnapshotUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.FollowerSnapshotCreateOrConnectWithoutWorkspaceInput | Prisma.FollowerSnapshotCreateOrConnectWithoutWorkspaceInput[]
+  createMany?: Prisma.FollowerSnapshotCreateManyWorkspaceInputEnvelope
+  connect?: Prisma.FollowerSnapshotWhereUniqueInput | Prisma.FollowerSnapshotWhereUniqueInput[]
+}
+
+export type FollowerSnapshotUncheckedCreateNestedManyWithoutWorkspaceInput = {
+  create?: Prisma.XOR<Prisma.FollowerSnapshotCreateWithoutWorkspaceInput, Prisma.FollowerSnapshotUncheckedCreateWithoutWorkspaceInput> | Prisma.FollowerSnapshotCreateWithoutWorkspaceInput[] | Prisma.FollowerSnapshotUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.FollowerSnapshotCreateOrConnectWithoutWorkspaceInput | Prisma.FollowerSnapshotCreateOrConnectWithoutWorkspaceInput[]
+  createMany?: Prisma.FollowerSnapshotCreateManyWorkspaceInputEnvelope
+  connect?: Prisma.FollowerSnapshotWhereUniqueInput | Prisma.FollowerSnapshotWhereUniqueInput[]
+}
+
+export type FollowerSnapshotUpdateManyWithoutWorkspaceNestedInput = {
+  create?: Prisma.XOR<Prisma.FollowerSnapshotCreateWithoutWorkspaceInput, Prisma.FollowerSnapshotUncheckedCreateWithoutWorkspaceInput> | Prisma.FollowerSnapshotCreateWithoutWorkspaceInput[] | Prisma.FollowerSnapshotUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.FollowerSnapshotCreateOrConnectWithoutWorkspaceInput | Prisma.FollowerSnapshotCreateOrConnectWithoutWorkspaceInput[]
+  upsert?: Prisma.FollowerSnapshotUpsertWithWhereUniqueWithoutWorkspaceInput | Prisma.FollowerSnapshotUpsertWithWhereUniqueWithoutWorkspaceInput[]
+  createMany?: Prisma.FollowerSnapshotCreateManyWorkspaceInputEnvelope
+  set?: Prisma.FollowerSnapshotWhereUniqueInput | Prisma.FollowerSnapshotWhereUniqueInput[]
+  disconnect?: Prisma.FollowerSnapshotWhereUniqueInput | Prisma.FollowerSnapshotWhereUniqueInput[]
+  delete?: Prisma.FollowerSnapshotWhereUniqueInput | Prisma.FollowerSnapshotWhereUniqueInput[]
+  connect?: Prisma.FollowerSnapshotWhereUniqueInput | Prisma.FollowerSnapshotWhereUniqueInput[]
+  update?: Prisma.FollowerSnapshotUpdateWithWhereUniqueWithoutWorkspaceInput | Prisma.FollowerSnapshotUpdateWithWhereUniqueWithoutWorkspaceInput[]
+  updateMany?: Prisma.FollowerSnapshotUpdateManyWithWhereWithoutWorkspaceInput | Prisma.FollowerSnapshotUpdateManyWithWhereWithoutWorkspaceInput[]
+  deleteMany?: Prisma.FollowerSnapshotScalarWhereInput | Prisma.FollowerSnapshotScalarWhereInput[]
+}
+
+export type FollowerSnapshotUncheckedUpdateManyWithoutWorkspaceNestedInput = {
+  create?: Prisma.XOR<Prisma.FollowerSnapshotCreateWithoutWorkspaceInput, Prisma.FollowerSnapshotUncheckedCreateWithoutWorkspaceInput> | Prisma.FollowerSnapshotCreateWithoutWorkspaceInput[] | Prisma.FollowerSnapshotUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.FollowerSnapshotCreateOrConnectWithoutWorkspaceInput | Prisma.FollowerSnapshotCreateOrConnectWithoutWorkspaceInput[]
+  upsert?: Prisma.FollowerSnapshotUpsertWithWhereUniqueWithoutWorkspaceInput | Prisma.FollowerSnapshotUpsertWithWhereUniqueWithoutWorkspaceInput[]
+  createMany?: Prisma.FollowerSnapshotCreateManyWorkspaceInputEnvelope
+  set?: Prisma.FollowerSnapshotWhereUniqueInput | Prisma.FollowerSnapshotWhereUniqueInput[]
+  disconnect?: Prisma.FollowerSnapshotWhereUniqueInput | Prisma.FollowerSnapshotWhereUniqueInput[]
+  delete?: Prisma.FollowerSnapshotWhereUniqueInput | Prisma.FollowerSnapshotWhereUniqueInput[]
+  connect?: Prisma.FollowerSnapshotWhereUniqueInput | Prisma.FollowerSnapshotWhereUniqueInput[]
+  update?: Prisma.FollowerSnapshotUpdateWithWhereUniqueWithoutWorkspaceInput | Prisma.FollowerSnapshotUpdateWithWhereUniqueWithoutWorkspaceInput[]
+  updateMany?: Prisma.FollowerSnapshotUpdateManyWithWhereWithoutWorkspaceInput | Prisma.FollowerSnapshotUpdateManyWithWhereWithoutWorkspaceInput[]
+  deleteMany?: Prisma.FollowerSnapshotScalarWhereInput | Prisma.FollowerSnapshotScalarWhereInput[]
+}
+
+export type FollowerSnapshotCreateWithoutWorkspaceInput = {
+  id?: string
+  platform: string
+  followers?: number
+  following?: number
+  snapshotAt?: Date | string
+}
+
+export type FollowerSnapshotUncheckedCreateWithoutWorkspaceInput = {
+  id?: string
+  platform: string
+  followers?: number
+  following?: number
+  snapshotAt?: Date | string
+}
+
+export type FollowerSnapshotCreateOrConnectWithoutWorkspaceInput = {
+  where: Prisma.FollowerSnapshotWhereUniqueInput
+  create: Prisma.XOR<Prisma.FollowerSnapshotCreateWithoutWorkspaceInput, Prisma.FollowerSnapshotUncheckedCreateWithoutWorkspaceInput>
+}
+
+export type FollowerSnapshotCreateManyWorkspaceInputEnvelope = {
+  data: Prisma.FollowerSnapshotCreateManyWorkspaceInput | Prisma.FollowerSnapshotCreateManyWorkspaceInput[]
+  skipDuplicates?: boolean
+}
+
+export type FollowerSnapshotUpsertWithWhereUniqueWithoutWorkspaceInput = {
+  where: Prisma.FollowerSnapshotWhereUniqueInput
+  update: Prisma.XOR<Prisma.FollowerSnapshotUpdateWithoutWorkspaceInput, Prisma.FollowerSnapshotUncheckedUpdateWithoutWorkspaceInput>
+  create: Prisma.XOR<Prisma.FollowerSnapshotCreateWithoutWorkspaceInput, Prisma.FollowerSnapshotUncheckedCreateWithoutWorkspaceInput>
+}
+
+export type FollowerSnapshotUpdateWithWhereUniqueWithoutWorkspaceInput = {
+  where: Prisma.FollowerSnapshotWhereUniqueInput
+  data: Prisma.XOR<Prisma.FollowerSnapshotUpdateWithoutWorkspaceInput, Prisma.FollowerSnapshotUncheckedUpdateWithoutWorkspaceInput>
+}
+
+export type FollowerSnapshotUpdateManyWithWhereWithoutWorkspaceInput = {
+  where: Prisma.FollowerSnapshotScalarWhereInput
+  data: Prisma.XOR<Prisma.FollowerSnapshotUpdateManyMutationInput, Prisma.FollowerSnapshotUncheckedUpdateManyWithoutWorkspaceInput>
+}
+
+export type FollowerSnapshotScalarWhereInput = {
+  AND?: Prisma.FollowerSnapshotScalarWhereInput | Prisma.FollowerSnapshotScalarWhereInput[]
+  OR?: Prisma.FollowerSnapshotScalarWhereInput[]
+  NOT?: Prisma.FollowerSnapshotScalarWhereInput | Prisma.FollowerSnapshotScalarWhereInput[]
+  id?: Prisma.StringFilter<"FollowerSnapshot"> | string
+  workspaceId?: Prisma.StringFilter<"FollowerSnapshot"> | string
+  platform?: Prisma.StringFilter<"FollowerSnapshot"> | string
+  followers?: Prisma.IntFilter<"FollowerSnapshot"> | number
+  following?: Prisma.IntFilter<"FollowerSnapshot"> | number
+  snapshotAt?: Prisma.DateTimeFilter<"FollowerSnapshot"> | Date | string
+}
+
+export type FollowerSnapshotCreateManyWorkspaceInput = {
+  id?: string
+  platform: string
+  followers?: number
+  following?: number
+  snapshotAt?: Date | string
+}
+
+export type FollowerSnapshotUpdateWithoutWorkspaceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  platform?: Prisma.StringFieldUpdateOperationsInput | string
+  followers?: Prisma.IntFieldUpdateOperationsInput | number
+  following?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FollowerSnapshotUncheckedUpdateWithoutWorkspaceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  platform?: Prisma.StringFieldUpdateOperationsInput | string
+  followers?: Prisma.IntFieldUpdateOperationsInput | number
+  following?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FollowerSnapshotUncheckedUpdateManyWithoutWorkspaceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  platform?: Prisma.StringFieldUpdateOperationsInput | string
+  followers?: Prisma.IntFieldUpdateOperationsInput | number
+  following?: Prisma.IntFieldUpdateOperationsInput | number
+  snapshotAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 
 
 export type FollowerSnapshotSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -386,6 +526,7 @@ export type FollowerSnapshotSelect<ExtArgs extends runtime.Types.Extensions.Inte
   followers?: boolean
   following?: boolean
   snapshotAt?: boolean
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["followerSnapshot"]>
 
 export type FollowerSnapshotSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -395,6 +536,7 @@ export type FollowerSnapshotSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   followers?: boolean
   following?: boolean
   snapshotAt?: boolean
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["followerSnapshot"]>
 
 export type FollowerSnapshotSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -404,6 +546,7 @@ export type FollowerSnapshotSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   followers?: boolean
   following?: boolean
   snapshotAt?: boolean
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["followerSnapshot"]>
 
 export type FollowerSnapshotSelectScalar = {
@@ -416,10 +559,21 @@ export type FollowerSnapshotSelectScalar = {
 }
 
 export type FollowerSnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "platform" | "followers" | "following" | "snapshotAt", ExtArgs["result"]["followerSnapshot"]>
+export type FollowerSnapshotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+}
+export type FollowerSnapshotIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+}
+export type FollowerSnapshotIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+}
 
 export type $FollowerSnapshotPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FollowerSnapshot"
-  objects: {}
+  objects: {
+    Workspace: Prisma.$WorkspacePayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     workspaceId: string
@@ -821,6 +975,7 @@ readonly fields: FollowerSnapshotFieldRefs;
  */
 export interface Prisma__FollowerSnapshotClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  Workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -873,6 +1028,10 @@ export type FollowerSnapshotFindUniqueArgs<ExtArgs extends runtime.Types.Extensi
    */
   omit?: Prisma.FollowerSnapshotOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FollowerSnapshotInclude<ExtArgs> | null
+  /**
    * Filter, which FollowerSnapshot to fetch.
    */
   where: Prisma.FollowerSnapshotWhereUniqueInput
@@ -891,6 +1050,10 @@ export type FollowerSnapshotFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.
    */
   omit?: Prisma.FollowerSnapshotOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FollowerSnapshotInclude<ExtArgs> | null
+  /**
    * Filter, which FollowerSnapshot to fetch.
    */
   where: Prisma.FollowerSnapshotWhereUniqueInput
@@ -908,6 +1071,10 @@ export type FollowerSnapshotFindFirstArgs<ExtArgs extends runtime.Types.Extensio
    * Omit specific fields from the FollowerSnapshot
    */
   omit?: Prisma.FollowerSnapshotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FollowerSnapshotInclude<ExtArgs> | null
   /**
    * Filter, which FollowerSnapshot to fetch.
    */
@@ -957,6 +1124,10 @@ export type FollowerSnapshotFindFirstOrThrowArgs<ExtArgs extends runtime.Types.E
    */
   omit?: Prisma.FollowerSnapshotOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FollowerSnapshotInclude<ExtArgs> | null
+  /**
    * Filter, which FollowerSnapshot to fetch.
    */
   where?: Prisma.FollowerSnapshotWhereInput
@@ -1004,6 +1175,10 @@ export type FollowerSnapshotFindManyArgs<ExtArgs extends runtime.Types.Extension
    * Omit specific fields from the FollowerSnapshot
    */
   omit?: Prisma.FollowerSnapshotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FollowerSnapshotInclude<ExtArgs> | null
   /**
    * Filter, which FollowerSnapshots to fetch.
    */
@@ -1053,6 +1228,10 @@ export type FollowerSnapshotCreateArgs<ExtArgs extends runtime.Types.Extensions.
    */
   omit?: Prisma.FollowerSnapshotOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FollowerSnapshotInclude<ExtArgs> | null
+  /**
    * The data needed to create a FollowerSnapshot.
    */
   data: Prisma.XOR<Prisma.FollowerSnapshotCreateInput, Prisma.FollowerSnapshotUncheckedCreateInput>
@@ -1086,6 +1265,10 @@ export type FollowerSnapshotCreateManyAndReturnArgs<ExtArgs extends runtime.Type
    */
   data: Prisma.FollowerSnapshotCreateManyInput | Prisma.FollowerSnapshotCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FollowerSnapshotIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1100,6 +1283,10 @@ export type FollowerSnapshotUpdateArgs<ExtArgs extends runtime.Types.Extensions.
    * Omit specific fields from the FollowerSnapshot
    */
   omit?: Prisma.FollowerSnapshotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FollowerSnapshotInclude<ExtArgs> | null
   /**
    * The data needed to update a FollowerSnapshot.
    */
@@ -1152,6 +1339,10 @@ export type FollowerSnapshotUpdateManyAndReturnArgs<ExtArgs extends runtime.Type
    * Limit how many FollowerSnapshots to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FollowerSnapshotIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1166,6 +1357,10 @@ export type FollowerSnapshotUpsertArgs<ExtArgs extends runtime.Types.Extensions.
    * Omit specific fields from the FollowerSnapshot
    */
   omit?: Prisma.FollowerSnapshotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FollowerSnapshotInclude<ExtArgs> | null
   /**
    * The filter to search for the FollowerSnapshot to update in case it exists.
    */
@@ -1192,6 +1387,10 @@ export type FollowerSnapshotDeleteArgs<ExtArgs extends runtime.Types.Extensions.
    * Omit specific fields from the FollowerSnapshot
    */
   omit?: Prisma.FollowerSnapshotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FollowerSnapshotInclude<ExtArgs> | null
   /**
    * Filter which FollowerSnapshot to delete.
    */
@@ -1224,4 +1423,8 @@ export type FollowerSnapshotDefaultArgs<ExtArgs extends runtime.Types.Extensions
    * Omit specific fields from the FollowerSnapshot
    */
   omit?: Prisma.FollowerSnapshotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FollowerSnapshotInclude<ExtArgs> | null
 }

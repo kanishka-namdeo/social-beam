@@ -11,6 +11,28 @@ services:
       POSTGRES_DB: socialbeam
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U socialbeam"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  cloakbrowser:
+    image: cloakhq/cloakbrowser:latest
+    container_name: socialbeam-cloakbrowser
+    restart: unless-stopped
+    init: true
+    shm_size: "1g"
+    ports:
+      - "127.0.0.1:9222:9222"
+    environment:
+      - DISPLAY=:99
+    command: cloakserve --port=9222
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9222/json/version || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:

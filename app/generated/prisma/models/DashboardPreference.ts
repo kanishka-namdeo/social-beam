@@ -225,7 +225,7 @@ export type DashboardPreferenceScalarWhereWithAggregatesInput = {
 }
 
 export type DashboardPreferenceCreateInput = {
-  id: string
+  id?: string
   layout?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -233,7 +233,7 @@ export type DashboardPreferenceCreateInput = {
 }
 
 export type DashboardPreferenceUncheckedCreateInput = {
-  id: string
+  id?: string
   workspaceId: string
   layout?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -257,7 +257,7 @@ export type DashboardPreferenceUncheckedUpdateInput = {
 }
 
 export type DashboardPreferenceCreateManyInput = {
-  id: string
+  id?: string
   workspaceId: string
   layout?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -339,14 +339,14 @@ export type DashboardPreferenceUncheckedUpdateOneWithoutWorkspaceNestedInput = {
 }
 
 export type DashboardPreferenceCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   layout?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type DashboardPreferenceUncheckedCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   layout?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string

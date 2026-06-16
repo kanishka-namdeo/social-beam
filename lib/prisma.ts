@@ -10,9 +10,9 @@ const globalForPrisma = globalThis as unknown as {
 function createPrismaClient() {
   const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    max: 10,
+    max: 20,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000,
+    connectionTimeoutMillis: 10000,
   });
   const adapter = new PrismaPg(pool);
   globalForPrisma.pool = pool;
@@ -21,9 +21,8 @@ function createPrismaClient() {
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma;
-}
+// Cache the client globally in all environments to prevent connection leaks
+globalForPrisma.prisma = prisma;
 
 /**
  * Close the database pool on process exit to prevent memory leaks.
@@ -38,7 +37,8 @@ export async function closePool(): Promise<void> {
 }
 
 // Register cleanup handlers for graceful shutdown
-if (typeof process !== 'undefined') {
+if (typeof process !== 'undefined' && !(global as any).__prismaHandlersRegistered) {
+  (global as any).__prismaHandlersRegistered = true;
   process.on('beforeExit', closePool);
   process.on('SIGTERM', async () => {
     await closePool();

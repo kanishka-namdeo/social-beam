@@ -7,6 +7,7 @@
 import cron from "node-cron";
 import { triggerSelfHealer } from "@/lib/agent/self-healer/trigger";
 import { logger } from "@/lib/logger";
+import { shutdownBrowser } from "@/lib/linkedin/browser";
 
 type ScheduledTask = ReturnType<typeof cron.schedule>;
 
@@ -26,6 +27,9 @@ export function startLinkedInScraperHealerCron(): void {
     } catch (err) {
       logger.error("scraper.healer.cron.error", { error: String(err) });
     }
+
+    // Clean up browser instances after self-healer completes
+    await shutdownBrowser().catch(() => {});
 
     logger.info("scraper.healer.cron.complete");
   }, {

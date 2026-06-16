@@ -7,6 +7,7 @@ import { logger as baseLogger, type AppLogger } from '@/lib/logger';
 // Bounded eviction constants to prevent unbounded growth in long-running servers
 const MAX_TRACE_ENTRIES_PER_THREAD = 100;
 const MAX_INTERRUPT_LOG_SIZE = 1000;
+const MAX_THREAD_IDS = 200;
 
 interface NodeTraceEntry {
   node: string;
@@ -146,6 +147,11 @@ function appendNodeTrace(threadId: string, entry: NodeTraceEntry): void {
     existing.splice(0, existing.length - MAX_TRACE_ENTRIES_PER_THREAD);
   }
   nodeTraces.set(threadId, existing);
+  // Evict oldest thread IDs if we exceed the thread limit
+  if (nodeTraces.size > MAX_THREAD_IDS) {
+    const firstKey = nodeTraces.keys().next().value;
+    if (firstKey) nodeTraces.delete(firstKey);
+  }
 }
 
 // ---------------------------------------------------------------------------

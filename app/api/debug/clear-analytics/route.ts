@@ -3,12 +3,13 @@ import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 
 export async function POST(req: Request) {
+  if (process.env.NODE_ENV !== 'development') {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   const session = await auth();
   if (!session?.user || (session.user as { role?: string })?.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-  if (process.env.NODE_ENV === 'production') {
-    return NextResponse.json({ error: 'Debug endpoints disabled in production' }, { status: 403 });
   }
 
   try {
@@ -61,7 +62,7 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     return NextResponse.json({
-      error: err instanceof Error ? err.message : String(err),
+      error: "Internal server error",
     }, { status: 500 });
   }
 }

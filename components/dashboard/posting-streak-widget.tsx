@@ -2,9 +2,11 @@
 
 import { Fire, Trophy, Target, Clock } from "@phosphor-icons/react/ssr";
 import { formatDistanceToNow } from "date-fns";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { BaseWidget } from "@/components/dashboard/base-widget";
+import type { WidgetSizeToken } from "@/lib/dashboard/widget-types";
+import { getSizeDerivatives } from "@/lib/dashboard/widget-types";
 
 interface PostingStreakWidgetProps {
   streak: {
@@ -13,6 +15,8 @@ interface PostingStreakWidgetProps {
     consistencyScore: number;
     lastPostDate: string | null;
   };
+  isLoading?: boolean;
+  size?: WidgetSizeToken;
 }
 
 function getConsistencyColor(score: number): string {
@@ -38,63 +42,86 @@ function formatRelativeTime(dateString: string | null): string {
   }
 }
 
-export function PostingStreakWidget({ streak }: PostingStreakWidgetProps) {
+export function PostingStreakWidget({ streak, isLoading, size = "5x2" }: PostingStreakWidgetProps) {
   const { currentStreak, longestStreak, consistencyScore, lastPostDate } = streak;
+  const { isNarrow, isCompact } = getSizeDerivatives(size);
+
+  const isEmpty = currentStreak === 0 && longestStreak === 0;
 
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium tracking-tight text-foreground flex items-center gap-2">
-          <Fire className="size-4 text-brand" weight="bold" />
-          Posting Streak
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Fire weight="duotone" className="size-5" />
-              <span className="text-sm">Current Streak</span>
-            </div>
-            {currentStreak === 0 ? (
-              <p className="text-sm text-muted-foreground">No active streak</p>
-            ) : (
-              <div className="flex items-baseline gap-1">
-                <span className="font-mono text-2xl tabular-nums text-foreground">
-                  {currentStreak}
-                </span>
-                <span className="text-sm text-muted-foreground">days</span>
-              </div>
-            )}
+    <BaseWidget
+      size={size}
+      isLoading={isLoading}
+      isEmpty={isEmpty}
+      emptyState={{
+        icon: <Fire className="size-8" weight="light" />,
+        message: "No posting streak yet",
+        description: "Start publishing to track your streak",
+        cta: {
+          label: "Create Post",
+          href: "/dashboard/compose",
+        },
+      }}
+      header={{
+        title: "Posting Streak",
+        icon: <Fire className="size-4 text-brand" weight="bold" />,
+        showTitle: !isCompact,
+      }}
+    >
+      <div className={cn(
+        "grid gap-section sm:gap-panel",
+        isNarrow ? "grid-cols-1" : "grid-cols-2"
+      )}>
+        <div className="flex flex-col gap-tight">
+          <div className="flex items-center gap-control text-muted-foreground">
+            <Fire weight="duotone" className={isCompact ? "size-4" : "size-5"} />
+            <span className="text-body">Current</span>
           </div>
-
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Trophy weight="duotone" className="size-5" />
-              <span className="text-sm">Longest Streak</span>
+          {currentStreak === 0 ? (
+            <p className="text-body text-muted-foreground">No streak</p>
+          ) : (
+            <div className="flex items-baseline gap-tight">
+              <span className={cn(
+                "font-mono tabular-nums text-foreground",
+                isCompact ? "text-title" : "text-heading"
+              )}>
+                {currentStreak}
+              </span>
+              <span className="text-body text-muted-foreground">days</span>
             </div>
-            <div className="flex items-baseline gap-1">
-              <span className="font-mono text-2xl tabular-nums text-foreground">
+          )}
+        </div>
+
+        {!isCompact && (
+          <div className="flex flex-col gap-tight">
+            <div className="flex items-center gap-control text-muted-foreground">
+              <Trophy weight="duotone" className="size-5" />
+              <span className="text-body">Longest</span>
+            </div>
+            <div className="flex items-baseline gap-tight">
+              <span className="font-mono text-heading tabular-nums text-foreground">
                 {longestStreak}
               </span>
-              <span className="text-sm text-muted-foreground">days</span>
+              <span className="text-body text-muted-foreground">days</span>
             </div>
           </div>
+        )}
 
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-muted-foreground">
+        {!isNarrow && (
+          <div className="flex flex-col gap-control">
+            <div className="flex items-center gap-control text-muted-foreground">
               <Target weight="duotone" className="size-5" />
-              <span className="text-sm">Consistency</span>
+              <span className="text-body">Consistency</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-control min-w-0">
               <Progress
                 value={consistencyScore}
-                className="h-2"
+                className="h-2 flex-1 min-w-0"
                 indicatorColor={getProgressIndicatorColor(consistencyScore)}
               />
               <span
                 className={cn(
-                  "font-mono text-sm tabular-nums",
+                  "font-mono text-body tabular-nums shrink-0",
                   getConsistencyColor(consistencyScore)
                 )}
               >
@@ -102,18 +129,20 @@ export function PostingStreakWidget({ streak }: PostingStreakWidgetProps) {
               </span>
             </div>
           </div>
+        )}
 
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2 text-muted-foreground">
+        {!isCompact && (
+          <div className="flex flex-col gap-tight">
+            <div className="flex items-center gap-control text-muted-foreground">
               <Clock weight="duotone" className="size-5" />
-              <span className="text-sm">Last Posted</span>
+              <span className="text-body">Last Posted</span>
             </div>
-            <span className="font-mono text-sm tabular-nums text-foreground">
+            <span className="font-mono text-body tabular-nums text-foreground truncate">
               {formatRelativeTime(lastPostDate)}
             </span>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        )}
+      </div>
+    </BaseWidget>
   );
 }

@@ -301,7 +301,7 @@ export type SubscriptionScalarWhereWithAggregatesInput = {
 }
 
 export type SubscriptionCreateInput = {
-  id: string
+  id?: string
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
   stripePriceId?: string | null
@@ -315,7 +315,7 @@ export type SubscriptionCreateInput = {
 }
 
 export type SubscriptionUncheckedCreateInput = {
-  id: string
+  id?: string
   userId: string
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
@@ -357,7 +357,7 @@ export type SubscriptionUncheckedUpdateInput = {
 }
 
 export type SubscriptionCreateManyInput = {
-  id: string
+  id?: string
   userId: string
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
@@ -481,7 +481,7 @@ export type SubscriptionUncheckedUpdateOneWithoutUserNestedInput = {
 }
 
 export type SubscriptionCreateWithoutUserInput = {
-  id: string
+  id?: string
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
   stripePriceId?: string | null
@@ -494,7 +494,7 @@ export type SubscriptionCreateWithoutUserInput = {
 }
 
 export type SubscriptionUncheckedCreateWithoutUserInput = {
-  id: string
+  id?: string
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
   stripePriceId?: string | null

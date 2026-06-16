@@ -84,6 +84,20 @@ async function ensureCheckpointer() {
   return checkpointer;
 }
 
+export async function shutdownCheckpointer(): Promise<void> {
+  if (checkpointer) {
+    try {
+      // PostgresSaver doesn't have an explicit end() method, but we can
+      // clear the reference to allow garbage collection of any internal state
+      checkpointer = undefined;
+      checkpointerSetupComplete = false;
+      logger.info('self-healer.checkpointer.shutdown_complete');
+    } catch (error) {
+      logger.error('self-healer.checkpointer.shutdown_error', { error: String(error) });
+    }
+  }
+}
+
 function buildSelfHealerGraph() {
   // Wrap all nodes with debug tracing
   const debugDomProbe = withDebugTrace('domProbe', domProbeNode);
@@ -174,7 +188,10 @@ let graphPromise: ReturnType<typeof compileSelfHealerGraph> | undefined;
 
 async function compileSelfHealerGraph() {
   const cp = await ensureCheckpointer();
-  return buildSelfHealerGraph().compile({ checkpointer: cp });
+  return buildSelfHealerGraph().compile({
+    checkpointer: cp,
+    interruptBefore: ['fixApplier'],
+  });
 }
 
 export async function getSelfHealerGraph() {

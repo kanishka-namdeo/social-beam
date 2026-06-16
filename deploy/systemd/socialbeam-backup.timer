@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily SocialBeam database backup
+Requires=socialbeam-backup.service
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=3600
+
+[Install]
+WantedBy=timers.target

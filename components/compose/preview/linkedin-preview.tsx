@@ -11,12 +11,13 @@ interface LinkedInPreviewProps {
   content: string;
   account?: AccountInfo;
   mediaUrls?: string[];
+  signature?: { text: string; url?: string } | null;
 }
 
 const LINKEDIN_MAX_VISIBLE_CHARS = 300;
 
 
-export function LinkedInPreview({ content, account, mediaUrls }: LinkedInPreviewProps) {
+export function LinkedInPreview({ content, account, mediaUrls, signature }: LinkedInPreviewProps) {
   const [expanded, setExpanded] = useState(false);
   const { visible, hidden, needsTruncation } = truncateText(
     content,
@@ -127,6 +128,14 @@ export function LinkedInPreview({ content, account, mediaUrls }: LinkedInPreview
         )}
         {mediaUrls && mediaUrls.length > 0 && (
           <MediaPreview mediaUrls={mediaUrls} className="mt-3" />
+        )}
+        {signature && (
+          <div className="mt-2 border-t border-border/50 pt-2">
+            <p className="text-xs text-muted-foreground">{signature.text}</p>
+            {signature.url && (
+              <p className="text-xs text-primary">{signature.url}</p>
+            )}
+          </div>
         )}
       </div>
 

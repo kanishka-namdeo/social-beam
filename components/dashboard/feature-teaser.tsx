@@ -52,8 +52,8 @@ export function FeatureTeaser({
           <div className="rounded-sm border border-border bg-ai-surface/30 p-3 flex items-start gap-2.5">
             <Sparkle className="size-4 text-brand shrink-0 mt-0.5" weight="fill" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground">{featureName} is a Premium feature</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Upgrade to unlock the full experience.</p>
+              <p className="text-sm font-medium text-foreground">Unlock {featureName}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Create better content and grow your audience with AI-powered tools.</p>
             </div>
             <a
               href="/billing"

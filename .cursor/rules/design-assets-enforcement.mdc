@@ -1,9 +1,11 @@
 ---
-alwaysApply: true
+description: Design system enforcement — shadcn/ui components, semantic tokens, Tailwind patterns. Apply when creating or modifying UI components.
+globs: "**/*.tsx,**/*.ts"
+alwaysApply: false
 ---
 # Design Assets Enforcement
 
-**Trigger**: Always active — enforce whenever modifying or creating UI components.
+**Trigger**: Auto-applied to all `.tsx` and `.ts` files.
 
 ## Core Rule
 
@@ -174,7 +176,7 @@ All UI components live in:
 Add new components using:
 
 ```bash
-npx shadcn@latest add <component-name>
+pnpm dlx shadcn@latest add <component-name>
 ```
 
 ## Portals
@@ -197,7 +199,7 @@ Dark mode is automatic via CSS `.dark` class variables in `app/globals.css`. Com
 - [ ] No hardcoded color values (hex, rgb, rgba) — use token classes
 - [ ] No plain `<button>` where `<Button />` applies
 - [ ] No inline `style={{}}` where `className` with Tailwind applies
-- [ ] New UI components added via `npx shadcn@latest add`, not hand-written
+- [ ] New UI components added via `pnpm dlx shadcn@latest add`, not hand-written
 - [ ] `cn()` used for conditional class merging
 - [ ] Touch/click targets meet 40px minimum
 - [ ] Status tokens used correctly (success/warning/info) — no ad-hoc colors

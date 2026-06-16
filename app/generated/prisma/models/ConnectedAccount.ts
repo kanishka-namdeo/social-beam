@@ -410,7 +410,7 @@ export type ConnectedAccountScalarWhereWithAggregatesInput = {
 }
 
 export type ConnectedAccountCreateInput = {
-  id: string
+  id?: string
   platform: string
   platformUserId: string
   accessToken: string
@@ -430,7 +430,7 @@ export type ConnectedAccountCreateInput = {
 }
 
 export type ConnectedAccountUncheckedCreateInput = {
-  id: string
+  id?: string
   workspaceId: string
   platform: string
   platformUserId: string
@@ -490,7 +490,7 @@ export type ConnectedAccountUncheckedUpdateInput = {
 }
 
 export type ConnectedAccountCreateManyInput = {
-  id: string
+  id?: string
   workspaceId: string
   platform: string
   platformUserId: string
@@ -682,7 +682,7 @@ export type ConnectedAccountUncheckedUpdateManyWithoutWorkspaceNestedInput = {
 }
 
 export type ConnectedAccountCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   platform: string
   platformUserId: string
   accessToken: string
@@ -701,7 +701,7 @@ export type ConnectedAccountCreateWithoutWorkspaceInput = {
 }
 
 export type ConnectedAccountUncheckedCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   platform: string
   platformUserId: string
   accessToken: string
@@ -769,7 +769,7 @@ export type ConnectedAccountScalarWhereInput = {
 }
 
 export type ConnectedAccountCreateManyWorkspaceInput = {
-  id: string
+  id?: string
   platform: string
   platformUserId: string
   accessToken: string

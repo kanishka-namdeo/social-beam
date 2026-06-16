@@ -55,7 +55,12 @@ export async function exchangeLinkedinToken(
     );
   }
 
-  logger.info('oauth.linkedin.token_exchange_success');
+  logger.info('oauth.linkedin.token_exchange_success', {
+    hasAccessToken: !!data.access_token,
+    hasRefreshToken: !!data.refresh_token,
+    expiresIn: data.expires_in,
+    hasIdToken: !!data.id_token,
+  });
   return {
     accessToken: data.access_token,
     refreshToken: data.refresh_token,

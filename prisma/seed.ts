@@ -195,6 +195,7 @@ async function main() {
         name: "Free User",
         password: await bcrypt.hash('password123', 12),
         role: UserRole.FREE_USER,
+        emailVerified: now,
         updatedAt: now,
         Workspace: {
           create: {
@@ -253,6 +254,7 @@ async function main() {
     update: {
       password: await bcrypt.hash('password123', 12),
       role: UserRole.PREMIUM_USER,
+      emailVerified: new Date(),
     },
     create: {
       id: crypto.randomUUID(),
@@ -260,14 +262,46 @@ async function main() {
       name: 'Premium User',
       password: await bcrypt.hash('password123', 12),
       role: UserRole.PREMIUM_USER,
+      emailVerified: new Date(),
     },
   });
-  const premiumWorkspace = await prisma.workspace.findFirst({ where: { userId: premiumUser.id } });
+  let premiumWorkspace = await prisma.workspace.findFirst({ where: { userId: premiumUser.id } });
   if (!premiumWorkspace) {
-    await prisma.workspace.create({
+    premiumWorkspace = await prisma.workspace.create({
       data: { id: crypto.randomUUID(), userId: premiumUser.id },
     });
   }
+
+  // Create userProfile for premium user (required to see the widget dashboard)
+  const existingProfile = await prisma.userProfile.findUnique({ where: { workspaceId: premiumWorkspace.id } });
+  if (!existingProfile) {
+    await prisma.userProfile.create({
+      data: {
+        id: crypto.randomUUID(),
+        workspaceId: premiumWorkspace.id,
+        bio: {
+          name: "Premium Test Business",
+          businessType: "B2C",
+          industry: "E-commerce",
+          goals: ["Grow social media presence", "Drive online sales"],
+          audienceDescription: "Online shoppers aged 18-45",
+        },
+        tone: "professional",
+        postTypes: { text: 30, image: 40, video: 20, carousel: 10 },
+        imageAnalysis: {
+          categories: ["product shots", "lifestyle"],
+          dominantThemes: ["clean design", "modern aesthetic"],
+          imageFrequency: 0.7,
+        },
+        audience: {
+          demographics: { ageRange: "18-45", gender: "mixed", location: "Global" },
+          interests: ["online shopping", "deals", "product reviews"],
+          painPoints: ["finding quality products", "trust in online purchases"],
+        },
+      },
+    });
+  }
+
   await prisma.subscription.upsert({
     where: { userId: premiumUser.id },
     update: {
@@ -293,6 +327,7 @@ async function main() {
     update: {
       password: await bcrypt.hash('password123', 12),
       role: UserRole.ADMIN,
+      emailVerified: new Date(),
     },
     create: {
       id: crypto.randomUUID(),
@@ -300,6 +335,7 @@ async function main() {
       name: 'Admin User',
       password: await bcrypt.hash('password123', 12),
       role: UserRole.ADMIN,
+      emailVerified: new Date(),
     },
   });
   const adminWorkspace = await prisma.workspace.findFirst({ where: { userId: adminUser.id } });

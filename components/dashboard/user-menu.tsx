@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { SignOut, Sparkle } from "@phosphor-icons/react/ssr";
+import { SignOut, Sparkle, SlidersHorizontal, CreditCard } from "@phosphor-icons/react/ssr";
 import { useSidebar } from "@/components/ui/sidebar";
 import { RoleBadge } from "@/components/dashboard/role-badge";
 import type { UserRole } from "@/lib/role-guard";
@@ -55,7 +55,13 @@ export function UserMenu({ userName, userEmail, userRole }: UserMenuProps) {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent
+        align="start"
+        side={isExpanded ? "bottom" : "right"}
+        sideOffset={4}
+        alignOffset={isExpanded ? 0 : 0}
+        className="w-56 z-[100]"
+      >
         <DropdownMenuLabel>
           <div className="flex flex-col gap-0.5">
             <div className="flex items-center gap-2">
@@ -67,6 +73,19 @@ export function UserMenu({ userName, userEmail, userRole }: UserMenuProps) {
             )}
           </div>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href="/settings" className="flex items-center gap-2">
+            <SlidersHorizontal className="size-4" />
+            Settings
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/billing" className="flex items-center gap-2">
+            <CreditCard className="size-4" />
+            Billing
+          </Link>
+        </DropdownMenuItem>
         {userRole === 'FREE_USER' && (
           <>
             <DropdownMenuSeparator />

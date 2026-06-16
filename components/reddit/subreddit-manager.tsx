@@ -300,7 +300,10 @@ export function SubredditManager({ dialogOpen, onDialogOpenChange, onRecommendat
       void doSearch();
     }, 300);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      searchAbortRef.current?.abort();
+    };
   }, [searchQuery, configs]);
 
   const handleAddFromSearch = async (name: string) => {

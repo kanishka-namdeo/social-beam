@@ -70,6 +70,7 @@ export async function POST(req: Request) {
 
     const graph = await onboardingGraphPromise;
     const encoder = new TextEncoder();
+    const RESUME_TIMEOUT_MS = 120_000; // 2 minutes
 
     const stream = new ReadableStream({
       async start(controller) {
@@ -92,15 +93,27 @@ export async function POST(req: Request) {
             stateUpdate.hasExistingData = true;
           }
 
-          const eventStream = graph.streamEvents(
-            new Command({ resume: message, update: stateUpdate }),
-            {
-              version: 'v2',
-              configurable: { thread_id: threadId },
-            }
-          );
+          // Timeout to prevent indefinite hangs
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error(`Resume stream timeout after ${RESUME_TIMEOUT_MS}ms`)), RESUME_TIMEOUT_MS);
+          });
+
+          const eventStream = await Promise.race([
+            graph.streamEvents(
+              new Command({ resume: message, update: stateUpdate }),
+              {
+                version: 'v2',
+                configurable: { thread_id: threadId },
+              }
+            ),
+            timeoutPromise,
+          ]);
 
           for await (const event of eventStream) {
+            if (req.signal.aborted) {
+              try { controller.close(); } catch {}
+              return;
+            }
             const eventType = event.event;
             const eventData = event.data as Record<string, unknown>;
 
@@ -199,8 +212,11 @@ export async function POST(req: Request) {
             controller.enqueue(encoder.encode(errorData));
             controller.close();
           }
+        } finally {
+          try { controller.close(); } catch {}
         }
       },
+      async cancel() {},
     });
 
     return new Response(stream, {

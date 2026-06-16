@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { notifySuccessWithCategory } from "@/lib/notifications";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -104,7 +105,8 @@ export function BrandQuickEditDialog({ open, onOpenChange, brandContext, onSave 
         throw new Error(json.error ?? "Failed to save changes");
       }
 
-      toast.success("Brand context updated", {
+      notifySuccessWithCategory("Brand context updated", {
+        category: "brand",
         description: "Changes will apply to future AI-generated content",
       });
       onOpenChange(false);

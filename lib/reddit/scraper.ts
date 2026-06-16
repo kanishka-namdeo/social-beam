@@ -1,6 +1,8 @@
 import { withPage } from "./cloak";
 import type { RedditPost } from "./types";
 import { logger } from "@/lib/logger";
+import type { ProcessContext } from "@/lib/processes/process-context";
+import { XMLParser } from "fast-xml-parser";
 
 const VALID_SORT_ORDERS = ["hot", "rising", "new"] as const;
 type SortOrder = (typeof VALID_SORT_ORDERS)[number];
@@ -16,6 +18,61 @@ function normalizeSortOrder(sortOrder: string): SortOrder {
     return sortOrder as SortOrder;
   }
   return "hot";
+}
+
+async function scrapeViaRssFeed(subreddit: string): Promise<RedditPost[]> {
+  const url = `https://www.reddit.com/r/${subreddit}/.rss`;
+  logger.debug("reddit.scrape.rss_feed", { url });
+
+  const res = await fetch(url, {
+    headers: {
+      "User-Agent": USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)],
+      Accept: "application/atom+xml",
+    },
+    signal: AbortSignal.timeout(15000),
+  });
+
+  if (!res.ok) {
+    throw new Error(`RSS feed returned ${res.status}`);
+  }
+
+  const xml = await res.text();
+  const parser = new XMLParser({
+    ignoreAttributes: false,
+    attributeNamePrefix: "@_",
+  });
+  const feed = parser.parse(xml);
+
+  const entries = feed?.feed?.entry;
+  if (!entries || !Array.isArray(entries)) {
+    return [];
+  }
+
+  const posts: Omit<RedditPost, "createdAt">[] = [];
+
+  for (const entry of entries.slice(0, 25)) {
+    const title = entry?.title?.trim();
+    const link = entry?.link?.["@_href"];
+    const author = entry?.author?.name?.replace(/^\/u\//, "") ?? "[deleted]";
+
+    if (!title || !link) continue;
+
+    // Extract permalink from full URL
+    const permalinkMatch = link.match(/reddit\.com(\/r\/[^/]+\/comments\/[^/]+)/);
+    const permalink = permalinkMatch ? permalinkMatch[1] : null;
+    if (!permalink) continue;
+
+    posts.push({
+      title,
+      url: `https://reddit.com${permalink}`,
+      author,
+      upvotes: 0, // RSS doesn't include vote count
+      commentCount: 0, // RSS doesn't include comment count
+      subreddit,
+    });
+  }
+
+  return posts.map((p) => ({ ...p, createdAt: new Date() }));
 }
 
 async function scrapeViaJsonApi(subreddit: string, order: SortOrder): Promise<RedditPost[]> {
@@ -99,14 +156,34 @@ export async function scrapeSubreddit(
   subreddit: string,
   sortOrder?: string,
   retryCount = 0,
+  ctx?: ProcessContext,
 ): Promise<RedditPost[]> {
   const order = normalizeSortOrder(sortOrder ?? "hot");
+  ctx?.log('info', 'Reddit scrape started', { subreddit, sortOrder: order });
   logger.debug("reddit.scrape.start", { subreddit, sortOrder: order, attempt: retryCount + 1 });
 
-  // Strategy 1: Try JSON API first (fastest, most reliable)
+  // Strategy 1: Try RSS feed (most reliable, least likely to be blocked)
+  try {
+    const posts = await scrapeViaRssFeed(subreddit);
+    if (posts.length > 0) {
+      ctx?.log('info', 'Reddit scrape complete', { subreddit, postCount: posts.length });
+      logger.info("reddit.scrape.complete", {
+        subreddit,
+        sortOrder: order,
+        postCount: posts.length,
+        method: "rss_feed",
+      });
+      return posts;
+    }
+  } catch (err) {
+    logger.warn("reddit.scrape.rss_feed_failed", { subreddit, error: String(err) });
+  }
+
+  // Strategy 2: Try JSON API (fast, but often blocked)
   try {
     const posts = await scrapeViaJsonApi(subreddit, order);
     if (posts.length > 0) {
+      ctx?.log('info', 'Reddit scrape complete', { subreddit, postCount: posts.length });
       logger.info("reddit.scrape.complete", {
         subreddit,
         sortOrder: order,
@@ -119,10 +196,11 @@ export async function scrapeSubreddit(
     logger.warn("reddit.scrape.json_api_failed", { subreddit, error: String(err) });
   }
 
-  // Strategy 2: Fall back to browser scraping
+  // Strategy 3: Fall back to browser scraping (slowest, most resource-intensive)
   try {
     const posts = await scrapeViaBrowser(subreddit, order);
     if (posts.length > 0) {
+      ctx?.log('info', 'Reddit scrape complete', { subreddit, postCount: posts.length });
       logger.info("reddit.scrape.complete", {
         subreddit,
         sortOrder: order,
@@ -135,11 +213,11 @@ export async function scrapeSubreddit(
     logger.warn("reddit.scrape.browser_failed", { subreddit, error: String(err) });
   }
 
-  // Strategy 3: Retry once with delay if we've exhausted strategies
+  // Strategy 4: Retry once with delay if we've exhausted strategies
   if (retryCount === 0) {
     logger.info("reddit.scrape.retry", { subreddit, delayMs: 5000 });
     await new Promise((r) => setTimeout(r, 5000));
-    return scrapeSubreddit(subreddit, order, 1);
+    return scrapeSubreddit(subreddit, order, 1, ctx);
   }
 
   // All strategies exhausted

@@ -65,14 +65,26 @@ export async function POST(req: Request) {
     const stream = new ReadableStream({
       async start(controller) {
         const enqueue = (event: string, data: Record<string, unknown>) => {
+          if (req.signal.aborted) return false;
           const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
-          controller.enqueue(encoder.encode(message));
+          try {
+            controller.enqueue(encoder.encode(message));
+            return true;
+          } catch {
+            return false;
+          }
         };
 
         try {
           const results: Array<{ platform: string; content: string; charCount: number }> = [];
 
           for (const p of prompts) {
+            if (req.signal.aborted) {
+              log.warn("api.brand_context.test.aborted", { platformsProcessed: results.length });
+              controller.close();
+              return;
+            }
+
             enqueue("platform_start", { platform: p.platform });
 
             try {
@@ -118,6 +130,11 @@ export async function POST(req: Request) {
             }
           }
 
+          if (req.signal.aborted) {
+            controller.close();
+            return;
+          }
+
           log.info("api.brand_context.test.complete", {
             workspaceId,
             platformCount: results.length,
@@ -130,6 +147,9 @@ export async function POST(req: Request) {
         } finally {
           controller.close();
         }
+      },
+      async cancel() {
+        log.warn("api.brand_context.test.cancelled_by_client");
       },
     });
 

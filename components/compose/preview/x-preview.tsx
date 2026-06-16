@@ -10,9 +10,10 @@ interface XPreviewProps {
   content: string;
   account?: AccountInfo;
   mediaUrls?: string[];
+  signature?: { text: string; url?: string } | null;
 }
 
-export function XPreview({ content, account, mediaUrls }: XPreviewProps) {
+export function XPreview({ content, account, mediaUrls, signature }: XPreviewProps) {
   // Use account data or fall back to defaults
   const displayName = account?.platformUsername || "You";
   const handle = account?.platformUsername ? `@${account.platformUsername}` : "@yourhandle";
@@ -64,6 +65,11 @@ export function XPreview({ content, account, mediaUrls }: XPreviewProps) {
         )}
         {mediaUrls && mediaUrls.length > 0 && (
           <MediaPreview mediaUrls={mediaUrls} className="mt-3 rounded-lg overflow-hidden border border-border" />
+        )}
+        {signature && (
+          <div className="mt-2 text-xs text-muted-foreground">
+            {signature.text}
+          </div>
         )}
       </div>
 

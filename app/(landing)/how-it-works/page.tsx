@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plugs, Sparkle, CalendarPlus, ArrowRight } from "@phosphor-icons/react/ssr";
+import { Plugs, Sparkle, CalendarPlus, ArrowRight, PlugsConnected } from "@phosphor-icons/react/ssr";
 import { LandingPageShell } from "@/components/landing/landing-page-shell";
 
 export const metadata: Metadata = {
-  title: "How It Works — Social Media Scheduler in 3 Steps | SocialBeam",
+  title: "How It Works — 5 Minutes to Your First Post | SocialBeam",
   description:
-    "Connect your accounts, create content with AI, and schedule posts in seconds. Get started in under 5 minutes.",
+    "Connect your accounts, describe what you want to share, schedule posts, and automate with AI agents. Live in under 5 minutes.",
 };
 
 const steps = [
@@ -28,9 +28,9 @@ const steps = [
   {
     number: "02",
     icon: Sparkle,
-    title: "Create content with AI",
+    title: "Describe what you want to share",
     description:
-      "Tell the AI what you want to post — a product launch, a thought leadership piece, or a campaign. It writes platform-optimized captions, suggests hashtags, and matches your brand voice.",
+      "Describe the post you want — a product launch, a thought leadership piece, or a full campaign. Get platform-optimized captions, smart hashtags, and brand-matched tone in seconds.",
     details: [
       "Platform-optimized captions",
       "Smart hashtag suggestions",
@@ -41,14 +41,27 @@ const steps = [
   {
     number: "03",
     icon: CalendarPlus,
-    title: "Schedule & publish",
+    title: "Set it and forget it",
     description:
-      "Drop posts into the visual calendar or let AI pick the best times. Sit back while SocialBeam publishes automatically across all your connected accounts.",
+      "Drop posts into the visual calendar or let the system pick the best times. SocialBeam publishes automatically across all your connected accounts.",
     details: [
       "Drag-and-drop calendar",
       "AI-predicted optimal times",
       "Bulk scheduling support",
       "Real-time publishing status",
+    ],
+  },
+  {
+    number: "04",
+    icon: PlugsConnected,
+    title: "Automate with AI agents",
+    description:
+      "Connect Claude, Cursor, and other AI agents to automate your entire social workflow. They schedule posts, pull analytics, and manage your brand through our MCP server.",
+    details: [
+      "OAuth 2.1 with PKCE authentication",
+      "7 tool categories with scope-based permissions",
+      "Compatible with Claude, Cursor, and any MCP client",
+      "Full audit logging and rate limiting",
     ],
   },
 ];
@@ -57,9 +70,9 @@ export default function HowItWorksPage() {
   return (
     <LandingPageShell
       hero={{
-        title: "Get started in 3 simple steps",
+        title: "Your first post, live in 5 minutes",
         description:
-          "From sign-up to your first scheduled post in under 5 minutes. No credit card required, no complicated setup.",
+          "From sign-up to your first published post in under 5 minutes. No credit card required, no complicated setup.",
       }}
     >
       <div className="max-w-4xl mx-auto space-y-8">

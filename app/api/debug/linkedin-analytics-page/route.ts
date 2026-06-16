@@ -3,12 +3,13 @@ import { withLinkedInPageForUser } from '@/lib/linkedin/browser';
 import { auth } from '@/lib/auth';
 
 export async function GET(req: Request) {
+  if (process.env.NODE_ENV !== 'development') {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   const session = await auth();
   if (!session?.user || (session.user as { role?: string })?.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-  if (process.env.NODE_ENV === 'production') {
-    return NextResponse.json({ error: 'Debug endpoints disabled in production' }, { status: 403 });
   }
 
   try {

@@ -55,7 +55,7 @@ export default async function ComposePage({
     userRole = userRole ?? 'FREE_USER';
   }
 
-  const [connectedAccounts, brandContext] = await Promise.all([
+  const [connectedAccounts, brandContext, workspaceData] = await Promise.all([
     prisma.connectedAccount.findMany({
       where: { workspaceId, status: "connected" },
       select: {
@@ -76,6 +76,21 @@ export default async function ComposePage({
         productDesc: true,
         PlatformContext: {
           select: { visualStyle: true },
+        },
+      },
+    }),
+    prisma.workspace.findUnique({
+      where: { id: workspaceId },
+      select: {
+        signatureEnabled: true,
+        PostSignature: {
+          select: {
+            id: true,
+            name: true,
+            text: true,
+            url: true,
+            isDefault: true,
+          },
         },
       },
     }),
@@ -121,6 +136,8 @@ export default async function ComposePage({
         initialPrompt={initialPrompt}
         userRole={userRole}
         brandSearchQuery={brandSearchQuery}
+        signatures={workspaceData?.PostSignature ?? []}
+        signatureEnabled={workspaceData?.signatureEnabled ?? true}
       />
     </div>
   );

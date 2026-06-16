@@ -36,12 +36,16 @@ export function BrandTestPanel({ connectedPlatforms }: BrandTestPanelProps) {
   const [error, setError] = useState<string | null>(null);
   const [generationElapsed, setGenerationElapsed] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Cleanup interval on unmount
+  // Cleanup interval and abort fetch on unmount
   useEffect(() => {
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+      }
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
       }
     };
   }, []);
@@ -65,11 +69,15 @@ export function BrandTestPanel({ connectedPlatforms }: BrandTestPanelProps) {
       setGenerationElapsed((prev) => prev + 1);
     }, 1000);
 
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
     try {
       const res = await fetch("/api/brand-context/test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topic: topic.trim(), platforms: selectedPlatforms }),
+        signal: abortController.signal,
       });
 
       if (!res.ok) {
@@ -151,12 +159,15 @@ export function BrandTestPanel({ connectedPlatforms }: BrandTestPanelProps) {
           }
         }
       }
-    } catch {
+    } catch (err) {
+      if (err instanceof Error && err.name === "AbortError") return;
       toast.error("Failed to generate samples. Please try again.");
       setError("Network error occurred");
       setIsTesting(false);
       if (intervalRef.current) clearInterval(intervalRef.current);
       setGeneratingPlatforms(new Set());
+    } finally {
+      abortControllerRef.current = null;
     }
   };
 

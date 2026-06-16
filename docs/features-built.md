@@ -1,7 +1,7 @@
 # Features Built — SocialBeam
 
 > **Auto-maintained**: This document is automatically updated by the Cursor agent whenever features are built, removed, or edited.
-> **Last updated**: 2026-05-29
+> **Last updated**: 2026-06-14
 
 ---
 
@@ -75,6 +75,15 @@
 | Dashboard Insights API | Server data for dashboard widgets | `app/api/dashboard/insights/route.ts` | ✅ Built |
 | Dashboard Recent Posts API | Recent posts data endpoint | `app/api/dashboard/recent-posts/route.ts` | ✅ Built |
 | Dashboard 7-Day Calendar API | 7-day preview data | `app/api/dashboard/calendar-7day/route.ts` | ✅ Built |
+| Unified Activity Page | Combined activity and process monitoring with real-time SSE updates, progress tracking, live logs, and cancellation | `app/(dashboard)/activity/page.tsx` | ✅ Built |
+| Activity Client | Client-side activity management with SSE streaming, filtering, and real-time updates | `components/activity/activity-client.tsx` | ✅ Built |
+| Activity Table | Enhanced table with progress bars, current step, posts found/processed columns | `components/activity/activity-table.tsx` | ✅ Built |
+| Activity Filters | Type, status, date range, and search filters with "Running only" toggle | `components/activity/activity-filters.tsx` | ✅ Built |
+| Activity Details Modal | Tabbed modal with Details and Live Logs views, progress tracking, cancel button | `components/activity/activity-details-modal.tsx` | ✅ Built |
+| Activity Live Logs | Real-time log streaming component with auto-scroll and log level indicators | `components/activity/activity-live-logs.tsx` | ✅ Built |
+| Activity Stream Hook | SSE hook for real-time activity updates with reconnection logic | `components/activity/use-activity-stream.ts` | ✅ Built |
+| Activity Dropdown | Unified activity dropdown using enhanced API with process data | `components/dashboard/activity-dropdown.tsx` | ✅ Built |
+| Process Monitor Redirect | `/processes` now redirects to unified `/activity` page | `app/(dashboard)/processes/page.tsx` | ❌ Removed |
 
 ---
 
@@ -103,28 +112,61 @@
 
 ---
 
-## 4. Calendar & Scheduling
+## 4. Campaign Builder
+
+| Feature | Description | Location | Status |
+|---|---|---|---|
+| Campaigns Page | Server component listing campaigns with status filters | `app/(dashboard)/campaigns/page.tsx` | ✅ Built |
+| Campaign List | Status filter tabs (All/Draft/Active/Completed/Archived), campaign cards with name/status/date/phase count, delete with confirmation, skeleton loading, empty state, FREE user upgrade nudge | `components/campaigns/campaign-list.tsx` | ✅ Built |
+| Campaign Builder | 4-step Dialog wizard: Basics (name/goal/audience/duration), Platform checkboxes (all 10 platforms), Phases preview, Review + Generate with SSE streaming progress bar, auto-redirects on success | `components/campaigns/campaign-builder.tsx` | ✅ Built |
+| Campaign Detail Page | Server component with phases/posts, passes to CampaignDetailClient | `app/(dashboard)/campaigns/[id]/page.tsx` | ✅ Built |
+| Campaign Detail Client | Header with delete, summary cards, PhaseTimeline integration, Posts/Analytics tabs with per-phase grids | `components/campaigns/campaign-detail.tsx` | ✅ Built |
+| Phase Timeline | Horizontal stepper with colored circles, phase-type icons (TEASER/Megaphone, LAUNCH/Rocket, SOCIAL_PROOF/Users, LAST_CALL/Chat), click to scroll | `components/campaigns/phase-timeline.tsx` | ✅ Built |
+| Campaign Post Card | Platform name, truncated content (200 chars), status badge, Regenerate and Schedule buttons | `components/campaigns/campaign-post-card.tsx` | ✅ Built |
+| Campaign Analytics | Metric cards (impressions, reach, engagement, likes, comments, shares) with API fetch | `components/campaigns/campaign-analytics.tsx` | ✅ Built |
+| Campaign CRUD API | List (GET with status/pagination), Create (POST with AI plan generation), Get/Patch/Delete campaign | `app/api/campaigns/route.ts`, `app/api/campaigns/[id]/route.ts` | ✅ Built |
+| Campaign Generate API | SSE streaming post generation per phase, creates Post + PostPlatform + CampaignPost records | `app/api/campaigns/[id]/generate/route.ts` | ✅ Built |
+| Campaign Publish API | Bulk schedule all DRAFT posts in campaign/phase | `app/api/campaigns/[id]/publish/route.ts` | ✅ Built |
+| Campaign Analytics API | Aggregated metrics across all campaign posts (impressions, engagement, likes, etc.) | `app/api/campaigns/[id]/analytics/route.ts` | ✅ Built |
+| Campaign Generator AI | Two-step generator: plan generation (FastLLM) + phase content generation (full LLM with narrative continuity) | `lib/ai/campaign-generator.ts` | ✅ Built |
+| Campaign Prompts | Phase-specific prompt templates (TEASER, LAUNCH, SOCIAL_PROOF, LAST_CALL, CUSTOM) with brand context injection | `lib/ai/campaign-prompts.ts` | ✅ Built |
+| Active Campaigns Widget | Dashboard widget showing up to 3 active campaigns with progress tracking | `components/dashboard/active-campaigns-widget.tsx` | ✅ Built |
+| Campaign Badge on Calendar | Colored dot + tooltip on calendar posts belonging to campaigns | `components/calendar/post-chip.tsx` | ✅ Built |
+| Campaign Sidebar Nav | Campaigns nav item with Megaphone icon | `app/(dashboard)/layout.tsx` | ✅ Built |
+| Campaign DB Models | Campaign, CampaignPhase, CampaignPost Prisma models with workspace scoping | `prisma/schema.prisma` | ✅ Built |
+| Content Recycling API | POST endpoint to recycle published campaign posts as new standalone drafts with AI variations (light/medium/heavy) | `app/api/campaigns/[id]/posts/[postId]/recycle/route.ts` | ✅ Built |
+| Content Recycling UI | Recycle button with variation popover on published campaign posts, creates new draft posts | `components/campaigns/campaign-post-card.tsx` | ✅ Built |
+| Cross-Campaign Comparison API | GET endpoint comparing analytics across 2-4 campaigns (impressions, engagement, reach, etc.) | `app/api/campaigns/compare/route.ts` | ✅ Built |
+| Cross-Campaign Comparison UI | Compare mode toggle with checkbox selection and side-by-side comparison dialog with best-value highlighting | `components/campaigns/campaign-list.tsx`, `components/campaigns/campaign-comparison.tsx` | ✅ Built |
+
+---
+
+## 5. Calendar & Scheduling
 
 | Feature | Description | Location | Status |
 |---|---|---|---|
 | Calendar Page | Server component fetching scheduled posts | `app/(dashboard)/calendar/page.tsx` | ✅ Built |
-| Calendar Client | Interactive calendar with month/week/day/list views | `components/calendar/calendar-client.tsx` | ✅ Built |
-| Month View | Monthly calendar grid | `components/calendar/month-view.tsx` | ✅ Built |
-| Week View | Weekly calendar view | `components/calendar/week-view.tsx` | ✅ Built |
-| Day View | Single day detailed view | `components/calendar/day-view.tsx` | ✅ Built |
+| Calendar Client | Interactive calendar with month/week/day/list views, drag-drop with hour-level precision | `components/calendar/calendar-client.tsx` | ✅ Built |
+| Month View | Monthly calendar grid with quick-add inline form | `components/calendar/month-view.tsx` | ✅ Built |
+| Week View | Weekly calendar view with droppable hour slots, today indicator line | `components/calendar/week-view.tsx` | ✅ Built |
+| Day View | Single day detailed view with droppable hour slots, today indicator line | `components/calendar/day-view.tsx` | ✅ Built |
 | List View | Linear list of scheduled posts | `components/calendar/list-view.tsx` | ✅ Built |
-| Day Cell | Individual calendar day cell with post chips | `components/calendar/day-cell.tsx` | ✅ Built |
-| Post Chip | Platform-colored post indicators on calendar | `components/calendar/post-chip.tsx` | ✅ Built |
+| Day Cell | Individual calendar day cell with post chips, quick-add inline form | `components/calendar/day-cell.tsx` | ✅ Built |
+| Post Chip | Platform-colored post indicators with media thumbnails | `components/calendar/post-chip.tsx` | ✅ Built |
 | Post Preview Dialog | Preview post details from calendar | `components/calendar/post-preview-dialog.tsx` | ✅ Built |
-| Reschedule Dialog | Drag-and-drop or dialog-based rescheduling | `components/calendar/reschedule-dialog.tsx` | ✅ Built |
-| Content Gap Analysis | Identifies open scheduling slots | `components/calendar/content-gap-analysis.tsx` | ✅ Built |
+| Reschedule Dialog | Drag-and-drop rescheduling with real analytics-based optimal times, confidence badges | `components/calendar/reschedule-dialog.tsx` | ✅ Built |
+| Content Gap Analysis | Identifies open scheduling slots using brand cadence data | `components/calendar/content-gap-analysis.tsx` | ✅ Built |
 | Posting Frequency | Shows posting frequency stats | `components/calendar/posting-frequency.tsx` | ✅ Built |
+| Hour Slot | Droppable hour slot component for week/day views | `components/calendar/hour-slot.tsx` | ✅ Built |
+| Quick Add Form | Compact inline form for creating drafts directly on calendar | `components/calendar/quick-add-form.tsx` | ✅ Built |
+| Optimal Times API | Returns best posting times based on analytics data with confidence levels | `app/api/calendar/optimal-times/route.ts` | ✅ Built |
+| Cadence Utility | Parses posting cadence strings (e.g., "3x/week") into numeric values | `lib/utils/cadence.ts` | ✅ Built |
 | Calendar Posts API | Fetch scheduled posts for calendar | `app/api/calendar/posts/route.ts` | ✅ Built |
 | Cron Publish | Scheduled cron job for auto-publishing | `app/api/cron/publish/route.ts` | ✅ Built |
 
 ---
 
-## 5. Analytics & Reporting
+## 6. Analytics & Reporting
 
 | Feature | Description | Location | Status |
 |---|---|---|---|
@@ -148,31 +190,50 @@
 
 ---
 
-## 6. Reddit Trending Radar
+## 7. Reddit Trending Radar
 
 | Feature | Description | Location | Status |
 |---|---|---|---|
 | Reddit Trending Page | Full trending radar with summary cards, subreddit filters, period filters | `app/(dashboard)/reddit/trending/page.tsx` | ✅ Built |
 | Subreddit Manager | Add/remove tracked subreddits | `components/reddit/subreddit-manager.tsx` | ✅ Built |
-| Trending Table | Sortable/filterable trending posts table with action handoff | `components/reddit/trending-table.tsx` | ✅ Built |
+| Trending Table | Sortable/filterable trending posts table with action handoff, trend phase badges, engagement depth column | `components/reddit/trending-table.tsx` | ✅ Built |
 | Trending Empty State | Empty state for no trending data | `components/reddit/trending-empty-state.tsx` | ✅ Built |
 | Action Handoff Dialog | Dialog for taking action on trending posts | `components/reddit/action-handoff-dialog.tsx` | ✅ Built |
 | Trending Post Chips | Platform-colored post indicators | `components/reddit/trending-post-chip.tsx` | ✅ Built |
 | Reddit Trending API | Fetch trending posts | `app/api/reddit/trending/route.ts` | ✅ Built |
-| Reddit Trending Trigger API | Manual refresh/trigger scraping | `app/api/reddit/trending/trigger/route.ts` | ✅ Built |
-| Reddit Trending Status API | Check scraping status | `app/api/reddit/trending/status/route.ts` | ✅ Built |
+| Reddit Trending Trigger API | Manual refresh/trigger scraping with database-backed job tracking | `app/api/reddit/trending/trigger/route.ts` | ✅ Built |
+| Reddit Trending Status API | Check scraping status from database | `app/api/reddit/trending/status/route.ts` | ✅ Built |
 | Reddit Trending Action API | Take action on a trending post | `app/api/reddit/trending/[id]/action/route.ts` | ✅ Built |
 | Reddit Trending Analyze API | AI analysis of a trending post | `app/api/reddit/trending/analyze/[id]/route.ts` | ✅ Built |
 | Reddit Subreddit API | Subreddit config CRUD | `app/api/reddit/subreddit/route.ts` | ✅ Built |
-| Reddit Scraper | Scrapes Reddit for trending content | `lib/reddit/scraper.ts` | ✅ Built |
-| Reddit Trending Analysis | AI relevance scoring of trending posts | `lib/reddit/trending-analysis.ts` | ✅ Built |
+| Reddit Scraper | Scrapes Reddit for trending content with smart caching | `lib/reddit/scraper.ts` | ✅ Built |
+| Reddit Trending Analysis | AI relevance scoring of trending posts with comment scraping, intent scoring, velocity tracking | `lib/reddit/trending-analysis.ts` | ✅ Built |
 | Reddit Cloak Integration | Uses cloakbrowser for Reddit scraping | `lib/reddit/cloak.ts` | ✅ Built |
 | Cron Reddit Trending | Scheduled trending refresh | `lib/cron/reddit-trending.ts` | ✅ Built |
 | Reddit Validation | Input validation for Reddit features | `lib/reddit/validation.ts` | ✅ Built |
+| Automated Cron Scraping | Cron job runs every 2 hours to scrape active subreddits with rotation | `app/api/cron/reddit-scrape/route.ts` | ✅ Built |
+| Reddit OAuth Integration | Full OAuth 2.0 flow with token encryption, refresh support, authenticated API access | `lib/reddit/oauth.ts`, `app/api/auth/reddit-callback/route.ts`, `app/api/settings/accounts/reddit/route.ts` | ✅ Built |
+| Comment Thread Scraping | Scrapes top 20 comments per post with sentiment and buying signal detection | `lib/reddit/comment-scraper.ts` | ✅ Built |
+| Engagement Depth Scoring | Calculates engagement depth score based on comment count, length, reply chains, velocity | `lib/reddit/engagement-analyzer.ts` | ✅ Built |
+| Intent Scoring | Detects buying intent patterns (looking for, recommend, alternative to) with 0-100 scoring | `lib/reddit/intent-scorer.ts` | ✅ Built |
+| Keyword Alert System | Users create alerts with keywords, subreddits, thresholds; triggers notifications on matches | `app/api/reddit/alerts/route.ts`, `app/api/reddit/alerts/[id]/route.ts` | ✅ Built |
+| Alert Management UI | Full CRUD interface for alerts with toggle, test, and history | `components/reddit/alert-manager.tsx` | ✅ Built |
+| Daily Digest Email | Cron job sends top 10 trends from last 24h via email at 8 AM | `app/api/cron/reddit-digest/route.ts` | ✅ Built |
+| Push Notifications for High-Intent Leads | Immediate push notifications when intentScore >= 80 AND relevanceScore >= 0.7 | `lib/reddit/trending-analysis.ts` | ✅ Built |
+| Trend Velocity Tracking | Calculates upvote/comment velocity, classifies trends as emerging/peaking/declining | `lib/reddit/velocity-tracker.ts` | ✅ Built |
+| Cross-Subreddit Clustering | Groups posts by topic using keyword overlap, identifies cross-community trends in 3+ subreddits | `lib/reddit/cluster-analyzer.ts` | ✅ Built |
+| Trend Clusters API | Fetch cross-subreddit trend clusters with pagination | `app/api/reddit/clusters/route.ts` | ✅ Built |
+| Historical Trend Analysis | Aggregates trends by week/month with growth rates, seasonal patterns, brand mention frequency | `app/api/reddit/trends/history/route.ts` | ✅ Built |
+| Trend Phase Badge | Visual badge showing Emerging (green), Peaking (yellow), Declining (red) with tooltips | `components/reddit/trend-phase-badge.tsx` | ✅ Built |
+| Engagement Depth Chart | Mini bar chart showing comment depth distribution, highlights deep discussions | `components/reddit/engagement-depth-chart.tsx` | ✅ Built |
+| Intent Score Card | Prominent card for high-intent leads (score >= 70) with signals and Engage Now CTA | `components/reddit/intent-score-card.tsx` | ✅ Built |
+| Trend Cluster View | Card showing cross-subreddit trends with subreddit list and total reach | `components/reddit/trend-cluster-card.tsx` | ✅ Built |
+| Data Retention Cleanup | Weekly cron deletes posts/comments older than 90 days, archives high-relevance posts | `app/api/cron/reddit-cleanup/route.ts` | ✅ Built |
+| Rate Limiting & Cost Control | Tracks API calls, implements exponential backoff, cost alerts at $10/$25/$50 | `lib/reddit/rate-limiter.ts` | ✅ Built |
 
 ---
 
-## 7. Brand Context & AI Agent System
+## 8. Brand Context & AI Agent System
 
 | Feature | Description | Location | Status |
 |---|---|---|---|
@@ -211,7 +272,7 @@
 
 ---
 
-## 8. Settings & Configuration
+## 9. Settings & Configuration
 
 | Feature | Description | Location | Status |
 |---|---|---|---|
@@ -235,7 +296,7 @@
 
 ---
 
-## 9. AI Credit System
+## 10. AI Credit System
 
 | Feature | Description | Location | Status |
 |---|---|---|---|
@@ -245,7 +306,7 @@
 
 ---
 
-## 10. Landing & Marketing Pages
+## 11. Landing & Marketing Pages
 
 | Feature | Description | Location | Status |
 |---|---|---|---|
@@ -270,11 +331,11 @@
 | Status Page | System status | `app/(landing)/status/page.tsx` | 🚧 Stub |
 | Alternatives Pages | Competitor comparison pages: Buffer, Hootsuite, Later, Metricool, Sprout Social, general alternatives | `app/(landing)/alternatives/` | 🚧 Stub/Partial |
 | Platform Pages | Platform-specific landing: Instagram, X, TikTok, Facebook, LinkedIn, Pinterest | `app/(landing)/platforms/` | 🚧 Stub/Partial |
-| API Page | Developer API info | `app/(landing)/api/page.tsx` | 🚧 Stub |
+| API Page | MCP server documentation with OAuth 2.1+PKCE auth, 7 tool scopes, AI agent integration guide | `app/(landing)/api/page.tsx` | ✅ Built |
 
 ---
 
-## 11. Database Models
+## 12. Database Models
 
 | Model | Description | Status |
 |---|---|---|
@@ -299,7 +360,7 @@
 
 ---
 
-## 12. UI Component Library
+## 13. UI Component Library
 
 | Category | Components | Status |
 |---|---|---|
@@ -310,7 +371,7 @@
 
 ---
 
-## 13. Infrastructure & Utilities
+## 14. Infrastructure & Utilities
 
 | Feature | Description | Location | Status |
 |---|---|---|---|
@@ -320,10 +381,16 @@
 | Date Utilities | date-fns wrappers (subHours, subDays) | `lib/utils/dates.ts` | ✅ Built |
 | Utility Functions | cn() class merging, other helpers | `lib/utils.ts` | ✅ Built |
 | Request Context | Correlation ID propagation | `lib/request-context.ts` | ✅ Built |
+| Activity Tracker | Bidirectional linking between ActivityLog and ScraperProcess with atomic status sync | `lib/activity-tracker.ts` | ✅ Built |
+| Process Registry | In-memory registry for running processes with cancellation support | `lib/processes/process-registry.ts` | ✅ Built |
+| Process Log Store | Ring buffer for process logs with pub/sub | `lib/processes/process-log-store.ts` | ✅ Built |
+| Activity Logs API | Enhanced with `include=process` param to join ActivityLog with ScraperProcess data | `app/api/activity/logs/route.ts` | ✅ Built |
+| Activity Log SSE Stream | Real-time SSE stream for activity logs with progress, logs, and status events | `app/api/activity/logs/[id]/stream/route.ts` | ✅ Built |
+| Activity Log Cancel | Cancel running processes via activity log ID | `app/api/activity/logs/[id]/cancel/route.ts` | ✅ Built |
 
 ---
 
-## 14. CloakBrowser Scraping Infrastructure
+## 15. CloakBrowser Scraping Infrastructure
 
 | Feature | Description | Location | Status |
 |---|---|---|---|
@@ -334,7 +401,9 @@
 | Scraper Interface | `PlatformScraperResult<T>`, `PageOptions` types | `lib/cloakbrowser/types.ts` | ✅ Built |
 | Cookie Extraction Scripts | Platform-specific scripts for manual login cookie extraction | `scripts/extract-<platform>-cookie.mjs` | ✅ Built |
 | LinkedIn Scraper | Post analytics scraping with cookie injection, stealth, session validation | `lib/linkedin/browser.ts` | ✅ Built |
-| LinkedIn Inbox Scraper | Feed discovery, post scraping, comment extraction, reply posting | `lib/inbox/scrapers/linkedin-scraper.ts` | ✅ Built |
+| LinkedIn Inbox Scraper | Feed discovery, post scraping, comment extraction with avatar, reply posting | `lib/inbox/scrapers/linkedin-scraper.ts` | ✅ Built |
+| LinkedIn Mention Scraper | Scrape mentions from notifications page | `lib/inbox/scrapers/linkedin-mention-scraper.ts` | ✅ Built |
+| LinkedIn DM Scraper | Scrape direct messages from messaging page | `lib/inbox/scrapers/linkedin-dm-scraper.ts` | ✅ Built |
 | Reddit Scraper | JSON API primary, browser fallback via CloakBrowser | `lib/reddit/scraper.ts`, `lib/reddit/cloak.ts` | ✅ Built |
 | Brand Website Crawler | Crawlee + CloakBrowser integration, sitemap discovery, zone-based content extraction | `lib/agent/crawler.ts` | ✅ Built |
 | Instagram Scraper | Profile browsing, post/comment scraping, DMs | `lib/cloakbrowser/platforms/instagram.ts` | ✅ Built |

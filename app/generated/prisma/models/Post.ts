@@ -35,6 +35,8 @@ export type PostMinAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   isExternal: boolean | null
+  aiGenerated: boolean | null
+  category: string | null
 }
 
 export type PostMaxAggregateOutputType = {
@@ -48,6 +50,8 @@ export type PostMaxAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   isExternal: boolean | null
+  aiGenerated: boolean | null
+  category: string | null
 }
 
 export type PostCountAggregateOutputType = {
@@ -62,6 +66,8 @@ export type PostCountAggregateOutputType = {
   createdAt: number
   updatedAt: number
   isExternal: number
+  aiGenerated: number
+  category: number
   _all: number
 }
 
@@ -77,6 +83,8 @@ export type PostMinAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   isExternal?: true
+  aiGenerated?: true
+  category?: true
 }
 
 export type PostMaxAggregateInputType = {
@@ -90,6 +98,8 @@ export type PostMaxAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   isExternal?: true
+  aiGenerated?: true
+  category?: true
 }
 
 export type PostCountAggregateInputType = {
@@ -104,6 +114,8 @@ export type PostCountAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   isExternal?: true
+  aiGenerated?: true
+  category?: true
   _all?: true
 }
 
@@ -191,6 +203,8 @@ export type PostGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   isExternal: boolean
+  aiGenerated: boolean
+  category: string | null
   _count: PostCountAggregateOutputType | null
   _min: PostMinAggregateOutputType | null
   _max: PostMaxAggregateOutputType | null
@@ -226,9 +240,12 @@ export type PostWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   isExternal?: Prisma.BoolFilter<"Post"> | boolean
+  aiGenerated?: Prisma.BoolFilter<"Post"> | boolean
+  category?: Prisma.StringNullableFilter<"Post"> | string | null
   AnalyticsSnapshot?: Prisma.AnalyticsSnapshotListRelationFilter
   Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   PostPlatform?: Prisma.PostPlatformListRelationFilter
+  CampaignPost?: Prisma.XOR<Prisma.CampaignPostNullableScalarRelationFilter, Prisma.CampaignPostWhereInput> | null
 }
 
 export type PostOrderByWithRelationInput = {
@@ -243,9 +260,12 @@ export type PostOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   isExternal?: Prisma.SortOrder
+  aiGenerated?: Prisma.SortOrder
+  category?: Prisma.SortOrderInput | Prisma.SortOrder
   AnalyticsSnapshot?: Prisma.AnalyticsSnapshotOrderByRelationAggregateInput
   Workspace?: Prisma.WorkspaceOrderByWithRelationInput
   PostPlatform?: Prisma.PostPlatformOrderByRelationAggregateInput
+  CampaignPost?: Prisma.CampaignPostOrderByWithRelationInput
 }
 
 export type PostWhereUniqueInput = Prisma.AtLeast<{
@@ -263,9 +283,12 @@ export type PostWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   isExternal?: Prisma.BoolFilter<"Post"> | boolean
+  aiGenerated?: Prisma.BoolFilter<"Post"> | boolean
+  category?: Prisma.StringNullableFilter<"Post"> | string | null
   AnalyticsSnapshot?: Prisma.AnalyticsSnapshotListRelationFilter
   Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   PostPlatform?: Prisma.PostPlatformListRelationFilter
+  CampaignPost?: Prisma.XOR<Prisma.CampaignPostNullableScalarRelationFilter, Prisma.CampaignPostWhereInput> | null
 }, "id">
 
 export type PostOrderByWithAggregationInput = {
@@ -280,6 +303,8 @@ export type PostOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   isExternal?: Prisma.SortOrder
+  aiGenerated?: Prisma.SortOrder
+  category?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.PostCountOrderByAggregateInput
   _max?: Prisma.PostMaxOrderByAggregateInput
   _min?: Prisma.PostMinOrderByAggregateInput
@@ -300,10 +325,12 @@ export type PostScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Post"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Post"> | Date | string
   isExternal?: Prisma.BoolWithAggregatesFilter<"Post"> | boolean
+  aiGenerated?: Prisma.BoolWithAggregatesFilter<"Post"> | boolean
+  category?: Prisma.StringNullableWithAggregatesFilter<"Post"> | string | null
 }
 
 export type PostCreateInput = {
-  id: string
+  id?: string
   title?: string | null
   content: Prisma.JsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.PostStatus
@@ -313,13 +340,16 @@ export type PostCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   isExternal?: boolean
+  aiGenerated?: boolean
+  category?: string | null
   AnalyticsSnapshot?: Prisma.AnalyticsSnapshotCreateNestedManyWithoutPostInput
   Workspace: Prisma.WorkspaceCreateNestedOneWithoutPostInput
   PostPlatform?: Prisma.PostPlatformCreateNestedManyWithoutPostInput
+  CampaignPost?: Prisma.CampaignPostCreateNestedOneWithoutPostInput
 }
 
 export type PostUncheckedCreateInput = {
-  id: string
+  id?: string
   workspaceId: string
   title?: string | null
   content: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -330,8 +360,11 @@ export type PostUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   isExternal?: boolean
+  aiGenerated?: boolean
+  category?: string | null
   AnalyticsSnapshot?: Prisma.AnalyticsSnapshotUncheckedCreateNestedManyWithoutPostInput
   PostPlatform?: Prisma.PostPlatformUncheckedCreateNestedManyWithoutPostInput
+  CampaignPost?: Prisma.CampaignPostUncheckedCreateNestedOneWithoutPostInput
 }
 
 export type PostUpdateInput = {
@@ -345,9 +378,12 @@ export type PostUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isExternal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   AnalyticsSnapshot?: Prisma.AnalyticsSnapshotUpdateManyWithoutPostNestedInput
   Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutPostNestedInput
   PostPlatform?: Prisma.PostPlatformUpdateManyWithoutPostNestedInput
+  CampaignPost?: Prisma.CampaignPostUpdateOneWithoutPostNestedInput
 }
 
 export type PostUncheckedUpdateInput = {
@@ -362,12 +398,15 @@ export type PostUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isExternal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   AnalyticsSnapshot?: Prisma.AnalyticsSnapshotUncheckedUpdateManyWithoutPostNestedInput
   PostPlatform?: Prisma.PostPlatformUncheckedUpdateManyWithoutPostNestedInput
+  CampaignPost?: Prisma.CampaignPostUncheckedUpdateOneWithoutPostNestedInput
 }
 
 export type PostCreateManyInput = {
-  id: string
+  id?: string
   workspaceId: string
   title?: string | null
   content: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -378,6 +417,8 @@ export type PostCreateManyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   isExternal?: boolean
+  aiGenerated?: boolean
+  category?: string | null
 }
 
 export type PostUpdateManyMutationInput = {
@@ -391,6 +432,8 @@ export type PostUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isExternal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PostUncheckedUpdateManyInput = {
@@ -405,6 +448,8 @@ export type PostUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isExternal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PostScalarRelationFilter = {
@@ -424,6 +469,8 @@ export type PostCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   isExternal?: Prisma.SortOrder
+  aiGenerated?: Prisma.SortOrder
+  category?: Prisma.SortOrder
 }
 
 export type PostMaxOrderByAggregateInput = {
@@ -437,6 +484,8 @@ export type PostMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   isExternal?: Prisma.SortOrder
+  aiGenerated?: Prisma.SortOrder
+  category?: Prisma.SortOrder
 }
 
 export type PostMinOrderByAggregateInput = {
@@ -450,6 +499,8 @@ export type PostMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   isExternal?: Prisma.SortOrder
+  aiGenerated?: Prisma.SortOrder
+  category?: Prisma.SortOrder
 }
 
 export type PostListRelationFilter = {
@@ -540,8 +591,22 @@ export type PostUncheckedUpdateManyWithoutWorkspaceNestedInput = {
   deleteMany?: Prisma.PostScalarWhereInput | Prisma.PostScalarWhereInput[]
 }
 
+export type PostCreateNestedOneWithoutCampaignPostInput = {
+  create?: Prisma.XOR<Prisma.PostCreateWithoutCampaignPostInput, Prisma.PostUncheckedCreateWithoutCampaignPostInput>
+  connectOrCreate?: Prisma.PostCreateOrConnectWithoutCampaignPostInput
+  connect?: Prisma.PostWhereUniqueInput
+}
+
+export type PostUpdateOneRequiredWithoutCampaignPostNestedInput = {
+  create?: Prisma.XOR<Prisma.PostCreateWithoutCampaignPostInput, Prisma.PostUncheckedCreateWithoutCampaignPostInput>
+  connectOrCreate?: Prisma.PostCreateOrConnectWithoutCampaignPostInput
+  upsert?: Prisma.PostUpsertWithoutCampaignPostInput
+  connect?: Prisma.PostWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PostUpdateToOneWithWhereWithoutCampaignPostInput, Prisma.PostUpdateWithoutCampaignPostInput>, Prisma.PostUncheckedUpdateWithoutCampaignPostInput>
+}
+
 export type PostCreateWithoutAnalyticsSnapshotInput = {
-  id: string
+  id?: string
   title?: string | null
   content: Prisma.JsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.PostStatus
@@ -551,12 +616,15 @@ export type PostCreateWithoutAnalyticsSnapshotInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   isExternal?: boolean
+  aiGenerated?: boolean
+  category?: string | null
   Workspace: Prisma.WorkspaceCreateNestedOneWithoutPostInput
   PostPlatform?: Prisma.PostPlatformCreateNestedManyWithoutPostInput
+  CampaignPost?: Prisma.CampaignPostCreateNestedOneWithoutPostInput
 }
 
 export type PostUncheckedCreateWithoutAnalyticsSnapshotInput = {
-  id: string
+  id?: string
   workspaceId: string
   title?: string | null
   content: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -567,7 +635,10 @@ export type PostUncheckedCreateWithoutAnalyticsSnapshotInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   isExternal?: boolean
+  aiGenerated?: boolean
+  category?: string | null
   PostPlatform?: Prisma.PostPlatformUncheckedCreateNestedManyWithoutPostInput
+  CampaignPost?: Prisma.CampaignPostUncheckedCreateNestedOneWithoutPostInput
 }
 
 export type PostCreateOrConnectWithoutAnalyticsSnapshotInput = {
@@ -597,8 +668,11 @@ export type PostUpdateWithoutAnalyticsSnapshotInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isExternal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutPostNestedInput
   PostPlatform?: Prisma.PostPlatformUpdateManyWithoutPostNestedInput
+  CampaignPost?: Prisma.CampaignPostUpdateOneWithoutPostNestedInput
 }
 
 export type PostUncheckedUpdateWithoutAnalyticsSnapshotInput = {
@@ -613,11 +687,14 @@ export type PostUncheckedUpdateWithoutAnalyticsSnapshotInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isExternal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PostPlatform?: Prisma.PostPlatformUncheckedUpdateManyWithoutPostNestedInput
+  CampaignPost?: Prisma.CampaignPostUncheckedUpdateOneWithoutPostNestedInput
 }
 
 export type PostCreateWithoutPostPlatformInput = {
-  id: string
+  id?: string
   title?: string | null
   content: Prisma.JsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.PostStatus
@@ -627,12 +704,15 @@ export type PostCreateWithoutPostPlatformInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   isExternal?: boolean
+  aiGenerated?: boolean
+  category?: string | null
   AnalyticsSnapshot?: Prisma.AnalyticsSnapshotCreateNestedManyWithoutPostInput
   Workspace: Prisma.WorkspaceCreateNestedOneWithoutPostInput
+  CampaignPost?: Prisma.CampaignPostCreateNestedOneWithoutPostInput
 }
 
 export type PostUncheckedCreateWithoutPostPlatformInput = {
-  id: string
+  id?: string
   workspaceId: string
   title?: string | null
   content: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -643,7 +723,10 @@ export type PostUncheckedCreateWithoutPostPlatformInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   isExternal?: boolean
+  aiGenerated?: boolean
+  category?: string | null
   AnalyticsSnapshot?: Prisma.AnalyticsSnapshotUncheckedCreateNestedManyWithoutPostInput
+  CampaignPost?: Prisma.CampaignPostUncheckedCreateNestedOneWithoutPostInput
 }
 
 export type PostCreateOrConnectWithoutPostPlatformInput = {
@@ -673,8 +756,11 @@ export type PostUpdateWithoutPostPlatformInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isExternal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   AnalyticsSnapshot?: Prisma.AnalyticsSnapshotUpdateManyWithoutPostNestedInput
   Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutPostNestedInput
+  CampaignPost?: Prisma.CampaignPostUpdateOneWithoutPostNestedInput
 }
 
 export type PostUncheckedUpdateWithoutPostPlatformInput = {
@@ -689,11 +775,14 @@ export type PostUncheckedUpdateWithoutPostPlatformInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isExternal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   AnalyticsSnapshot?: Prisma.AnalyticsSnapshotUncheckedUpdateManyWithoutPostNestedInput
+  CampaignPost?: Prisma.CampaignPostUncheckedUpdateOneWithoutPostNestedInput
 }
 
 export type PostCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   title?: string | null
   content: Prisma.JsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.PostStatus
@@ -703,12 +792,15 @@ export type PostCreateWithoutWorkspaceInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   isExternal?: boolean
+  aiGenerated?: boolean
+  category?: string | null
   AnalyticsSnapshot?: Prisma.AnalyticsSnapshotCreateNestedManyWithoutPostInput
   PostPlatform?: Prisma.PostPlatformCreateNestedManyWithoutPostInput
+  CampaignPost?: Prisma.CampaignPostCreateNestedOneWithoutPostInput
 }
 
 export type PostUncheckedCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   title?: string | null
   content: Prisma.JsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.PostStatus
@@ -718,8 +810,11 @@ export type PostUncheckedCreateWithoutWorkspaceInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   isExternal?: boolean
+  aiGenerated?: boolean
+  category?: string | null
   AnalyticsSnapshot?: Prisma.AnalyticsSnapshotUncheckedCreateNestedManyWithoutPostInput
   PostPlatform?: Prisma.PostPlatformUncheckedCreateNestedManyWithoutPostInput
+  CampaignPost?: Prisma.CampaignPostUncheckedCreateNestedOneWithoutPostInput
 }
 
 export type PostCreateOrConnectWithoutWorkspaceInput = {
@@ -763,10 +858,12 @@ export type PostScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   isExternal?: Prisma.BoolFilter<"Post"> | boolean
+  aiGenerated?: Prisma.BoolFilter<"Post"> | boolean
+  category?: Prisma.StringNullableFilter<"Post"> | string | null
 }
 
-export type PostCreateManyWorkspaceInput = {
-  id: string
+export type PostCreateWithoutCampaignPostInput = {
+  id?: string
   title?: string | null
   content: Prisma.JsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.PostStatus
@@ -776,6 +873,96 @@ export type PostCreateManyWorkspaceInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   isExternal?: boolean
+  aiGenerated?: boolean
+  category?: string | null
+  AnalyticsSnapshot?: Prisma.AnalyticsSnapshotCreateNestedManyWithoutPostInput
+  Workspace: Prisma.WorkspaceCreateNestedOneWithoutPostInput
+  PostPlatform?: Prisma.PostPlatformCreateNestedManyWithoutPostInput
+}
+
+export type PostUncheckedCreateWithoutCampaignPostInput = {
+  id?: string
+  workspaceId: string
+  title?: string | null
+  content: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  status?: $Enums.PostStatus
+  confidence?: $Enums.ConfidenceLevel | null
+  scheduledAt?: Date | string | null
+  publishedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  isExternal?: boolean
+  aiGenerated?: boolean
+  category?: string | null
+  AnalyticsSnapshot?: Prisma.AnalyticsSnapshotUncheckedCreateNestedManyWithoutPostInput
+  PostPlatform?: Prisma.PostPlatformUncheckedCreateNestedManyWithoutPostInput
+}
+
+export type PostCreateOrConnectWithoutCampaignPostInput = {
+  where: Prisma.PostWhereUniqueInput
+  create: Prisma.XOR<Prisma.PostCreateWithoutCampaignPostInput, Prisma.PostUncheckedCreateWithoutCampaignPostInput>
+}
+
+export type PostUpsertWithoutCampaignPostInput = {
+  update: Prisma.XOR<Prisma.PostUpdateWithoutCampaignPostInput, Prisma.PostUncheckedUpdateWithoutCampaignPostInput>
+  create: Prisma.XOR<Prisma.PostCreateWithoutCampaignPostInput, Prisma.PostUncheckedCreateWithoutCampaignPostInput>
+  where?: Prisma.PostWhereInput
+}
+
+export type PostUpdateToOneWithWhereWithoutCampaignPostInput = {
+  where?: Prisma.PostWhereInput
+  data: Prisma.XOR<Prisma.PostUpdateWithoutCampaignPostInput, Prisma.PostUncheckedUpdateWithoutCampaignPostInput>
+}
+
+export type PostUpdateWithoutCampaignPostInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
+  confidence?: Prisma.NullableEnumConfidenceLevelFieldUpdateOperationsInput | $Enums.ConfidenceLevel | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isExternal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AnalyticsSnapshot?: Prisma.AnalyticsSnapshotUpdateManyWithoutPostNestedInput
+  Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutPostNestedInput
+  PostPlatform?: Prisma.PostPlatformUpdateManyWithoutPostNestedInput
+}
+
+export type PostUncheckedUpdateWithoutCampaignPostInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
+  confidence?: Prisma.NullableEnumConfidenceLevelFieldUpdateOperationsInput | $Enums.ConfidenceLevel | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isExternal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AnalyticsSnapshot?: Prisma.AnalyticsSnapshotUncheckedUpdateManyWithoutPostNestedInput
+  PostPlatform?: Prisma.PostPlatformUncheckedUpdateManyWithoutPostNestedInput
+}
+
+export type PostCreateManyWorkspaceInput = {
+  id?: string
+  title?: string | null
+  content: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  status?: $Enums.PostStatus
+  confidence?: $Enums.ConfidenceLevel | null
+  scheduledAt?: Date | string | null
+  publishedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  isExternal?: boolean
+  aiGenerated?: boolean
+  category?: string | null
 }
 
 export type PostUpdateWithoutWorkspaceInput = {
@@ -789,8 +976,11 @@ export type PostUpdateWithoutWorkspaceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isExternal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   AnalyticsSnapshot?: Prisma.AnalyticsSnapshotUpdateManyWithoutPostNestedInput
   PostPlatform?: Prisma.PostPlatformUpdateManyWithoutPostNestedInput
+  CampaignPost?: Prisma.CampaignPostUpdateOneWithoutPostNestedInput
 }
 
 export type PostUncheckedUpdateWithoutWorkspaceInput = {
@@ -804,8 +994,11 @@ export type PostUncheckedUpdateWithoutWorkspaceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isExternal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   AnalyticsSnapshot?: Prisma.AnalyticsSnapshotUncheckedUpdateManyWithoutPostNestedInput
   PostPlatform?: Prisma.PostPlatformUncheckedUpdateManyWithoutPostNestedInput
+  CampaignPost?: Prisma.CampaignPostUncheckedUpdateOneWithoutPostNestedInput
 }
 
 export type PostUncheckedUpdateManyWithoutWorkspaceInput = {
@@ -819,6 +1012,8 @@ export type PostUncheckedUpdateManyWithoutWorkspaceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isExternal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -873,9 +1068,12 @@ export type PostSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   updatedAt?: boolean
   isExternal?: boolean
+  aiGenerated?: boolean
+  category?: boolean
   AnalyticsSnapshot?: boolean | Prisma.Post$AnalyticsSnapshotArgs<ExtArgs>
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   PostPlatform?: boolean | Prisma.Post$PostPlatformArgs<ExtArgs>
+  CampaignPost?: boolean | Prisma.Post$CampaignPostArgs<ExtArgs>
   _count?: boolean | Prisma.PostCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["post"]>
 
@@ -891,6 +1089,8 @@ export type PostSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   createdAt?: boolean
   updatedAt?: boolean
   isExternal?: boolean
+  aiGenerated?: boolean
+  category?: boolean
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["post"]>
 
@@ -906,6 +1106,8 @@ export type PostSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   createdAt?: boolean
   updatedAt?: boolean
   isExternal?: boolean
+  aiGenerated?: boolean
+  category?: boolean
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["post"]>
 
@@ -921,13 +1123,16 @@ export type PostSelectScalar = {
   createdAt?: boolean
   updatedAt?: boolean
   isExternal?: boolean
+  aiGenerated?: boolean
+  category?: boolean
 }
 
-export type PostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "title" | "content" | "status" | "confidence" | "scheduledAt" | "publishedAt" | "createdAt" | "updatedAt" | "isExternal", ExtArgs["result"]["post"]>
+export type PostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "title" | "content" | "status" | "confidence" | "scheduledAt" | "publishedAt" | "createdAt" | "updatedAt" | "isExternal" | "aiGenerated" | "category", ExtArgs["result"]["post"]>
 export type PostInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   AnalyticsSnapshot?: boolean | Prisma.Post$AnalyticsSnapshotArgs<ExtArgs>
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   PostPlatform?: boolean | Prisma.Post$PostPlatformArgs<ExtArgs>
+  CampaignPost?: boolean | Prisma.Post$CampaignPostArgs<ExtArgs>
   _count?: boolean | Prisma.PostCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PostIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -943,6 +1148,7 @@ export type $PostPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     AnalyticsSnapshot: Prisma.$AnalyticsSnapshotPayload<ExtArgs>[]
     Workspace: Prisma.$WorkspacePayload<ExtArgs>
     PostPlatform: Prisma.$PostPlatformPayload<ExtArgs>[]
+    CampaignPost: Prisma.$CampaignPostPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -956,6 +1162,8 @@ export type $PostPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     createdAt: Date
     updatedAt: Date
     isExternal: boolean
+    aiGenerated: boolean
+    category: string | null
   }, ExtArgs["result"]["post"]>
   composites: {}
 }
@@ -1353,6 +1561,7 @@ export interface Prisma__PostClient<T, Null = never, ExtArgs extends runtime.Typ
   AnalyticsSnapshot<T extends Prisma.Post$AnalyticsSnapshotArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Post$AnalyticsSnapshotArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AnalyticsSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   PostPlatform<T extends Prisma.Post$PostPlatformArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Post$PostPlatformArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PostPlatformPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  CampaignPost<T extends Prisma.Post$CampaignPostArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Post$CampaignPostArgs<ExtArgs>>): Prisma.Prisma__CampaignPostClient<runtime.Types.Result.GetResult<Prisma.$CampaignPostPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1393,6 +1602,8 @@ export interface PostFieldRefs {
   readonly createdAt: Prisma.FieldRef<"Post", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Post", 'DateTime'>
   readonly isExternal: Prisma.FieldRef<"Post", 'Boolean'>
+  readonly aiGenerated: Prisma.FieldRef<"Post", 'Boolean'>
+  readonly category: Prisma.FieldRef<"Post", 'String'>
 }
     
 
@@ -1839,6 +2050,25 @@ export type Post$PostPlatformArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.PostPlatformScalarFieldEnum | Prisma.PostPlatformScalarFieldEnum[]
+}
+
+/**
+ * Post.CampaignPost
+ */
+export type Post$CampaignPostArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CampaignPost
+   */
+  select?: Prisma.CampaignPostSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CampaignPost
+   */
+  omit?: Prisma.CampaignPostOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CampaignPostInclude<ExtArgs> | null
+  where?: Prisma.CampaignPostWhereInput
 }
 
 /**

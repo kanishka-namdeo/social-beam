@@ -48,6 +48,7 @@ async function searchDuckDuckGo(query: string, maxResults: number) {
       "Accept": "text/html,application/xhtml+xml",
       "Accept-Language": "en-US,en;q=0.9",
     },
+    signal: AbortSignal.timeout(15000),
   });
 
   if (!response.ok) {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import NextImage from "next/image";
 import {
   Archive,
   Check,
@@ -63,12 +64,20 @@ export function MediaCard({ asset, onDelete, onSelect, selected = false, showAct
   const [tagEditOpen, setTagEditOpen] = useState(false);
   const [tagValue, setTagValue] = useState(asset.tags.join(", "));
   const [isSavingTags, setIsSavingTags] = useState(false);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    };
+  }, []);
 
   const handleCopyUrl = async () => {
     try {
       await navigator.clipboard.writeText(asset.publicUrl);
       setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 1500);
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+      copyTimeoutRef.current = setTimeout(() => setCopySuccess(false), 1500);
     } catch {
       toast.error("Failed to copy URL");
     }
@@ -205,11 +214,12 @@ export function MediaCard({ asset, onDelete, onSelect, selected = false, showAct
             <Image className="size-8" weight="thin" />
           </div>
         ) : (
-          <img
+          <NextImage
             src={asset.publicUrl}
             alt={asset.originalName}
-            className="h-full w-full object-cover transition-transform group-hover:scale-105"
-            loading="lazy"
+            fill
+            className="object-cover transition-transform group-hover:scale-105"
+            unoptimized
             onError={() => setImageError(true)}
           />
         )}

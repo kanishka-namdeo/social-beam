@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ChartBar, CalendarDots, TrendUp, TrendDown, CheckCircle, Warning } from "@phosphor-icons/react/ssr";
 import { cn } from "@/lib/utils";
+import { parseWeeklyCadence } from "@/lib/utils/cadence";
 import { startOfWeek, endOfWeek, startOfMonth, isSameWeek, isSameMonth, eachDayOfInterval } from "date-fns";
 import type { PostItem } from "./types";
 
@@ -17,19 +18,6 @@ interface PlatformContext {
 interface PostingFrequencyProps {
   posts: PostItem[];
   platformContexts?: PlatformContext[];
-}
-
-function parseWeeklyCadence(cadence: string | null): number | null {
-  if (!cadence) return null;
-  const c = cadence.toLowerCase();
-  if (c === "daily") return 7;
-  const xPerWeek = c.match(/(\d+)\s*x\s*\/?\s*week/);
-  if (xPerWeek) return parseInt(xPerWeek[1], 10);
-  const perWeek = c.match(/(\d+)\s*per\s*week/);
-  if (perWeek) return parseInt(perWeek[1], 10);
-  if (c === "weekly") return 1;
-  if (c === "biweekly" || c.includes("every 2")) return 0;
-  return null;
 }
 
 export function PostingFrequency({ posts, platformContexts }: PostingFrequencyProps) {

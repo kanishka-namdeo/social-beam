@@ -12,8 +12,9 @@ export interface PublishPayload {
   postId: string;
   workspaceId: string;
   content: string; // The text content to publish
+  contentHtml?: string; // Original HTML content (for mention resolution)
   mediaUrls: string[]; // Array of media URLs
-  platformPostData?: Record<PlatformName, { content?: string; mediaUrls?: string[] }>; // Platform-specific overrides
+  platformPostData?: Partial<Record<PlatformName, { content?: string; mediaUrls?: string[] }>>; // Platform-specific overrides
 }
 
 export interface PlatformAdapter {

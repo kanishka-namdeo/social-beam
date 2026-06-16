@@ -3,34 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { scrapeSubreddit } from "@/lib/reddit/scraper";
 import { processAndStoreTrendingPosts } from "@/lib/reddit/trending-analysis";
+import { updateVelocityForPosts } from "@/lib/reddit/velocity-tracker";
+import { analyzeAndStoreClusters } from "@/lib/reddit/cluster-analyzer";
 import { logger } from "@/lib/logger";
-
-export interface JobStatus {
-  phase: "scraping" | "analyzing" | "done" | "error";
-  progress: number;
-  postsFound: number;
-  analyzed: number;
-  skipped: number;
-  totalSubreddits: number;
-  completedSubreddits: number;
-  message?: string;
-}
-
-const activeJobs = new Map<string, JobStatus>();
-
-export function getJobStatus(jobId: string): JobStatus | undefined {
-  return activeJobs.get(jobId);
-}
-
-export function clearOldJobs(): void {
-  for (const [key, job] of activeJobs) {
-    if (job.phase === "done" || job.phase === "error") {
-      activeJobs.delete(key);
-    }
-  }
-}
-
-clearOldJobs();
 
 const MAX_POSTS_PER_SCRAPE = 50;
 
@@ -61,86 +36,130 @@ export async function POST() {
       }, { status: 400 });
     }
 
-    const jobId = `${workspaceId}:job_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    const initialStatus: JobStatus = {
-      phase: "scraping",
-      progress: 0,
-      postsFound: 0,
-      analyzed: 0,
-      skipped: 0,
-      totalSubreddits: configs.length,
-      completedSubreddits: 0,
-      message: `Starting scrape across ${configs.length} subreddits...`,
-    };
-    activeJobs.set(jobId, initialStatus);
+    // Create a database-backed job record
+    const job = await prisma.redditScrapeJob.create({
+      data: {
+        workspaceId,
+        status: "running",
+        progress: 0,
+        currentSub: null,
+      },
+    });
+
+    const jobId = job.id;
 
     const runScrape = async () => {
       let totalPosts = 0;
+      let totalAnalyzed = 0;
+      let totalSkipped = 0;
+      const jobErrors: string[] = [];
+      const allRefreshedPostIds: string[] = [];
 
       for (let i = 0; i < configs.length; i++) {
         const config = configs[i];
         try {
-          const status = activeJobs.get(jobId);
-          if (status) {
-            activeJobs.set(jobId, {
-              ...status,
-              message: `Scraping r/${config.subreddit}...`,
-            });
-          }
+          await prisma.redditScrapeJob.update({
+            where: { id: jobId },
+            data: {
+              currentSub: config.subreddit,
+              progress: Math.round((i / configs.length) * 100),
+            },
+          });
 
           const posts = await scrapeSubreddit(config.subreddit, config.sortOrder);
           const cappedPosts = posts.slice(0, MAX_POSTS_PER_SCRAPE);
+
           if (cappedPosts.length > 0) {
             const onProgress = (
               phase: "scraping" | "analyzing" | "done",
               counts: { total: number; analyzed: number; skipped: number },
             ) => {
-              const currentStatus = activeJobs.get(jobId);
-              if (currentStatus) {
-                activeJobs.set(jobId, {
-                  ...currentStatus,
-                  phase,
-                  progress: Math.round(((i + (phase === "done" ? 1 : 0.5)) / configs.length) * 100),
-                  postsFound: totalPosts + counts.total,
-                  analyzed: currentStatus.analyzed + counts.analyzed,
-                  skipped: currentStatus.skipped + counts.skipped,
-                });
+              // Update progress in DB during analysis phase
+              if (phase === "analyzing" || phase === "done") {
+                const subProgress = (i + (phase === "done" ? 1 : 0.5)) / configs.length;
+                prisma.redditScrapeJob.update({
+                  where: { id: jobId },
+                  data: {
+                    progress: Math.round(subProgress * 100),
+                    result: {
+                      postsFound: totalPosts + counts.total,
+                      analyzed: totalAnalyzed + counts.analyzed,
+                      skipped: totalSkipped + counts.skipped,
+                    },
+                  },
+                }).catch(() => {}); // Fire-and-forget progress update
               }
             };
 
-            await processAndStoreTrendingPosts(workspaceId, cappedPosts, onProgress);
+            const result = await processAndStoreTrendingPosts(workspaceId, cappedPosts, onProgress);
             totalPosts += cappedPosts.length;
+            if (result.refreshedPostIds && result.refreshedPostIds.length > 0) {
+              allRefreshedPostIds.push(...result.refreshedPostIds);
+            }
           }
         } catch (err) {
+          const errorMsg = `r/${config.subreddit}: ${String(err)}`;
+          jobErrors.push(errorMsg);
           logger.error("reddit.trigger.subreddit_error", {
             subreddit: config.subreddit,
             error: String(err),
           });
         }
 
-        const currentStatus = activeJobs.get(jobId);
-        if (currentStatus) {
-          activeJobs.set(jobId, {
-            ...currentStatus,
-            completedSubreddits: i + 1,
-            postsFound: totalPosts,
+        await prisma.redditScrapeJob.update({
+          where: { id: jobId },
+          data: {
             progress: Math.round(((i + 1) / configs.length) * 100),
-            message: i + 1 === configs.length ? "Done!" : `Completed r/${config.subreddit}`,
-          });
-        }
-      }
-
-      const finalStatus = activeJobs.get(jobId);
-      if (finalStatus) {
-        activeJobs.set(jobId, {
-          ...finalStatus,
-          phase: "done",
-          progress: 100,
-          message: `Scraped ${configs.length} subreddits, found ${totalPosts} posts`,
+            result: {
+              postsFound: totalPosts,
+              analyzed: totalAnalyzed,
+              skipped: totalSkipped,
+              completedSubreddits: i + 1,
+              totalSubreddits: configs.length,
+            },
+          },
         });
       }
 
-      log.info("api.request.success", { configCount: configs.length, totalPosts });
+      // Phase 4: Run velocity tracking on refreshed posts
+      if (allRefreshedPostIds.length > 0) {
+        try {
+          await updateVelocityForPosts(workspaceId, allRefreshedPostIds);
+          logger.info("reddit.trigger.velocity_completed", {
+            jobId,
+            refreshedCount: allRefreshedPostIds.length,
+          });
+        } catch (err) {
+          logger.error("reddit.trigger.velocity_error", { jobId, error: String(err) });
+        }
+      }
+
+      // Phase 4: Run cross-subreddit clustering
+      try {
+        await analyzeAndStoreClusters(workspaceId);
+        logger.info("reddit.trigger.clustering_completed", { jobId });
+      } catch (err) {
+        logger.error("reddit.trigger.clustering_error", { jobId, error: String(err) });
+      }
+
+      await prisma.redditScrapeJob.update({
+        where: { id: jobId },
+        data: {
+          status: jobErrors.length > 0 ? "completed_with_errors" : "completed",
+          progress: 100,
+          currentSub: null,
+          completedAt: new Date(),
+          result: {
+            postsFound: totalPosts,
+            analyzed: totalAnalyzed,
+            skipped: totalSkipped,
+            errors: jobErrors,
+            velocityUpdated: allRefreshedPostIds.length,
+          },
+        },
+      });
+
+      log.info("api.request.success", { jobId, configCount: configs.length, totalPosts });
     };
 
     void runScrape();
@@ -148,7 +167,7 @@ export async function POST() {
     return NextResponse.json({
       data: {
         jobId,
-        message: `Scrape triggered across ${configs.length} subreddits. Monitoring progress...`,
+        message: `Scrape triggered across ${configs.length} subreddits. Poll /api/reddit/trending/status?jobId=${jobId} for progress.`,
       },
     });
   } catch (err) {

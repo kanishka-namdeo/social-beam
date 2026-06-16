@@ -1,0 +1,64 @@
+FROM node:22-slim
+
+# Install system dependencies for Xvfb + CloakBrowser
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    xvfb \
+    xauth \
+    fonts-liberation \
+    fonts-noto-color-emoji \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libcups2 \
+    libdbus-1-3 \
+    libdrm2 \
+    libgbm1 \
+    libgtk-3-0 \
+    libnspr4 \
+    libnss3 \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libxshmfence1 \
+    xdg-utils \
+    wget \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@10.33.2 --activate
+
+# Copy only package files for dependency installation
+COPY package.json pnpm-lock.yaml .npmrc ./
+
+# Install dependencies
+RUN pnpm install --no-frozen-lockfile
+
+# Install CloakBrowser + all Chromium system dependencies
+# This downloads the stealth Chromium binary (~200MB)
+RUN apt-get update && \
+    npx cloakbrowser install && \
+    npx playwright install-deps chromium && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create non-root user for running the browser at runtime
+RUN groupadd -r cloakbrowser && useradd -r -g cloakbrowser -G audio,video cloakbrowser && \
+    mkdir -p /home/cloakbrowser && chown -R cloakbrowser:cloakbrowser /home/cloakbrowser /app
+
+# Expose CDP port
+EXPOSE 9222
+
+# Environment variables
+ENV DISPLAY=:99
+
+# Start CloakBrowser CDP server (cloakserve)
+# cloakserve is the official CDP multiplexer from CloakBrowser
+# It spawns separate Chrome processes per fingerprint seed
+# Connect via: await chromium.connectOverCDP('http://localhost:9222?fingerprint=12345')
+USER cloakbrowser
+CMD ["npx", "cloakbrowser", "cloakserve", "--port=9222"]

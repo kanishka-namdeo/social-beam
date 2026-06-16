@@ -1,6 +1,6 @@
 ---
 description: Testing conventions for Next.js App Router with Vitest and Playwright. Covers test file naming, what to test, mocking strategies, and coverage expectations.
-globs: *.test.ts,*.test.tsx,*.spec.ts,*.spec.tsx,__tests__/**/*.ts,__tests__/**/*.tsx
+globs: "**/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx,**/__tests__/**/*.ts,**/__tests__/**/*.tsx"
 ---
 
 # Testing Conventions
@@ -217,17 +217,17 @@ beforeEach(() => {
 
 ```bash
 # Unit + component tests
-npx vitest run
+pnpm exec vitest run
 
 # Watch mode
-npx vitest
+pnpm exec vitest
 
 # Single test file
-npx vitest run lib/utils.test.ts
+pnpm exec vitest run lib/utils.test.ts
 
 # E2E tests
-npx playwright test
+pnpm exec playwright test
 
 # Specific E2E test
-npx playwright test login
+pnpm exec playwright test login
 ```

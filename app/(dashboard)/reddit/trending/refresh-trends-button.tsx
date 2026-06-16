@@ -12,6 +12,7 @@ export function RefreshTrendsButton() {
   const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState<string>("scraping");
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pollAbortRef = useRef<AbortController | null>(null);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -19,6 +20,7 @@ export function RefreshTrendsButton() {
     return () => {
       mountedRef.current = false;
       if (pollRef.current) clearTimeout(pollRef.current);
+      pollAbortRef.current?.abort();
     };
   }, []);
 
@@ -34,8 +36,15 @@ export function RefreshTrendsButton() {
         return;
       }
 
+      // Abort previous in-flight request before starting a new one
+      pollAbortRef.current?.abort();
+      const controller = new AbortController();
+      pollAbortRef.current = controller;
+
       try {
-        const res = await fetch(`/api/reddit/trending/status?jobId=${jobId}`);
+        const res = await fetch(`/api/reddit/trending/status?jobId=${jobId}`, {
+          signal: controller.signal,
+        });
         if (res.ok) {
           const json = await res.json();
           const status = json.data;

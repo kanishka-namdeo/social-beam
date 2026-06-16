@@ -6,15 +6,21 @@ import { Badge } from "@/components/ui/badge";
 import {
   Sparkle,
   ArrowClockwise,
+  Target,
 } from "@phosphor-icons/react/ssr";
 import { TrendingEmptyState } from "@/components/reddit/trending-empty-state";
 import { TrendingTable } from "@/components/reddit/trending-table";
+import { IntentScoreCard } from "@/components/reddit/intent-score-card";
+import { AlertManager } from "@/components/reddit/alert-manager";
+import { TrendClusterSection } from "@/components/reddit/trend-cluster-card";
 import { PeriodFilters } from "./period-filters";
 import { SubredditFilterTabs } from "./subreddit-filter-tabs";
 import { RefreshTrendsButton } from "./refresh-trends-button";
 import { subHours } from "@/lib/utils/dates";
 import { loadBrandContextForAI } from "@/lib/ai/brand-context-loader";
 import { RedditTrendingClient } from "./reddit-trending-client";
+import { PageHeader } from "@/components/shared/page-header";
+import type { TrendingPost } from "@/lib/reddit/types";
 
 const VALID_PERIODS = [6, 24, 168, 720] as const;
 const DEFAULT_PERIOD = 24;
@@ -75,6 +81,50 @@ export default async function RedditTrendingPage({
 
   const hasData = posts.length > 0;
 
+  // Extract high-intent posts for intent score cards
+  const highIntentPosts = posts
+    .filter((p) => p.intentScore != null && p.intentScore >= 70)
+    .sort((a, b) => (b.intentScore ?? 0) - (a.intentScore ?? 0))
+    .slice(0, 3);
+
+  // Build trend clusters (posts appearing in multiple subreddits with similar topics)
+  const topicMap = new Map<string, TrendingPost[]>();
+  posts.forEach((post) => {
+    const topicKey = post.topicTags?.[0] ?? post.subreddit;
+    if (!topicMap.has(topicKey)) {
+      topicMap.set(topicKey, []);
+    }
+    topicMap.get(topicKey)!.push(post);
+  });
+
+  const trendClusters = Array.from(topicMap.entries())
+    .filter(([_, clusterPosts]) => {
+      const subreddits = new Set(clusterPosts.map((p) => p.subreddit));
+      return subreddits.size >= 2;
+    })
+    .map(([topic, clusterPosts]) => {
+      const subreddits = Array.from(new Set(clusterPosts.map((p) => p.subreddit)));
+      const totalUpvotes = clusterPosts.reduce((sum, p) => sum + p.upvotes, 0);
+      const totalComments = clusterPosts.reduce((sum, p) => sum + p.commentCount, 0);
+      return {
+        id: topic,
+        topic,
+        keywords: [],
+        subreddits,
+        totalUpvotes,
+        totalComments,
+        posts: clusterPosts.slice(0, 3).map((p) => ({
+          id: p.id,
+          title: p.title,
+          subreddit: p.subreddit,
+          upvotes: p.upvotes,
+          commentCount: p.commentCount,
+          url: p.url,
+        })),
+      };
+    })
+    .slice(0, 6);
+
   // Load brand context for subreddit recommendations
   const brandCtx = await loadBrandContextForAI(workspaceId);
   const hasBrandContext = !!brandCtx && !!brandCtx.identity.industry;
@@ -83,28 +133,12 @@ export default async function RedditTrendingPage({
   return (
     <div className="mx-auto max-w-7xl space-y-8">
       {/* Header */}
-      <div id="manage-subreddits" className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground flex items-center gap-2">
-            <Sparkle className="size-6 text-brand" weight="fill" />
-            Reddit Trending Radar
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Track trending discussions across your configured subreddits.
-          </p>
-          {lastScrapedAt && lastScrapedAt > 0 && (
-            <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-              <ArrowClockwise className="size-3" />
-              Last refreshed: {new Date(lastScrapedAt).toLocaleString(undefined, {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </p>
-          )}
-        </div>
+      <div id="manage-subreddits" className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <PageHeader
+          title="Reddit Trending Radar"
+          description="Track trending discussions across your configured subreddits."
+          backLink={{ href: "/dashboard", label: "Dashboard" }}
+        />
         <div className="flex items-center gap-2">
             <RedditTrendingClient
               hasBrandContext={hasBrandContext}
@@ -119,6 +153,19 @@ export default async function RedditTrendingPage({
             />
           </div>
       </div>
+
+      {lastScrapedAt && lastScrapedAt > 0 && (
+        <p className="flex items-center gap-1 text-xs text-muted-foreground">
+          <ArrowClockwise className="size-3" />
+          Last refreshed: {new Date(lastScrapedAt).toLocaleString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </p>
+      )}
 
       {/* Recommendation Banner */}
       <RedditTrendingClient
@@ -206,8 +253,45 @@ export default async function RedditTrendingPage({
             </Card>
           )}
 
+          {/* High-Intent Leads Section */}
+          {highIntentPosts.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Target className="size-4 text-success" weight="fill" />
+                <h3 className="text-sm font-semibold text-foreground">High-Intent Leads</h3>
+                <Badge variant="secondary" className="text-xs">
+                  {highIntentPosts.length} opportunities
+                </Badge>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {highIntentPosts.map((post) => (
+                  <IntentScoreCard
+                    key={post.id}
+                    intentScore={post.intentScore ?? 0}
+                    intentType={post.intentType ?? null}
+                    intentSignals={(post.intentSignals as Array<{ type: string; text: string; location: "post" | "comment" }>) ?? null}
+                    postId={post.id}
+                    postTitle={post.title}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Trend Clusters Section */}
+          {trendClusters.length > 0 && (
+            <TrendClusterSection clusters={trendClusters} />
+          )}
+
           {/* Trending Posts Table with action handoff */}
           <TrendingTable posts={posts} hours={hours} />
+
+          {/* Alert Manager Section */}
+          <Card>
+            <CardContent className="pt-6">
+              <AlertManager />
+            </CardContent>
+          </Card>
         </>
       )}
     </div>

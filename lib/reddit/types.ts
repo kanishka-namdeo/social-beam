@@ -64,6 +64,12 @@ export interface TrendingPost {
   dismissedAt?: Date | null;
   actedOnAt?: Date | null;
   scrapedAt?: Date | null;
+  // Phase 5 UI enhancements - optional fields
+  trendPhase?: string | null;
+  maxCommentDepth?: number | null;
+  intentScore?: number | null;
+  intentType?: string | null;
+  intentSignals?: unknown;
 }
 
 export function isAiAnalysisFailed(reason: string | null | undefined): boolean {

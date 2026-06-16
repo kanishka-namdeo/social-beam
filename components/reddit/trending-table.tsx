@@ -29,6 +29,8 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ActionHandoffDialog } from "./action-handoff-dialog";
 import { BrandReasonBreakdown } from "./brand-reason-breakdown";
+import { TrendPhaseBadge } from "./trend-phase-badge";
+import { EngagementDepthChart } from "./engagement-depth-chart";
 import type { TrendingPost } from "@/lib/reddit/types";
 import { getRelevanceBadgeClass, getRelevanceLabel, isAiAnalysisFailed } from "@/lib/reddit/types";
 import { getActionIcon } from "@/lib/reddit/ui-helpers";
@@ -328,6 +330,7 @@ export function TrendingTable({ posts, hours }: TrendingTableProps) {
                           Comments
                         </span>
                       </TableHead>
+                      <TableHead className="text-xs font-medium uppercase tracking-tight text-muted-foreground">Engagement</TableHead>
                       <TableHead className="text-xs font-medium uppercase tracking-tight text-muted-foreground">Sentiment</TableHead>
                       <TableHead className="text-xs font-medium uppercase tracking-tight text-muted-foreground">Risk</TableHead>
                       <TableHead className="text-xs font-medium uppercase tracking-tight text-muted-foreground">
@@ -367,14 +370,19 @@ export function TrendingTable({ posts, hours }: TrendingTableProps) {
                     >
                       <TableCell>
                         <div className="space-y-0.5">
-                          <a
-                            href={post.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm font-medium text-foreground hover:underline truncate-2"
-                          >
-                            {post.title}
-                          </a>
+                          <div className="flex items-start gap-2">
+                            <a
+                              href={post.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm font-medium text-foreground hover:underline truncate-2 flex-1"
+                            >
+                              {post.title}
+                            </a>
+                            {post.trendPhase && (
+                              <TrendPhaseBadge phase={post.trendPhase} className="shrink-0" />
+                            )}
+                          </div>
                           {post.relevanceReason && (
                             <p className="text-xs text-muted-foreground truncate">
                               {post.relevanceReason}
@@ -393,6 +401,12 @@ export function TrendingTable({ posts, hours }: TrendingTableProps) {
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground tabular-nums">
                         <span className="tabular-nums">{post.commentCount.toLocaleString()}</span>
+                      </TableCell>
+                      <TableCell>
+                        <EngagementDepthChart
+                          commentCount={post.commentCount}
+                          maxDepth={post.maxCommentDepth ?? 0}
+                        />
                       </TableCell>
                       <TableCell>
                         <Badge

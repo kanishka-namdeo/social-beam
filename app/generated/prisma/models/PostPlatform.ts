@@ -297,7 +297,7 @@ export type PostPlatformScalarWhereWithAggregatesInput = {
 }
 
 export type PostPlatformCreateInput = {
-  id: string
+  id?: string
   platform: string
   content: string
   mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -311,7 +311,7 @@ export type PostPlatformCreateInput = {
 }
 
 export type PostPlatformUncheckedCreateInput = {
-  id: string
+  id?: string
   postId: string
   platform: string
   content: string
@@ -353,7 +353,7 @@ export type PostPlatformUncheckedUpdateInput = {
 }
 
 export type PostPlatformCreateManyInput = {
-  id: string
+  id?: string
   postId: string
   platform: string
   content: string
@@ -486,7 +486,7 @@ export type PostPlatformUncheckedUpdateManyWithoutPostNestedInput = {
 }
 
 export type PostPlatformCreateWithoutPostInput = {
-  id: string
+  id?: string
   platform: string
   content: string
   mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -499,7 +499,7 @@ export type PostPlatformCreateWithoutPostInput = {
 }
 
 export type PostPlatformUncheckedCreateWithoutPostInput = {
-  id: string
+  id?: string
   platform: string
   content: string
   mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -555,7 +555,7 @@ export type PostPlatformScalarWhereInput = {
 }
 
 export type PostPlatformCreateManyPostInput = {
-  id: string
+  id?: string
   platform: string
   content: string
   mediaUrls?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue

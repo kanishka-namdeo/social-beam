@@ -1,9 +1,10 @@
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Warning } from "@phosphor-icons/react/ssr";
+import * as Sentry from '@sentry/nextjs';
+import { useEffect, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Warning } from '@phosphor-icons/react/ssr';
 
 export default function TrendingError({
   error,
@@ -16,11 +17,14 @@ export default function TrendingError({
   useEffect(() => {
     if (!loggedRef.current) {
       loggedRef.current = true;
-      fetch("/api/reddit/trending/error", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: error.message, digest: error.digest }),
-      }).catch(() => {});
+      Sentry.captureException(error, {
+        tags: {
+          component: 'TrendingError',
+        },
+        extra: {
+          digest: error.digest,
+        },
+      });
     }
   }, [error]);
 
@@ -28,7 +32,7 @@ export default function TrendingError({
     <div className="flex min-h-[60vh] items-center justify-center">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <Warning className="mx-auto size-12 text-warning" weight="fill" />
+          <Warning className="mx-auto size-12 text-destructive" weight="fill" />
           <CardTitle className="mt-3 text-xl">Something went wrong</CardTitle>
           <CardDescription>
             An unexpected error occurred while loading trending posts.
@@ -36,7 +40,7 @@ export default function TrendingError({
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-center text-sm text-muted-foreground">
-            Trending data updates automatically. Try refreshing or check back later.
+            Trending data updates automatically. Try again or check back later.
           </p>
           <div className="flex justify-center gap-3">
             <Button variant="default" onClick={() => reset()}>
@@ -46,7 +50,7 @@ export default function TrendingError({
               Refresh page
             </Button>
             <Button variant="outline" asChild>
-              <a href="/reddit/trending">Back to Research</a>
+              <a href="/contact">Contact support</a>
             </Button>
           </div>
         </CardContent>

@@ -233,7 +233,7 @@ export type BrandContextVersionScalarWhereWithAggregatesInput = {
 }
 
 export type BrandContextVersionCreateInput = {
-  id: string
+  id?: string
   snapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   changeReason?: string | null
   platformSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -242,7 +242,7 @@ export type BrandContextVersionCreateInput = {
 }
 
 export type BrandContextVersionUncheckedCreateInput = {
-  id: string
+  id?: string
   brandContextId: string
   snapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   changeReason?: string | null
@@ -269,7 +269,7 @@ export type BrandContextVersionUncheckedUpdateInput = {
 }
 
 export type BrandContextVersionCreateManyInput = {
-  id: string
+  id?: string
   brandContextId: string
   snapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   changeReason?: string | null
@@ -370,7 +370,7 @@ export type BrandContextVersionUncheckedUpdateManyWithoutBrandContextNestedInput
 }
 
 export type BrandContextVersionCreateWithoutBrandContextInput = {
-  id: string
+  id?: string
   snapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   changeReason?: string | null
   platformSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -378,7 +378,7 @@ export type BrandContextVersionCreateWithoutBrandContextInput = {
 }
 
 export type BrandContextVersionUncheckedCreateWithoutBrandContextInput = {
-  id: string
+  id?: string
   snapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   changeReason?: string | null
   platformSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -424,7 +424,7 @@ export type BrandContextVersionScalarWhereInput = {
 }
 
 export type BrandContextVersionCreateManyBrandContextInput = {
-  id: string
+  id?: string
   snapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
   changeReason?: string | null
   platformSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue

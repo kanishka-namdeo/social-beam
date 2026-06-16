@@ -8,6 +8,7 @@ import { BrandLearningCard } from "@/components/settings/brand-learning-card";
 import { BrandOnboardingBannerClient } from "@/components/dashboard/brand-onboarding-banner-client";
 import { BrandTestPanel } from "@/components/settings/brand-test-panel";
 import { BrandHealthPanel } from "@/components/settings/brand-health-panel";
+import { PageHeader } from "@/components/shared/page-header";
 
 export default async function BrandSettingsPage({
   searchParams,
@@ -39,16 +40,15 @@ export default async function BrandSettingsPage({
 
   return (
     <div className="space-y-8">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Brand Context
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {brandContext
+      <PageHeader
+        title="Brand Context"
+        description={
+          brandContext
             ? "Your brand profile is set up. Re-analyze or edit your brand voice, audience, and platform strategy."
-            : "Tell me about your brand and I'll set everything up — voice, audience, and platform strategy."}
-        </p>
-      </div>
+            : "Tell me about your brand and I'll set everything up — voice, audience, and platform strategy."
+        }
+        backLink={{ href: "/settings", label: "Settings" }}
+      />
 
       {brandContext && !isReanalyzeMode ? (
         <div className="space-y-6">

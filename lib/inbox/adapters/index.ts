@@ -47,7 +47,7 @@ export async function createInboxAdapter(
     case 'x':
       return createXHybridAdapter(token);
     case 'linkedin':
-      return createLinkedinScraperAdapter();
+      return createLinkedinScraperAdapter(workspaceId);
     case 'tiktok':
       return createTikTokHybridAdapter(token);
     case 'pinterest':

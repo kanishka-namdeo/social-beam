@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import NextImage from "next/image";
 import {
   ArrowsClockwise,
   ArrowSquareOut,
@@ -60,13 +61,17 @@ export function PreviewDrawer({ item, onClose, onAdd, isSelected = false, classN
           {imageLoading && (
             <Skeleton className="aspect-video w-full rounded-none" />
           )}
-          <img
-            src={item.url}
-            alt={`Photo by ${item.userName}`}
-            className={cn("w-full object-contain", imageLoading ? "hidden" : "block")}
-            onLoad={() => setImageLoading(false)}
-            onError={() => setImageLoading(false)}
-          />
+          <div className={cn("relative aspect-video w-full", imageLoading ? "hidden" : "block")}>
+            <NextImage
+              src={item.url}
+              alt={`Photo by ${item.userName}`}
+              fill
+              className="object-contain"
+              unoptimized
+              onLoad={() => setImageLoading(false)}
+              onError={() => setImageLoading(false)}
+            />
+          </div>
         </div>
 
         {/* Metadata */}

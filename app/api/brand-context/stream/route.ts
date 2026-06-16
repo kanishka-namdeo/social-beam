@@ -2,22 +2,28 @@ import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { logger } from "@/lib/logger";
-import { getBrandAnalyzerGraph } from "@/lib/agent/brand-analyzer-graph";
+import { getBrandAnalyzerGraph, runWithThreadId } from "@/lib/agent/brand-analyzer-graph";
 import { shutdownCrawler } from "@/lib/agent/crawler";
 import { HumanMessage } from "@langchain/core/messages";
 import { requirePremium } from "@/lib/api-guards";
+import { startActivity, completeActivity, failActivity } from "@/lib/activity-tracker";
+import { ActivityType } from "@/app/generated/prisma";
+import { slidingWindowRateLimit } from "@/lib/redis-rate-limiter";
 
 const StreamRequestSchema = z.object({
   websiteUrl: z.string().url("Must be a valid URL").optional(),
   brandDescription: z.string().max(2000).optional(),
-}).refine((data) => {
+}).superRefine((data, ctx) => {
   if (!data.websiteUrl && !data.brandDescription) {
-    return { error: "Either websiteUrl or brandDescription is required" };
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Either websiteUrl or brandDescription is required",
+    });
   }
-  return true;
 });
 
 const HEARTBEAT_INTERVAL_MS = 10_000;
+const LANGGRAPH_TIMEOUT_MS = 180_000; // 3 minutes
 
 /** Categorize an error string into a structured error code and user-friendly message. */
 function categorizeError(errMsg: string): { errorCode: string; error: string; suggestion: string } {
@@ -88,6 +94,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No workspace" }, { status: 400 });
     }
 
+    // Rate limit: 5 requests per minute per workspace
+    const rateLimitResult = await slidingWindowRateLimit(`brand-context:stream:${workspaceId}`, 5, 60_000);
+    if (!rateLimitResult.allowed) {
+      logger.warn("api.brand_context.stream.rate_limit_exceeded", { workspaceId });
+      return NextResponse.json(
+        { error: "Too many requests. Please wait before starting another brand analysis." },
+        { status: 429, headers: { "Retry-After": String(rateLimitResult.retryAfter ?? 60) } }
+      );
+    }
+
     const body = await req.json();
     const parsed = StreamRequestSchema.safeParse(body);
     if (!parsed.success) {
@@ -103,18 +119,29 @@ export async function POST(req: Request) {
 
     const graph = await getBrandAnalyzerGraph();
     const threadId = `brand-analyze-${workspaceId}-${Date.now()}`;
+
+    // Start activity tracking for this brand analysis
+    const activityLogId = await startActivity(workspaceId, ActivityType.BRAND_ANALYSIS, {
+      threadId,
+      inputType: websiteUrl ? "website" : "description",
+    });
+    let streamSucceeded = false;
+    let streamError: string | undefined;
+
     const encoder = new TextEncoder();
+
+    // Shared state between start() and cancel() for cleanup
+    let heartbeatId: ReturnType<typeof setInterval> | undefined;
+    const startTime = Date.now();
+
+    const clearHeartbeat = () => {
+      if (heartbeatId) clearInterval(heartbeatId);
+      heartbeatId = undefined;
+    };
 
     const stream = new ReadableStream({
       async start(controller) {
         // Heartbeat: keep SSE connection alive during long operations
-        const startTime = Date.now();
-        let heartbeatId: ReturnType<typeof setInterval> | undefined;
-        
-        const clearHeartbeat = () => {
-          if (heartbeatId) clearInterval(heartbeatId);
-          heartbeatId = undefined;
-        };
 
         // Check for client disconnect before enqueuing
         const safeEnqueue = (data: Uint8Array) => {
@@ -152,26 +179,34 @@ export async function POST(req: Request) {
             return;
           }
 
-          const nodeStream = await graph.stream(
-            {
-              ...(websiteUrl ? { websiteUrl } : {}),
-              ...(brandDescription ? { brandDescription } : {}),
-              workspaceId,
-              userId: session.user.id ?? "unknown",
-              correlationId: requestId,
-              messages: [
-                new HumanMessage(
-                  brandDescription
-                    ? `Analyze this brand from the description: ${brandDescription}`
-                    : `Analyze this brand from the website: ${websiteUrl}`
-                ),
-              ],
-            },
-            {
-              configurable: { thread_id: threadId },
-              streamMode: "values",
-            },
-          );
+          // Timeout to prevent indefinite hangs if LLM or graph execution stalls
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error(`LangGraph execution timeout after ${LANGGRAPH_TIMEOUT_MS}ms`)), LANGGRAPH_TIMEOUT_MS);
+          });
+
+          const nodeStream = await Promise.race([
+            graph.stream(
+              {
+                ...(websiteUrl ? { websiteUrl } : {}),
+                ...(brandDescription ? { brandDescription } : {}),
+                workspaceId,
+                userId: session.user.id ?? "unknown",
+                correlationId: requestId,
+                messages: [
+                  new HumanMessage(
+                    brandDescription
+                      ? `Analyze this brand from the description: ${brandDescription}`
+                      : `Analyze this brand from the website: ${websiteUrl}`
+                  ),
+                ],
+              },
+              {
+                configurable: { thread_id: threadId },
+                streamMode: "values",
+              },
+            ),
+            timeoutPromise,
+          ]);
 
           for await (const stateValue of nodeStream) {
             // Check for client disconnect during streaming
@@ -203,6 +238,33 @@ export async function POST(req: Request) {
               })}\n\n`;
               if (!safeEnqueue(encoder.encode(pageData))) return;
               lastCrawlPageCount = crawlPages.length;
+            }
+
+            // Emit page_selection when the page selector finishes selecting top relevant pages
+            if (output?.__selectedPages && Array.isArray(output.__selectedPages) && (output.__selectedPages as unknown[]).length > 0 && !emittedEvents.has("page_selection")) {
+              const totalPages = output?.__totalPagesBefore as number | undefined;
+              const selectedPages = output.__selectedPages as string[];
+              if (totalPages && totalPages > selectedPages.length) {
+                const selectionData = `data: ${JSON.stringify({
+                  page_selection: {
+                    totalPages,
+                    selectedCount: selectedPages.length,
+                  },
+                })}\n\n`;
+                if (!safeEnqueue(encoder.encode(selectionData))) return;
+                emittedEvents.add("page_selection");
+              } else if (totalPages && totalPages <= selectedPages.length) {
+                // All pages selected (no filtering occurred, but still emit for transparency)
+                const selectionData = `data: ${JSON.stringify({
+                  page_selection: {
+                    totalPages,
+                    selectedCount: selectedPages.length,
+                    skipped: true,
+                  },
+                })}\n\n`;
+                if (!safeEnqueue(encoder.encode(selectionData))) return;
+                emittedEvents.add("page_selection");
+              }
             }
 
             // Emit content_summary when collector finishes crawling
@@ -239,6 +301,7 @@ export async function POST(req: Request) {
               })}\n\n`;
               if (!safeEnqueue(encoder.encode(errorData))) return;
               log.warn("api.brand_stream.graph_error", { threadId, errorCode: categorized.errorCode });
+              streamError = categorized.errorCode;
               clearHeartbeat();
               log.info("api.brand_stream.done", { correlationId: requestId, threadId });
               const doneData = `data: ${JSON.stringify({ done: true, threadId })}\n\n`;
@@ -398,6 +461,13 @@ export async function POST(req: Request) {
           }
 
           clearHeartbeat();
+
+          // Delete draft since brand context is now fully saved (only on success path)
+          if (hasDraft && shouldShowReview) {
+            const { deleteBrandDraft } = await import("@/lib/db/brand-context");
+            await deleteBrandDraft(workspaceId).catch(() => {});
+          }
+          streamSucceeded = true;
           log.info("api.brand_stream.done", { correlationId: requestId, threadId });
           const doneData = `data: ${JSON.stringify({ done: true, threadId })}\n\n`;
           controller.enqueue(encoder.encode(doneData));
@@ -408,6 +478,7 @@ export async function POST(req: Request) {
           // GraphInterrupt from interrupt() is expected — treat as successful interrupt, not error
           if (errMsg.includes("GraphInterrupt") || errMsg.includes("interrupt")) {
             log.info("api.brand_stream.interrupted", { threadId });
+            streamSucceeded = true;
             try {
               const finalState = await graph.getState({ configurable: { thread_id: threadId } });
               const stateValues = finalState.values as Record<string, unknown>;
@@ -431,6 +502,7 @@ export async function POST(req: Request) {
               log.error("api.brand_stream.interrupt_state_error", { error: String(getStateErr) });
             }
           } else {
+            streamError = errMsg;
             log.error("api.brand_stream.error", { error: errMsg });
             const categorized = categorizeError(errMsg);
             const errorData = `data: ${JSON.stringify({
@@ -444,7 +516,32 @@ export async function POST(req: Request) {
         } finally {
           clearHeartbeat();
           await shutdownCrawler();
+
+          // Complete or fail the activity
+          if (streamSucceeded) {
+            await completeActivity(activityLogId, {
+              threadId,
+              duration: Date.now() - startTime,
+              status: streamError ? "completed_with_errors" : "completed",
+            });
+          } else if (streamError) {
+            await failActivity(activityLogId, streamError, {
+              threadId,
+              duration: Date.now() - startTime,
+            });
+          } else {
+            // Stream closed without success or explicit error (client disconnect, etc.)
+            await failActivity(activityLogId, "Stream closed unexpectedly", {
+              threadId,
+              duration: Date.now() - startTime,
+            });
+          }
         }
+      },
+      async cancel() {
+        // Client disconnected — clean up heartbeat and crawler
+        clearHeartbeat();
+        await shutdownCrawler();
       },
     });
 

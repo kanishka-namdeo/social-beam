@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { SettingsContent } from "./settings-content";
 import type { UserRole } from "@/lib/role-guard";
+import { PageHeader } from "@/components/shared/page-header";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -29,14 +30,10 @@ export default async function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-0">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Settings
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Manage your workspace configuration, brand voice, and AI guardrails.
-        </p>
-      </div>
+    <PageHeader
+      title="Settings"
+      description="Manage your workspace configuration, brand voice, and AI guardrails."
+    />
 
       <SettingsContent brandContext={brandContext} userRole={userRole} />
     </div>

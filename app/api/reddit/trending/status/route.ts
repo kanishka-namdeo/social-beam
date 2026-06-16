@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { getJobStatus } from "../trigger/route";
+import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -9,10 +10,18 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Missing jobId parameter" }, { status: 400 });
   }
 
-  const status = getJobStatus(jobId);
-  if (!status) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const job = await prisma.redditScrapeJob.findUnique({
+    where: { id: jobId },
+  });
+
+  if (!job) {
     return NextResponse.json({ error: "Job not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ data: status });
+  return NextResponse.json({ data: job });
 }

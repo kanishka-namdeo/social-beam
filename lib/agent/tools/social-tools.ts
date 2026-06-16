@@ -8,6 +8,7 @@ import { resolveCredentials } from '@/lib/oauth/credentials';
 import { encryptToken } from '@/lib/oauth/crypto';
 import { fetchAccountInfo } from '@/lib/oauth/account-info';
 import { getPlatform, isGooglePlatform } from '@/lib/oauth/platform-registry';
+import { encodeOAuthState, decodeOAuthState } from '@/lib/oauth/state';
 
 const InitiateOauthSchema = z.object({
   platform: z.string().describe('Platform name: instagram, facebook, x, linkedin, tiktok, pinterest, threads, googleBusiness, youtube, or bluesky'),
@@ -38,10 +39,6 @@ export const initiateOauthTool = tool(
 
     logger.debug('tool.invoke', { toolName: 'initiate_oauth', platform, userId });
 
-    // ─── DEBUG: Log OAuth initiation ──────────────────────────────────────
-    console.log('[OAUTH DEBUG] initiate_oauth called', { platform, userId, workspaceId, redirectTo });
-    // ──────────────────────────────────────────────────────────────────────
-
     const platformConfig = getPlatform(platform);
     if (!platformConfig) {
       logger.warn('tool.unsupported_platform', { toolName: 'initiate_oauth', platform });
@@ -57,7 +54,6 @@ export const initiateOauthTool = tool(
     const baseUrl = process.env.AUTH_URL ?? 'http://localhost:3000';
     const callbackUrl = `${baseUrl}/api/onboarding/oauth/callback`;
     const redirectUri = callbackUrl;
-    const state = encodeURIComponent(JSON.stringify({ platform, userId, workspaceId, redirectTo }));
 
     // Debug: log credential source and key OAuth params for troubleshooting
     const clientIdMasked = credentials.clientId.slice(0, 4) + '…' + credentials.clientId.slice(-4);
@@ -76,7 +72,7 @@ export const initiateOauthTool = tool(
     if (platform.toLowerCase() === 'x') {
       const codeVerifier = generateCodeVerifier();
       const codeChallenge = await generateCodeChallenge(codeVerifier);
-      const oauthState = JSON.stringify({ platform, userId, workspaceId, codeVerifier, redirectTo });
+      const oauthState = encodeOAuthState({ platform, userId, workspaceId, codeVerifier, redirectTo: redirectTo ?? 'onboarding' });
       const xState = encodeURIComponent(oauthState);
       authUrl = `${platformConfig.authUrl}?response_type=code&client_id=${credentials.clientId}&redirect_uri=${redirectUri}&scope=${encodeURIComponent(platformConfig.scopes)}&state=${xState}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
       logger.info('tool.complete', { toolName: 'initiate_oauth', platform, duration: Date.now() - start });
@@ -86,63 +82,15 @@ export const initiateOauthTool = tool(
     if (isGooglePlatform(platform.toLowerCase())) {
       const codeVerifier = generateCodeVerifier();
       const codeChallenge = await generateCodeChallenge(codeVerifier);
-      const oauthState = JSON.stringify({ platform, userId, workspaceId, codeVerifier, redirectTo });
+      const oauthState = encodeOAuthState({ platform, userId, workspaceId, codeVerifier, redirectTo: redirectTo ?? 'onboarding' });
       const googleState = encodeURIComponent(oauthState);
       authUrl = `${platformConfig.authUrl}?response_type=code&client_id=${credentials.clientId}&redirect_uri=${redirectUri}&scope=${encodeURIComponent(platformConfig.scopes)}&state=${googleState}&code_challenge=${codeChallenge}&code_challenge_method=S256&access_type=offline&prompt=consent`;
       logger.info('tool.complete', { toolName: 'initiate_oauth', platform, duration: Date.now() - start });
       return JSON.stringify({ authUrl, platform });
     }
 
-    authUrl = `${platformConfig.authUrl}?response_type=code&client_id=${credentials.clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(platformConfig.scopes)}&state=${state}`;
-
-    // ─── DEBUG: Log final auth URL and all parameters ────────────────────
-    console.log('[OAUTH DEBUG] === OAuth Auth URL Generated ===');
-    console.log('[OAUTH DEBUG] Platform:', platform);
-    console.log('[OAUTH DEBUG] Auth URL (full, exact):', authUrl);
-    console.log('[OAUTH DEBUG] Base URL (AUTH_URL env):', baseUrl);
-    console.log('[OAUTH DEBUG] Callback URL:', callbackUrl);
-    console.log('[OAUTH DEBUG] Redirect URI (raw):', redirectUri);
-    console.log('[OAUTH DEBUG] Redirect URI (in URL - encoded?):', redirectUri === encodeURIComponent(redirectUri) ? 'NO - raw value used' : 'NO - raw value used (contains special chars)');
-    console.log('[OAUTH DEBUG] Client ID (masked):', clientIdMasked);
-    console.log('[OAUTH DEBUG] Client ID (full):', credentials.clientId);
-    console.log('[OAUTH DEBUG] Credential source:', credentials.source);
-    console.log('[OAUTH DEBUG] Scopes (raw):', platformConfig.scopes);
-    console.log('[OAUTH DEBUG] Scopes (encoded in URL):', encodeURIComponent(platformConfig.scopes));
-    console.log('[OAUTH DEBUG] State (encoded):', state);
-    console.log('[OAUTH DEBUG] State (decoded):', decodeURIComponent(state));
-    console.log('[OAUTH DEBUG] Platform auth URL:', platformConfig.authUrl);
-    console.log('[OAUTH DEBUG] Requires PKCE:', platformConfig.requiresPkce);
-
-    // Parse the generated URL to show each query param individually
-    try {
-      const parsedUrl = new URL(authUrl);
-      console.log('[OAUTH DEBUG] Parsed query parameters:');
-      console.log('[OAUTH DEBUG]   response_type:', parsedUrl.searchParams.get('response_type'));
-      console.log('[OAUTH DEBUG]   client_id:', parsedUrl.searchParams.get('client_id'));
-      console.log('[OAUTH DEBUG]   redirect_uri:', parsedUrl.searchParams.get('redirect_uri'));
-      console.log('[OAUTH DEBUG]   redirect_uri (decoded):', decodeURIComponent(parsedUrl.searchParams.get('redirect_uri') || ''));
-      console.log('[OAUTH DEBUG]   scope:', parsedUrl.searchParams.get('scope'));
-      console.log('[OAUTH DEBUG]   scope (decoded):', decodeURIComponent(parsedUrl.searchParams.get('scope') || ''));
-      console.log('[OAUTH DEBUG]   state:', parsedUrl.searchParams.get('state')?.slice(0, 100) + '...');
-      console.log('[OAUTH DEBUG] Full URL for direct test:', authUrl);
-    } catch {
-      console.log('[OAUTH DEBUG] Could not parse auth URL (unexpected format)');
-    }
-    console.log('[OAUTH DEBUG] ============================================');
-    // ──────────────────────────────────────────────────────────────────────
-
-    // Parse the generated URL to show each query param individually
-    try {
-      const parsedUrl = new URL(authUrl);
-      const allParams = Array.from(parsedUrl.searchParams.entries());
-      console.log('\n===== FINAL AUTH URL =====');
-      console.log(authUrl);
-      console.log('\n===== PARSED QUERY PARAMETERS =====');
-      allParams.forEach(([key, value]) => {
-        console.log(`  ${key}: ${value}`);
-      });
-      console.log('===============================\n');
-    } catch {}
+    const oauthState = encodeOAuthState({ platform, userId, workspaceId, redirectTo: redirectTo ?? 'onboarding' });
+    authUrl = `${platformConfig.authUrl}?response_type=code&client_id=${credentials.clientId}&redirect_uri=${redirectUri}&scope=${encodeURIComponent(platformConfig.scopes)}&state=${encodeURIComponent(oauthState)}`;
 
     logger.info('tool.complete', { toolName: 'initiate_oauth', platform, duration: Date.now() - start });
     return JSON.stringify({ authUrl, platform });
@@ -218,7 +166,9 @@ export async function exchangeCodeForTokens(
       client_id: clientId,
       client_secret: clientSecret,
     });
-    response = await fetch(`${tokenConfig.url}?${params}`);
+    response = await fetch(`${tokenConfig.url}?${params}`, {
+      signal: AbortSignal.timeout(30000),
+    });
   } else if (tokenConfig.isX) {
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
@@ -234,6 +184,7 @@ export async function exchangeCodeForTokens(
         Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
       },
       body,
+      signal: AbortSignal.timeout(30000),
     });
   } else if (platform.toLowerCase() === 'googlebusiness' || platform.toLowerCase() === 'youtube') {
     const body = new URLSearchParams({
@@ -247,6 +198,7 @@ export async function exchangeCodeForTokens(
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body,
+      signal: AbortSignal.timeout(30000),
     });
   } else {
     const body = new URLSearchParams({
@@ -261,6 +213,7 @@ export async function exchangeCodeForTokens(
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body,
+      signal: AbortSignal.timeout(30000),
     });
   }
 

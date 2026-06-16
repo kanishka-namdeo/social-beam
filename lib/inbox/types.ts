@@ -10,6 +10,8 @@ export interface RawComment {
   platformItemId: string;
   authorName: string;
   authorAvatar?: string;
+  authorProfileUrl?: string | null;
+  authorHandle?: string | null;
   content: string;
   parentContent?: string;
   parentId?: string;

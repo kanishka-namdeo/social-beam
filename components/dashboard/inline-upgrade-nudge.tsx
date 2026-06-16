@@ -14,7 +14,7 @@ interface InlineUpgradeNudgeProps {
 
 export function InlineUpgradeNudge({
   title = "Premium Feature",
-  description = "Upgrade to Premium to unlock this feature.",
+  description = "Upgrade to unlock this feature and grow your audience.",
   className,
   variant = "default",
 }: InlineUpgradeNudgeProps) {

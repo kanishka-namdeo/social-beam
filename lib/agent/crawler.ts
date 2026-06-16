@@ -70,7 +70,8 @@ let crawlerLastUsed: number = Date.now();
 const CRAWLER_IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 
 // Register cleanup handlers for graceful crawler shutdown
-if (typeof process !== 'undefined') {
+if (typeof process !== 'undefined' && !(global as any).__crawlerHandlersRegistered) {
+  (global as any).__crawlerHandlersRegistered = true;
   process.on('beforeExit', shutdownCrawler);
   process.on('SIGTERM', async () => {
     await shutdownCrawler();
@@ -215,6 +216,9 @@ export async function crawlWebsite(url: string, options?: CrawlOptions): Promise
   const crawledUrls = new Set<string>();
   const skippedReasons: Record<string, number> = {};
 
+  // RequestList is an in-memory object that gets garbage collected automatically.
+  // No explicit teardown needed — crawlee's RequestList has no teardown() method.
+
   const crawler = new PlaywrightCrawler({
     requestList,
     maxRequestsPerCrawl: MAX_PAGES,
@@ -339,9 +343,8 @@ export async function crawlWebsite(url: string, options?: CrawlOptions): Promise
 export async function shutdownCrawler(): Promise<void> {
   if (activeCrawler) {
     try {
-      activeCrawler.stop();
-      // Wait briefly for crawler to clean up its browser pool
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await activeCrawler.stop();
+      await activeCrawler.teardown();
     } catch {
       // Crawler may have already finished or be in an invalid state
     }

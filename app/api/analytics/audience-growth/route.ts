@@ -82,13 +82,20 @@ export async function GET() {
 
     log.info("api.request.success", { snapshotCount: snapshots.length });
 
-    return NextResponse.json({
-      data: {
-        timeSeries,
-        netChangeByPlatform,
-        totalNetChange,
+    return NextResponse.json(
+      {
+        data: {
+          timeSeries,
+          netChangeByPlatform,
+          totalNetChange,
+        },
       },
-    });
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60",
+        },
+      }
+    );
   } catch (err) {
     logger.error("api.request.error", {
       path: "/api/analytics/audience-growth",

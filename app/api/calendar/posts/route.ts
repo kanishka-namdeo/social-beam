@@ -4,6 +4,16 @@ import { Prisma } from "@/app/generated/prisma";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { logger } from "@/lib/logger";
+import { revalidatePath } from "next/cache";
+
+function getTimezoneOffsetMinutes(timezone: string): number {
+  const now = new Date();
+  const utcStr = now.toLocaleString("en-US", { timeZone: "UTC" });
+  const tzStr = now.toLocaleString("en-US", { timeZone: timezone });
+  const utcDate = new Date(utcStr);
+  const tzDate = new Date(tzStr);
+  return (tzDate.getTime() - utcDate.getTime()) / 60000;
+}
 
 const rescheduleSchema = z.object({
   postId: z.string(),
@@ -28,11 +38,23 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const year = parseInt(searchParams.get("year") ?? String(new Date().getFullYear()), 10);
   const month = parseInt(searchParams.get("month") ?? String(new Date().getMonth()), 10);
+  const timezone = searchParams.get("timezone") ?? "UTC";
+  const includeAnalytics = searchParams.get("includeAnalytics") === "true";
 
-  const monthStart = new Date(Date.UTC(year, month, 1, 0, 0, 0));
-  const monthEnd = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
+  // Calculate month boundaries respecting timezone offset
+  let monthStart: Date;
+  let monthEnd: Date;
+  try {
+    const offset = getTimezoneOffsetMinutes(timezone);
+    const offsetMs = offset * 60000;
+    monthStart = new Date(Date.UTC(year, month, 1, 0, 0, 0) - offsetMs);
+    monthEnd = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999) - offsetMs);
+  } catch {
+    monthStart = new Date(Date.UTC(year, month, 1, 0, 0, 0));
+    monthEnd = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
+  }
 
-  log.info("api.calendar.posts.get", { workspaceId, year, month });
+  log.info("api.calendar.posts.get", { workspaceId, year, month, timezone, includeAnalytics });
 
   const posts = await prisma.post.findMany({
     where: {
@@ -49,9 +71,22 @@ export async function GET(req: Request) {
       content: true,
       status: true,
       confidence: true,
+      aiGenerated: true,
+      category: true,
       scheduledAt: true,
       publishedAt: true,
       createdAt: true,
+      CampaignPost: {
+        select: {
+          campaign: {
+            select: {
+              id: true,
+              name: true,
+              status: true,
+            },
+          },
+        },
+      },
       PostPlatform: {
         select: {
           platform: true,
@@ -59,18 +94,43 @@ export async function GET(req: Request) {
           mediaUrls: true,
         },
       },
+      ...(includeAnalytics
+        ? {
+            AnalyticsSnapshot: {
+              take: 1,
+              orderBy: { id: "desc" as const },
+              select: {
+                impressions: true,
+                engagementRate: true,
+                likes: true,
+                comments: true,
+                shares: true,
+              },
+            },
+          }
+        : {}),
     },
   });
 
   return NextResponse.json({
     posts: posts.map((p) => {
       const content = (p.content as { text?: string; media?: Array<{ type: string; url: string }> }) ?? {};
+      const analyticsSnapshots = (p as any).AnalyticsSnapshot as Array<{
+        impressions: number;
+        engagementRate: number | null;
+        likes: number;
+        comments: number;
+        shares: number;
+      }> | undefined;
+      const latestAnalytics = analyticsSnapshots?.[0] ?? null;
       return {
         id: p.id,
         title: p.title,
         content: content.text ?? null,
         status: p.status,
         confidence: p.confidence,
+        aiGenerated: p.aiGenerated,
+        category: p.category,
         scheduledAt: p.scheduledAt?.toISOString() ?? null,
         publishedAt: p.publishedAt?.toISOString() ?? null,
         createdAt: p.createdAt.toISOString(),
@@ -79,6 +139,15 @@ export async function GET(req: Request) {
           status: pl.status,
         })),
         media: content.media ?? [],
+        campaign: (p.CampaignPost as { campaign: { id: string; name: string; status: string } } | null)?.campaign ?? null,
+        analytics: latestAnalytics
+          ? {
+              impressions: latestAnalytics.impressions,
+              engagementRate: latestAnalytics.engagementRate ?? 0,
+              likes: latestAnalytics.likes,
+              comments: latestAnalytics.comments,
+            }
+          : null,
       };
     }),
   });
@@ -162,6 +231,8 @@ export async function POST(req: Request) {
     },
   });
 
+  revalidatePath("/calendar");
+
   return NextResponse.json({
     data: {
       ...updatedPost,
@@ -213,6 +284,8 @@ export async function DELETE(req: Request) {
   log.info("api.calendar.delete", { workspaceId, postId });
 
   await prisma.post.delete({ where: { id: postId } });
+
+  revalidatePath("/calendar");
 
   return NextResponse.json({ data: { deleted: true } });
 }
@@ -286,6 +359,8 @@ export async function PATCH(req: Request) {
     },
     select: { id: true },
   });
+
+  revalidatePath("/calendar");
 
   return NextResponse.json({ data: { id: created.id } });
 }

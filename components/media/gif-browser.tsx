@@ -27,14 +27,24 @@ export function GifBrowser({ onImportComplete }: GifBrowserProps) {
   const [viewMode, setViewMode] = useState<"compact" | "large">("compact");
   const [previewItem, setPreviewItem] = useState<ExternalMediaItem | null>(null);
   const mountedRef = useRef(true);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     mountedRef.current = true;
-    return () => { mountedRef.current = false; };
+    return () => {
+      mountedRef.current = false;
+      abortControllerRef.current?.abort();
+    };
   }, []);
 
   const fetchResults = useCallback(async (q: string, p: number, append = false) => {
     if (!mountedRef.current) return;
+
+    // Cancel any in-flight fetch so stale responses can't overwrite newer state.
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setLoading(true);
     setError(null);
 
@@ -44,14 +54,16 @@ export function GifBrowser({ onImportComplete }: GifBrowserProps) {
       if (q) params.set("q", q);
       params.set("page", String(p));
 
-      const res = await fetch(`/api/media/external/search?${params.toString()}`);
+      const res = await fetch(`/api/media/external/search?${params.toString()}`, {
+        signal: controller.signal,
+      });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ message: "Search failed" }));
         throw new Error(err.message || `API error: ${res.status}`);
       }
 
       const json = await res.json();
-      if (!mountedRef.current) return;
+      if (controller.signal.aborted || !mountedRef.current) return;
 
       const newItems = json.data?.items ?? [];
 
@@ -62,11 +74,11 @@ export function GifBrowser({ onImportComplete }: GifBrowserProps) {
       }
       setTotal(json.data?.total ?? 0);
       setHasSearched(true);
-    } catch {
-      if (!mountedRef.current) return;
+    } catch (err) {
+      if (controller.signal.aborted || !mountedRef.current) return;
       setError("Failed to load GIFs. Please try again.");
     } finally {
-      if (mountedRef.current) setLoading(false);
+      if (!controller.signal.aborted && mountedRef.current) setLoading(false);
     }
   }, []);
 

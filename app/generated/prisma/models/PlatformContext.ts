@@ -302,7 +302,7 @@ export type PlatformContextScalarWhereWithAggregatesInput = {
 }
 
 export type PlatformContextCreateInput = {
-  id: string
+  id?: string
   platform: string
   platformTone?: string | null
   contentMix?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -317,7 +317,7 @@ export type PlatformContextCreateInput = {
 }
 
 export type PlatformContextUncheckedCreateInput = {
-  id: string
+  id?: string
   brandContextId: string
   platform: string
   platformTone?: string | null
@@ -362,7 +362,7 @@ export type PlatformContextUncheckedUpdateInput = {
 }
 
 export type PlatformContextCreateManyInput = {
-  id: string
+  id?: string
   brandContextId: string
   platform: string
   platformTone?: string | null
@@ -511,7 +511,7 @@ export type PlatformContextUpdateplatformRulesInput = {
 }
 
 export type PlatformContextCreateWithoutBrandContextInput = {
-  id: string
+  id?: string
   platform: string
   platformTone?: string | null
   contentMix?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -525,7 +525,7 @@ export type PlatformContextCreateWithoutBrandContextInput = {
 }
 
 export type PlatformContextUncheckedCreateWithoutBrandContextInput = {
-  id: string
+  id?: string
   platform: string
   platformTone?: string | null
   contentMix?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -583,7 +583,7 @@ export type PlatformContextScalarWhereInput = {
 }
 
 export type PlatformContextCreateManyBrandContextInput = {
-  id: string
+  id?: string
   platform: string
   platformTone?: string | null
   contentMix?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue

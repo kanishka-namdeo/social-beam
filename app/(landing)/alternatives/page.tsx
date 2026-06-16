@@ -7,9 +7,9 @@ import { ArrowRight, Lightning, ChartBar, Robot, Calendar, Megaphone } from "@ph
 import { LandingPageShell } from "@/components/landing/landing-page-shell";
 
 export const metadata: Metadata = {
-  title: "Social Media Tool Alternatives — Buffer, Hootsuite & More | SocialBeam",
+  title: "SocialBeam vs Buffer, Hootsuite, Sprout Social | SocialBeam",
   description:
-    "Compare SocialBeam with Buffer, Hootsuite, Sprout Social, Later, and Metricool. See why teams are switching to our free AI-powered scheduler.",
+    "Compare SocialBeam with popular tools. See why teams are switching to our free social media platform.",
 };
 
 const competitors = [
@@ -59,9 +59,9 @@ export default function AlternativesPage() {
   return (
     <LandingPageShell
       hero={{
-        title: "Find the right social media tool",
+        title: "The last social media tool you'll need",
         description:
-          "Compare SocialBeam with popular tools. See why thousands of teams are switching to our free, AI-powered social media scheduler.",
+          "Compare SocialBeam with popular tools. See why teams are switching to our free social media platform.",
       }}
     >
       {/* Comparison Cards */}
@@ -117,31 +117,31 @@ export default function AlternativesPage() {
         <div className="grid md:grid-cols-3 gap-6">
           <Card className="border-border">
             <CardHeader>
-              <Badge variant="secondary" className="w-fit bg-success/10 text-success">Save money</Badge>
+              <Badge variant="secondary" className="w-fit bg-success/10 text-success">Free scheduling, forever</Badge>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Stop paying $249/mo for basic scheduling. SocialBeam is free with unlimited posts across 10 accounts.
+                Keep $249/mo. SocialBeam gives you 10 accounts with unlimited posts — free forever.
               </p>
             </CardContent>
           </Card>
           <Card className="border-border">
             <CardHeader>
-              <Badge variant="secondary" className="w-fit bg-brand/10 text-brand">AI-powered</Badge>
+              <Badge variant="secondary" className="w-fit bg-brand/10 text-brand">AI that replaces busywork</Badge>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Generate captions, hashtags, and posting suggestions with AI. No other free tool offers built-in content creation.
+                Content, hashtags, and smart scheduling built in — not bolted on. No other free tool offers this.
               </p>
             </CardContent>
           </Card>
           <Card className="border-border">
             <CardHeader>
-              <Badge variant="secondary" className="w-fit bg-info/10 text-info">Migrate in minutes</Badge>
+              <Badge variant="secondary" className="w-fit bg-info/10 text-info">Move in minutes</Badge>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Import your scheduled posts and connected accounts from any tool. No data loss, no downtime.
+                Import your existing schedule from any tool. No data loss, no downtime.
               </p>
             </CardContent>
           </Card>

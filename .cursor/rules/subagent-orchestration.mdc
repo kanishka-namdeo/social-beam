@@ -120,7 +120,7 @@ Prevent runaway recursion and token burn:
 
 | Limit | Value | Rationale |
 |-------|-------|-----------|
-| Max concurrent subagents | 5 | Rate limit awareness |
+| Max concurrent subagents | 3 | Rate limit awareness |
 | Max total per request tree | 10 | Prevent unbounded token consumption |
 | Max retries per failed subagent | 2 | Escalate instead of infinite retry |
 | Max nesting depth | 1 | Cursor model inheritance bugs at level 2+ |
@@ -149,7 +149,7 @@ Task({
 
 ## Rate Limit Awareness
 
-Too many concurrent subagent dispatches can hit API rate limits. When dispatching 5+ parallel subagents, stagger launches by 30–60 seconds.
+Too many concurrent subagent dispatches can hit API rate limits. When dispatching the maximum of 3 parallel subagents, stagger launches by 30–60 seconds if needed.
 
 ---
 
@@ -169,6 +169,7 @@ After all parallel subagents return:
 | Anti-Pattern | Problem | Fix |
 |---|---|---|
 | **Over-parallelization** | 2 tasks costs more than single agent | Use Rule of 3 |
+| **Exceeding max concurrent** | Dispatching >3 agents hits rate limits | Cap at 3 concurrent |
 | **Context pollution** | Subagent gets full parent context | Scope to minimum needed |
 | **No review bottleneck planning** | 10 agents finish, human can only review 3 | Limit to review capacity |
 | **Force-push on shared branches** | Destroys other agents' work | Never force-push |

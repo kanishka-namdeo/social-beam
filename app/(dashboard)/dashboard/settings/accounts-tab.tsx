@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { notifySuccessWithCategory } from '@/lib/notifications';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { CheckCircle, XCircle } from '@phosphor-icons/react/ssr';
 import { AccountCard } from './components/account-card';
@@ -44,18 +45,14 @@ export function AccountsTab({ connectedAccounts, oauthStatus }: AccountsTabProps
     platform: string;
   } | null>(null);
   const [linkedinUnifiedOpen, setLinkedinUnifiedOpen] = useState(false);
-  const [linkedinHasOAuth, setLinkedinHasOAuth] = useState(false);
 
   useEffect(() => {
     if (oauthStatus?.status === 'success') {
       const platformName = PLATFORM_DISPLAY_NAMES[oauthStatus.platform ?? ''] ?? oauthStatus.platform;
-      toast.success('Account connected', { description: `${platformName} has been connected to your workspace.` });
-
-      // After LinkedIn OAuth, automatically prompt for session cookie
-      if (oauthStatus.platform === 'linkedin') {
-        setLinkedinHasOAuth(true);
-        setLinkedinUnifiedOpen(true);
-      }
+      notifySuccessWithCategory('Account connected', {
+        category: 'connection',
+        description: `${platformName} has been connected to your workspace.`,
+      });
     }
   }, [oauthStatus]);
 
@@ -65,6 +62,7 @@ export function AccountsTab({ connectedAccounts, oauthStatus }: AccountsTabProps
   const handleDisconnectSuccess = () => {
     if (disconnectingAccount) {
       setHiddenAccountIds((prev) => new Set(prev).add(disconnectingAccount.id));
+      notifySuccessWithCategory('Account disconnected successfully', { category: 'connection' });
     }
     setDisconnectingAccount(null);
   };
@@ -105,9 +103,14 @@ export function AccountsTab({ connectedAccounts, oauthStatus }: AccountsTabProps
                 key={platform}
                 account={account}
                 onDisconnect={() => setDisconnectingAccount({ id: account.id, platform })}
-                onReconnect={() => setConnectingPlatform(platform)}
+                onReconnect={() => {
+                  if (platform === 'linkedin') {
+                    setLinkedinUnifiedOpen(true);
+                  } else {
+                    setConnectingPlatform(platform);
+                  }
+                }}
                 onConnectSession={() => {
-                  setLinkedinHasOAuth(true);
                   setLinkedinUnifiedOpen(true);
                 }}
               />
@@ -120,7 +123,13 @@ export function AccountsTab({ connectedAccounts, oauthStatus }: AccountsTabProps
                 key={platform}
                 platform={platform}
                 status="disconnected"
-                onConnect={() => setConnectingPlatform(platform)}
+                onConnect={() => {
+                  if (platform === 'linkedin') {
+                    setLinkedinUnifiedOpen(true);
+                  } else {
+                    setConnectingPlatform(platform);
+                  }
+                }}
               />
             );
           }
@@ -154,7 +163,6 @@ export function AccountsTab({ connectedAccounts, oauthStatus }: AccountsTabProps
           setLinkedinUnifiedOpen(false);
           window.location.reload();
         }}
-        hasOAuthConnected={linkedinHasOAuth}
       />
     </div>
   );

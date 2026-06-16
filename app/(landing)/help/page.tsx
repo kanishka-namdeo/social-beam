@@ -112,12 +112,9 @@ export default function HelpPage() {
                     <ul className="space-y-1">
                       {cat.articles.map((article) => (
                         <li key={article}>
-                          <Link
-                            href={`/help/${cat.title.toLowerCase().replace(/\s+/g, "-")}/${article.toLowerCase().replace(/\s+/g, "-")}`}
-                            className="text-sm text-muted-foreground hover:text-brand transition-colors"
-                          >
+                          <span className="text-sm text-muted-foreground">
                             {article}
-                          </Link>
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -166,10 +163,10 @@ export default function HelpPage() {
                   <ArrowRight weight="bold" className="w-4 h-4" />
                 </Button>
               </Link>
-              <Link href="/help/getting-started">
+              <Link href="/help">
                 <Button variant="outline" className="gap-2">
                   <BookOpen className="w-4 h-4" />
-                  Read the docs
+                  Browse help center
                 </Button>
               </Link>
             </div>

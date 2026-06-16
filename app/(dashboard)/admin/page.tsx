@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { AdminClient } from './admin-client';
 import type { UserRole } from '@/lib/role-guard';
+import { PageHeader } from '@/components/shared/page-header';
 
 export default async function AdminPage() {
   const session = await auth();
@@ -35,10 +36,11 @@ export default async function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Admin - User Management</h1>
-        <p className="text-sm text-muted-foreground">Manage user roles and subscriptions.</p>
-      </div>
+      <PageHeader
+        title="Admin - User Management"
+        description="Manage user roles and subscriptions."
+        backLink={{ href: "/dashboard", label: "Dashboard" }}
+      />
       <AdminClient users={users} />
     </div>
   );

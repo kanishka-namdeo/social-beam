@@ -43,9 +43,14 @@ export async function requireRole(role: UserRole): Promise<boolean> {
 
 export function canAccessFeature(featureName: string, role: UserRole, userTier?: SubscriptionTier): boolean {
   const flag = FEATURE_FLAGS[featureName as keyof typeof FEATURE_FLAGS];
-  if (!flag) return true;
+  if (!flag) return true; // unknown feature = allow
   if (ROLE_HIERARCHY[role] < ROLE_HIERARCHY[flag.minRole]) return false;
-  if (flag.minTier && userTier && userTier !== 'AI_PRO' && flag.minTier === 'AI_PRO') return false;
+  if (flag.minTier && userTier) {
+    const tierOrder: SubscriptionTier[] = ['FREE', 'AI_STARTER', 'AI_PRO'];
+    const userTierIndex = tierOrder.indexOf(userTier);
+    const requiredTierIndex = tierOrder.indexOf(flag.minTier);
+    if (userTierIndex < requiredTierIndex) return false;
+  }
   return true;
 }
 

@@ -1,0 +1,56 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Next.js
+.next
+out
+dist
+
+# Build artifacts
+*.tsbuildinfo
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Docker (only ignore compose overrides)
+docker-compose.override.yml
+
+# Documentation
+*.md
+!README.md
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Environment
+.env.local
+.env.*.local
+
+# Data (mounted as volume)
+.data/*.json
+.data/*.txt
+
+# Playwright
+playwright-report
+test-results
+
+# Coverage
+coverage
+
+# Misc
+.turbo
+.vercel

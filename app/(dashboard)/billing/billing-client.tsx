@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { notifySuccessWithCategory, notifyErrorWithCategory } from "@/lib/notifications";
 import { Check, CreditCard, Sparkle } from "@phosphor-icons/react/ssr";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,10 +31,16 @@ export function BillingClient({ subscription, pricingTiers }: BillingClientProps
 
   useEffect(() => {
     if (searchParams?.get('canceled')) {
-      toast.error('Checkout canceled', { description: 'Your payment was not completed. Try again when ready.' });
+      notifyErrorWithCategory('Checkout canceled', {
+        category: 'billing',
+        description: 'Your payment was not completed. Try again when ready.',
+      });
     }
     if (searchParams?.get('session_id')) {
-      toast.success('Payment successful!', { description: 'Your account is being upgraded. Refresh to see changes.' });
+      notifySuccessWithCategory('Payment successful!', {
+        category: 'billing',
+        description: 'Your account is being upgraded. Refresh to see changes.',
+      });
     }
   }, [searchParams]);
 
@@ -49,10 +56,16 @@ export function BillingClient({ subscription, pricingTiers }: BillingClientProps
         if (data?.url) {
           window.location.href = data.url;
         } else {
-          toast.error('Checkout failed', { description: data?.error ?? 'Unknown error' });
+          notifyErrorWithCategory('Checkout failed', {
+            category: 'billing',
+            description: data?.error ?? 'Unknown error',
+          });
         }
       } catch {
-        toast.error('Checkout failed', { description: 'Network error. Please try again.' });
+        notifyErrorWithCategory('Checkout failed', {
+          category: 'billing',
+          description: 'Network error. Please try again.',
+        });
       }
     });
   };
@@ -65,10 +78,16 @@ export function BillingClient({ subscription, pricingTiers }: BillingClientProps
         if (data?.url) {
           window.location.href = data.url;
         } else {
-          toast.error('Portal failed', { description: data?.error ?? 'Unknown error' });
+          notifyErrorWithCategory('Portal failed', {
+            category: 'billing',
+            description: data?.error ?? 'Unknown error',
+          });
         }
       } catch {
-        toast.error('Portal failed', { description: 'Network error. Please try again.' });
+        notifyErrorWithCategory('Portal failed', {
+          category: 'billing',
+          description: 'Network error. Please try again.',
+        });
       }
     });
   };

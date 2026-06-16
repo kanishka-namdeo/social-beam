@@ -328,3 +328,88 @@ export async function restoreBrandContext(
 
   return true;
 }
+
+export async function saveBrandDraft(
+  workspaceId: string,
+  threadId: string,
+  checkpointStep: string,
+  stateValues: Record<string, unknown>
+) {
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+  const brandContextDraft = stateValues?.brandContextDraft as Record<string, unknown> | undefined;
+  const platformContextsDraft = stateValues?.platformContextsDraft as Record<string, Record<string, unknown>> | undefined;
+  const samplePosts = stateValues?.samplePosts as Array<{ platform: string; content: string }> | undefined;
+  const crawledContent = stateValues?.crawledContent as Record<string, { page: string; zone: string; weight: number; text: string }> | undefined;
+  const currentStep = (stateValues?.currentStep as string) ?? 'collect';
+  const inputUrl = stateValues?.websiteUrl as string | undefined;
+  const inputDescription = stateValues?.brandDescription as string | undefined;
+
+  const existing = await prisma.brandDraft.findFirst({
+    where: { workspaceId },
+    orderBy: { updatedAt: 'desc' },
+  });
+
+  if (existing) {
+    return prisma.brandDraft.update({
+      where: { threadId: existing.threadId },
+      data: {
+        threadId,
+        checkpointStep,
+        stateSnapshot: stateValues as Prisma.InputJsonValue,
+        brandContextDraft: brandContextDraft as Prisma.InputJsonValue | undefined,
+        platformContextsDraft: platformContextsDraft as Prisma.InputJsonValue | undefined,
+        samplePosts: samplePosts as Prisma.InputJsonValue | undefined,
+        crawledContent: crawledContent as Prisma.InputJsonValue | undefined,
+        currentStep,
+        inputUrl,
+        inputDescription,
+        expiresAt,
+      },
+    });
+  }
+
+  return prisma.brandDraft.create({
+    data: {
+      id: crypto.randomUUID(),
+      workspaceId,
+      threadId,
+      checkpointStep,
+      stateSnapshot: stateValues as Prisma.InputJsonValue,
+      brandContextDraft: brandContextDraft as Prisma.InputJsonValue | undefined,
+      platformContextsDraft: platformContextsDraft as Prisma.InputJsonValue | undefined,
+      samplePosts: samplePosts as Prisma.InputJsonValue | undefined,
+      crawledContent: crawledContent as Prisma.InputJsonValue | undefined,
+      currentStep,
+      inputUrl,
+      inputDescription,
+      expiresAt,
+    },
+  });
+}
+
+export async function getBrandDraft(workspaceId: string) {
+  return prisma.brandDraft.findFirst({
+    where: { workspaceId },
+    orderBy: { updatedAt: 'desc' },
+  });
+}
+
+export async function deleteBrandDraft(workspaceId: string) {
+  return prisma.brandDraft.deleteMany({
+    where: { workspaceId },
+  });
+}
+
+export async function cleanupExpiredDrafts() {
+  const result = await prisma.brandDraft.deleteMany({
+    where: {
+      expiresAt: { lt: new Date() },
+    },
+  });
+  if (result.count > 0) {
+    logger.info('db.brand_draft.cleanup', { deletedCount: result.count });
+  }
+  return result.count;
+}

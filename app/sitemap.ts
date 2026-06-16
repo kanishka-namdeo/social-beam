@@ -1,43 +1,80 @@
-import type { MetadataRoute } from "next";
+import { MetadataRoute } from 'next';
 
-const BASE_URL = "https://socialbeam.ai";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://socialbeam.ai';
 
-const staticRoutes = [
-  { path: "/", priority: 1.0, changeFrequency: "daily" as const },
-  { path: "/features", priority: 0.9, changeFrequency: "weekly" as const },
-  { path: "/pricing", priority: 0.9, changeFrequency: "weekly" as const },
-  { path: "/how-it-works", priority: 0.8, changeFrequency: "monthly" as const },
-  { path: "/use-cases", priority: 0.8, changeFrequency: "monthly" as const },
-  { path: "/about", priority: 0.7, changeFrequency: "monthly" as const },
-  { path: "/careers", priority: 0.6, changeFrequency: "weekly" as const },
-  { path: "/community", priority: 0.6, changeFrequency: "weekly" as const },
-  { path: "/resources", priority: 0.7, changeFrequency: "weekly" as const },
-  { path: "/changelog", priority: 0.5, changeFrequency: "daily" as const },
-  { path: "/blog", priority: 0.8, changeFrequency: "daily" as const },
-  { path: "/help", priority: 0.6, changeFrequency: "monthly" as const },
-  { path: "/contact", priority: 0.5, changeFrequency: "monthly" as const },
-  { path: "/api", priority: 0.4, changeFrequency: "monthly" as const },
-  { path: "/status", priority: 0.3, changeFrequency: "daily" as const },
-  { path: "/alternatives", priority: 0.7, changeFrequency: "monthly" as const },
-  { path: "/alternatives/buffer", priority: 0.8, changeFrequency: "monthly" as const },
-  { path: "/alternatives/hootsuite", priority: 0.7, changeFrequency: "monthly" as const },
-  { path: "/alternatives/sprout-social", priority: 0.6, changeFrequency: "monthly" as const },
-  { path: "/alternatives/later", priority: 0.6, changeFrequency: "monthly" as const },
-  { path: "/alternatives/metricool", priority: 0.6, changeFrequency: "monthly" as const },
-  { path: "/platforms/instagram", priority: 0.8, changeFrequency: "weekly" as const },
-  { path: "/platforms/x", priority: 0.8, changeFrequency: "weekly" as const },
-  { path: "/platforms/linkedin", priority: 0.8, changeFrequency: "weekly" as const },
-  { path: "/platforms/facebook", priority: 0.7, changeFrequency: "weekly" as const },
-  { path: "/platforms/tiktok", priority: 0.7, changeFrequency: "weekly" as const },
-  { path: "/platforms/pinterest", priority: 0.7, changeFrequency: "weekly" as const },
-  { path: "/privacy", priority: 0.3, changeFrequency: "yearly" as const },
-  { path: "/terms", priority: 0.3, changeFrequency: "yearly" as const },
+type RouteConfig = {
+  path: string;
+  priority: number;
+  changeFrequency: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
+};
+
+const PUBLIC_ROUTES: RouteConfig[] = [
+  // Core pages
+  { path: '/', priority: 1.0, changeFrequency: 'daily' },
+  { path: '/pricing', priority: 0.9, changeFrequency: 'weekly' },
+  { path: '/features', priority: 0.9, changeFrequency: 'weekly' },
+  { path: '/how-it-works', priority: 0.8, changeFrequency: 'monthly' },
+  { path: '/integrations', priority: 0.8, changeFrequency: 'monthly' },
+  { path: '/contact', priority: 0.6, changeFrequency: 'monthly' },
+  { path: '/customers', priority: 0.7, changeFrequency: 'monthly' },
+
+  // Use cases
+  { path: '/use-cases', priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/use-cases/agency', priority: 0.6, changeFrequency: 'monthly' },
+  { path: '/use-cases/ecommerce', priority: 0.6, changeFrequency: 'monthly' },
+
+  // Platform pages
+  { path: '/platforms/linkedin', priority: 0.8, changeFrequency: 'monthly' },
+  { path: '/platforms/instagram', priority: 0.8, changeFrequency: 'monthly' },
+  { path: '/platforms/x', priority: 0.8, changeFrequency: 'monthly' },
+  { path: '/platforms/facebook', priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/platforms/tiktok', priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/platforms/pinterest', priority: 0.6, changeFrequency: 'monthly' },
+  { path: '/platforms/reddit', priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/platforms/youtube', priority: 0.6, changeFrequency: 'monthly' },
+  { path: '/platforms/bluesky', priority: 0.6, changeFrequency: 'monthly' },
+  { path: '/platforms/threads', priority: 0.6, changeFrequency: 'monthly' },
+
+  // Alternatives
+  { path: '/alternatives', priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/alternatives/buffer', priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/alternatives/hootsuite', priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/alternatives/later', priority: 0.6, changeFrequency: 'monthly' },
+  { path: '/alternatives/metricool', priority: 0.6, changeFrequency: 'monthly' },
+  { path: '/alternatives/sprout-social', priority: 0.6, changeFrequency: 'monthly' },
+
+  // Free tools
+  { path: '/free-tools', priority: 0.7, changeFrequency: 'weekly' },
+  { path: '/free-tools/hashtag-generator', priority: 0.6, changeFrequency: 'weekly' },
+  { path: '/free-tools/post-creator', priority: 0.6, changeFrequency: 'weekly' },
+  { path: '/free-tools/link-in-bio', priority: 0.6, changeFrequency: 'monthly' },
+  { path: '/free-tools/utm-generator', priority: 0.5, changeFrequency: 'monthly' },
+  { path: '/free-tools/instagram-name-generator', priority: 0.5, changeFrequency: 'monthly' },
+
+  // Content pages
+  { path: '/blog', priority: 0.8, changeFrequency: 'daily' },
+  { path: '/changelog', priority: 0.6, changeFrequency: 'weekly' },
+  { path: '/resources', priority: 0.6, changeFrequency: 'monthly' },
+  { path: '/community', priority: 0.5, changeFrequency: 'weekly' },
+  { path: '/api', priority: 0.5, changeFrequency: 'monthly' },
+  { path: '/about', priority: 0.5, changeFrequency: 'monthly' },
+  { path: '/careers', priority: 0.4, changeFrequency: 'monthly' },
+  { path: '/status', priority: 0.4, changeFrequency: 'hourly' },
+
+  // Legal/Trust pages
+  { path: '/privacy', priority: 0.4, changeFrequency: 'yearly' },
+  { path: '/terms', priority: 0.4, changeFrequency: 'yearly' },
+  { path: '/security', priority: 0.5, changeFrequency: 'monthly' },
+  { path: '/cookie-policy', priority: 0.3, changeFrequency: 'yearly' },
+  { path: '/help', priority: 0.5, changeFrequency: 'monthly' },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return staticRoutes.map((route) => ({
-    url: `${BASE_URL}${route.path}`,
-    lastModified: new Date(),
+  const now = new Date();
+
+  return PUBLIC_ROUTES.map((route) => ({
+    url: `${APP_URL}${route.path}`,
+    lastModified: now,
     changeFrequency: route.changeFrequency,
     priority: route.priority,
   }));

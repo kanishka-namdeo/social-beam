@@ -1,11 +1,11 @@
 ---
 description: Product vision, scope, and design context. Apply when adding features, planning UI work, or making product decisions.
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Product Context
 
-**Trigger**: Always active. Load these docs before any feature implementation or UI design work.
+**Trigger**: Agent-requested. Load these docs before any feature implementation or UI design work.
 
 ## Canonical Product Docs
 

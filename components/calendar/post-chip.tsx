@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
+import NextImage from "next/image";
 import { useDraggable } from "@dnd-kit/core";
-import { DotsSixVertical, CalendarDots, CheckCircle, WarningCircle, Spinner, Image, DotsThreeVertical } from "@phosphor-icons/react/ssr";
+import { DotsSixVertical, CalendarDots, CheckCircle, WarningCircle, Spinner, Image, DotsThreeVertical, Check } from "@phosphor-icons/react/ssr";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,12 +11,33 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import type { MediaItem } from "./types";
+import { getPerformanceColor, PerformanceTooltip } from "./analytics-overlay";
 
 interface PostPlatform {
   platform: string;
   status: string;
+}
+
+interface CampaignInfo {
+  id: string;
+  name: string;
+  status: string;
+}
+
+interface PostAnalyticsData {
+  impressions: number;
+  engagementRate: number;
+  likes: number;
+  comments: number;
 }
 
 interface PostChipProps {
@@ -27,6 +49,13 @@ interface PostChipProps {
   platforms: PostPlatform[];
   compact?: boolean;
   hasMedia?: boolean;
+  media?: MediaItem[];
+  campaign?: CampaignInfo | null;
+  category?: string | null;
+  analytics?: PostAnalyticsData | null;
+  isSelected?: boolean;
+  onSelect?: (id: string, e: React.MouseEvent) => void;
+  showAnalyticsOverlay?: boolean;
   onPreview?: (postId: string) => void;
   onDelete?: (postId: string) => void;
   onDuplicate?: (postId: string) => Promise<void>;
@@ -100,6 +129,25 @@ function PlatformDots({ platforms }: { platforms: PostPlatform[] }) {
   );
 }
 
+function MediaThumbnail({ media, compact }: { media: MediaItem[]; compact?: boolean }) {
+  const firstImage = media.find((m) => m.type === "image");
+  if (!firstImage) return null;
+
+  const size = compact ? "size-4" : "size-8";
+
+  return (
+    <div className={cn("relative shrink-0 rounded-sm overflow-hidden", size)}>
+      <NextImage
+        src={firstImage.url}
+        alt=""
+        fill
+        className="object-cover"
+        unoptimized
+      />
+    </div>
+  );
+}
+
 export function PostChip({
   id,
   title,
@@ -109,6 +157,13 @@ export function PostChip({
   platforms,
   compact = false,
   hasMedia = false,
+  media,
+  campaign,
+  category,
+  analytics,
+  isSelected = false,
+  onSelect,
+  showAnalyticsOverlay = false,
   onPreview,
   onDelete,
   onDuplicate,
@@ -151,6 +206,23 @@ export function PostChip({
     setDragMoved(false);
   };
 
+  const hasMediaItems = media && media.length > 0;
+
+  // Determine performance border color when analytics overlay is active
+  const performanceBorder = showAnalyticsOverlay && analytics && status === "PUBLISHED"
+    ? getPerformanceColor(analytics.engagementRate)
+    : null;
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (e.ctrlKey || e.metaKey || e.shiftKey) {
+      e.preventDefault();
+      e.stopPropagation();
+      onSelect?.(id, e);
+      return;
+    }
+    handlePointerUp();
+  };
+
   const chipContent = (
     <div
       ref={(node) => {
@@ -159,36 +231,74 @@ export function PostChip({
       }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
+      onClick={handleClick}
       style={style}
       className={cn(
         "group relative flex items-center gap-1.5 rounded-sm border border-border/30 border-l-[3px] bg-card px-2.5 py-1.5 text-xs transition-all hover-lift hover:bg-muted/50 cursor-pointer",
-        cfg.borderColor,
+        performanceBorder ?? cfg.borderColor,
+        isSelected && "ring-2 ring-brand bg-brand/5",
         isDragging && "opacity-50 scale-95",
       )}
     >
-      <span
-        {...attributes}
-        {...listeners}
-        className="cursor-grab opacity-0 transition-opacity group-hover:opacity-60 active:cursor-grabbing focus-visible:ring-2 focus-visible:ring-ring/30"
-        aria-label="Drag to reschedule"
-      >
-        <DotsSixVertical className="size-3 text-muted-foreground" />
-      </span>
-      <span className="truncate-2 font-medium text-foreground flex-1">
-        {title ?? "Untitled"}
-      </span>
-      {hasMedia && (
-        <span className="text-muted-foreground/70" title="Has media">
-          <Image className="size-3" weight="fill" alt="" />
-        </span>
+      {isSelected && (
+        <div className="absolute inset-0 flex items-center justify-center bg-brand/10 rounded-sm pointer-events-none">
+          <div className="size-4 rounded-full bg-brand flex items-center justify-center">
+            <Check className="size-3 text-primary-foreground" weight="bold" />
+          </div>
+        </div>
       )}
-      {timeStr && (
-        <span className="text-micro text-muted-foreground tabular-nums shrink-0">
-          {timeStr}
-        </span>
-      )}
-      <PlatformDots platforms={platforms} />
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+              <span
+                {...attributes}
+                {...listeners}
+                className="cursor-grab opacity-0 transition-opacity group-hover:opacity-60 active:cursor-grabbing focus-visible:ring-2 focus-visible:ring-ring/30"
+                aria-label="Drag to reschedule"
+              >
+                <DotsSixVertical className="size-3 text-muted-foreground" />
+              </span>
+              {hasMediaItems && <MediaThumbnail media={media} compact />}
+              <span className="truncate-2 font-medium text-foreground flex-1">
+                {title ?? "Untitled"}
+              </span>
+              {!hasMediaItems && hasMedia && (
+                <span className="text-muted-foreground/70" title="Has media">
+                  <Image className="size-3" weight="fill" alt="" />
+                </span>
+              )}
+              {timeStr && (
+                <span className="text-micro text-muted-foreground tabular-nums shrink-0">
+                  {timeStr}
+                </span>
+              )}
+              {category && (
+                <span className="text-micro px-1.5 py-0.5 rounded bg-muted text-muted-foreground truncate max-w-[60px]">
+                  {category}
+                </span>
+              )}
+              <PlatformDots platforms={platforms} />
+              {campaign && (
+                <span
+                  className="group/campaign relative flex items-center"
+                  title={campaign.name}
+                >
+                  <span className="w-2 h-2 rounded-full bg-brand" />
+                  <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover/campaign:block whitespace-nowrap rounded-sm bg-foreground px-2 py-1 text-micro text-background shadow-lg">
+                    {campaign.name}
+                  </span>
+                </span>
+              )}
+            </div>
+          </TooltipTrigger>
+          {showAnalyticsOverlay && analytics && status === "PUBLISHED" && (
+            <TooltipContent side="top" className="max-w-xs">
+              <PerformanceTooltip analytics={analytics} />
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </TooltipProvider>
       {showActions && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -233,14 +343,22 @@ export function PostChip({
       }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
+      onClick={handleClick}
       style={style}
       className={cn(
         "group relative flex flex-col gap-1 rounded-sm border border-border/30 border-l-[3px] bg-card p-2 transition-all hover-lift hover:bg-muted/50 cursor-pointer",
-        cfg.borderColor,
+        performanceBorder ?? cfg.borderColor,
+        isSelected && "ring-2 ring-brand bg-brand/5",
         isDragging && "opacity-50 scale-95",
       )}
     >
+      {isSelected && (
+        <div className="absolute top-1 right-1 pointer-events-none">
+          <div className="size-4 rounded-full bg-brand flex items-center justify-center">
+            <Check className="size-3 text-primary-foreground" weight="bold" />
+          </div>
+        </div>
+      )}
       <div className="flex items-center gap-1.5">
         <span
           {...attributes}
@@ -250,10 +368,11 @@ export function PostChip({
         >
           <DotsSixVertical className="size-3.5 text-muted-foreground" />
         </span>
+        {hasMediaItems && <MediaThumbnail media={media} />}
         <span className="truncate text-sm font-medium text-foreground flex-1">
           {title ?? "Untitled"}
         </span>
-        {hasMedia && (
+        {!hasMediaItems && hasMedia && (
           <span className="text-muted-foreground/70" title="Has media">
             <Image className="size-4" weight="fill" alt="" />
           </span>
@@ -301,6 +420,11 @@ export function PostChip({
           {cfg.icon}
           {cfg.label}
         </Badge>
+        {category && (
+          <span className="text-micro px-1.5 py-0.5 rounded bg-muted text-muted-foreground truncate max-w-[80px]">
+            {category}
+          </span>
+        )}
         <div className="flex gap-0.5 ml-auto">
           {platforms.map((p) => (
             <span
@@ -312,6 +436,17 @@ export function PostChip({
             />
           ))}
         </div>
+        {campaign && (
+          <span
+            className="group/campaign relative flex items-center"
+            title={campaign.name}
+          >
+            <span className="w-2 h-2 rounded-full bg-brand" />
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover/campaign:block whitespace-nowrap rounded-sm bg-foreground px-2 py-1 text-micro text-background shadow-lg">
+              {campaign.name}
+            </span>
+          </span>
+        )}
       </div>
       {confidence && (
         <div className={cn(
@@ -321,6 +456,12 @@ export function PostChip({
           confidence === "LOW" && "text-ai-confidence-low",
         )}>
           {confidence.toLowerCase()} confidence
+        </div>
+      )}
+      {showAnalyticsOverlay && analytics && status === "PUBLISHED" && (
+        <div className="pl-4 text-micro text-muted-foreground flex items-center gap-2">
+          <span>{analytics.impressions.toLocaleString()} views</span>
+          <span>{analytics.engagementRate.toFixed(1)}% eng.</span>
         </div>
       )}
     </div>

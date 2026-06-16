@@ -37,6 +37,8 @@ export type BrandContextMinAggregateOutputType = {
   audienceType: string | null
   trainingStatus: string | null
   lastTrainedAt: Date | null
+  defaultSignatureText: string | null
+  defaultSignatureUrl: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -54,6 +56,8 @@ export type BrandContextMaxAggregateOutputType = {
   audienceType: string | null
   trainingStatus: string | null
   lastTrainedAt: Date | null
+  defaultSignatureText: string | null
+  defaultSignatureUrl: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -78,6 +82,8 @@ export type BrandContextCountAggregateOutputType = {
   goals: number
   trainingStatus: number
   lastTrainedAt: number
+  defaultSignatureText: number
+  defaultSignatureUrl: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -97,6 +103,8 @@ export type BrandContextMinAggregateInputType = {
   audienceType?: true
   trainingStatus?: true
   lastTrainedAt?: true
+  defaultSignatureText?: true
+  defaultSignatureUrl?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -114,6 +122,8 @@ export type BrandContextMaxAggregateInputType = {
   audienceType?: true
   trainingStatus?: true
   lastTrainedAt?: true
+  defaultSignatureText?: true
+  defaultSignatureUrl?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -138,6 +148,8 @@ export type BrandContextCountAggregateInputType = {
   goals?: true
   trainingStatus?: true
   lastTrainedAt?: true
+  defaultSignatureText?: true
+  defaultSignatureUrl?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -235,6 +247,8 @@ export type BrandContextGroupByOutputType = {
   goals: string[]
   trainingStatus: string
   lastTrainedAt: Date | null
+  defaultSignatureText: string | null
+  defaultSignatureUrl: string | null
   createdAt: Date
   updatedAt: Date
   _count: BrandContextCountAggregateOutputType | null
@@ -280,6 +294,8 @@ export type BrandContextWhereInput = {
   goals?: Prisma.StringNullableListFilter<"BrandContext">
   trainingStatus?: Prisma.StringFilter<"BrandContext"> | string
   lastTrainedAt?: Prisma.DateTimeNullableFilter<"BrandContext"> | Date | string | null
+  defaultSignatureText?: Prisma.StringNullableFilter<"BrandContext"> | string | null
+  defaultSignatureUrl?: Prisma.StringNullableFilter<"BrandContext"> | string | null
   createdAt?: Prisma.DateTimeFilter<"BrandContext"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BrandContext"> | Date | string
   Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
@@ -309,6 +325,8 @@ export type BrandContextOrderByWithRelationInput = {
   goals?: Prisma.SortOrder
   trainingStatus?: Prisma.SortOrder
   lastTrainedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  defaultSignatureText?: Prisma.SortOrderInput | Prisma.SortOrder
+  defaultSignatureUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   Workspace?: Prisma.WorkspaceOrderByWithRelationInput
@@ -341,6 +359,8 @@ export type BrandContextWhereUniqueInput = Prisma.AtLeast<{
   goals?: Prisma.StringNullableListFilter<"BrandContext">
   trainingStatus?: Prisma.StringFilter<"BrandContext"> | string
   lastTrainedAt?: Prisma.DateTimeNullableFilter<"BrandContext"> | Date | string | null
+  defaultSignatureText?: Prisma.StringNullableFilter<"BrandContext"> | string | null
+  defaultSignatureUrl?: Prisma.StringNullableFilter<"BrandContext"> | string | null
   createdAt?: Prisma.DateTimeFilter<"BrandContext"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BrandContext"> | Date | string
   Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
@@ -370,6 +390,8 @@ export type BrandContextOrderByWithAggregationInput = {
   goals?: Prisma.SortOrder
   trainingStatus?: Prisma.SortOrder
   lastTrainedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  defaultSignatureText?: Prisma.SortOrderInput | Prisma.SortOrder
+  defaultSignatureUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.BrandContextCountOrderByAggregateInput
@@ -400,12 +422,14 @@ export type BrandContextScalarWhereWithAggregatesInput = {
   goals?: Prisma.StringNullableListFilter<"BrandContext">
   trainingStatus?: Prisma.StringWithAggregatesFilter<"BrandContext"> | string
   lastTrainedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"BrandContext"> | Date | string | null
+  defaultSignatureText?: Prisma.StringNullableWithAggregatesFilter<"BrandContext"> | string | null
+  defaultSignatureUrl?: Prisma.StringNullableWithAggregatesFilter<"BrandContext"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"BrandContext"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BrandContext"> | Date | string
 }
 
 export type BrandContextCreateInput = {
-  id: string
+  id?: string
   businessName?: string | null
   tagline?: string | null
   websiteUrl?: string | null
@@ -423,6 +447,8 @@ export type BrandContextCreateInput = {
   goals?: Prisma.BrandContextCreategoalsInput | string[]
   trainingStatus?: string
   lastTrainedAt?: Date | string | null
+  defaultSignatureText?: string | null
+  defaultSignatureUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   Workspace: Prisma.WorkspaceCreateNestedOneWithoutBrandContextInput
@@ -433,7 +459,7 @@ export type BrandContextCreateInput = {
 }
 
 export type BrandContextUncheckedCreateInput = {
-  id: string
+  id?: string
   workspaceId: string
   businessName?: string | null
   tagline?: string | null
@@ -452,6 +478,8 @@ export type BrandContextUncheckedCreateInput = {
   goals?: Prisma.BrandContextCreategoalsInput | string[]
   trainingStatus?: string
   lastTrainedAt?: Date | string | null
+  defaultSignatureText?: string | null
+  defaultSignatureUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   BrandContextVersion?: Prisma.BrandContextVersionUncheckedCreateNestedManyWithoutBrandContextInput
@@ -479,6 +507,8 @@ export type BrandContextUpdateInput = {
   goals?: Prisma.BrandContextUpdategoalsInput | string[]
   trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  defaultSignatureText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBrandContextNestedInput
@@ -508,6 +538,8 @@ export type BrandContextUncheckedUpdateInput = {
   goals?: Prisma.BrandContextUpdategoalsInput | string[]
   trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  defaultSignatureText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   BrandContextVersion?: Prisma.BrandContextVersionUncheckedUpdateManyWithoutBrandContextNestedInput
@@ -517,7 +549,7 @@ export type BrandContextUncheckedUpdateInput = {
 }
 
 export type BrandContextCreateManyInput = {
-  id: string
+  id?: string
   workspaceId: string
   businessName?: string | null
   tagline?: string | null
@@ -536,6 +568,8 @@ export type BrandContextCreateManyInput = {
   goals?: Prisma.BrandContextCreategoalsInput | string[]
   trainingStatus?: string
   lastTrainedAt?: Date | string | null
+  defaultSignatureText?: string | null
+  defaultSignatureUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -559,6 +593,8 @@ export type BrandContextUpdateManyMutationInput = {
   goals?: Prisma.BrandContextUpdategoalsInput | string[]
   trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  defaultSignatureText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -583,6 +619,8 @@ export type BrandContextUncheckedUpdateManyInput = {
   goals?: Prisma.BrandContextUpdategoalsInput | string[]
   trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  defaultSignatureText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -615,6 +653,8 @@ export type BrandContextCountOrderByAggregateInput = {
   goals?: Prisma.SortOrder
   trainingStatus?: Prisma.SortOrder
   lastTrainedAt?: Prisma.SortOrder
+  defaultSignatureText?: Prisma.SortOrder
+  defaultSignatureUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -632,6 +672,8 @@ export type BrandContextMaxOrderByAggregateInput = {
   audienceType?: Prisma.SortOrder
   trainingStatus?: Prisma.SortOrder
   lastTrainedAt?: Prisma.SortOrder
+  defaultSignatureText?: Prisma.SortOrder
+  defaultSignatureUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -649,6 +691,8 @@ export type BrandContextMinOrderByAggregateInput = {
   audienceType?: Prisma.SortOrder
   trainingStatus?: Prisma.SortOrder
   lastTrainedAt?: Prisma.SortOrder
+  defaultSignatureText?: Prisma.SortOrder
+  defaultSignatureUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -805,7 +849,7 @@ export type BrandContextUncheckedUpdateOneWithoutWorkspaceNestedInput = {
 }
 
 export type BrandContextCreateWithoutBrandContextVersionInput = {
-  id: string
+  id?: string
   businessName?: string | null
   tagline?: string | null
   websiteUrl?: string | null
@@ -823,6 +867,8 @@ export type BrandContextCreateWithoutBrandContextVersionInput = {
   goals?: Prisma.BrandContextCreategoalsInput | string[]
   trainingStatus?: string
   lastTrainedAt?: Date | string | null
+  defaultSignatureText?: string | null
+  defaultSignatureUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   Workspace: Prisma.WorkspaceCreateNestedOneWithoutBrandContextInput
@@ -832,7 +878,7 @@ export type BrandContextCreateWithoutBrandContextVersionInput = {
 }
 
 export type BrandContextUncheckedCreateWithoutBrandContextVersionInput = {
-  id: string
+  id?: string
   workspaceId: string
   businessName?: string | null
   tagline?: string | null
@@ -851,6 +897,8 @@ export type BrandContextUncheckedCreateWithoutBrandContextVersionInput = {
   goals?: Prisma.BrandContextCreategoalsInput | string[]
   trainingStatus?: string
   lastTrainedAt?: Date | string | null
+  defaultSignatureText?: string | null
+  defaultSignatureUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   BrandFieldState?: Prisma.BrandFieldStateUncheckedCreateNestedManyWithoutBrandContextInput
@@ -893,6 +941,8 @@ export type BrandContextUpdateWithoutBrandContextVersionInput = {
   goals?: Prisma.BrandContextUpdategoalsInput | string[]
   trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  defaultSignatureText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBrandContextNestedInput
@@ -921,6 +971,8 @@ export type BrandContextUncheckedUpdateWithoutBrandContextVersionInput = {
   goals?: Prisma.BrandContextUpdategoalsInput | string[]
   trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  defaultSignatureText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   BrandFieldState?: Prisma.BrandFieldStateUncheckedUpdateManyWithoutBrandContextNestedInput
@@ -929,7 +981,7 @@ export type BrandContextUncheckedUpdateWithoutBrandContextVersionInput = {
 }
 
 export type BrandContextCreateWithoutBrandFieldStateInput = {
-  id: string
+  id?: string
   businessName?: string | null
   tagline?: string | null
   websiteUrl?: string | null
@@ -947,6 +999,8 @@ export type BrandContextCreateWithoutBrandFieldStateInput = {
   goals?: Prisma.BrandContextCreategoalsInput | string[]
   trainingStatus?: string
   lastTrainedAt?: Date | string | null
+  defaultSignatureText?: string | null
+  defaultSignatureUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   Workspace: Prisma.WorkspaceCreateNestedOneWithoutBrandContextInput
@@ -956,7 +1010,7 @@ export type BrandContextCreateWithoutBrandFieldStateInput = {
 }
 
 export type BrandContextUncheckedCreateWithoutBrandFieldStateInput = {
-  id: string
+  id?: string
   workspaceId: string
   businessName?: string | null
   tagline?: string | null
@@ -975,6 +1029,8 @@ export type BrandContextUncheckedCreateWithoutBrandFieldStateInput = {
   goals?: Prisma.BrandContextCreategoalsInput | string[]
   trainingStatus?: string
   lastTrainedAt?: Date | string | null
+  defaultSignatureText?: string | null
+  defaultSignatureUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   BrandContextVersion?: Prisma.BrandContextVersionUncheckedCreateNestedManyWithoutBrandContextInput
@@ -1017,6 +1073,8 @@ export type BrandContextUpdateWithoutBrandFieldStateInput = {
   goals?: Prisma.BrandContextUpdategoalsInput | string[]
   trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  defaultSignatureText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBrandContextNestedInput
@@ -1045,6 +1103,8 @@ export type BrandContextUncheckedUpdateWithoutBrandFieldStateInput = {
   goals?: Prisma.BrandContextUpdategoalsInput | string[]
   trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  defaultSignatureText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   BrandContextVersion?: Prisma.BrandContextVersionUncheckedUpdateManyWithoutBrandContextNestedInput
@@ -1053,7 +1113,7 @@ export type BrandContextUncheckedUpdateWithoutBrandFieldStateInput = {
 }
 
 export type BrandContextCreateWithoutBrandLearningSignalInput = {
-  id: string
+  id?: string
   businessName?: string | null
   tagline?: string | null
   websiteUrl?: string | null
@@ -1071,6 +1131,8 @@ export type BrandContextCreateWithoutBrandLearningSignalInput = {
   goals?: Prisma.BrandContextCreategoalsInput | string[]
   trainingStatus?: string
   lastTrainedAt?: Date | string | null
+  defaultSignatureText?: string | null
+  defaultSignatureUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   Workspace: Prisma.WorkspaceCreateNestedOneWithoutBrandContextInput
@@ -1080,7 +1142,7 @@ export type BrandContextCreateWithoutBrandLearningSignalInput = {
 }
 
 export type BrandContextUncheckedCreateWithoutBrandLearningSignalInput = {
-  id: string
+  id?: string
   workspaceId: string
   businessName?: string | null
   tagline?: string | null
@@ -1099,6 +1161,8 @@ export type BrandContextUncheckedCreateWithoutBrandLearningSignalInput = {
   goals?: Prisma.BrandContextCreategoalsInput | string[]
   trainingStatus?: string
   lastTrainedAt?: Date | string | null
+  defaultSignatureText?: string | null
+  defaultSignatureUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   BrandContextVersion?: Prisma.BrandContextVersionUncheckedCreateNestedManyWithoutBrandContextInput
@@ -1141,6 +1205,8 @@ export type BrandContextUpdateWithoutBrandLearningSignalInput = {
   goals?: Prisma.BrandContextUpdategoalsInput | string[]
   trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  defaultSignatureText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBrandContextNestedInput
@@ -1169,6 +1235,8 @@ export type BrandContextUncheckedUpdateWithoutBrandLearningSignalInput = {
   goals?: Prisma.BrandContextUpdategoalsInput | string[]
   trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  defaultSignatureText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   BrandContextVersion?: Prisma.BrandContextVersionUncheckedUpdateManyWithoutBrandContextNestedInput
@@ -1177,7 +1245,7 @@ export type BrandContextUncheckedUpdateWithoutBrandLearningSignalInput = {
 }
 
 export type BrandContextCreateWithoutPlatformContextInput = {
-  id: string
+  id?: string
   businessName?: string | null
   tagline?: string | null
   websiteUrl?: string | null
@@ -1195,6 +1263,8 @@ export type BrandContextCreateWithoutPlatformContextInput = {
   goals?: Prisma.BrandContextCreategoalsInput | string[]
   trainingStatus?: string
   lastTrainedAt?: Date | string | null
+  defaultSignatureText?: string | null
+  defaultSignatureUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   Workspace: Prisma.WorkspaceCreateNestedOneWithoutBrandContextInput
@@ -1204,7 +1274,7 @@ export type BrandContextCreateWithoutPlatformContextInput = {
 }
 
 export type BrandContextUncheckedCreateWithoutPlatformContextInput = {
-  id: string
+  id?: string
   workspaceId: string
   businessName?: string | null
   tagline?: string | null
@@ -1223,6 +1293,8 @@ export type BrandContextUncheckedCreateWithoutPlatformContextInput = {
   goals?: Prisma.BrandContextCreategoalsInput | string[]
   trainingStatus?: string
   lastTrainedAt?: Date | string | null
+  defaultSignatureText?: string | null
+  defaultSignatureUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   BrandContextVersion?: Prisma.BrandContextVersionUncheckedCreateNestedManyWithoutBrandContextInput
@@ -1265,6 +1337,8 @@ export type BrandContextUpdateWithoutPlatformContextInput = {
   goals?: Prisma.BrandContextUpdategoalsInput | string[]
   trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  defaultSignatureText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBrandContextNestedInput
@@ -1293,6 +1367,8 @@ export type BrandContextUncheckedUpdateWithoutPlatformContextInput = {
   goals?: Prisma.BrandContextUpdategoalsInput | string[]
   trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  defaultSignatureText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   BrandContextVersion?: Prisma.BrandContextVersionUncheckedUpdateManyWithoutBrandContextNestedInput
@@ -1301,7 +1377,7 @@ export type BrandContextUncheckedUpdateWithoutPlatformContextInput = {
 }
 
 export type BrandContextCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   businessName?: string | null
   tagline?: string | null
   websiteUrl?: string | null
@@ -1319,6 +1395,8 @@ export type BrandContextCreateWithoutWorkspaceInput = {
   goals?: Prisma.BrandContextCreategoalsInput | string[]
   trainingStatus?: string
   lastTrainedAt?: Date | string | null
+  defaultSignatureText?: string | null
+  defaultSignatureUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   BrandContextVersion?: Prisma.BrandContextVersionCreateNestedManyWithoutBrandContextInput
@@ -1328,7 +1406,7 @@ export type BrandContextCreateWithoutWorkspaceInput = {
 }
 
 export type BrandContextUncheckedCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   businessName?: string | null
   tagline?: string | null
   websiteUrl?: string | null
@@ -1346,6 +1424,8 @@ export type BrandContextUncheckedCreateWithoutWorkspaceInput = {
   goals?: Prisma.BrandContextCreategoalsInput | string[]
   trainingStatus?: string
   lastTrainedAt?: Date | string | null
+  defaultSignatureText?: string | null
+  defaultSignatureUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   BrandContextVersion?: Prisma.BrandContextVersionUncheckedCreateNestedManyWithoutBrandContextInput
@@ -1389,6 +1469,8 @@ export type BrandContextUpdateWithoutWorkspaceInput = {
   goals?: Prisma.BrandContextUpdategoalsInput | string[]
   trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  defaultSignatureText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   BrandContextVersion?: Prisma.BrandContextVersionUpdateManyWithoutBrandContextNestedInput
@@ -1416,6 +1498,8 @@ export type BrandContextUncheckedUpdateWithoutWorkspaceInput = {
   goals?: Prisma.BrandContextUpdategoalsInput | string[]
   trainingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   lastTrainedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  defaultSignatureText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   BrandContextVersion?: Prisma.BrandContextVersionUncheckedUpdateManyWithoutBrandContextNestedInput
@@ -1502,6 +1586,8 @@ export type BrandContextSelect<ExtArgs extends runtime.Types.Extensions.Internal
   goals?: boolean
   trainingStatus?: boolean
   lastTrainedAt?: boolean
+  defaultSignatureText?: boolean
+  defaultSignatureUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
@@ -1532,6 +1618,8 @@ export type BrandContextSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   goals?: boolean
   trainingStatus?: boolean
   lastTrainedAt?: boolean
+  defaultSignatureText?: boolean
+  defaultSignatureUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
@@ -1557,6 +1645,8 @@ export type BrandContextSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   goals?: boolean
   trainingStatus?: boolean
   lastTrainedAt?: boolean
+  defaultSignatureText?: boolean
+  defaultSignatureUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
@@ -1582,11 +1672,13 @@ export type BrandContextSelectScalar = {
   goals?: boolean
   trainingStatus?: boolean
   lastTrainedAt?: boolean
+  defaultSignatureText?: boolean
+  defaultSignatureUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type BrandContextOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "businessName" | "tagline" | "websiteUrl" | "industry" | "productDesc" | "tonePreset" | "voiceDescription" | "bannedWords" | "voiceExamples" | "audienceType" | "demographics" | "interests" | "painPoints" | "competitors" | "goals" | "trainingStatus" | "lastTrainedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["brandContext"]>
+export type BrandContextOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "businessName" | "tagline" | "websiteUrl" | "industry" | "productDesc" | "tonePreset" | "voiceDescription" | "bannedWords" | "voiceExamples" | "audienceType" | "demographics" | "interests" | "painPoints" | "competitors" | "goals" | "trainingStatus" | "lastTrainedAt" | "defaultSignatureText" | "defaultSignatureUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["brandContext"]>
 export type BrandContextInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   BrandContextVersion?: boolean | Prisma.BrandContext$BrandContextVersionArgs<ExtArgs>
@@ -1631,6 +1723,8 @@ export type $BrandContextPayload<ExtArgs extends runtime.Types.Extensions.Intern
     goals: string[]
     trainingStatus: string
     lastTrainedAt: Date | null
+    defaultSignatureText: string | null
+    defaultSignatureUrl: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["brandContext"]>
@@ -2080,6 +2174,8 @@ export interface BrandContextFieldRefs {
   readonly goals: Prisma.FieldRef<"BrandContext", 'String[]'>
   readonly trainingStatus: Prisma.FieldRef<"BrandContext", 'String'>
   readonly lastTrainedAt: Prisma.FieldRef<"BrandContext", 'DateTime'>
+  readonly defaultSignatureText: Prisma.FieldRef<"BrandContext", 'String'>
+  readonly defaultSignatureUrl: Prisma.FieldRef<"BrandContext", 'String'>
   readonly createdAt: Prisma.FieldRef<"BrandContext", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"BrandContext", 'DateTime'>
 }

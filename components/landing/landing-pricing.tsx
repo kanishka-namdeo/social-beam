@@ -45,14 +45,34 @@ const tiers = [
     description: "Full AI automation for teams",
     features: [
       "Everything in AI Starter",
+      "25 social accounts",
       "Unlimited AI content generation",
       "AI campaign generation",
+      "Brand voice training",
       "Automated engagement replies",
-      "Priority support",
       "Team collaboration",
+      "API access",
     ],
     cta: "Start AI Pro",
     href: "/register",
+    variant: "outline" as const,
+    popular: false,
+  },
+  {
+    name: "AI Agency",
+    price: "$149",
+    period: "/mo",
+    description: "For agencies managing multiple clients",
+    features: [
+      "Everything in AI Pro",
+      "Unlimited social accounts",
+      "Client management dashboard",
+      "White-label reports",
+      "Team roles & permissions",
+      "Priority support & SLA",
+    ],
+    cta: "Contact Sales",
+    href: "/contact",
     variant: "outline" as const,
     popular: false,
   },
@@ -71,7 +91,7 @@ export function LandingPricing() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
           {tiers.map((tier) => (
             <Card
               key={tier.name}

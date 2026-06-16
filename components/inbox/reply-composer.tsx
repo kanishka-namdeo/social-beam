@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Sparkle, Spinner, ChatCircleText, Lock } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
-import { InlineUpgradeNudge } from "@/components/dashboard/inline-upgrade-nudge";
+import { FeatureGate } from "@/components/dashboard/feature-gate";
 import { usePremium } from "@/hooks/use-premium";
 
 interface ReplyComposerProps {
@@ -123,7 +123,7 @@ export function ReplyComposer({ engagementItemId, platform, onReplySent }: Reply
             onClick={() => setShowUpgradeNudge(true)}
             disabled
             className="text-xs cursor-not-allowed"
-            title="Premium feature"
+            title="AI-powered reply drafts"
           >
             <Lock className="mr-1.5 size-3.5" weight="fill" />
             AI Draft
@@ -132,10 +132,11 @@ export function ReplyComposer({ engagementItemId, platform, onReplySent }: Reply
       </div>
 
       {showUpgradeNudge && !isPremium && (
-        <InlineUpgradeNudge
-          title="AI Reply Drafts"
+        <FeatureGate
+          isPremium={false}
+          featureName="AI Reply Drafts"
           description="Let AI craft a smart reply based on the conversation context."
-          variant="default"
+          variant="inline"
         />
       )}
 

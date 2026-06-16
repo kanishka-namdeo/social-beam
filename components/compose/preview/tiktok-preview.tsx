@@ -9,9 +9,10 @@ interface TikTokPreviewProps {
   content: string;
   account?: AccountInfo;
   mediaUrls?: string[];
+  signature?: { text: string; url?: string } | null;
 }
 
-export function TikTokPreview({ content, account, mediaUrls }: TikTokPreviewProps) {
+export function TikTokPreview({ content, account, mediaUrls, signature }: TikTokPreviewProps) {
   // Use account data or fall back to defaults
   const displayName = account?.platformUsername || "yourhandle";
   const handle = account?.platformUsername ? `@${account.platformUsername}` : "@yourhandle";
@@ -80,6 +81,11 @@ export function TikTokPreview({ content, account, mediaUrls }: TikTokPreviewProp
           ) : (
             <p className="mt-1 text-xs leading-relaxed text-white whitespace-pre-wrap break-words">
               {renderRichText(content)}
+            </p>
+          )}
+          {signature && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              {signature.text}
             </p>
           )}
           <div className="mt-2 flex items-center gap-2">

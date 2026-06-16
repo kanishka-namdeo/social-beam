@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { notifySuccessWithCategory } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 import {
   Card,
@@ -182,7 +183,8 @@ export function BrandContextCard({ brandContext }: BrandContextCardProps) {
         setError(json.error ?? "Failed to create checkpoint.");
         return;
       }
-      toast.success("Checkpoint created", {
+      notifySuccessWithCategory("Checkpoint created", {
+        category: "brand",
         description: "A snapshot of your current brand context has been saved.",
       });
       setCheckpointDialogOpen(false);

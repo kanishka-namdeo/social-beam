@@ -9,13 +9,14 @@ import { ContentGapAnalysis } from "./content-gap-analysis";
 import { PostingFrequency } from "./posting-frequency";
 import type { PostItem } from "./types";
 import { usePremium } from "@/hooks/use-premium";
-import { InlineUpgradeNudge } from "@/components/dashboard/inline-upgrade-nudge";
+import { FeatureGate } from "@/components/dashboard/feature-gate";
 
 interface InsightsSidebarProps {
   view: "month" | "week" | "day" | "list";
   filteredPosts: PostItem[];
   onComposeForSlot: (date: Date) => void;
   platformContexts?: Array<{ platform: string; postingCadence: string | null }>;
+  onAiFill?: (dates: Date[]) => void;
 }
 
 export function InsightsSidebar({
@@ -23,6 +24,7 @@ export function InsightsSidebar({
   filteredPosts,
   onComposeForSlot,
   platformContexts,
+  onAiFill,
 }: InsightsSidebarProps) {
   const { isPremium } = usePremium();
 
@@ -35,7 +37,7 @@ export function InsightsSidebar({
       {/* Content gap analysis — month view only — AI feature */}
       {view === "month" && (
         isPremium ? (
-          <ContentGapAnalysis posts={filteredPosts} onComposeForSlot={onComposeForSlot} platformContexts={platformContexts} />
+          <ContentGapAnalysis posts={filteredPosts} onComposeForSlot={onComposeForSlot} platformContexts={platformContexts} onAiFill={onAiFill} />
         ) : (
           <ContentGapTeaser posts={filteredPosts} />
         )
@@ -110,16 +112,11 @@ function ContentGapTeaser({ posts }: { posts: PostItem[] }) {
         <div className="rounded-sm border border-border bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
           {scheduled} / 5 posts scheduled this week
         </div>
-        <div className="mt-2 pointer-events-none select-none opacity-30 blur-[1px]">
-          <div className="space-y-2">
-            <div className="h-8 rounded-sm border border-border bg-card" />
-            <div className="h-8 rounded-sm border border-border bg-card" />
-          </div>
-        </div>
-        <InlineUpgradeNudge
-          variant="compact"
-          title="AI Content Gaps"
+        <FeatureGate
+          isPremium={false}
+          featureName="AI Content Gaps"
           description="Get specific gap recommendations"
+          variant="inline"
           className="mt-3"
         />
       </CardContent>

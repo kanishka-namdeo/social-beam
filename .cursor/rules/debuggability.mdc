@@ -153,3 +153,9 @@ catch (err) {
   logger.error('tool.fetch_posts.error', { platform, accountId, error: String(err) });
 }
 ```
+
+## Related Rules
+
+- **`anti-code-slop.mdc`**: Additional code quality guardrails — narrative comments, TODO stubs, function size limits, magic values
+- **`dry-principles.mdc`**: Search-before-write mandates, shared utility registry, extraction thresholds
+- **`typescript-standards.mdc`**: Type safety, error handling patterns, and unused code prevention

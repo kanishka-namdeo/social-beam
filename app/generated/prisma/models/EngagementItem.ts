@@ -33,6 +33,8 @@ export type EngagementItemMinAggregateOutputType = {
   platformUrl: string | null
   authorName: string | null
   authorAvatar: string | null
+  authorProfileUrl: string | null
+  authorHandle: string | null
   content: string | null
   parentContent: string | null
   parentId: string | null
@@ -40,6 +42,7 @@ export type EngagementItemMinAggregateOutputType = {
   status: $Enums.EngagementStatus | null
   sentiment: string | null
   aiDraft: string | null
+  aiDraftGenerated: boolean | null
   createdAt: Date | null
   syncedAt: Date | null
   repliedAt: Date | null
@@ -54,6 +57,8 @@ export type EngagementItemMaxAggregateOutputType = {
   platformUrl: string | null
   authorName: string | null
   authorAvatar: string | null
+  authorProfileUrl: string | null
+  authorHandle: string | null
   content: string | null
   parentContent: string | null
   parentId: string | null
@@ -61,6 +66,7 @@ export type EngagementItemMaxAggregateOutputType = {
   status: $Enums.EngagementStatus | null
   sentiment: string | null
   aiDraft: string | null
+  aiDraftGenerated: boolean | null
   createdAt: Date | null
   syncedAt: Date | null
   repliedAt: Date | null
@@ -75,6 +81,8 @@ export type EngagementItemCountAggregateOutputType = {
   platformUrl: number
   authorName: number
   authorAvatar: number
+  authorProfileUrl: number
+  authorHandle: number
   content: number
   parentContent: number
   parentId: number
@@ -82,6 +90,7 @@ export type EngagementItemCountAggregateOutputType = {
   status: number
   sentiment: number
   aiDraft: number
+  aiDraftGenerated: number
   createdAt: number
   syncedAt: number
   repliedAt: number
@@ -98,6 +107,8 @@ export type EngagementItemMinAggregateInputType = {
   platformUrl?: true
   authorName?: true
   authorAvatar?: true
+  authorProfileUrl?: true
+  authorHandle?: true
   content?: true
   parentContent?: true
   parentId?: true
@@ -105,6 +116,7 @@ export type EngagementItemMinAggregateInputType = {
   status?: true
   sentiment?: true
   aiDraft?: true
+  aiDraftGenerated?: true
   createdAt?: true
   syncedAt?: true
   repliedAt?: true
@@ -119,6 +131,8 @@ export type EngagementItemMaxAggregateInputType = {
   platformUrl?: true
   authorName?: true
   authorAvatar?: true
+  authorProfileUrl?: true
+  authorHandle?: true
   content?: true
   parentContent?: true
   parentId?: true
@@ -126,6 +140,7 @@ export type EngagementItemMaxAggregateInputType = {
   status?: true
   sentiment?: true
   aiDraft?: true
+  aiDraftGenerated?: true
   createdAt?: true
   syncedAt?: true
   repliedAt?: true
@@ -140,6 +155,8 @@ export type EngagementItemCountAggregateInputType = {
   platformUrl?: true
   authorName?: true
   authorAvatar?: true
+  authorProfileUrl?: true
+  authorHandle?: true
   content?: true
   parentContent?: true
   parentId?: true
@@ -147,6 +164,7 @@ export type EngagementItemCountAggregateInputType = {
   status?: true
   sentiment?: true
   aiDraft?: true
+  aiDraftGenerated?: true
   createdAt?: true
   syncedAt?: true
   repliedAt?: true
@@ -234,6 +252,8 @@ export type EngagementItemGroupByOutputType = {
   platformUrl: string | null
   authorName: string | null
   authorAvatar: string | null
+  authorProfileUrl: string | null
+  authorHandle: string | null
   content: string
   parentContent: string | null
   parentId: string | null
@@ -241,6 +261,7 @@ export type EngagementItemGroupByOutputType = {
   status: $Enums.EngagementStatus
   sentiment: string | null
   aiDraft: string | null
+  aiDraftGenerated: boolean
   createdAt: Date
   syncedAt: Date
   repliedAt: Date | null
@@ -276,6 +297,8 @@ export type EngagementItemWhereInput = {
   platformUrl?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
   authorName?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
   authorAvatar?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
+  authorProfileUrl?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
+  authorHandle?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
   content?: Prisma.StringFilter<"EngagementItem"> | string
   parentContent?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
   parentId?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
@@ -283,6 +306,7 @@ export type EngagementItemWhereInput = {
   status?: Prisma.EnumEngagementStatusFilter<"EngagementItem"> | $Enums.EngagementStatus
   sentiment?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
   aiDraft?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
+  aiDraftGenerated?: Prisma.BoolFilter<"EngagementItem"> | boolean
   createdAt?: Prisma.DateTimeFilter<"EngagementItem"> | Date | string
   syncedAt?: Prisma.DateTimeFilter<"EngagementItem"> | Date | string
   repliedAt?: Prisma.DateTimeNullableFilter<"EngagementItem"> | Date | string | null
@@ -298,6 +322,8 @@ export type EngagementItemOrderByWithRelationInput = {
   platformUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   authorName?: Prisma.SortOrderInput | Prisma.SortOrder
   authorAvatar?: Prisma.SortOrderInput | Prisma.SortOrder
+  authorProfileUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  authorHandle?: Prisma.SortOrderInput | Prisma.SortOrder
   content?: Prisma.SortOrder
   parentContent?: Prisma.SortOrderInput | Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -305,6 +331,7 @@ export type EngagementItemOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   sentiment?: Prisma.SortOrderInput | Prisma.SortOrder
   aiDraft?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiDraftGenerated?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
   repliedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -324,6 +351,8 @@ export type EngagementItemWhereUniqueInput = Prisma.AtLeast<{
   platformUrl?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
   authorName?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
   authorAvatar?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
+  authorProfileUrl?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
+  authorHandle?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
   content?: Prisma.StringFilter<"EngagementItem"> | string
   parentContent?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
   parentId?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
@@ -331,6 +360,7 @@ export type EngagementItemWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumEngagementStatusFilter<"EngagementItem"> | $Enums.EngagementStatus
   sentiment?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
   aiDraft?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
+  aiDraftGenerated?: Prisma.BoolFilter<"EngagementItem"> | boolean
   createdAt?: Prisma.DateTimeFilter<"EngagementItem"> | Date | string
   syncedAt?: Prisma.DateTimeFilter<"EngagementItem"> | Date | string
   repliedAt?: Prisma.DateTimeNullableFilter<"EngagementItem"> | Date | string | null
@@ -346,6 +376,8 @@ export type EngagementItemOrderByWithAggregationInput = {
   platformUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   authorName?: Prisma.SortOrderInput | Prisma.SortOrder
   authorAvatar?: Prisma.SortOrderInput | Prisma.SortOrder
+  authorProfileUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  authorHandle?: Prisma.SortOrderInput | Prisma.SortOrder
   content?: Prisma.SortOrder
   parentContent?: Prisma.SortOrderInput | Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -353,6 +385,7 @@ export type EngagementItemOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   sentiment?: Prisma.SortOrderInput | Prisma.SortOrder
   aiDraft?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiDraftGenerated?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
   repliedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -373,6 +406,8 @@ export type EngagementItemScalarWhereWithAggregatesInput = {
   platformUrl?: Prisma.StringNullableWithAggregatesFilter<"EngagementItem"> | string | null
   authorName?: Prisma.StringNullableWithAggregatesFilter<"EngagementItem"> | string | null
   authorAvatar?: Prisma.StringNullableWithAggregatesFilter<"EngagementItem"> | string | null
+  authorProfileUrl?: Prisma.StringNullableWithAggregatesFilter<"EngagementItem"> | string | null
+  authorHandle?: Prisma.StringNullableWithAggregatesFilter<"EngagementItem"> | string | null
   content?: Prisma.StringWithAggregatesFilter<"EngagementItem"> | string
   parentContent?: Prisma.StringNullableWithAggregatesFilter<"EngagementItem"> | string | null
   parentId?: Prisma.StringNullableWithAggregatesFilter<"EngagementItem"> | string | null
@@ -380,19 +415,22 @@ export type EngagementItemScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumEngagementStatusWithAggregatesFilter<"EngagementItem"> | $Enums.EngagementStatus
   sentiment?: Prisma.StringNullableWithAggregatesFilter<"EngagementItem"> | string | null
   aiDraft?: Prisma.StringNullableWithAggregatesFilter<"EngagementItem"> | string | null
+  aiDraftGenerated?: Prisma.BoolWithAggregatesFilter<"EngagementItem"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"EngagementItem"> | Date | string
   syncedAt?: Prisma.DateTimeWithAggregatesFilter<"EngagementItem"> | Date | string
   repliedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"EngagementItem"> | Date | string | null
 }
 
 export type EngagementItemCreateInput = {
-  id: string
+  id?: string
   platform: string
   type: $Enums.EngagementType
   platformItemId: string
   platformUrl?: string | null
   authorName?: string | null
   authorAvatar?: string | null
+  authorProfileUrl?: string | null
+  authorHandle?: string | null
   content: string
   parentContent?: string | null
   parentId?: string | null
@@ -400,6 +438,7 @@ export type EngagementItemCreateInput = {
   status?: $Enums.EngagementStatus
   sentiment?: string | null
   aiDraft?: string | null
+  aiDraftGenerated?: boolean
   createdAt?: Date | string
   syncedAt?: Date | string
   repliedAt?: Date | string | null
@@ -407,7 +446,7 @@ export type EngagementItemCreateInput = {
 }
 
 export type EngagementItemUncheckedCreateInput = {
-  id: string
+  id?: string
   workspaceId: string
   platform: string
   type: $Enums.EngagementType
@@ -415,6 +454,8 @@ export type EngagementItemUncheckedCreateInput = {
   platformUrl?: string | null
   authorName?: string | null
   authorAvatar?: string | null
+  authorProfileUrl?: string | null
+  authorHandle?: string | null
   content: string
   parentContent?: string | null
   parentId?: string | null
@@ -422,6 +463,7 @@ export type EngagementItemUncheckedCreateInput = {
   status?: $Enums.EngagementStatus
   sentiment?: string | null
   aiDraft?: string | null
+  aiDraftGenerated?: boolean
   createdAt?: Date | string
   syncedAt?: Date | string
   repliedAt?: Date | string | null
@@ -435,6 +477,8 @@ export type EngagementItemUpdateInput = {
   platformUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorAvatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorProfileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorHandle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.StringFieldUpdateOperationsInput | string
   parentContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -442,6 +486,7 @@ export type EngagementItemUpdateInput = {
   status?: Prisma.EnumEngagementStatusFieldUpdateOperationsInput | $Enums.EngagementStatus
   sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiDraftGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -457,6 +502,8 @@ export type EngagementItemUncheckedUpdateInput = {
   platformUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorAvatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorProfileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorHandle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.StringFieldUpdateOperationsInput | string
   parentContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -464,13 +511,14 @@ export type EngagementItemUncheckedUpdateInput = {
   status?: Prisma.EnumEngagementStatusFieldUpdateOperationsInput | $Enums.EngagementStatus
   sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiDraftGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type EngagementItemCreateManyInput = {
-  id: string
+  id?: string
   workspaceId: string
   platform: string
   type: $Enums.EngagementType
@@ -478,6 +526,8 @@ export type EngagementItemCreateManyInput = {
   platformUrl?: string | null
   authorName?: string | null
   authorAvatar?: string | null
+  authorProfileUrl?: string | null
+  authorHandle?: string | null
   content: string
   parentContent?: string | null
   parentId?: string | null
@@ -485,6 +535,7 @@ export type EngagementItemCreateManyInput = {
   status?: $Enums.EngagementStatus
   sentiment?: string | null
   aiDraft?: string | null
+  aiDraftGenerated?: boolean
   createdAt?: Date | string
   syncedAt?: Date | string
   repliedAt?: Date | string | null
@@ -498,6 +549,8 @@ export type EngagementItemUpdateManyMutationInput = {
   platformUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorAvatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorProfileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorHandle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.StringFieldUpdateOperationsInput | string
   parentContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -505,6 +558,7 @@ export type EngagementItemUpdateManyMutationInput = {
   status?: Prisma.EnumEngagementStatusFieldUpdateOperationsInput | $Enums.EngagementStatus
   sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiDraftGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -519,6 +573,8 @@ export type EngagementItemUncheckedUpdateManyInput = {
   platformUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorAvatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorProfileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorHandle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.StringFieldUpdateOperationsInput | string
   parentContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -526,6 +582,7 @@ export type EngagementItemUncheckedUpdateManyInput = {
   status?: Prisma.EnumEngagementStatusFieldUpdateOperationsInput | $Enums.EngagementStatus
   sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiDraftGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -545,6 +602,8 @@ export type EngagementItemCountOrderByAggregateInput = {
   platformUrl?: Prisma.SortOrder
   authorName?: Prisma.SortOrder
   authorAvatar?: Prisma.SortOrder
+  authorProfileUrl?: Prisma.SortOrder
+  authorHandle?: Prisma.SortOrder
   content?: Prisma.SortOrder
   parentContent?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
@@ -552,6 +611,7 @@ export type EngagementItemCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   sentiment?: Prisma.SortOrder
   aiDraft?: Prisma.SortOrder
+  aiDraftGenerated?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
   repliedAt?: Prisma.SortOrder
@@ -566,6 +626,8 @@ export type EngagementItemMaxOrderByAggregateInput = {
   platformUrl?: Prisma.SortOrder
   authorName?: Prisma.SortOrder
   authorAvatar?: Prisma.SortOrder
+  authorProfileUrl?: Prisma.SortOrder
+  authorHandle?: Prisma.SortOrder
   content?: Prisma.SortOrder
   parentContent?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
@@ -573,6 +635,7 @@ export type EngagementItemMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   sentiment?: Prisma.SortOrder
   aiDraft?: Prisma.SortOrder
+  aiDraftGenerated?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
   repliedAt?: Prisma.SortOrder
@@ -587,6 +650,8 @@ export type EngagementItemMinOrderByAggregateInput = {
   platformUrl?: Prisma.SortOrder
   authorName?: Prisma.SortOrder
   authorAvatar?: Prisma.SortOrder
+  authorProfileUrl?: Prisma.SortOrder
+  authorHandle?: Prisma.SortOrder
   content?: Prisma.SortOrder
   parentContent?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
@@ -594,6 +659,7 @@ export type EngagementItemMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   sentiment?: Prisma.SortOrder
   aiDraft?: Prisma.SortOrder
+  aiDraftGenerated?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
   repliedAt?: Prisma.SortOrder
@@ -660,13 +726,15 @@ export type EngagementItemUncheckedUpdateManyWithoutWorkspaceNestedInput = {
 }
 
 export type EngagementItemCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   platform: string
   type: $Enums.EngagementType
   platformItemId: string
   platformUrl?: string | null
   authorName?: string | null
   authorAvatar?: string | null
+  authorProfileUrl?: string | null
+  authorHandle?: string | null
   content: string
   parentContent?: string | null
   parentId?: string | null
@@ -674,19 +742,22 @@ export type EngagementItemCreateWithoutWorkspaceInput = {
   status?: $Enums.EngagementStatus
   sentiment?: string | null
   aiDraft?: string | null
+  aiDraftGenerated?: boolean
   createdAt?: Date | string
   syncedAt?: Date | string
   repliedAt?: Date | string | null
 }
 
 export type EngagementItemUncheckedCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   platform: string
   type: $Enums.EngagementType
   platformItemId: string
   platformUrl?: string | null
   authorName?: string | null
   authorAvatar?: string | null
+  authorProfileUrl?: string | null
+  authorHandle?: string | null
   content: string
   parentContent?: string | null
   parentId?: string | null
@@ -694,6 +765,7 @@ export type EngagementItemUncheckedCreateWithoutWorkspaceInput = {
   status?: $Enums.EngagementStatus
   sentiment?: string | null
   aiDraft?: string | null
+  aiDraftGenerated?: boolean
   createdAt?: Date | string
   syncedAt?: Date | string
   repliedAt?: Date | string | null
@@ -737,6 +809,8 @@ export type EngagementItemScalarWhereInput = {
   platformUrl?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
   authorName?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
   authorAvatar?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
+  authorProfileUrl?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
+  authorHandle?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
   content?: Prisma.StringFilter<"EngagementItem"> | string
   parentContent?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
   parentId?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
@@ -744,19 +818,22 @@ export type EngagementItemScalarWhereInput = {
   status?: Prisma.EnumEngagementStatusFilter<"EngagementItem"> | $Enums.EngagementStatus
   sentiment?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
   aiDraft?: Prisma.StringNullableFilter<"EngagementItem"> | string | null
+  aiDraftGenerated?: Prisma.BoolFilter<"EngagementItem"> | boolean
   createdAt?: Prisma.DateTimeFilter<"EngagementItem"> | Date | string
   syncedAt?: Prisma.DateTimeFilter<"EngagementItem"> | Date | string
   repliedAt?: Prisma.DateTimeNullableFilter<"EngagementItem"> | Date | string | null
 }
 
 export type EngagementItemCreateManyWorkspaceInput = {
-  id: string
+  id?: string
   platform: string
   type: $Enums.EngagementType
   platformItemId: string
   platformUrl?: string | null
   authorName?: string | null
   authorAvatar?: string | null
+  authorProfileUrl?: string | null
+  authorHandle?: string | null
   content: string
   parentContent?: string | null
   parentId?: string | null
@@ -764,6 +841,7 @@ export type EngagementItemCreateManyWorkspaceInput = {
   status?: $Enums.EngagementStatus
   sentiment?: string | null
   aiDraft?: string | null
+  aiDraftGenerated?: boolean
   createdAt?: Date | string
   syncedAt?: Date | string
   repliedAt?: Date | string | null
@@ -777,6 +855,8 @@ export type EngagementItemUpdateWithoutWorkspaceInput = {
   platformUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorAvatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorProfileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorHandle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.StringFieldUpdateOperationsInput | string
   parentContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -784,6 +864,7 @@ export type EngagementItemUpdateWithoutWorkspaceInput = {
   status?: Prisma.EnumEngagementStatusFieldUpdateOperationsInput | $Enums.EngagementStatus
   sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiDraftGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -797,6 +878,8 @@ export type EngagementItemUncheckedUpdateWithoutWorkspaceInput = {
   platformUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorAvatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorProfileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorHandle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.StringFieldUpdateOperationsInput | string
   parentContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -804,6 +887,7 @@ export type EngagementItemUncheckedUpdateWithoutWorkspaceInput = {
   status?: Prisma.EnumEngagementStatusFieldUpdateOperationsInput | $Enums.EngagementStatus
   sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiDraftGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -817,6 +901,8 @@ export type EngagementItemUncheckedUpdateManyWithoutWorkspaceInput = {
   platformUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorAvatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorProfileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorHandle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.StringFieldUpdateOperationsInput | string
   parentContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -824,6 +910,7 @@ export type EngagementItemUncheckedUpdateManyWithoutWorkspaceInput = {
   status?: Prisma.EnumEngagementStatusFieldUpdateOperationsInput | $Enums.EngagementStatus
   sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiDraft?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiDraftGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -840,6 +927,8 @@ export type EngagementItemSelect<ExtArgs extends runtime.Types.Extensions.Intern
   platformUrl?: boolean
   authorName?: boolean
   authorAvatar?: boolean
+  authorProfileUrl?: boolean
+  authorHandle?: boolean
   content?: boolean
   parentContent?: boolean
   parentId?: boolean
@@ -847,6 +936,7 @@ export type EngagementItemSelect<ExtArgs extends runtime.Types.Extensions.Intern
   status?: boolean
   sentiment?: boolean
   aiDraft?: boolean
+  aiDraftGenerated?: boolean
   createdAt?: boolean
   syncedAt?: boolean
   repliedAt?: boolean
@@ -862,6 +952,8 @@ export type EngagementItemSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   platformUrl?: boolean
   authorName?: boolean
   authorAvatar?: boolean
+  authorProfileUrl?: boolean
+  authorHandle?: boolean
   content?: boolean
   parentContent?: boolean
   parentId?: boolean
@@ -869,6 +961,7 @@ export type EngagementItemSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   status?: boolean
   sentiment?: boolean
   aiDraft?: boolean
+  aiDraftGenerated?: boolean
   createdAt?: boolean
   syncedAt?: boolean
   repliedAt?: boolean
@@ -884,6 +977,8 @@ export type EngagementItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   platformUrl?: boolean
   authorName?: boolean
   authorAvatar?: boolean
+  authorProfileUrl?: boolean
+  authorHandle?: boolean
   content?: boolean
   parentContent?: boolean
   parentId?: boolean
@@ -891,6 +986,7 @@ export type EngagementItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   status?: boolean
   sentiment?: boolean
   aiDraft?: boolean
+  aiDraftGenerated?: boolean
   createdAt?: boolean
   syncedAt?: boolean
   repliedAt?: boolean
@@ -906,6 +1002,8 @@ export type EngagementItemSelectScalar = {
   platformUrl?: boolean
   authorName?: boolean
   authorAvatar?: boolean
+  authorProfileUrl?: boolean
+  authorHandle?: boolean
   content?: boolean
   parentContent?: boolean
   parentId?: boolean
@@ -913,12 +1011,13 @@ export type EngagementItemSelectScalar = {
   status?: boolean
   sentiment?: boolean
   aiDraft?: boolean
+  aiDraftGenerated?: boolean
   createdAt?: boolean
   syncedAt?: boolean
   repliedAt?: boolean
 }
 
-export type EngagementItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "platform" | "type" | "platformItemId" | "platformUrl" | "authorName" | "authorAvatar" | "content" | "parentContent" | "parentId" | "inReplyToId" | "status" | "sentiment" | "aiDraft" | "createdAt" | "syncedAt" | "repliedAt", ExtArgs["result"]["engagementItem"]>
+export type EngagementItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "platform" | "type" | "platformItemId" | "platformUrl" | "authorName" | "authorAvatar" | "authorProfileUrl" | "authorHandle" | "content" | "parentContent" | "parentId" | "inReplyToId" | "status" | "sentiment" | "aiDraft" | "aiDraftGenerated" | "createdAt" | "syncedAt" | "repliedAt", ExtArgs["result"]["engagementItem"]>
 export type EngagementItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
@@ -943,6 +1042,8 @@ export type $EngagementItemPayload<ExtArgs extends runtime.Types.Extensions.Inte
     platformUrl: string | null
     authorName: string | null
     authorAvatar: string | null
+    authorProfileUrl: string | null
+    authorHandle: string | null
     content: string
     parentContent: string | null
     parentId: string | null
@@ -950,6 +1051,7 @@ export type $EngagementItemPayload<ExtArgs extends runtime.Types.Extensions.Inte
     status: $Enums.EngagementStatus
     sentiment: string | null
     aiDraft: string | null
+    aiDraftGenerated: boolean
     createdAt: Date
     syncedAt: Date
     repliedAt: Date | null
@@ -1385,6 +1487,8 @@ export interface EngagementItemFieldRefs {
   readonly platformUrl: Prisma.FieldRef<"EngagementItem", 'String'>
   readonly authorName: Prisma.FieldRef<"EngagementItem", 'String'>
   readonly authorAvatar: Prisma.FieldRef<"EngagementItem", 'String'>
+  readonly authorProfileUrl: Prisma.FieldRef<"EngagementItem", 'String'>
+  readonly authorHandle: Prisma.FieldRef<"EngagementItem", 'String'>
   readonly content: Prisma.FieldRef<"EngagementItem", 'String'>
   readonly parentContent: Prisma.FieldRef<"EngagementItem", 'String'>
   readonly parentId: Prisma.FieldRef<"EngagementItem", 'String'>
@@ -1392,6 +1496,7 @@ export interface EngagementItemFieldRefs {
   readonly status: Prisma.FieldRef<"EngagementItem", 'EngagementStatus'>
   readonly sentiment: Prisma.FieldRef<"EngagementItem", 'String'>
   readonly aiDraft: Prisma.FieldRef<"EngagementItem", 'String'>
+  readonly aiDraftGenerated: Prisma.FieldRef<"EngagementItem", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"EngagementItem", 'DateTime'>
   readonly syncedAt: Prisma.FieldRef<"EngagementItem", 'DateTime'>
   readonly repliedAt: Prisma.FieldRef<"EngagementItem", 'DateTime'>

@@ -30,6 +30,7 @@ export type OnboardingSessionMinAggregateOutputType = {
   currentStep: string | null
   completedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type OnboardingSessionMaxAggregateOutputType = {
@@ -38,6 +39,7 @@ export type OnboardingSessionMaxAggregateOutputType = {
   currentStep: string | null
   completedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type OnboardingSessionCountAggregateOutputType = {
@@ -47,6 +49,7 @@ export type OnboardingSessionCountAggregateOutputType = {
   stepData: number
   completedAt: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -57,6 +60,7 @@ export type OnboardingSessionMinAggregateInputType = {
   currentStep?: true
   completedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type OnboardingSessionMaxAggregateInputType = {
@@ -65,6 +69,7 @@ export type OnboardingSessionMaxAggregateInputType = {
   currentStep?: true
   completedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type OnboardingSessionCountAggregateInputType = {
@@ -74,6 +79,7 @@ export type OnboardingSessionCountAggregateInputType = {
   stepData?: true
   completedAt?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -156,6 +162,7 @@ export type OnboardingSessionGroupByOutputType = {
   stepData: runtime.JsonValue | null
   completedAt: Date | null
   createdAt: Date
+  updatedAt: Date
   _count: OnboardingSessionCountAggregateOutputType | null
   _min: OnboardingSessionMinAggregateOutputType | null
   _max: OnboardingSessionMaxAggregateOutputType | null
@@ -186,6 +193,8 @@ export type OnboardingSessionWhereInput = {
   stepData?: Prisma.JsonNullableFilter<"OnboardingSession">
   completedAt?: Prisma.DateTimeNullableFilter<"OnboardingSession"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"OnboardingSession"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OnboardingSession"> | Date | string
+  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type OnboardingSessionOrderByWithRelationInput = {
@@ -195,6 +204,8 @@ export type OnboardingSessionOrderByWithRelationInput = {
   stepData?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+  User?: Prisma.UserOrderByWithRelationInput
 }
 
 export type OnboardingSessionWhereUniqueInput = Prisma.AtLeast<{
@@ -207,6 +218,8 @@ export type OnboardingSessionWhereUniqueInput = Prisma.AtLeast<{
   stepData?: Prisma.JsonNullableFilter<"OnboardingSession">
   completedAt?: Prisma.DateTimeNullableFilter<"OnboardingSession"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"OnboardingSession"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OnboardingSession"> | Date | string
+  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id" | "userId">
 
 export type OnboardingSessionOrderByWithAggregationInput = {
@@ -216,6 +229,7 @@ export type OnboardingSessionOrderByWithAggregationInput = {
   stepData?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.OnboardingSessionCountOrderByAggregateInput
   _max?: Prisma.OnboardingSessionMaxOrderByAggregateInput
   _min?: Prisma.OnboardingSessionMinOrderByAggregateInput
@@ -231,33 +245,37 @@ export type OnboardingSessionScalarWhereWithAggregatesInput = {
   stepData?: Prisma.JsonNullableWithAggregatesFilter<"OnboardingSession">
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"OnboardingSession"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"OnboardingSession"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"OnboardingSession"> | Date | string
 }
 
 export type OnboardingSessionCreateInput = {
-  id: string
-  userId: string
+  id?: string
   currentStep?: string
   stepData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   completedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  User: Prisma.UserCreateNestedOneWithoutOnboardingSessionInput
 }
 
 export type OnboardingSessionUncheckedCreateInput = {
-  id: string
+  id?: string
   userId: string
   currentStep?: string
   stepData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   completedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OnboardingSessionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   currentStep?: Prisma.StringFieldUpdateOperationsInput | string
   stepData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  User?: Prisma.UserUpdateOneRequiredWithoutOnboardingSessionNestedInput
 }
 
 export type OnboardingSessionUncheckedUpdateInput = {
@@ -267,24 +285,26 @@ export type OnboardingSessionUncheckedUpdateInput = {
   stepData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OnboardingSessionCreateManyInput = {
-  id: string
+  id?: string
   userId: string
   currentStep?: string
   stepData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   completedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type OnboardingSessionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   currentStep?: Prisma.StringFieldUpdateOperationsInput | string
   stepData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OnboardingSessionUncheckedUpdateManyInput = {
@@ -294,6 +314,7 @@ export type OnboardingSessionUncheckedUpdateManyInput = {
   stepData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OnboardingSessionCountOrderByAggregateInput = {
@@ -303,6 +324,7 @@ export type OnboardingSessionCountOrderByAggregateInput = {
   stepData?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OnboardingSessionMaxOrderByAggregateInput = {
@@ -311,6 +333,7 @@ export type OnboardingSessionMaxOrderByAggregateInput = {
   currentStep?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OnboardingSessionMinOrderByAggregateInput = {
@@ -319,6 +342,96 @@ export type OnboardingSessionMinOrderByAggregateInput = {
   currentStep?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+}
+
+export type OnboardingSessionNullableScalarRelationFilter = {
+  is?: Prisma.OnboardingSessionWhereInput | null
+  isNot?: Prisma.OnboardingSessionWhereInput | null
+}
+
+export type OnboardingSessionCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.OnboardingSessionCreateWithoutUserInput, Prisma.OnboardingSessionUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.OnboardingSessionCreateOrConnectWithoutUserInput
+  connect?: Prisma.OnboardingSessionWhereUniqueInput
+}
+
+export type OnboardingSessionUncheckedCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.OnboardingSessionCreateWithoutUserInput, Prisma.OnboardingSessionUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.OnboardingSessionCreateOrConnectWithoutUserInput
+  connect?: Prisma.OnboardingSessionWhereUniqueInput
+}
+
+export type OnboardingSessionUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.OnboardingSessionCreateWithoutUserInput, Prisma.OnboardingSessionUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.OnboardingSessionCreateOrConnectWithoutUserInput
+  upsert?: Prisma.OnboardingSessionUpsertWithoutUserInput
+  disconnect?: Prisma.OnboardingSessionWhereInput | boolean
+  delete?: Prisma.OnboardingSessionWhereInput | boolean
+  connect?: Prisma.OnboardingSessionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OnboardingSessionUpdateToOneWithWhereWithoutUserInput, Prisma.OnboardingSessionUpdateWithoutUserInput>, Prisma.OnboardingSessionUncheckedUpdateWithoutUserInput>
+}
+
+export type OnboardingSessionUncheckedUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.OnboardingSessionCreateWithoutUserInput, Prisma.OnboardingSessionUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.OnboardingSessionCreateOrConnectWithoutUserInput
+  upsert?: Prisma.OnboardingSessionUpsertWithoutUserInput
+  disconnect?: Prisma.OnboardingSessionWhereInput | boolean
+  delete?: Prisma.OnboardingSessionWhereInput | boolean
+  connect?: Prisma.OnboardingSessionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OnboardingSessionUpdateToOneWithWhereWithoutUserInput, Prisma.OnboardingSessionUpdateWithoutUserInput>, Prisma.OnboardingSessionUncheckedUpdateWithoutUserInput>
+}
+
+export type OnboardingSessionCreateWithoutUserInput = {
+  id?: string
+  currentStep?: string
+  stepData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  completedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type OnboardingSessionUncheckedCreateWithoutUserInput = {
+  id?: string
+  currentStep?: string
+  stepData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  completedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type OnboardingSessionCreateOrConnectWithoutUserInput = {
+  where: Prisma.OnboardingSessionWhereUniqueInput
+  create: Prisma.XOR<Prisma.OnboardingSessionCreateWithoutUserInput, Prisma.OnboardingSessionUncheckedCreateWithoutUserInput>
+}
+
+export type OnboardingSessionUpsertWithoutUserInput = {
+  update: Prisma.XOR<Prisma.OnboardingSessionUpdateWithoutUserInput, Prisma.OnboardingSessionUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.OnboardingSessionCreateWithoutUserInput, Prisma.OnboardingSessionUncheckedCreateWithoutUserInput>
+  where?: Prisma.OnboardingSessionWhereInput
+}
+
+export type OnboardingSessionUpdateToOneWithWhereWithoutUserInput = {
+  where?: Prisma.OnboardingSessionWhereInput
+  data: Prisma.XOR<Prisma.OnboardingSessionUpdateWithoutUserInput, Prisma.OnboardingSessionUncheckedUpdateWithoutUserInput>
+}
+
+export type OnboardingSessionUpdateWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  currentStep?: Prisma.StringFieldUpdateOperationsInput | string
+  stepData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type OnboardingSessionUncheckedUpdateWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  currentStep?: Prisma.StringFieldUpdateOperationsInput | string
+  stepData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -330,6 +443,8 @@ export type OnboardingSessionSelect<ExtArgs extends runtime.Types.Extensions.Int
   stepData?: boolean
   completedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["onboardingSession"]>
 
 export type OnboardingSessionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -339,6 +454,8 @@ export type OnboardingSessionSelectCreateManyAndReturn<ExtArgs extends runtime.T
   stepData?: boolean
   completedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["onboardingSession"]>
 
 export type OnboardingSessionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -348,6 +465,8 @@ export type OnboardingSessionSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   stepData?: boolean
   completedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["onboardingSession"]>
 
 export type OnboardingSessionSelectScalar = {
@@ -357,13 +476,25 @@ export type OnboardingSessionSelectScalar = {
   stepData?: boolean
   completedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type OnboardingSessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "currentStep" | "stepData" | "completedAt" | "createdAt", ExtArgs["result"]["onboardingSession"]>
+export type OnboardingSessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "currentStep" | "stepData" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["onboardingSession"]>
+export type OnboardingSessionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
+export type OnboardingSessionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
+export type OnboardingSessionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
 
 export type $OnboardingSessionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "OnboardingSession"
-  objects: {}
+  objects: {
+    User: Prisma.$UserPayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     userId: string
@@ -371,6 +502,7 @@ export type $OnboardingSessionPayload<ExtArgs extends runtime.Types.Extensions.I
     stepData: runtime.JsonValue | null
     completedAt: Date | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["onboardingSession"]>
   composites: {}
 }
@@ -765,6 +897,7 @@ readonly fields: OnboardingSessionFieldRefs;
  */
 export interface Prisma__OnboardingSessionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -800,6 +933,7 @@ export interface OnboardingSessionFieldRefs {
   readonly stepData: Prisma.FieldRef<"OnboardingSession", 'Json'>
   readonly completedAt: Prisma.FieldRef<"OnboardingSession", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"OnboardingSession", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"OnboardingSession", 'DateTime'>
 }
     
 
@@ -816,6 +950,10 @@ export type OnboardingSessionFindUniqueArgs<ExtArgs extends runtime.Types.Extens
    * Omit specific fields from the OnboardingSession
    */
   omit?: Prisma.OnboardingSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OnboardingSessionInclude<ExtArgs> | null
   /**
    * Filter, which OnboardingSession to fetch.
    */
@@ -835,6 +973,10 @@ export type OnboardingSessionFindUniqueOrThrowArgs<ExtArgs extends runtime.Types
    */
   omit?: Prisma.OnboardingSessionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OnboardingSessionInclude<ExtArgs> | null
+  /**
    * Filter, which OnboardingSession to fetch.
    */
   where: Prisma.OnboardingSessionWhereUniqueInput
@@ -852,6 +994,10 @@ export type OnboardingSessionFindFirstArgs<ExtArgs extends runtime.Types.Extensi
    * Omit specific fields from the OnboardingSession
    */
   omit?: Prisma.OnboardingSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OnboardingSessionInclude<ExtArgs> | null
   /**
    * Filter, which OnboardingSession to fetch.
    */
@@ -901,6 +1047,10 @@ export type OnboardingSessionFindFirstOrThrowArgs<ExtArgs extends runtime.Types.
    */
   omit?: Prisma.OnboardingSessionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OnboardingSessionInclude<ExtArgs> | null
+  /**
    * Filter, which OnboardingSession to fetch.
    */
   where?: Prisma.OnboardingSessionWhereInput
@@ -948,6 +1098,10 @@ export type OnboardingSessionFindManyArgs<ExtArgs extends runtime.Types.Extensio
    * Omit specific fields from the OnboardingSession
    */
   omit?: Prisma.OnboardingSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OnboardingSessionInclude<ExtArgs> | null
   /**
    * Filter, which OnboardingSessions to fetch.
    */
@@ -997,6 +1151,10 @@ export type OnboardingSessionCreateArgs<ExtArgs extends runtime.Types.Extensions
    */
   omit?: Prisma.OnboardingSessionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OnboardingSessionInclude<ExtArgs> | null
+  /**
    * The data needed to create a OnboardingSession.
    */
   data: Prisma.XOR<Prisma.OnboardingSessionCreateInput, Prisma.OnboardingSessionUncheckedCreateInput>
@@ -1030,6 +1188,10 @@ export type OnboardingSessionCreateManyAndReturnArgs<ExtArgs extends runtime.Typ
    */
   data: Prisma.OnboardingSessionCreateManyInput | Prisma.OnboardingSessionCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OnboardingSessionIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1044,6 +1206,10 @@ export type OnboardingSessionUpdateArgs<ExtArgs extends runtime.Types.Extensions
    * Omit specific fields from the OnboardingSession
    */
   omit?: Prisma.OnboardingSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OnboardingSessionInclude<ExtArgs> | null
   /**
    * The data needed to update a OnboardingSession.
    */
@@ -1096,6 +1262,10 @@ export type OnboardingSessionUpdateManyAndReturnArgs<ExtArgs extends runtime.Typ
    * Limit how many OnboardingSessions to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OnboardingSessionIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1110,6 +1280,10 @@ export type OnboardingSessionUpsertArgs<ExtArgs extends runtime.Types.Extensions
    * Omit specific fields from the OnboardingSession
    */
   omit?: Prisma.OnboardingSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OnboardingSessionInclude<ExtArgs> | null
   /**
    * The filter to search for the OnboardingSession to update in case it exists.
    */
@@ -1136,6 +1310,10 @@ export type OnboardingSessionDeleteArgs<ExtArgs extends runtime.Types.Extensions
    * Omit specific fields from the OnboardingSession
    */
   omit?: Prisma.OnboardingSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OnboardingSessionInclude<ExtArgs> | null
   /**
    * Filter which OnboardingSession to delete.
    */
@@ -1168,4 +1346,8 @@ export type OnboardingSessionDefaultArgs<ExtArgs extends runtime.Types.Extension
    * Omit specific fields from the OnboardingSession
    */
   omit?: Prisma.OnboardingSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OnboardingSessionInclude<ExtArgs> | null
 }

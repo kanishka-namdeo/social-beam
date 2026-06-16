@@ -67,6 +67,11 @@ export type BrandFieldState = Prisma.BrandFieldStateModel
  */
 export type BrandLearningSignal = Prisma.BrandLearningSignalModel
 /**
+ * Model BrandDraft
+ * 
+ */
+export type BrandDraft = Prisma.BrandDraftModel
+/**
  * Model BrandVoice
  * 
  */
@@ -86,6 +91,11 @@ export type DashboardPreference = Prisma.DashboardPreferenceModel
  * 
  */
 export type EngagementItem = Prisma.EngagementItemModel
+/**
+ * Model Contact
+ * 
+ */
+export type Contact = Prisma.ContactModel
 /**
  * Model FollowerSnapshot
  * 
@@ -132,6 +142,16 @@ export type RedditSubredditConfig = Prisma.RedditSubredditConfigModel
  */
 export type RedditTrendingPost = Prisma.RedditTrendingPostModel
 /**
+ * Model RedditComment
+ * 
+ */
+export type RedditComment = Prisma.RedditCommentModel
+/**
+ * Model RedditAlert
+ * 
+ */
+export type RedditAlert = Prisma.RedditAlertModel
+/**
  * Model SavedReply
  * 
  */
@@ -157,6 +177,11 @@ export type UserProfile = Prisma.UserProfileModel
  */
 export type Workspace = Prisma.WorkspaceModel
 /**
+ * Model PostSignature
+ * 
+ */
+export type PostSignature = Prisma.PostSignatureModel
+/**
  * Model checkpoint_blobs
  * 
  */
@@ -176,3 +201,113 @@ export type checkpoint_writes = Prisma.checkpoint_writesModel
  * 
  */
 export type checkpoints = Prisma.checkpointsModel
+/**
+ * Model McpAuthorizationCode
+ * 
+ */
+export type McpAuthorizationCode = Prisma.McpAuthorizationCodeModel
+/**
+ * Model McpRevokedToken
+ * 
+ */
+export type McpRevokedToken = Prisma.McpRevokedTokenModel
+/**
+ * Model ActivityLog
+ * 
+ */
+export type ActivityLog = Prisma.ActivityLogModel
+/**
+ * Model Notification
+ * 
+ */
+export type Notification = Prisma.NotificationModel
+/**
+ * Model NotificationPreference
+ * 
+ */
+export type NotificationPreference = Prisma.NotificationPreferenceModel
+/**
+ * Model ScraperProcess
+ * 
+ */
+export type ScraperProcess = Prisma.ScraperProcessModel
+/**
+ * Model Campaign
+ * 
+ */
+export type Campaign = Prisma.CampaignModel
+/**
+ * Model CampaignPhase
+ * 
+ */
+export type CampaignPhase = Prisma.CampaignPhaseModel
+/**
+ * Model CampaignPost
+ * 
+ */
+export type CampaignPost = Prisma.CampaignPostModel
+/**
+ * Model CampaignTemplate
+ * 
+ */
+export type CampaignTemplate = Prisma.CampaignTemplateModel
+/**
+ * Model CampaignActivity
+ * 
+ */
+export type CampaignActivity = Prisma.CampaignActivityModel
+/**
+ * Model RedditScrapeLog
+ * 
+ */
+export type RedditScrapeLog = Prisma.RedditScrapeLogModel
+/**
+ * Model RedditScrapeJob
+ * 
+ */
+export type RedditScrapeJob = Prisma.RedditScrapeJobModel
+/**
+ * Model RedditTrendCluster
+ * 
+ */
+export type RedditTrendCluster = Prisma.RedditTrendClusterModel
+/**
+ * Model ContentQueue
+ * 
+ */
+export type ContentQueue = Prisma.ContentQueueModel
+/**
+ * Model Idea
+ * 
+ */
+export type Idea = Prisma.IdeaModel
+/**
+ * Model CalendarNote
+ * 
+ */
+export type CalendarNote = Prisma.CalendarNoteModel
+/**
+ * Model PostTemplate
+ * 
+ */
+export type PostTemplate = Prisma.PostTemplateModel
+/**
+ * Model PushSubscription
+ * 
+ */
+export type PushSubscription = Prisma.PushSubscriptionModel
+/**
+ * Model ConsentLog
+ * 
+ */
+export type ConsentLog = Prisma.ConsentLogModel
+/**
+ * Model IdempotencyKey
+ * 
+ */
+export type IdempotencyKey = Prisma.IdempotencyKeyModel
+/**
+ * Model DeadLetterQueue
+ * 
+ */
+export type DeadLetterQueue = Prisma.DeadLetterQueueModel

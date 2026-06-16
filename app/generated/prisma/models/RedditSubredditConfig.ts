@@ -314,7 +314,7 @@ export type RedditSubredditConfigScalarWhereWithAggregatesInput = {
 }
 
 export type RedditSubredditConfigCreateInput = {
-  id: string
+  id?: string
   subreddit: string
   sortOrder?: string
   isActive?: boolean
@@ -326,7 +326,7 @@ export type RedditSubredditConfigCreateInput = {
 }
 
 export type RedditSubredditConfigUncheckedCreateInput = {
-  id: string
+  id?: string
   workspaceId: string
   subreddit: string
   sortOrder?: string
@@ -362,7 +362,7 @@ export type RedditSubredditConfigUncheckedUpdateInput = {
 }
 
 export type RedditSubredditConfigCreateManyInput = {
-  id: string
+  id?: string
   workspaceId: string
   subreddit: string
   sortOrder?: string
@@ -498,7 +498,7 @@ export type RedditSubredditConfigUncheckedUpdateManyWithoutWorkspaceNestedInput 
 }
 
 export type RedditSubredditConfigCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   subreddit: string
   sortOrder?: string
   isActive?: boolean
@@ -509,7 +509,7 @@ export type RedditSubredditConfigCreateWithoutWorkspaceInput = {
 }
 
 export type RedditSubredditConfigUncheckedCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   subreddit: string
   sortOrder?: string
   isActive?: boolean
@@ -561,7 +561,7 @@ export type RedditSubredditConfigScalarWhereInput = {
 }
 
 export type RedditSubredditConfigCreateManyWorkspaceInput = {
-  id: string
+  id?: string
   subreddit: string
   sortOrder?: string
   isActive?: boolean

@@ -1,11 +1,10 @@
 ---
-description: "On Windows, use native PowerShell cmdlets instead of Unix-style commands or bash aliases. Apply when running Shell commands on Windows. Covers file operations, search, navigation, and process management."
-alwaysApply: true
+description: PowerShell commands on Windows — use native cmdlets instead of Unix aliases. Apply when running shell commands on Windows.
+alwaysApply: false
 ---
-
 # PowerShell Commands on Windows
 
-**Trigger**: Always active on Windows (`win32`). Prefer native PowerShell cmdlets over Unix-style aliases.
+**Trigger**: Agent-requested. When running shell commands on Windows, use native PowerShell cmdlets instead of Unix-style aliases.
 
 ## Core Rule
 
@@ -30,6 +29,13 @@ When the OS is Windows, use PowerShell cmdlets instead of Unix commands. The `Sh
 | `head -n 5` | `Get-Content -TotalCount 5` |
 | `tail -n 5` | `Get-Content -Tail 5` |
 | `wc -l` | `Measure-Object -Line` |
+| `export VAR=val` | `$env:VAR = "val"` |
+| `echo $VAR` | `Write-Output $env:VAR` |
+| `sleep 5` | `Start-Sleep -Seconds 5` |
+| `curl URL` | `Invoke-WebRequest -Uri URL` |
+| `chmod +x file` | Not needed — Windows uses file extensions, not execute bits |
+| `which cmd` | `Get-Command cmd` |
+| `kill PID` | `Stop-Process -Id PID` |
 
 ## File Search Patterns
 
@@ -80,6 +86,21 @@ find . -name "*.log" -exec rm {} \;
 Get-ChildItem -Recurse -Filter "*.log" | Remove-Item -Force
 ```
 
+## Environment Variables
+
+```powershell
+# ❌ BAD — Unix export syntax
+export DATABASE_URL="postgresql://localhost/db"
+echo $DATABASE_URL
+
+# ✅ GOOD — PowerShell environment variables
+$env:DATABASE_URL = "postgresql://localhost/db"
+Write-Output $env:DATABASE_URL
+
+# ✅ Reading multiple env vars
+Write-Output "$env:NODE_ENV | $env:PORT"
+```
+
 ## When to Use Unix Commands Anyway
 
 Use Unix-style commands only when:
@@ -87,6 +108,7 @@ Use Unix-style commands only when:
 1. **Cross-platform tools are installed**: `rg`, `fd`, `git`, `pnpm` — these work identically on Windows
 2. **Chained shell commands**: Use `&&` in PowerShell for sequential execution (PowerShell 7+ supports it)
 3. **Node/pnpm scripts**: Package.json scripts should remain cross-platform or use `pnpm dlx` wrappers
+4. **Git commands**: `git status`, `git log`, `git add`, `git commit` work identically on Windows
 
 ## Path Handling
 
@@ -97,6 +119,22 @@ Get-ChildItem src/components
 # ✅ GOOD — PowerShell handles both, but be explicit with variables
 $path = Join-Path "src" "components"
 Get-ChildItem $path
+
+# ✅ GOOD — using variable expansion
+$srcDir = "src\components"  # backslash is native Windows
+Get-ChildItem $srcDir
+```
+
+## Process Management
+
+```powershell
+# ❌ BAD — Unix process management
+ps aux | grep node
+kill -9 12345
+
+# ✅ GOOD — PowerShell process management
+Get-Process -Name node
+Stop-Process -Name node -Force
 ```
 
 ## Anti-Patterns
@@ -107,3 +145,6 @@ Get-ChildItem $path
 | Using `ls -la` for detailed listing | Use `Get-ChildItem -Force` |
 | Using `grep pattern *.ts` | Use `Select-String` or `rg` |
 | Using `find . -name "*.ts"` | Use `Get-ChildItem -Recurse -Filter "*.ts"` |
+| Using `export VAR=val` | Use `$env:VAR = "val"` |
+| Using `chmod +x script.sh` | Not needed on Windows; run `.ps1` directly |
+| Using `curl URL` (Unix) | Use `Invoke-WebRequest -Uri URL` |

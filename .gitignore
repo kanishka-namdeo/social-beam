@@ -50,6 +50,7 @@ next-env.d.ts
 storage/
 
 # debug
+debug-*.log
 .cursor/debug-*.log
 .cursor/skills/
 
@@ -59,12 +60,15 @@ test-results/
 tests/
 
 # debug/test scripts
-scripts/
+scripts/*
+!scripts/backup.sh
+!scripts/restore.sh
 check-admin.ts
 setup-admin.ts
 
 # test files
 brand-context-test*.js
+TEST_CREDENTIALS.md
 
 # vercel
 .vercel/

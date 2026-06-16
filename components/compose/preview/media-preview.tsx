@@ -1,5 +1,7 @@
 "use client";
 
+import NextImage from "next/image";
+
 interface MediaPreviewProps {
   mediaUrls: string[];
   className?: string;
@@ -10,11 +12,13 @@ export function MediaPreview({ mediaUrls, className }: MediaPreviewProps) {
 
   if (mediaUrls.length === 1) {
     return (
-      <div className={`overflow-hidden ${className ?? ""}`}>
-        <img
+      <div className={`relative aspect-video overflow-hidden ${className ?? ""}`}>
+        <NextImage
           src={mediaUrls[0]}
           alt="Post media"
-          className="h-auto w-full object-cover"
+          fill
+          className="object-cover"
+          unoptimized
         />
       </div>
     );
@@ -24,12 +28,15 @@ export function MediaPreview({ mediaUrls, className }: MediaPreviewProps) {
     return (
       <div className={`grid grid-cols-2 gap-1 ${className ?? ""}`}>
         {mediaUrls.slice(0, 2).map((url, i) => (
-          <img
-            key={i}
-            src={url}
-            alt={`Post media ${i + 1}`}
-            className="aspect-square w-full object-cover"
-          />
+          <div key={i} className="relative aspect-square overflow-hidden">
+            <NextImage
+              src={url}
+              alt={`Post media ${i + 1}`}
+              fill
+              className="object-cover"
+              unoptimized
+            />
+          </div>
         ))}
       </div>
     );
@@ -38,21 +45,26 @@ export function MediaPreview({ mediaUrls, className }: MediaPreviewProps) {
   if (mediaUrls.length === 3) {
     return (
       <div className={`grid grid-cols-2 gap-1 ${className ?? ""}`}>
-        <div className="row-span-2">
-          <img
+        <div className="row-span-2 relative overflow-hidden">
+          <NextImage
             src={mediaUrls[0]}
             alt="Post media 1"
-            className="aspect-auto h-full w-full object-cover"
+            fill
+            className="object-cover"
+            unoptimized
           />
         </div>
         <div className="grid grid-cols-1 gap-1">
           {mediaUrls.slice(1, 3).map((url, i) => (
-            <img
-              key={i}
-              src={url}
-              alt={`Post media ${i + 2}`}
-              className="aspect-square w-full object-cover"
-            />
+            <div key={i} className="relative aspect-square overflow-hidden">
+              <NextImage
+                src={url}
+                alt={`Post media ${i + 2}`}
+                fill
+                className="object-cover"
+                unoptimized
+              />
+            </div>
           ))}
         </div>
       </div>
@@ -67,10 +79,12 @@ export function MediaPreview({ mediaUrls, className }: MediaPreviewProps) {
     <div className={`grid grid-cols-2 gap-1 ${className ?? ""}`}>
       {displayUrls.map((url, i) => (
         <div key={i} className="relative aspect-square overflow-hidden">
-          <img
+          <NextImage
             src={url}
             alt={`Post media ${i + 1}`}
-            className="h-full w-full object-cover"
+            fill
+            className="object-cover"
+            unoptimized
           />
           {i === 3 && overflowCount > 0 && (
             <div className="absolute inset-0 flex items-center justify-center bg-overlay">

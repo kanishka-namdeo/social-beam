@@ -1,5 +1,6 @@
 "use client";
 
+import NextImage from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -150,10 +151,12 @@ export function PostPreviewDialog({
                   className="relative group aspect-video rounded-sm border border-border bg-card overflow-hidden"
                 >
                   {media.type === "image" ? (
-                    <img
+                    <NextImage
                       src={media.url}
                       alt={`Media ${i + 1}`}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
+                      unoptimized
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-card">

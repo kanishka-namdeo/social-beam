@@ -337,7 +337,7 @@ export type BrandLearningSignalScalarWhereWithAggregatesInput = {
 }
 
 export type BrandLearningSignalCreateInput = {
-  id: string
+  id?: string
   signalType: string
   sourcePostId?: string | null
   fieldName: string
@@ -351,7 +351,7 @@ export type BrandLearningSignalCreateInput = {
 }
 
 export type BrandLearningSignalUncheckedCreateInput = {
-  id: string
+  id?: string
   brandContextId: string
   signalType: string
   sourcePostId?: string | null
@@ -393,7 +393,7 @@ export type BrandLearningSignalUncheckedUpdateInput = {
 }
 
 export type BrandLearningSignalCreateManyInput = {
-  id: string
+  id?: string
   brandContextId: string
   signalType: string
   sourcePostId?: string | null
@@ -540,7 +540,7 @@ export type BoolFieldUpdateOperationsInput = {
 }
 
 export type BrandLearningSignalCreateWithoutBrandContextInput = {
-  id: string
+  id?: string
   signalType: string
   sourcePostId?: string | null
   fieldName: string
@@ -553,7 +553,7 @@ export type BrandLearningSignalCreateWithoutBrandContextInput = {
 }
 
 export type BrandLearningSignalUncheckedCreateWithoutBrandContextInput = {
-  id: string
+  id?: string
   signalType: string
   sourcePostId?: string | null
   fieldName: string
@@ -609,7 +609,7 @@ export type BrandLearningSignalScalarWhereInput = {
 }
 
 export type BrandLearningSignalCreateManyBrandContextInput = {
-  id: string
+  id?: string
   signalType: string
   sourcePostId?: string | null
   fieldName: string

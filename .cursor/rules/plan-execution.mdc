@@ -65,20 +65,54 @@ When the decision tree says SUBAGENT, dispatch `Task` subagents:
 
 ---
 
+## Scope Ledger (Per Task)
+
+**Before starting any task, create a scope ledger** — a structured artifact that defines the boundaries, allowed operations, and verification proof for that task. This is the operating contract for the agent.
+
+```markdown
+### Task: [task-id] — [brief description]
+
+**Goal**: [one-sentence user-visible outcome]
+
+**Allowed paths**:
+- [file paths the agent may modify]
+- [API routes, components, utilities in scope]
+
+**Forbidden paths**:
+- [file paths the agent must NOT touch]
+- [patterns to avoid — e.g., "no new dependencies", "no schema changes"]
+
+**Verification command**:
+- [exact command to prove the change works — e.g., `pnpm exec vitest run path/to/test.ts`]
+- [expected output — e.g., "all tests pass, 0 failures"]
+
+**Merge owner**: [human who approves the final merge]
+```
+
+**Why this matters**: Without a scope ledger, the agent drifts — modifying files outside the task scope, adding unrequested features, or skipping verification. The ledger makes reviewable what the agent did vs. what it was allowed to do.
+
+**Scope ledger rules**:
+- One ledger per task (not per plan)
+- Forbidden paths must be explicit — "don't modify X" is stronger than "prefer not to modify X"
+- Verification command must be runnable — not "check that it works" but `pnpm exec vitest run path/to/test.ts`
+- Merge owner is always a human — never the agent itself
+
+---
+
 ## Incremental Verification
 
 **After each task (not just at the end)**:
 
 ### TypeScript Check (Modified Files Only)
 ```bash
-npx tsc --noEmit path/to/file1.ts path/to/file2.ts
+pnpm exec tsc --noEmit path/to/file1.ts path/to/file2.ts
 # Or full typecheck if many files
 pnpm run typecheck
 ```
 
 ### Lint Check (Modified Files Only)
 ```bash
-npx eslint path/to/file1.ts path/to/file2.ts
+pnpm exec eslint path/to/file1.ts path/to/file2.ts
 # Or full lint
 pnpm run lint
 ```

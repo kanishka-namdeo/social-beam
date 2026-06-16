@@ -2,6 +2,7 @@ import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { createInboxAdapter } from '@/lib/inbox/adapters';
 import type { PlatformName, EngagementType } from '@/lib/inbox/types';
+import { syncContactsFromEngagements } from '@/lib/contacts/sync-contacts';
 
 const PLATFORMS: PlatformName[] = ['instagram', 'facebook', 'x', 'linkedin', 'tiktok'];
 
@@ -58,6 +59,8 @@ export async function syncEngagement(workspaceId: string): Promise<SyncResult> {
           platformUrl: c.platformUrl,
           authorName: c.authorName,
           authorAvatar: c.authorAvatar,
+          authorProfileUrl: c.authorProfileUrl,
+          authorHandle: c.authorHandle,
           content: c.content,
           parentContent: c.parentContent,
           parentId: c.parentId,
@@ -125,6 +128,16 @@ export async function syncEngagement(workspaceId: string): Promise<SyncResult> {
     totalErrors: result.totalErrors,
   });
 
+  try {
+    const contactCount = await syncContactsFromEngagements(workspaceId);
+    logger.info('inbox.sync.contacts_synced', { workspaceId, contactCount });
+  } catch (err) {
+    logger.error('inbox.sync.contacts_sync_failed', {
+      workspaceId,
+      error: String(err),
+    });
+  }
+
   return result;
 }
 
@@ -136,6 +149,8 @@ async function upsertEngagementItem(data: {
   platformUrl?: string;
   authorName?: string;
   authorAvatar?: string;
+  authorProfileUrl?: string | null;
+  authorHandle?: string | null;
   content: string;
   parentContent?: string;
   parentId?: string;
@@ -156,6 +171,8 @@ async function upsertEngagementItem(data: {
       platformUrl: data.platformUrl,
       authorName: data.authorName,
       authorAvatar: data.authorAvatar,
+      authorProfileUrl: data.authorProfileUrl,
+      authorHandle: data.authorHandle,
       content: data.content,
       parentContent: data.parentContent,
       parentId: data.parentId,
@@ -164,6 +181,8 @@ async function upsertEngagementItem(data: {
     update: {
       content: data.content,
       syncedAt: new Date(),
+      authorProfileUrl: data.authorProfileUrl,
+      authorHandle: data.authorHandle,
       ...(data.parentContent ? { parentContent: data.parentContent } : {}),
     },
   });

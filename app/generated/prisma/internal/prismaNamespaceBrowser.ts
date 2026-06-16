@@ -56,10 +56,12 @@ export const ModelName = {
   BrandContextVersion: 'BrandContextVersion',
   BrandFieldState: 'BrandFieldState',
   BrandLearningSignal: 'BrandLearningSignal',
+  BrandDraft: 'BrandDraft',
   BrandVoice: 'BrandVoice',
   ConnectedAccount: 'ConnectedAccount',
   DashboardPreference: 'DashboardPreference',
   EngagementItem: 'EngagementItem',
+  Contact: 'Contact',
   FollowerSnapshot: 'FollowerSnapshot',
   MediaAsset: 'MediaAsset',
   Subscription: 'Subscription',
@@ -69,15 +71,40 @@ export const ModelName = {
   PostPlatform: 'PostPlatform',
   RedditSubredditConfig: 'RedditSubredditConfig',
   RedditTrendingPost: 'RedditTrendingPost',
+  RedditComment: 'RedditComment',
+  RedditAlert: 'RedditAlert',
   SavedReply: 'SavedReply',
   User: 'User',
   UserOAuthApp: 'UserOAuthApp',
   UserProfile: 'UserProfile',
   Workspace: 'Workspace',
+  PostSignature: 'PostSignature',
   checkpoint_blobs: 'checkpoint_blobs',
   checkpoint_migrations: 'checkpoint_migrations',
   checkpoint_writes: 'checkpoint_writes',
-  checkpoints: 'checkpoints'
+  checkpoints: 'checkpoints',
+  McpAuthorizationCode: 'McpAuthorizationCode',
+  McpRevokedToken: 'McpRevokedToken',
+  ActivityLog: 'ActivityLog',
+  Notification: 'Notification',
+  NotificationPreference: 'NotificationPreference',
+  ScraperProcess: 'ScraperProcess',
+  Campaign: 'Campaign',
+  CampaignPhase: 'CampaignPhase',
+  CampaignPost: 'CampaignPost',
+  CampaignTemplate: 'CampaignTemplate',
+  CampaignActivity: 'CampaignActivity',
+  RedditScrapeLog: 'RedditScrapeLog',
+  RedditScrapeJob: 'RedditScrapeJob',
+  RedditTrendCluster: 'RedditTrendCluster',
+  ContentQueue: 'ContentQueue',
+  Idea: 'Idea',
+  CalendarNote: 'CalendarNote',
+  PostTemplate: 'PostTemplate',
+  PushSubscription: 'PushSubscription',
+  ConsentLog: 'ConsentLog',
+  IdempotencyKey: 'IdempotencyKey',
+  DeadLetterQueue: 'DeadLetterQueue'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -137,6 +164,8 @@ export const BrandContextScalarFieldEnum = {
   goals: 'goals',
   trainingStatus: 'trainingStatus',
   lastTrainedAt: 'lastTrainedAt',
+  defaultSignatureText: 'defaultSignatureText',
+  defaultSignatureUrl: 'defaultSignatureUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -185,6 +214,27 @@ export const BrandLearningSignalScalarFieldEnum = {
 } as const
 
 export type BrandLearningSignalScalarFieldEnum = (typeof BrandLearningSignalScalarFieldEnum)[keyof typeof BrandLearningSignalScalarFieldEnum]
+
+
+export const BrandDraftScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  threadId: 'threadId',
+  checkpointStep: 'checkpointStep',
+  stateSnapshot: 'stateSnapshot',
+  brandContextDraft: 'brandContextDraft',
+  platformContextsDraft: 'platformContextsDraft',
+  samplePosts: 'samplePosts',
+  crawledContent: 'crawledContent',
+  currentStep: 'currentStep',
+  inputUrl: 'inputUrl',
+  inputDescription: 'inputDescription',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  expiresAt: 'expiresAt'
+} as const
+
+export type BrandDraftScalarFieldEnum = (typeof BrandDraftScalarFieldEnum)[keyof typeof BrandDraftScalarFieldEnum]
 
 
 export const BrandVoiceScalarFieldEnum = {
@@ -244,6 +294,8 @@ export const EngagementItemScalarFieldEnum = {
   platformUrl: 'platformUrl',
   authorName: 'authorName',
   authorAvatar: 'authorAvatar',
+  authorProfileUrl: 'authorProfileUrl',
+  authorHandle: 'authorHandle',
   content: 'content',
   parentContent: 'parentContent',
   parentId: 'parentId',
@@ -251,12 +303,31 @@ export const EngagementItemScalarFieldEnum = {
   status: 'status',
   sentiment: 'sentiment',
   aiDraft: 'aiDraft',
+  aiDraftGenerated: 'aiDraftGenerated',
   createdAt: 'createdAt',
   syncedAt: 'syncedAt',
   repliedAt: 'repliedAt'
 } as const
 
 export type EngagementItemScalarFieldEnum = (typeof EngagementItemScalarFieldEnum)[keyof typeof EngagementItemScalarFieldEnum]
+
+
+export const ContactScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  platform: 'platform',
+  profileUrl: 'profileUrl',
+  handle: 'handle',
+  name: 'name',
+  avatarUrl: 'avatarUrl',
+  headline: 'headline',
+  source: 'source',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  lastEngagedAt: 'lastEngagedAt'
+} as const
+
+export type ContactScalarFieldEnum = (typeof ContactScalarFieldEnum)[keyof typeof ContactScalarFieldEnum]
 
 
 export const FollowerSnapshotScalarFieldEnum = {
@@ -314,7 +385,8 @@ export const OnboardingSessionScalarFieldEnum = {
   currentStep: 'currentStep',
   stepData: 'stepData',
   completedAt: 'completedAt',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type OnboardingSessionScalarFieldEnum = (typeof OnboardingSessionScalarFieldEnum)[keyof typeof OnboardingSessionScalarFieldEnum]
@@ -349,7 +421,9 @@ export const PostScalarFieldEnum = {
   publishedAt: 'publishedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  isExternal: 'isExternal'
+  isExternal: 'isExternal',
+  aiGenerated: 'aiGenerated',
+  category: 'category'
 } as const
 
 export type PostScalarFieldEnum = (typeof PostScalarFieldEnum)[keyof typeof PostScalarFieldEnum]
@@ -408,10 +482,55 @@ export const RedditTrendingPostScalarFieldEnum = {
   riskLevel: 'riskLevel',
   riskReason: 'riskReason',
   sentiment: 'sentiment',
-  brandReasonTags: 'brandReasonTags'
+  brandReasonTags: 'brandReasonTags',
+  engagementDepthScore: 'engagementDepthScore',
+  intentScore: 'intentScore',
+  intentType: 'intentType',
+  intentSignals: 'intentSignals',
+  velocityScore: 'velocityScore',
+  trendPhase: 'trendPhase',
+  previousUpvotes: 'previousUpvotes',
+  previousComments: 'previousComments',
+  lastVelocityCheck: 'lastVelocityCheck'
 } as const
 
 export type RedditTrendingPostScalarFieldEnum = (typeof RedditTrendingPostScalarFieldEnum)[keyof typeof RedditTrendingPostScalarFieldEnum]
+
+
+export const RedditCommentScalarFieldEnum = {
+  id: 'id',
+  postId: 'postId',
+  redditId: 'redditId',
+  author: 'author',
+  body: 'body',
+  score: 'score',
+  depth: 'depth',
+  parentId: 'parentId',
+  replyCount: 'replyCount',
+  sentiment: 'sentiment',
+  hasBuyingSignal: 'hasBuyingSignal',
+  signalType: 'signalType',
+  createdAt: 'createdAt'
+} as const
+
+export type RedditCommentScalarFieldEnum = (typeof RedditCommentScalarFieldEnum)[keyof typeof RedditCommentScalarFieldEnum]
+
+
+export const RedditAlertScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  name: 'name',
+  keywords: 'keywords',
+  subreddits: 'subreddits',
+  minScore: 'minScore',
+  minIntent: 'minIntent',
+  notifyOn: 'notifyOn',
+  enabled: 'enabled',
+  createdAt: 'createdAt',
+  lastTriggered: 'lastTriggered'
+} as const
+
+export type RedditAlertScalarFieldEnum = (typeof RedditAlertScalarFieldEnum)[keyof typeof RedditAlertScalarFieldEnum]
 
 
 export const SavedReplyScalarFieldEnum = {
@@ -435,7 +554,13 @@ export const UserScalarFieldEnum = {
   name: 'name',
   password: 'password',
   role: 'role',
+  emailVerified: 'emailVerified',
+  emailVerificationToken: 'emailVerificationToken',
+  emailVerificationExpiresAt: 'emailVerificationExpiresAt',
+  passwordResetToken: 'passwordResetToken',
+  passwordResetExpiresAt: 'passwordResetExpiresAt',
   lastRoleChangeAt: 'lastRoleChangeAt',
+  scheduledForDeletionAt: 'scheduledForDeletionAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -475,10 +600,28 @@ export const WorkspaceScalarFieldEnum = {
   userId: 'userId',
   name: 'name',
   autonomyLevel: 'autonomyLevel',
+  publicHandle: 'publicHandle',
+  signatureEnabled: 'signatureEnabled',
+  performanceMemory: 'performanceMemory',
+  timezone: 'timezone',
   createdAt: 'createdAt'
 } as const
 
 export type WorkspaceScalarFieldEnum = (typeof WorkspaceScalarFieldEnum)[keyof typeof WorkspaceScalarFieldEnum]
+
+
+export const PostSignatureScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  name: 'name',
+  text: 'text',
+  url: 'url',
+  isDefault: 'isDefault',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PostSignatureScalarFieldEnum = (typeof PostSignatureScalarFieldEnum)[keyof typeof PostSignatureScalarFieldEnum]
 
 
 export const Checkpoint_blobsScalarFieldEnum = {
@@ -525,6 +668,356 @@ export const CheckpointsScalarFieldEnum = {
 } as const
 
 export type CheckpointsScalarFieldEnum = (typeof CheckpointsScalarFieldEnum)[keyof typeof CheckpointsScalarFieldEnum]
+
+
+export const McpAuthorizationCodeScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  userId: 'userId',
+  workspaceId: 'workspaceId',
+  role: 'role',
+  scopes: 'scopes',
+  codeChallenge: 'codeChallenge',
+  codeChallengeMethod: 'codeChallengeMethod',
+  redirectUri: 'redirectUri',
+  clientId: 'clientId',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type McpAuthorizationCodeScalarFieldEnum = (typeof McpAuthorizationCodeScalarFieldEnum)[keyof typeof McpAuthorizationCodeScalarFieldEnum]
+
+
+export const McpRevokedTokenScalarFieldEnum = {
+  id: 'id',
+  jti: 'jti',
+  userId: 'userId',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type McpRevokedTokenScalarFieldEnum = (typeof McpRevokedTokenScalarFieldEnum)[keyof typeof McpRevokedTokenScalarFieldEnum]
+
+
+export const ActivityLogScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  type: 'type',
+  status: 'status',
+  details: 'details',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[keyof typeof ActivityLogScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  workspaceId: 'workspaceId',
+  type: 'type',
+  category: 'category',
+  title: 'title',
+  description: 'description',
+  actionUrl: 'actionUrl',
+  read: 'read',
+  dismissed: 'dismissed',
+  createdAt: 'createdAt',
+  readAt: 'readAt',
+  dismissedAt: 'dismissedAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
+export const NotificationPreferenceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  inAppEnabled: 'inAppEnabled',
+  emailEnabled: 'emailEnabled',
+  pushEnabled: 'pushEnabled',
+  categories: 'categories',
+  digestFrequency: 'digestFrequency',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationPreferenceScalarFieldEnum = (typeof NotificationPreferenceScalarFieldEnum)[keyof typeof NotificationPreferenceScalarFieldEnum]
+
+
+export const ScraperProcessScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  type: 'type',
+  status: 'status',
+  progress: 'progress',
+  currentStep: 'currentStep',
+  postsFound: 'postsFound',
+  postsProcessed: 'postsProcessed',
+  error: 'error',
+  metadata: 'metadata',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ScraperProcessScalarFieldEnum = (typeof ScraperProcessScalarFieldEnum)[keyof typeof ScraperProcessScalarFieldEnum]
+
+
+export const CampaignScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  name: 'name',
+  description: 'description',
+  goal: 'goal',
+  audience: 'audience',
+  status: 'status',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  duration: 'duration',
+  metadata: 'metadata',
+  requireApproval: 'requireApproval',
+  targetImpressions: 'targetImpressions',
+  targetEngagementRate: 'targetEngagementRate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignScalarFieldEnum = (typeof CampaignScalarFieldEnum)[keyof typeof CampaignScalarFieldEnum]
+
+
+export const CampaignPhaseScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  name: 'name',
+  phase: 'phase',
+  order: 'order',
+  description: 'description',
+  scheduledAt: 'scheduledAt'
+} as const
+
+export type CampaignPhaseScalarFieldEnum = (typeof CampaignPhaseScalarFieldEnum)[keyof typeof CampaignPhaseScalarFieldEnum]
+
+
+export const CampaignPostScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  phaseId: 'phaseId',
+  postId: 'postId',
+  order: 'order',
+  notes: 'notes',
+  approvalStatus: 'approvalStatus',
+  approvedBy: 'approvedBy',
+  approvedAt: 'approvedAt',
+  variantIndex: 'variantIndex',
+  qualityScore: 'qualityScore',
+  qualityBreakdown: 'qualityBreakdown'
+} as const
+
+export type CampaignPostScalarFieldEnum = (typeof CampaignPostScalarFieldEnum)[keyof typeof CampaignPostScalarFieldEnum]
+
+
+export const CampaignTemplateScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  name: 'name',
+  description: 'description',
+  goal: 'goal',
+  audience: 'audience',
+  duration: 'duration',
+  phases: 'phases',
+  isSystem: 'isSystem',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignTemplateScalarFieldEnum = (typeof CampaignTemplateScalarFieldEnum)[keyof typeof CampaignTemplateScalarFieldEnum]
+
+
+export const CampaignActivityScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  userId: 'userId',
+  action: 'action',
+  details: 'details',
+  createdAt: 'createdAt'
+} as const
+
+export type CampaignActivityScalarFieldEnum = (typeof CampaignActivityScalarFieldEnum)[keyof typeof CampaignActivityScalarFieldEnum]
+
+
+export const RedditScrapeLogScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  subredditsScraped: 'subredditsScraped',
+  postsFound: 'postsFound',
+  postsAnalyzed: 'postsAnalyzed',
+  errors: 'errors',
+  status: 'status'
+} as const
+
+export type RedditScrapeLogScalarFieldEnum = (typeof RedditScrapeLogScalarFieldEnum)[keyof typeof RedditScrapeLogScalarFieldEnum]
+
+
+export const RedditScrapeJobScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  status: 'status',
+  progress: 'progress',
+  currentSub: 'currentSub',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  result: 'result',
+  error: 'error'
+} as const
+
+export type RedditScrapeJobScalarFieldEnum = (typeof RedditScrapeJobScalarFieldEnum)[keyof typeof RedditScrapeJobScalarFieldEnum]
+
+
+export const RedditTrendClusterScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  topic: 'topic',
+  keywords: 'keywords',
+  postIds: 'postIds',
+  subreddits: 'subreddits',
+  avgRelevance: 'avgRelevance',
+  totalUpvotes: 'totalUpvotes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RedditTrendClusterScalarFieldEnum = (typeof RedditTrendClusterScalarFieldEnum)[keyof typeof RedditTrendClusterScalarFieldEnum]
+
+
+export const ContentQueueScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  postId: 'postId',
+  sourceType: 'sourceType',
+  recycleInterval: 'recycleInterval',
+  recycleEnabled: 'recycleEnabled',
+  lastRecycledAt: 'lastRecycledAt',
+  recycleCount: 'recycleCount',
+  maxRecycles: 'maxRecycles',
+  category: 'category',
+  platforms: 'platforms',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContentQueueScalarFieldEnum = (typeof ContentQueueScalarFieldEnum)[keyof typeof ContentQueueScalarFieldEnum]
+
+
+export const IdeaScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  title: 'title',
+  content: 'content',
+  category: 'category',
+  source: 'source',
+  trendSource: 'trendSource',
+  targetDate: 'targetDate',
+  convertedToPostId: 'convertedToPostId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type IdeaScalarFieldEnum = (typeof IdeaScalarFieldEnum)[keyof typeof IdeaScalarFieldEnum]
+
+
+export const CalendarNoteScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  date: 'date',
+  title: 'title',
+  description: 'description',
+  blockScheduling: 'blockScheduling',
+  color: 'color',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CalendarNoteScalarFieldEnum = (typeof CalendarNoteScalarFieldEnum)[keyof typeof CalendarNoteScalarFieldEnum]
+
+
+export const PostTemplateScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  name: 'name',
+  category: 'category',
+  content: 'content',
+  platforms: 'platforms',
+  usageCount: 'usageCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PostTemplateScalarFieldEnum = (typeof PostTemplateScalarFieldEnum)[keyof typeof PostTemplateScalarFieldEnum]
+
+
+export const PushSubscriptionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  endpoint: 'endpoint',
+  p256dh: 'p256dh',
+  auth: 'auth',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PushSubscriptionScalarFieldEnum = (typeof PushSubscriptionScalarFieldEnum)[keyof typeof PushSubscriptionScalarFieldEnum]
+
+
+export const ConsentLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tosAcceptedAt: 'tosAcceptedAt',
+  tosVersion: 'tosVersion',
+  privacyPolicyAcceptedAt: 'privacyPolicyAcceptedAt',
+  privacyPolicyVersion: 'privacyPolicyVersion',
+  marketingOptIn: 'marketingOptIn',
+  analyticsOptIn: 'analyticsOptIn',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ConsentLogScalarFieldEnum = (typeof ConsentLogScalarFieldEnum)[keyof typeof ConsentLogScalarFieldEnum]
+
+
+export const IdempotencyKeyScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  userId: 'userId',
+  response: 'response',
+  createdAt: 'createdAt',
+  expiresAt: 'expiresAt'
+} as const
+
+export type IdempotencyKeyScalarFieldEnum = (typeof IdempotencyKeyScalarFieldEnum)[keyof typeof IdempotencyKeyScalarFieldEnum]
+
+
+export const DeadLetterQueueScalarFieldEnum = {
+  id: 'id',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  error: 'error',
+  retryCount: 'retryCount',
+  maxRetries: 'maxRetries',
+  nextRetryAt: 'nextRetryAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  metadata: 'metadata'
+} as const
+
+export type DeadLetterQueueScalarFieldEnum = (typeof DeadLetterQueueScalarFieldEnum)[keyof typeof DeadLetterQueueScalarFieldEnum]
 
 
 export const SortOrder = {

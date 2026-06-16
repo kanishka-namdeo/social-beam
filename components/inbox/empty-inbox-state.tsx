@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChatCircle, GearSix, InstagramLogo, MetaLogo, XLogo, LinkedinLogo, TiktokLogo } from "@phosphor-icons/react";
+import { ChatCircle, GearSix, InstagramLogo, MetaLogo, XLogo, LinkedinLogo, TiktokLogo } from "@phosphor-icons/react/ssr";
 
 export function EmptyInboxState() {
   return (

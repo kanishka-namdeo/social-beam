@@ -3,11 +3,15 @@
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { PostChip } from "./post-chip";
-import type { PostItem } from "./types";
+import { HourSlot } from "./hour-slot";
+import type { PostItem, MediaItem } from "./types";
 
 interface DayViewProps {
   currentDate: Date;
   posts: PostItem[];
+  selectedPostIds?: Set<string>;
+  onSelectPost?: (id: string, e: React.MouseEvent) => void;
+  showAnalyticsOverlay?: boolean;
   onPreview?: (postId: string) => void;
   onDelete?: (postId: string) => void;
   onDuplicate?: (postId: string) => Promise<void>;
@@ -16,7 +20,7 @@ interface DayViewProps {
 const HOUR_START = 6;
 const HOUR_END = 22;
 
-export function DayView({ currentDate, posts, onPreview, onDelete, onDuplicate }: DayViewProps) {
+export function DayView({ currentDate, posts, selectedPostIds, onSelectPost, showAnalyticsOverlay = false, onPreview, onDelete, onDuplicate }: DayViewProps) {
   const hours = Array.from({ length: HOUR_END - HOUR_START + 1 }, (_, i) => HOUR_START + i);
 
   const dayPosts = posts.filter((p) => {
@@ -26,6 +30,12 @@ export function DayView({ currentDate, posts, onPreview, onDelete, onDuplicate }
 
   const now = new Date();
   const isToday = currentDate.toDateString() === now.toDateString();
+
+  const handleHourClick = (day: Date, hour: number) => {
+    const dateStr = day.toISOString().split("T")[0];
+    const timeStr = `${String(hour).padStart(2, "0")}:00`;
+    window.location.href = `/dashboard/compose?date=${dateStr}&time=${timeStr}`;
+  };
 
   return (
     <div className="rounded-sm border border-border overflow-hidden">
@@ -48,8 +58,10 @@ export function DayView({ currentDate, posts, onPreview, onDelete, onDuplicate }
           });
 
           return (
-            <div
+            <HourSlot
               key={hour}
+              date={currentDate}
+              hour={hour}
               className={cn(
                 "flex border-b border-border/30 min-h-[60px]",
                 isToday && hour === now.getHours() && "bg-brand/5",
@@ -71,14 +83,19 @@ export function DayView({ currentDate, posts, onPreview, onDelete, onDuplicate }
                     confidence={post.confidence}
                     scheduledAt={post.scheduledAt}
                     platforms={post.platforms}
-                    hasMedia={post.media != null && post.media.length > 0}
+                    category={post.category}
+                    analytics={post.analytics}
+                    media={post.media as MediaItem[] | undefined}
+                    isSelected={selectedPostIds?.has(post.id)}
+                    onSelect={onSelectPost}
+                    showAnalyticsOverlay={showAnalyticsOverlay}
                     onPreview={onPreview}
                     onDelete={onDelete}
                     onDuplicate={onDuplicate}
                   />
                 ))}
               </div>
-            </div>
+            </HourSlot>
           );
         })}
 

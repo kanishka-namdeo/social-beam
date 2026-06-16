@@ -106,7 +106,10 @@ export async function POST(req: Request) {
 
           for await (const chunk of response) {
             // Check for client disconnect during streaming
-            if (req.signal.aborted) break;
+            if (req.signal.aborted) {
+              log.warn("api.compose.modify.aborted", { modifier, platform });
+              break;
+            }
             
             const token = typeof chunk.content === "string" ? chunk.content : String(chunk.content);
             fullContent += token;
@@ -121,7 +124,7 @@ export async function POST(req: Request) {
 
           const sanitized = sanitizeContent(fullContent);
 
-          enqueue("done", { content: sanitized, charCount: sanitized.length });
+          enqueue("done", { content: sanitized, charCount: sanitized.length, aiGenerated: true });
 
           log.info("api.compose.modify.complete", {
             workspaceId,
@@ -139,6 +142,10 @@ export async function POST(req: Request) {
         } finally {
           controller.close();
         }
+      },
+      async cancel() {
+        // Client disconnected
+        log.warn("api.compose.modify.cancelled_by_client");
       },
     });
 

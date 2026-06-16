@@ -8,7 +8,7 @@ datasource db {
 }
 
 model AnalyticsSnapshot {
-  id             String   @id
+  id             String   @id @default(uuid())
   postId         String
   platform       String
   likes          Int      @default(0)
@@ -24,10 +24,15 @@ model AnalyticsSnapshot {
   videoViews     Int      @default(0)
   websiteClicks  Int      @default(0)
   Post           Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([postId, snapshotAt])
+  @@index([snapshotAt])
+  @@index([engagementRate(sort: Desc)])
 }
 
 model BrandContext {
-  id                  String                @id
+  id                  String                @id @default(uuid())
   workspaceId         String                @unique
   businessName        String?
   tagline             String?
@@ -46,6 +51,8 @@ model BrandContext {
   goals               String[]
   trainingStatus      String                @default("untrained")
   lastTrainedAt       DateTime?
+  defaultSignatureText String?
+  defaultSignatureUrl  String?
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
   Workspace           Workspace             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
@@ -58,7 +65,7 @@ model BrandContext {
 }
 
 model BrandContextVersion {
-  id               String       @id
+  id               String       @id @default(uuid())
   brandContextId   String
   snapshot         Json
   changeReason     String?
@@ -71,7 +78,7 @@ model BrandContextVersion {
 }
 
 model BrandFieldState {
-  id             String       @id
+  id             String       @id @default(uuid())
   brandContextId String
   fieldName      String
   currentValue   Json
@@ -85,7 +92,7 @@ model BrandFieldState {
 }
 
 model BrandLearningSignal {
-  id             String       @id
+  id             String       @id @default(uuid())
   brandContextId String
   signalType     String
   sourcePostId   String?
@@ -103,8 +110,30 @@ model BrandLearningSignal {
   @@index([createdAt])
 }
 
+model BrandDraft {
+  id                  String      @id @default(uuid())
+  workspaceId         String
+  threadId            String      @unique
+  checkpointStep      String
+  stateSnapshot       Json
+  brandContextDraft   Json?
+  platformContextsDraft Json?
+  samplePosts         Json?
+  crawledContent      Json?
+  currentStep         String
+  inputUrl            String?
+  inputDescription    String?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  expiresAt           DateTime
+  Workspace           Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([expiresAt])
+}
+
 model BrandVoice {
-  id          String    @id
+  id          String    @id @default(uuid())
   workspaceId String    @unique
   tonePreset  String?
   description String?
@@ -116,7 +145,7 @@ model BrandVoice {
 }
 
 model ConnectedAccount {
-  id               String    @id
+  id               String    @id @default(uuid())
   workspaceId      String
   platform         String
   platformUserId   String
@@ -136,10 +165,11 @@ model ConnectedAccount {
   Workspace        Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@unique([workspaceId, platform])
+  @@index([workspaceId, status])
 }
 
 model DashboardPreference {
-  id          String    @id
+  id          String    @id @default(uuid())
   workspaceId String    @unique
   layout      Json      @default("{}")
   createdAt   DateTime  @default(now())
@@ -150,25 +180,28 @@ model DashboardPreference {
 }
 
 model EngagementItem {
-  id             String           @id
-  workspaceId    String
-  platform       String
-  type           EngagementType
-  platformItemId String
-  platformUrl    String?
-  authorName     String?
-  authorAvatar   String?
-  content        String
-  parentContent  String?
-  parentId       String?
-  inReplyToId    String?
-  status         EngagementStatus @default(UNREAD)
-  sentiment      String?
-  aiDraft        String?
-  createdAt      DateTime         @default(now())
-  syncedAt       DateTime         @default(now())
-  repliedAt      DateTime?
-  Workspace      Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  id               String           @id @default(uuid())
+  workspaceId      String
+  platform         String
+  type             EngagementType
+  platformItemId   String
+  platformUrl      String?
+  authorName       String?
+  authorAvatar     String?
+  authorProfileUrl String?
+  authorHandle     String?
+  content          String
+  parentContent    String?
+  parentId         String?
+  inReplyToId      String?
+  status           EngagementStatus @default(UNREAD)
+  sentiment        String?
+  aiDraft          String?
+  aiDraftGenerated Boolean          @default(false)
+  createdAt        DateTime         @default(now())
+  syncedAt         DateTime         @default(now())
+  repliedAt        DateTime?
+  Workspace        Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@unique([workspaceId, platformItemId])
   @@index([workspaceId, createdAt(sort: Desc)])
@@ -178,19 +211,42 @@ model EngagementItem {
   @@index([workspaceId, type])
 }
 
+model Contact {
+  id            String    @id @default(uuid())
+  workspaceId   String
+  platform      String
+  profileUrl    String?
+  handle        String?
+  name          String
+  avatarUrl     String?
+  headline      String?
+  source        String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastEngagedAt DateTime?
+
+  Workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, platform, profileUrl])
+  @@index([workspaceId, platform])
+  @@index([workspaceId, name])
+}
+
 model FollowerSnapshot {
-  id          String   @id
+  id          String    @id @default(uuid())
   workspaceId String
   platform    String
-  followers   Int      @default(0)
-  following   Int      @default(0)
-  snapshotAt  DateTime @default(now())
+  followers   Int       @default(0)
+  following   Int       @default(0)
+  snapshotAt  DateTime  @default(now())
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([workspaceId, platform, snapshotAt])
+  @@index([workspaceId, snapshotAt])
 }
 
 model MediaAsset {
-  id           String    @id
+  id           String    @id @default(uuid())
   workspaceId  String
   originalName String
   mimeType     String
@@ -209,10 +265,11 @@ model MediaAsset {
   @@index([workspaceId, createdAt(sort: Desc)])
   @@index([workspaceId])
   @@index([workspaceId, status])
+  @@index([workspaceId, publicUrl])
 }
 
 model Subscription {
-  id                     String           @id
+  id                     String           @id @default(uuid())
   userId                 String
   stripeCustomerId       String?
   stripeSubscriptionId   String?
@@ -227,19 +284,22 @@ model Subscription {
 
   @@unique([userId])
   @@index([stripeCustomerId])
+  @@index([userId, status])
 }
 
 model OnboardingSession {
-  id          String    @id
+  id          String    @id @default(uuid())
   userId      String    @unique
   currentStep String    @default("greeting")
   stepData    Json?
   completedAt DateTime?
   createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  User        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model PlatformContext {
-  id              String       @id
+  id              String       @id @default(uuid())
   brandContextId  String
   platform        String
   platformTone    String?
@@ -258,7 +318,7 @@ model PlatformContext {
 }
 
 model Post {
-  id                String              @id
+  id                String              @id @default(uuid())
   workspaceId       String
   title             String?
   content           Json
@@ -269,13 +329,24 @@ model Post {
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   isExternal        Boolean             @default(false)
+  aiGenerated       Boolean             @default(false)
+  category          String?
+  publishRetryCount Int                 @default(0)
   AnalyticsSnapshot AnalyticsSnapshot[]
   Workspace         Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   PostPlatform      PostPlatform[]
+  CampaignPost      CampaignPost?
+
+  @@index([workspaceId])
+  @@index([workspaceId, status])
+  @@index([workspaceId, status, scheduledAt])
+  @@index([workspaceId, status, publishedAt])
+  @@index([workspaceId, createdAt(sort: Desc)])
+  @@index([workspaceId, scheduledAt])
 }
 
 model PostPlatform {
-  id           String     @id
+  id           String     @id @default(uuid())
   postId       String
   platform     String
   content      String
@@ -287,10 +358,14 @@ model PostPlatform {
   postUrl      String?
   analyticsUrl String?
   Post         Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([platform])
+  @@index([platform, status])
 }
 
 model RedditSubredditConfig {
-  id          String    @id
+  id          String    @id @default(uuid())
   workspaceId String
   subreddit   String
   sortOrder   String    @default("hot")
@@ -306,37 +381,89 @@ model RedditSubredditConfig {
 }
 
 model RedditTrendingPost {
-  id              String    @id
-  workspaceId     String
-  subreddit       String
-  title           String
-  url             String
-  author          String
-  upvotes         Int       @default(0)
-  commentCount    Int       @default(0)
-  scrapedAt       DateTime  @default(now())
-  relevanceScore  Float?
-  relevanceReason String?
-  isActionable    Boolean   @default(false)
-  topicTags       String[]
-  suggestedAction String?
-  actedOnAt       DateTime?
-  dismissedAt     DateTime?
-  postId          String?
-  riskLevel       String    @default("low")
-  riskReason      String?
-  sentiment       String    @default("neutral")
-  brandReasonTags String[]
-  Workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  id                    String           @id @default(uuid())
+  workspaceId           String
+  subreddit             String
+  title                 String
+  url                   String
+  author                String
+  upvotes               Int              @default(0)
+  commentCount          Int              @default(0)
+  scrapedAt             DateTime         @default(now())
+  relevanceScore        Float?
+  relevanceReason       String?
+  isActionable          Boolean          @default(false)
+  topicTags             String[]
+  suggestedAction       String?
+  actedOnAt             DateTime?
+  dismissedAt           DateTime?
+  postId                String?
+  riskLevel             String           @default("low")
+  riskReason            String?
+  sentiment             String           @default("neutral")
+  brandReasonTags       String[]
+  engagementDepthScore  Float?
+  intentScore           Int?
+  intentType            String?
+  intentSignals         Json?
+  velocityScore         Float?
+  trendPhase            String?
+  previousUpvotes       Int              @default(0)
+  previousComments      Int              @default(0)
+  lastVelocityCheck     DateTime?
+  Workspace             Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  RedditComment         RedditComment[]
 
   @@index([workspaceId, dismissedAt])
   @@index([workspaceId, postId])
   @@index([workspaceId, relevanceScore])
   @@index([workspaceId, scrapedAt])
+  @@index([workspaceId, subreddit])
+  @@index([workspaceId, upvotes(sort: Desc)])
+  @@index([workspaceId, intentScore])
+}
+
+model RedditComment {
+  id              String           @id @default(cuid())
+  postId          String
+  redditId        String
+  author          String
+  body            String
+  score           Int
+  depth           Int
+  parentId        String?
+  replyCount      Int              @default(0)
+  sentiment       String?
+  hasBuyingSignal Boolean          @default(false)
+  signalType      String?
+  createdAt       DateTime         @default(now())
+  RedditTrendingPost RedditTrendingPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([hasBuyingSignal])
+  @@unique([postId, redditId])
+}
+
+model RedditAlert {
+  id            String    @id @default(cuid())
+  workspaceId   String
+  name          String
+  keywords      String[]
+  subreddits    String[]
+  minScore      Int       @default(50)
+  minIntent     Int?
+  notifyOn      String[]
+  enabled       Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  lastTriggered DateTime?
+  Workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([enabled])
 }
 
 model SavedReply {
-  id          String    @id
+  id          String    @id @default(uuid())
   workspaceId String
   title       String
   content     String
@@ -351,21 +478,35 @@ model SavedReply {
 }
 
 model User {
-  id               String         @id
+  id               String         @id @default(uuid())
   email            String         @unique
   name             String?
   password         String
-  role             UserRole       @default(FREE_USER)
-  lastRoleChangeAt DateTime?
+  role                     UserRole       @default(FREE_USER)
+  emailVerified            DateTime?
+  emailVerificationToken   String?        @unique
+  emailVerificationExpiresAt DateTime?
+  passwordResetToken       String?        @unique
+  passwordResetExpiresAt   DateTime?
+  passwordChangedAt        DateTime?
+  lastRoleChangeAt         DateTime?
+  scheduledForDeletionAt   DateTime?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
-  UserOAuthApp     UserOAuthApp[]
-  Workspace        Workspace[]
-  Subscription     Subscription?
+  UserOAuthApp          UserOAuthApp[]
+  Workspace             Workspace[]
+  Subscription          Subscription?
+  Notification          Notification[]
+  NotificationPreference NotificationPreference?
+  OnboardingSession     OnboardingSession?
+  McpAuthorizationCode  McpAuthorizationCode[]
+  McpRevokedToken       McpRevokedToken[]
+  PushSubscription      PushSubscription[]
+  ConsentLog            ConsentLog?
 }
 
 model UserOAuthApp {
-  id           String   @id
+  id           String   @id @default(uuid())
   userId       String
   platform     String
   clientId     String
@@ -378,7 +519,7 @@ model UserOAuthApp {
 }
 
 model UserProfile {
-  id            String    @id
+  id            String    @id @default(uuid())
   workspaceId   String    @unique
   bio           Json?
   tone          String?
@@ -390,23 +531,59 @@ model UserProfile {
 }
 
 model Workspace {
-  id                    String                  @id
+  id                    String                  @id @default(uuid())
   userId                String
   name                  String                  @default("My Workspace")
   autonomyLevel         String                  @default("suggestions")
+  publicHandle          String?                 @unique
+  signatureEnabled      Boolean                 @default(true)
+  performanceMemory     Json?
+  timezone              String                  @default("UTC")
   createdAt             DateTime                @default(now())
+  ActivityLog           ActivityLog[]
   BrandContext          BrandContext?
   BrandVoice            BrandVoice?
+  Campaign              Campaign[]
+  CampaignTemplate      CampaignTemplate[]
   ConnectedAccount      ConnectedAccount[]
+  Contact               Contact[]
+  ContentQueue          ContentQueue[]
   DashboardPreference   DashboardPreference?
   EngagementItem        EngagementItem[]
+  FollowerSnapshot      FollowerSnapshot[]
+  Idea                  Idea[]
   MediaAsset            MediaAsset[]
   Post                  Post[]
+  PostSignature         PostSignature[]
   RedditSubredditConfig RedditSubredditConfig[]
   RedditTrendingPost    RedditTrendingPost[]
   SavedReply            SavedReply[]
+  ScraperProcess        ScraperProcess[]
+  RedditScrapeLog       RedditScrapeLog[]
+  RedditScrapeJob       RedditScrapeJob[]
+  RedditAlert           RedditAlert[]
+  RedditTrendCluster    RedditTrendCluster[]
   UserProfile           UserProfile?
+  Notification          Notification[]
+  CalendarNote          CalendarNote[]
+  PostTemplate          PostTemplate[]
+  BrandDraft            BrandDraft[]
   User                  User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PostSignature {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String?
+  text        String
+  url         String?
+  isDefault   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, isDefault])
+  @@index([workspaceId])
 }
 
 model checkpoint_blobs {
@@ -449,6 +626,74 @@ model checkpoints {
   @@id([thread_id, checkpoint_ns, checkpoint_id])
 }
 
+model McpAuthorizationCode {
+  id                  String   @id @default(uuid())
+  code                String   @unique
+  userId              String
+  workspaceId         String
+  role                String   @default("FREE_USER")
+  scopes              String
+  codeChallenge       String
+  codeChallengeMethod String   @default("S256")
+  redirectUri         String
+  clientId            String
+  expiresAt           DateTime
+  usedAt              DateTime?
+  createdAt           DateTime @default(now())
+  User                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt])
+  @@index([userId])
+  @@index([workspaceId])
+}
+
+model McpRevokedToken {
+  id        String   @id @default(uuid())
+  jti       String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt])
+  @@index([userId])
+}
+
+enum ActivityType {
+  REDDIT_SCRAPING
+  BRAND_LEARNING
+  SCRAPER_HEALER
+  PUBLISH_QUEUE
+  ANALYTICS_SYNC
+  BRAND_ANALYSIS
+  LINKEDIN_IMPORT
+  MCP_TOOL_CALL
+}
+
+enum ActivityStatus {
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model ActivityLog {
+  id          String         @id @default(uuid())
+  workspaceId String
+  type        ActivityType
+  status      ActivityStatus
+  details     Json?
+  startedAt   DateTime       @default(now())
+  finishedAt  DateTime?
+  createdAt   DateTime       @default(now())
+
+  Workspace   Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt(sort: Desc)])
+  @@index([workspaceId, status])
+  @@index([workspaceId, type])
+}
+
 enum SubscriptionTier {
   FREE
   AI_STARTER
@@ -487,4 +732,418 @@ enum PostStatus {
   PUBLISHED
   FAILED
   EXTERNAL
+}
+
+model Notification {
+  id          String             @id @default(cuid())
+  userId      String
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId String?
+  workspace   Workspace?         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  type        NotificationType
+  category    NotificationCategory
+  title       String
+  description String?
+  actionUrl   String?
+  read        Boolean            @default(false)
+  dismissed   Boolean            @default(false)
+  createdAt   DateTime           @default(now())
+  readAt      DateTime?
+  dismissedAt DateTime?
+
+  @@index([userId, read])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([workspaceId])
+  @@index([category])
+}
+
+model NotificationPreference {
+  id              String            @id @default(cuid())
+  userId          String            @unique
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inAppEnabled    Boolean           @default(true)
+  emailEnabled    Boolean           @default(true)
+  pushEnabled     Boolean           @default(false)
+  categories      Json              @default("{\"post_publish\": {\"in_app\": true, \"email\": true, \"push\": false}, \"engagement\": {\"in_app\": true, \"email\": false, \"push\": false}, \"system\": {\"in_app\": true, \"email\": true, \"push\": false}, \"billing\": {\"in_app\": true, \"email\": true, \"push\": true}, \"ai_insight\": {\"in_app\": true, \"email\": false, \"push\": false}, \"connection\": {\"in_app\": true, \"email\": false, \"push\": false}, \"brand\": {\"in_app\": true, \"email\": false, \"push\": false}}")
+  digestFrequency DigestFrequency   @default(WEEKLY)
+  updatedAt       DateTime          @updatedAt
+}
+
+enum NotificationType {
+  info
+  success
+  warning
+  error
+}
+
+enum NotificationCategory {
+  post_publish
+  engagement
+  system
+  billing
+  ai_insight
+  connection
+  brand
+  custom
+}
+
+enum DigestFrequency {
+  NEVER
+  DAILY
+  WEEKLY
+}
+
+enum ProcessStatus {
+  QUEUED
+  STARTING
+  RUNNING
+  PAUSED
+  STOPPING
+  COMPLETED
+  FAILED
+  CANCELLED
+  ORPHANED
+}
+
+model ScraperProcess {
+  id             String        @id @default(cuid())
+  workspaceId    String
+  type           ActivityType
+  status         ProcessStatus @default(QUEUED)
+  progress       Int           @default(0)
+  currentStep    String?
+  postsFound     Int           @default(0)
+  postsProcessed Int           @default(0)
+  error          String?
+  metadata       Json?
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  Workspace      Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, type, status])
+  @@index([status])
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum CampaignPhaseType {
+  TEASER
+  LAUNCH
+  SOCIAL_PROOF
+  LAST_CALL
+  CUSTOM
+}
+
+model Campaign {
+  id                   String           @id @default(cuid())
+  workspaceId          String
+  name                 String
+  description          String?
+  goal                 String?
+  audience             String?
+  status               CampaignStatus   @default(DRAFT)
+  startDate            DateTime?
+  endDate              DateTime?
+  duration             String?
+  metadata             Json?
+  requireApproval      Boolean          @default(false)
+  targetImpressions    Int?
+  targetEngagementRate Float?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  Workspace            Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  phases               CampaignPhase[]
+  posts                CampaignPost[]
+  activity             CampaignActivity[]
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, createdAt(sort: Desc)])
+}
+
+model CampaignPhase {
+  id          String            @id @default(cuid())
+  campaignId  String
+  name        String
+  phase       CampaignPhaseType
+  order       Int
+  description String?
+  scheduledAt DateTime?
+  campaign    Campaign          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  posts       CampaignPost[]
+
+  @@index([campaignId, order])
+}
+
+model CampaignPost {
+  id               String         @id @default(cuid())
+  campaignId       String
+  phaseId          String?
+  postId           String         @unique
+  order            Int
+  notes            String?
+  approvalStatus   String?        @default("approved")
+  approvedBy       String?
+  approvedAt       DateTime?
+  variantIndex     Int            @default(0)
+  qualityScore     Float?
+  qualityBreakdown Json?
+  campaign         Campaign       @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  phase            CampaignPhase? @relation(fields: [phaseId], references: [id], onDelete: SetNull)
+  post             Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, postId])
+  @@index([campaignId, order])
+}
+
+model CampaignTemplate {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  description String?
+  goal        String?
+  audience    String?
+  duration    String?
+  phases      Json
+  isSystem    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+}
+
+model CampaignActivity {
+  id         String   @id @default(uuid())
+  campaignId String
+  userId     String
+  action     String
+  details    Json?
+  createdAt  DateTime @default(now())
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId, createdAt])
+  @@index([userId])
+}
+
+model RedditScrapeLog {
+  id                String    @id @default(cuid())
+  workspaceId       String
+  startedAt         DateTime  @default(now())
+  completedAt       DateTime?
+  subredditsScraped Int       @default(0)
+  postsFound        Int       @default(0)
+  postsAnalyzed     Int       @default(0)
+  errors            Json?
+  status            String    @default("running")
+  Workspace         Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, startedAt(sort: Desc)])
+  @@index([status])
+}
+
+model RedditScrapeJob {
+  id            String    @id @default(cuid())
+  workspaceId   String
+  status        String    @default("pending")
+  progress      Int       @default(0)
+  currentSub    String?
+  startedAt     DateTime  @default(now())
+  completedAt   DateTime?
+  result        Json?
+  error         String?
+  Workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, startedAt(sort: Desc)])
+  @@index([status])
+}
+
+model RedditTrendCluster {
+  id              String    @id @default(cuid())
+  workspaceId     String
+  topic           String
+  keywords        String[]
+  postIds         String[]
+  subreddits      String[]
+  avgRelevance    Float
+  totalUpvotes    Int
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  Workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt(sort: Desc)])
+  @@index([workspaceId])
+}
+
+model ContentQueue {
+  id              String          @id @default(uuid())
+  workspaceId     String
+  postId          String?
+  sourceType      QueueSourceType @default(MANUAL)
+  recycleInterval Int?
+  recycleEnabled  Boolean         @default(false)
+  lastRecycledAt  DateTime?
+  recycleCount    Int             @default(0)
+  maxRecycles     Int?
+  category        String?
+  platforms       Json            @default("[]")
+  status          QueueStatus     @default(ACTIVE)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  Workspace       Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([workspaceId, status])
+  @@index([workspaceId, recycleEnabled])
+  @@index([postId])
+}
+
+enum QueueSourceType {
+  MANUAL
+  RECYCLE
+  TEMPLATE
+}
+
+enum QueueStatus {
+  ACTIVE
+  PAUSED
+  EXHAUSTED
+}
+
+model Idea {
+  id                String        @id @default(uuid())
+  workspaceId       String
+  title             String
+  content           String?
+  category          String?
+  source            IdeaSource    @default(MANUAL)
+  trendSource       Json?
+  targetDate        DateTime?
+  convertedToPostId String?
+  status            IdeaStatus    @default(NEW)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  Workspace         Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([workspaceId, status])
+  @@index([workspaceId, targetDate])
+  @@index([convertedToPostId])
+}
+
+enum IdeaSource {
+  MANUAL
+  AI_GENERATED
+  RSS
+  TRENDING
+}
+
+enum IdeaStatus {
+  NEW
+  PLACED
+  CONVERTED
+  DISMISSED
+}
+
+model CalendarNote {
+  id              String    @id @default(cuid())
+  workspaceId     String
+  date            DateTime
+  title           String
+  description     String?
+  blockScheduling Boolean   @default(false)
+  color           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  Workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([workspaceId, date])
+}
+
+model PostTemplate {
+  id          String    @id @default(uuid())
+  workspaceId String
+  name        String
+  category    String
+  content     Json
+  platforms   Json      @default("[]")
+  usageCount  Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  Workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([workspaceId, category])
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ConsentLog {
+  id                    String    @id @default(uuid())
+  userId                String
+  tosAcceptedAt         DateTime?
+  tosVersion            String?
+  privacyPolicyAcceptedAt DateTime?
+  privacyPolicyVersion  String?
+  marketingOptIn        Boolean   @default(false)
+  analyticsOptIn        Boolean   @default(true)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
+  @@index([userId])
+}
+
+model IdempotencyKey {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  userId    String
+  response  Json
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([key, userId])
+  @@index([expiresAt])
+}
+
+model DeadLetterQueue {
+  id            String   @id @default(cuid())
+  entityType    String   // 'post', 'sync', 'token_refresh'
+  entityId      String
+  error         String
+  retryCount    Int      @default(0)
+  maxRetries    Int      @default(3)
+  nextRetryAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  metadata      Json?
+
+  @@index([entityType, entityId])
+  @@index([nextRetryAt])
+  @@index([createdAt(sort: Desc)])
 }

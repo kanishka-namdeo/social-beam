@@ -14,6 +14,7 @@ const navLinks = [
   { label: "Features", href: "#features" },
   { label: "Pricing", href: "#pricing" },
   { label: "Free Tools", href: "/free-tools" },
+  { label: "MCP", href: "/api" },
   { label: "FAQ", href: "#faq" },
 ];
 
@@ -29,15 +30,51 @@ export function LandingNav() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring px-1 py-2 hover:border-b-2 hover:border-b-brand/50"
-            >
-              {link.label}
-            </a>
-          ))}
+          {navLinks.map((link) => {
+            const isAnchor = link.href.startsWith("#");
+            const isInternal = !isAnchor && link.href.startsWith("/");
+            
+            if (isAnchor) {
+              return (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const element = document.querySelector(link.href);
+                    if (element) {
+                      element.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }}
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring px-1 py-2 border-b-2 border-transparent hover:border-b-brand/50"
+                >
+                  {link.label}
+                </a>
+              );
+            }
+            
+            if (isInternal) {
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring px-1 py-2 border-b-2 border-transparent hover:border-b-brand/50"
+                >
+                  {link.label}
+                </Link>
+              );
+            }
+            
+            return (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring px-1 py-2 border-b-2 border-transparent hover:border-b-brand/50"
+              >
+                {link.label}
+              </a>
+            );
+          })}
         </nav>
 
         <div className="hidden md:flex items-center gap-3">

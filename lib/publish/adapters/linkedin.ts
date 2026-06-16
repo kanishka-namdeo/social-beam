@@ -1,10 +1,10 @@
 import { logger } from '@/lib/logger';
 import { PlatformAdapter, PlatformPublishResult, PublishPayload } from '@/lib/publish/types';
 
-const BASE_URL = 'https://api.linkedin.com/v2';
+const BASE_URL = 'https://api.linkedin.com';
 
 const LINKEDIN_HEADERS = {
-  'LinkedIn-Version': '202501',
+  'LinkedIn-Version': '202605',
   'X-Restli-Protocol-Version': '2.0.0',
   'Content-Type': 'application/json',
 };

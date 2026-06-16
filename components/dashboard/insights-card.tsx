@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { TrendUp, ArrowRight } from "@phosphor-icons/react/ssr";
-import { Skeleton } from "@/components/ui/skeleton";
-import { InlineUpgradeNudge } from "@/components/dashboard/inline-upgrade-nudge";
+import { TrendUp, ArrowRight, Sparkle } from "@phosphor-icons/react/ssr";
+import { FeatureGate } from "@/components/dashboard/feature-gate";
 import { usePremium } from "@/hooks/use-premium";
+import { cn } from "@/lib/utils";
+import { BaseWidget } from "@/components/dashboard/base-widget";
+import type { WidgetSizeToken } from "@/lib/dashboard/widget-types";
+import { getSizeDerivatives } from "@/lib/dashboard/widget-types";
 
 interface InsightsCardProps {
   topPost?: {
@@ -27,128 +29,114 @@ interface InsightsCardProps {
   };
   recommendation?: string;
   loading?: boolean;
+  size?: WidgetSizeToken;
 }
 
-export function InsightsCard({ topPost, trend, recommendation, loading }: InsightsCardProps) {
+export function InsightsCard({ topPost, trend, recommendation, loading, size = "5x3" }: InsightsCardProps) {
+  const { isWide, isCompact } = getSizeDerivatives(size);
   const { isPremium } = usePremium();
+  
+  const isEmpty = !topPost && !trend && !recommendation;
+
   return (
-    <Card className="h-full rounded-sm border-ai-surface bg-ai-surface/50 border-l-2 border-l-brand">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium tracking-tight text-foreground flex items-center gap-2">
-          <TrendUp className="size-4 text-brand" weight="bold" />
-          Insights
-        </CardTitle>
-        <CardDescription>What&apos;s working and what to do next</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {loading ? (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Skeleton className="h-3 w-24" />
-              <Skeleton className="h-4 w-full" />
-              <div className="flex gap-2">
-                <Skeleton className="h-5 w-28 rounded-sm" />
-                <Skeleton className="h-4 w-36" />
-              </div>
-            </div>
-            <Skeleton className="h-px w-full" />
-            <div className="space-y-1">
-              <Skeleton className="h-3 w-16" />
-              <Skeleton className="h-4 w-48" />
-            </div>
-            <Skeleton className="h-px w-full" />
-            <div className="space-y-2">
-              <Skeleton className="h-3 w-28" />
-              <Skeleton className="h-4 w-full" />
+    <BaseWidget
+      size={size}
+      isLoading={loading}
+      isEmpty={isEmpty}
+      emptyState={{
+        icon: <Sparkle className="size-8" weight="light" />,
+        message: "No insights yet",
+        description: "Connect accounts and start posting to unlock insights.",
+      }}
+      header={{
+        title: "Insights",
+        icon: <Sparkle className="size-4" weight="bold" />,
+        description: !isCompact ? "What's working and what to do next" : undefined,
+      }}
+      className="border-ai-surface bg-ai-surface/50 border-l-2 border-l-brand"
+      contentClassName="space-y-section"
+    >
+      {topPost && (
+        <div className={cn("space-y-control", isWide && "rounded-sm border border-subtle bg-surface-1 p-card")}>
+          <p className="text-caption font-medium text-muted-foreground">
+            Top Performer
+          </p>
+          <p className="text-body text-foreground line-clamp-3">
+            &ldquo;{topPost.title}&rdquo; on {topPost.platform} is your best post this week
+          </p>
+          <div className="flex flex-wrap gap-control min-w-0">
+            <Badge variant="outline" className="text-micro gap-1 rounded-sm shrink-0">
+              <TrendUp className="size-3 text-success" weight="bold" />
+              {(topPost.engagementRate * 100).toFixed(1)}% engagement
+            </Badge>
+            {!isCompact && (
+              <span className="text-body tabular-nums text-muted-foreground truncate min-w-0">
+                {topPost.likes} likes &middot; {topPost.comments} comments &middot; {topPost.shares} shares
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {trend && (
+        <>
+          <Separator />
+          <div className="space-y-tight">
+            <p className="text-caption font-medium text-muted-foreground">
+              Trend
+            </p>
+            <div className="flex items-center gap-control min-w-0">
+              <TrendUp
+                className={`size-4 shrink-0 ${trend.direction === "up" ? "text-success" : "text-destructive"}`}
+                weight="bold"
+              />
+              <span className="text-body text-foreground truncate min-w-0">
+                {trend.metric} is <span className="font-medium">{trend.value}</span> {trend.period}
+              </span>
             </div>
           </div>
-        ) : (
-          <>
-            {topPost && (
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-muted-foreground">
-                  Top Performer
-                </p>
-                <p className="text-sm text-foreground">
-                  &ldquo;{topPost.title}&rdquo; on {topPost.platform} is your best post this week
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="outline" className="text-xs gap-1 rounded-sm">
-                    <TrendUp className="size-3 text-success" weight="bold" />
-                    {(topPost.engagementRate * 100).toFixed(1)}% engagement
-                  </Badge>
-                  <span className="text-sm tabular-nums text-muted-foreground">
-                    {topPost.likes} likes &middot; {topPost.comments} comments &middot; {topPost.shares} shares
-                  </span>
-                </div>
-              </div>
-            )}
+        </>
+      )}
 
-            {trend && (
-              <>
-                <Separator />
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Trend
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <TrendUp
-                      className={`size-4 ${trend.direction === "up" ? "text-success" : "text-destructive"}`}
-                      weight="bold"
-                    />
-                    <span className="text-sm text-foreground">
-                      {trend.metric} is <span className="font-medium">{trend.value}</span> {trend.period}
-                    </span>
-                  </div>
-                </div>
-              </>
-            )}
+      {!isCompact && isPremium && recommendation && (
+        <>
+          <Separator />
+          <div className={cn("space-y-control", isWide && "rounded-sm border border-subtle bg-surface-1 p-card")}>
+            <p className="text-caption font-medium text-muted-foreground">
+              Recommendation
+            </p>
+            <p className="text-body text-muted-foreground line-clamp-3">{recommendation}</p>
+          </div>
+        </>
+      )}
 
-            {isPremium && recommendation && (
-              <>
-                <Separator />
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Recommendation
-                  </p>
-                  <p className="text-sm text-muted-foreground">{recommendation}</p>
-                </div>
-              </>
-            )}
+      {!isCompact && !isPremium && (
+        <>
+          <Separator />
+          <FeatureGate
+            isPremium={false}
+            featureName="AI Recommendations"
+            description="Get AI-powered recommendations to boost your content performance"
+            variant="inline"
+          />
+        </>
+      )}
 
-            {!isPremium && (
-              <>
-                <Separator />
-                <InlineUpgradeNudge
-                  variant="compact"
-                  title="AI Recommendations"
-                  description="Get AI-powered recommendations to boost your content performance"
-                />
-              </>
-            )}
-
-            {!topPost && !trend && !recommendation && (
-              <p className="text-sm text-muted-foreground">
-                Connect accounts and start posting to unlock insights.
-              </p>
-            )}
-
-            <div className="flex gap-2 pt-2">
-              <Button variant="default" size="sm" asChild>
-                <Link href="/dashboard/compose?mode=generate-similar">
-                  Generate Similar Content
-                  <ArrowRight className="ml-1 size-4" weight="bold" />
-                </Link>
-              </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/dashboard/analytics">
-                  View Analytics
-                </Link>
-              </Button>
-            </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
+      {!isCompact && (
+        <div className={cn("flex flex-wrap gap-control pt-2", isWide && "col-span-2")}>
+          <Button variant="default" size="sm" asChild>
+            <Link href="/dashboard/compose?mode=generate-similar">
+              Generate Similar Content
+              <ArrowRight className="ml-1 size-4" weight="bold" />
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/analytics">
+              View Analytics
+            </Link>
+          </Button>
+        </div>
+      )}
+    </BaseWidget>
   );
 }

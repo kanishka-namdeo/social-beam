@@ -68,6 +68,7 @@ export async function GET(req: Request) {
         },
       },
       orderBy: { publishedAt: "desc" },
+      take: 500,
     });
 
     // Confidence vs actual performance
@@ -95,18 +96,28 @@ export async function GET(req: Request) {
       totalImpressions: data.totalImpressions,
     }));
 
-    // Publishing reliability
+    // Publishing reliability — use SQL aggregation instead of JS loops
+    const platformStatusCounts = await prisma.postPlatform.groupBy({
+      by: ["platform", "status"],
+      where: {
+        Post: {
+          workspaceId,
+          publishedAt: { gte: since },
+        },
+      },
+      _count: { _all: true },
+    });
+
     const platformPublishStats: Record<string, { total: number; published: number; failed: number; drafting: number }> = {};
-    for (const post of posts) {
-      for (const pp of post.PostPlatform) {
-        if (!platformPublishStats[pp.platform]) {
-          platformPublishStats[pp.platform] = { total: 0, published: 0, failed: 0, drafting: 0 };
-        }
-        platformPublishStats[pp.platform].total += 1;
-        if (pp.status === "PUBLISHED") platformPublishStats[pp.platform].published += 1;
-        else if (pp.status === "FAILED") platformPublishStats[pp.platform].failed += 1;
-        else platformPublishStats[pp.platform].drafting += 1;
+    for (const row of platformStatusCounts) {
+      if (!platformPublishStats[row.platform]) {
+        platformPublishStats[row.platform] = { total: 0, published: 0, failed: 0, drafting: 0 };
       }
+      const count = row._count._all;
+      platformPublishStats[row.platform].total += count;
+      if (row.status === "PUBLISHED") platformPublishStats[row.platform].published += count;
+      else if (row.status === "FAILED") platformPublishStats[row.platform].failed += count;
+      else platformPublishStats[row.platform].drafting += count;
     }
 
     const publishingReliability = Object.entries(platformPublishStats).map(([platform, stats]) => ({
@@ -119,10 +130,10 @@ export async function GET(req: Request) {
       failRate: stats.total > 0 ? stats.failed / stats.total : 0,
     }));
 
-    // Overall success rate
-    const totalPublished = posts.reduce((s, p) => s + p.PostPlatform.filter((pp) => pp.status === "PUBLISHED").length, 0);
-    const totalFailed = posts.reduce((s, p) => s + p.PostPlatform.filter((pp) => pp.status === "FAILED").length, 0);
-    const totalPlatforms = posts.reduce((s, p) => s + p.PostPlatform.length, 0);
+    // Overall success rate — derived from SQL-aggregated platform stats
+    const totalPublished = Object.values(platformPublishStats).reduce((s, p) => s + p.published, 0);
+    const totalFailed = Object.values(platformPublishStats).reduce((s, p) => s + p.failed, 0);
+    const totalPlatforms = Object.values(platformPublishStats).reduce((s, p) => s + p.total, 0);
 
     // Post frequency & consistency
     const dailyPostCounts: Record<string, number> = {};
@@ -160,7 +171,7 @@ export async function GET(req: Request) {
 
     log.info("api.request.success", { postCount: posts.length });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       data: {
         confidenceCorrelation,
         publishingReliability,
@@ -174,6 +185,13 @@ export async function GET(req: Request) {
         dailyPostCounts,
       },
     });
+
+    response.headers.set(
+      "Cache-Control",
+      "public, s-maxage=300, stale-while-revalidate=60"
+    );
+
+    return response;
   } catch (err) {
     logger.error("api.request.error", {
       path: "/api/analytics/performance",

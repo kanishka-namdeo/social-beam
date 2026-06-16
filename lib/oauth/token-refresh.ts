@@ -3,6 +3,8 @@ import { encryptToken, decryptToken } from '@/lib/oauth/crypto';
 import { resolveCredentials } from '@/lib/oauth/credentials';
 import { logger } from '@/lib/logger';
 import { getRefreshUrl } from '@/lib/oauth/platform-registry';
+import { tokenRefreshCircuitBreaker, CircuitBreakerOpenError } from '@/lib/circuit-breaker';
+import { createNotification } from '@/lib/notifications/server-dispatch';
 
 const REFRESH_REFRESH_WINDOW_MS = 24 * 60 * 60 * 1000; // 24h before expiry
 const MAX_RETRY_ATTEMPTS = 3;
@@ -123,6 +125,7 @@ async function refreshMetaPlatform(
 export async function refreshAccount(accountId: string): Promise<boolean> {
   const account = await prisma.connectedAccount.findUnique({
     where: { id: accountId },
+    include: { Workspace: { select: { userId: true } } },
   });
 
   if (!account) {
@@ -130,17 +133,62 @@ export async function refreshAccount(accountId: string): Promise<boolean> {
     return false;
   }
 
+  return refreshAccountWithData(account);
+}
+
+/**
+ * Internal refresh logic that accepts pre-fetched account data to avoid N+1 queries.
+ */
+async function refreshAccountWithData(
+  account: {
+    id: string;
+    platform: string;
+    workspaceId: string;
+    status: string;
+    refreshToken: string | null;
+    tokenExpiry: Date | null;
+    Workspace?: { userId: string } | null;
+  },
+): Promise<boolean> {
   if (account.status !== 'connected') {
-    logger.debug('oauth.refresh.skip_non_connected', { accountId, status: account.status });
+    logger.debug('oauth.refresh.skip_non_connected', { accountId: account.id, status: account.status });
     return false;
   }
 
   if (!account.refreshToken) {
-    logger.warn('oauth.refresh.no_refresh_token', { accountId, platform: account.platform });
+    if (account.platform === 'linkedin') {
+      logger.info('oauth.refresh.no_refresh_token_linkedin', {
+        accountId: account.id,
+        tokenExpiry: account.tokenExpiry,
+        message: 'LinkedIn does not issue refresh tokens for standard apps. Token valid until expiry.',
+      });
+      return false;
+    }
+
+    logger.warn('oauth.refresh.no_refresh_token', { accountId: account.id, platform: account.platform });
     await prisma.connectedAccount.update({
-      where: { id: accountId },
+      where: { id: account.id },
       data: { status: 'expired' },
     });
+
+    // Notify user about expired account
+    try {
+      const userId = account.Workspace?.userId;
+      if (userId) {
+        await createNotification({
+          userId,
+          type: 'warning',
+          category: 'connection',
+          title: 'Account Connection Expired',
+          description: `Your ${account.platform} account is no longer connected. Please reconnect to continue posting.`,
+          actionUrl: '/dashboard/accounts',
+          workspaceId: account.workspaceId,
+        });
+      }
+    } catch (notifError) {
+      logger.error('oauth.refresh.notification_failed', { accountId: account.id, error: String(notifError) });
+    }
+
     return false;
   }
 
@@ -148,12 +196,21 @@ export async function refreshAccount(accountId: string): Promise<boolean> {
   try {
     plainRefreshToken = decryptToken(account.refreshToken);
   } catch {
-    logger.error('oauth.refresh.decrypt_failed', { accountId });
+    logger.error('oauth.refresh.decrypt_failed', { accountId: account.id });
     return false;
   }
 
   const isMeta = account.platform === 'instagram' || account.platform === 'facebook' || account.platform === 'threads';
   const refreshFn = isMeta ? refreshMetaPlatform : refreshStandardPlatform;
+
+  // Check circuit breaker before attempting refresh
+  if (await tokenRefreshCircuitBreaker.isOpen()) {
+    logger.warn('oauth.refresh.circuit_open', {
+      accountId: account.id,
+      platform: account.platform,
+    });
+    return false;
+  }
 
   let attempt = 0;
   let result: RefreshResult | undefined;
@@ -163,25 +220,45 @@ export async function refreshAccount(accountId: string): Promise<boolean> {
     attempt++;
 
     if (result.success && result.accessToken) {
+      await tokenRefreshCircuitBreaker.recordSuccess();
       break;
     }
 
     logger.warn('oauth.refresh.retry', {
-      accountId,
+      accountId: account.id,
       platform: account.platform,
       attempt,
       error: result.error,
     });
 
     if (attempt >= MAX_RETRY_ATTEMPTS) {
+      await tokenRefreshCircuitBreaker.recordFailure();
       await prisma.connectedAccount.update({
-        where: { id: accountId },
+        where: { id: account.id },
         data: { status: 'expired' },
       });
+
+      // Notify user about expired account
+      try {
+        const userId = account.Workspace?.userId;
+        if (userId) {
+          await createNotification({
+            userId,
+            type: 'warning',
+            category: 'connection',
+            title: 'Account Connection Expired',
+            description: `Your ${account.platform} account is no longer connected. Please reconnect to continue posting.`,
+            actionUrl: '/dashboard/accounts',
+            workspaceId: account.workspaceId,
+          });
+        }
+      } catch (notifError) {
+        logger.error('oauth.refresh.notification_failed', { accountId: account.id, error: String(notifError) });
+      }
+
       return false;
     }
 
-    // Exponential backoff: 1s, 2s, 4s
     await new Promise(r => setTimeout(r, Math.pow(2, attempt - 1) * 1000));
   }
 
@@ -194,7 +271,7 @@ export async function refreshAccount(accountId: string): Promise<boolean> {
     : account.tokenExpiry;
 
   await prisma.connectedAccount.update({
-    where: { id: accountId },
+    where: { id: account.id },
     data: {
       accessToken: encryptToken(result.accessToken),
       refreshToken: result.refreshToken ? encryptToken(result.refreshToken) : account.refreshToken,
@@ -205,7 +282,7 @@ export async function refreshAccount(accountId: string): Promise<boolean> {
   });
 
   logger.info('oauth.refresh.success', {
-    accountId,
+    accountId: account.id,
     platform: account.platform,
   });
 
@@ -222,14 +299,13 @@ export async function getAccountsDueForRefresh(windowMs: number = REFRESH_REFRES
   return prisma.connectedAccount.findMany({
     where: {
       status: 'connected',
+      platform: { not: 'linkedin' },
       OR: [
-        // Token expiring within window
         {
           tokenExpiry: {
             lte: refreshThreshold,
           },
         },
-        // Never refreshed but has a refresh token
         {
           tokenExpiry: null,
           refreshToken: { not: '' },
@@ -240,8 +316,10 @@ export async function getAccountsDueForRefresh(windowMs: number = REFRESH_REFRES
       id: true,
       platform: true,
       workspaceId: true,
+      status: true,
       tokenExpiry: true,
       refreshToken: true,
+      Workspace: { select: { userId: true } },
     },
   });
 }
@@ -265,7 +343,7 @@ export async function refreshAllDueAccounts(): Promise<{ total: number; succeede
 
   for (const account of accounts) {
     try {
-      const ok = await refreshAccount(account.id);
+      const ok = await refreshAccountWithData(account);
       if (ok) {
         succeeded++;
       } else {

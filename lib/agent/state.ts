@@ -166,6 +166,17 @@ export const BrandAnalyzerState = Annotation.Root({
     default: () => "",
     reducer: (_c, n) => n,
   }),
+
+  // Pages selected by the LLM page selector
+  __selectedPages: Annotation<string[]>({
+    default: () => [],
+    reducer: (_c, n) => n,
+  }),
+  // Total pages crawled before selection
+  __totalPagesBefore: Annotation<number>({
+    default: () => 0,
+    reducer: (_c, n) => n,
+  }),
 });
 
 export type BrandAnalyzerStateType = typeof BrandAnalyzerState.State;

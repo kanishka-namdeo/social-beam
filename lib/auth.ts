@@ -45,6 +45,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           return null;
         }
 
+        if (!user.emailVerified) {
+          logger.info('auth.authorize.failure', { email, reason: 'email_not_verified' });
+          return null;
+        }
+
         logger.info('auth.authorize.success', { userId: user.id, email });
         return {
           id: user.id,
@@ -67,28 +72,37 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         token.workspaceId = session.workspaceId;
         logger.debug('auth.jwt.update', { userId: token.id as string });
       }
+
+      // Invalidate tokens issued before password change (single DB query also fetches role fallback)
+      if (token.id) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { passwordChangedAt: true, role: true },
+        });
+
+        if (dbUser) {
+          // Ensure role is always present - fall back to DB if token.role is missing
+          if (!token.role && dbUser.role) {
+            token.role = dbUser.role;
+          }
+
+          if (dbUser.passwordChangedAt && token.iat) {
+            const tokenIssuedAt = new Date((token.iat as number) * 1000);
+            if (tokenIssuedAt < dbUser.passwordChangedAt) {
+              logger.info('auth.jwt.invalidated', { userId: token.id, reason: 'password_changed' });
+              return null;
+            }
+          }
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         const user = session.user as unknown as Record<string, unknown>;
         user.id = token.id as string;
-
-        // Ensure role is always present - fall back to DB if token.role is missing
-        if (token.role) {
-          user.role = token.role;
-        } else if (token.id) {
-          const dbUser = await prisma.user.findUnique({
-            where: { id: token.id as string },
-            select: { role: true },
-          });
-          if (dbUser) {
-            user.role = dbUser.role;
-            // Update token for future calls
-            token.role = dbUser.role;
-          }
-        }
-
+        user.role = token.role;
         user.workspaceId = token.workspaceId;
       }
       return session;
@@ -106,8 +120,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
               id: crypto.randomUUID(),
               email: profile.email,
               name: profile.name ?? '',
-              password: await bcrypt.hash(Math.random().toString(36), 12),
+              password: await bcrypt.hash(crypto.randomUUID(), 12),
               role: 'FREE_USER',
+              emailVerified: new Date(),
             },
           });
           const workspace = await prisma.workspace.create({
@@ -129,8 +144,20 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             user.role = existingUser.role;
             user.workspaceId = workspace.id;
           }
+          if (!existingUser.emailVerified) {
+            await prisma.user.update({
+              where: { id: existingUser.id },
+              data: { emailVerified: new Date() },
+            });
+          }
         } else {
           logger.info('auth.signIn.google.user_existing', { userId: existingUser.id, email: profile.email });
+          if (!existingUser.emailVerified) {
+            await prisma.user.update({
+              where: { id: existingUser.id },
+              data: { emailVerified: new Date() },
+            });
+          }
           if (user) {
             user.id = existingUser.id;
             user.role = existingUser.role;

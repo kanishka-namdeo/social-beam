@@ -254,7 +254,7 @@ export type UserOAuthAppScalarWhereWithAggregatesInput = {
 }
 
 export type UserOAuthAppCreateInput = {
-  id: string
+  id?: string
   platform: string
   clientId: string
   clientSecret: string
@@ -264,7 +264,7 @@ export type UserOAuthAppCreateInput = {
 }
 
 export type UserOAuthAppUncheckedCreateInput = {
-  id: string
+  id?: string
   userId: string
   platform: string
   clientId: string
@@ -294,7 +294,7 @@ export type UserOAuthAppUncheckedUpdateInput = {
 }
 
 export type UserOAuthAppCreateManyInput = {
-  id: string
+  id?: string
   userId: string
   platform: string
   clientId: string
@@ -410,7 +410,7 @@ export type UserOAuthAppUncheckedUpdateManyWithoutUserNestedInput = {
 }
 
 export type UserOAuthAppCreateWithoutUserInput = {
-  id: string
+  id?: string
   platform: string
   clientId: string
   clientSecret: string
@@ -419,7 +419,7 @@ export type UserOAuthAppCreateWithoutUserInput = {
 }
 
 export type UserOAuthAppUncheckedCreateWithoutUserInput = {
-  id: string
+  id?: string
   platform: string
   clientId: string
   clientSecret: string
@@ -467,7 +467,7 @@ export type UserOAuthAppScalarWhereInput = {
 }
 
 export type UserOAuthAppCreateManyUserInput = {
-  id: string
+  id?: string
   platform: string
   clientId: string
   clientSecret: string

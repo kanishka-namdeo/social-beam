@@ -1,17 +1,20 @@
 import { tool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { logger } from '@/lib/logger';
+import { prisma } from '@/lib/prisma';
+import { decryptToken } from '@/lib/oauth/crypto';
 
 const FetchPostsSchema = z.object({
   platform: z.string().describe('Platform name'),
   accountId: z.string().describe('Platform user/account ID'),
   limit: z.number().optional().describe('Number of posts to fetch (default 20)'),
+  workspaceId: z.string().optional().describe('Workspace ID for looking up OAuth tokens'),
 });
 
 export const fetchPostsTool = tool(
   async (input: unknown) => {
     const start = Date.now();
-    const { platform, accountId, limit = 20 } = FetchPostsSchema.parse(input);
+    const { platform, accountId, limit = 20, workspaceId } = FetchPostsSchema.parse(input);
 
     logger.debug('tool.invoke', { toolName: 'fetch_posts', platform, accountId });
 
@@ -39,7 +42,26 @@ export const fetchPostsTool = tool(
         params.set('fields', 'caption,media_type,media_url,timestamp,like_count,comments_count');
       }
 
+      // Look up OAuth token from connected account
+      let accessToken: string | undefined;
+      if (workspaceId) {
+        const connectedAccount = await prisma.connectedAccount.findFirst({
+          where: { workspaceId, platform: platform.toLowerCase(), status: 'connected' },
+        });
+        if (connectedAccount?.accessToken) {
+          accessToken = decryptToken(connectedAccount.accessToken);
+        }
+      }
+
+      const headers: Record<string, string> = {
+        'User-Agent': 'SocialBeam/1.0',
+      };
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+
       const response = await fetch(`${endpoint}?${params}`, {
+        headers,
         signal: AbortSignal.timeout(30000),
       });
       const data = await response.json() as Record<string, unknown>;

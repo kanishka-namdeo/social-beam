@@ -10,9 +10,10 @@ interface PinterestPreviewProps {
   title?: string;
   account?: AccountInfo;
   mediaUrls?: string[];
+  signature?: { text: string; url?: string } | null;
 }
 
-export function PinterestPreview({ content, title, account, mediaUrls }: PinterestPreviewProps) {
+export function PinterestPreview({ content, title, account, mediaUrls, signature }: PinterestPreviewProps) {
   // Use account data or fall back to defaults
   const displayName = account?.platformUsername || "You";
   const avatarSrc = account?.avatarUrl || "";
@@ -59,6 +60,11 @@ export function PinterestPreview({ content, title, account, mediaUrls }: Pintere
             renderRichText(content)
           )}
         </p>
+        {signature && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            {signature.text}
+          </p>
+        )}
 
         {/* Author */}
         <div className="mt-3 flex items-center gap-2">

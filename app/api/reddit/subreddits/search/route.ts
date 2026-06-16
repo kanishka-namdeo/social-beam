@@ -20,6 +20,7 @@ interface SubredditSearchResult {
 }
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const MAX_CACHE_ENTRIES = 500;
 
 export async function GET(req: Request) {
   const requestId = crypto.randomUUID();
@@ -114,7 +115,13 @@ export async function GET(req: Request) {
       .filter((r) => r.name && !exclude.includes(r.name))
       .slice(0, limit);
 
-    // Store in cache
+    // Store in cache (evict oldest if at capacity)
+    if (searchCache.size >= MAX_CACHE_ENTRIES) {
+      const oldestKey = searchCache.keys().next().value;
+      if (oldestKey !== undefined) {
+        searchCache.delete(oldestKey);
+      }
+    }
     searchCache.set(cacheKey, {
       results,
       expires: Date.now() + CACHE_TTL_MS,

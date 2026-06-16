@@ -18,6 +18,37 @@ const RecommendationsOutputSchema = z.object({
 // In-memory cache: workspaceId -> { recommendations, expires }
 const cache = new Map<string, { recommendations: z.infer<typeof SubredditRecommendationSchema>[]; expires: number }>();
 const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+const MAX_CACHE_SIZE = 100; // Prevent unbounded growth
+
+/**
+ * Evict expired entries from the cache.
+ * Called before adding new entries to prevent memory leaks.
+ */
+function evictExpiredCache(): void {
+  const now = Date.now();
+  for (const [key, entry] of cache.entries()) {
+    if (entry.expires < now) {
+      cache.delete(key);
+    }
+  }
+}
+
+/**
+ * Evict oldest entries if cache exceeds max size.
+ * Uses LRU-style eviction by deleting the oldest entries.
+ */
+function evictOldestCache(): void {
+  if (cache.size <= MAX_CACHE_SIZE) return;
+  
+  // Sort by expiration time and delete oldest
+  const entries = Array.from(cache.entries())
+    .sort((a, b) => a[1].expires - b[1].expires);
+  
+  const toDelete = entries.slice(0, cache.size - MAX_CACHE_SIZE);
+  for (const [key] of toDelete) {
+    cache.delete(key);
+  }
+}
 
 const model = new ChatOpenAI({
   apiKey: process.env.OPENAI_API_KEY ?? process.env.API_KEY ?? "",
@@ -111,6 +142,10 @@ export async function recommendSubreddits(workspaceId: string): Promise<Subreddi
 
     // Sort by relevance score descending
     recommendations.sort((a, b) => b.relevanceScore - a.relevanceScore);
+
+    // Evict expired entries and enforce cache size limit before adding new entry
+    evictExpiredCache();
+    evictOldestCache();
 
     // Cache the results
     cache.set(workspaceId, {

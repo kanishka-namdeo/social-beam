@@ -9,6 +9,7 @@ import { EmptyInboxState } from "./empty-inbox-state";
 import { Button } from "@/components/ui/button";
 import { Spinner, ArrowClockwise } from "@phosphor-icons/react";
 import { toast } from "sonner";
+import { notifySuccessWithCategory, notifyErrorWithCategory, notifyInfoWithCategory } from "@/lib/notifications";
 
 interface InboxItem {
   id: string;
@@ -45,15 +46,25 @@ export function InboxClient({ initialItems, connectedPlatforms, initialUnreadCou
 
   const selectedItem = items.find((i) => i.id === selectedId) ?? null;
 
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const cursorRef = useRef<string | null>(null);
+
   const doFetch = useCallback(async (append = false) => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
     setIsLoading(true);
     try {
       const params = new URLSearchParams();
       if (selectedPlatform) params.set("platform", selectedPlatform);
       if (statusFilter !== "all") params.set("status", statusFilter);
-      if (append && cursor) params.set("cursor", cursor);
+      if (append && cursorRef.current) params.set("cursor", cursorRef.current);
 
-      const res = await fetch(`/api/inbox/messages?${params}`);
+      const res = await fetch(`/api/inbox/messages?${params}`, {
+        signal: abortControllerRef.current.signal,
+      });
       if (!res.ok) return;
 
       const data = await res.json();
@@ -62,15 +73,17 @@ export function InboxClient({ initialItems, connectedPlatforms, initialUnreadCou
       } else {
         setItems(data.items);
       }
+      cursorRef.current = data.nextCursor;
       setCursor(data.nextCursor);
       setHasMore(!!data.nextCursor);
       setUnreadCount(data.unreadCount);
-    } catch {
-      toast.error("Failed to load inbox");
+    } catch (err) {
+      if (err instanceof Error && err.name === "AbortError") return;
+      notifyErrorWithCategory("Failed to load inbox", { category: "engagement" });
     } finally {
       setIsLoading(false);
     }
-  }, [selectedPlatform, statusFilter, cursor]);
+  }, [selectedPlatform, statusFilter]);
 
   const handleSync = useCallback(async () => {
     setIsSyncing(true);
@@ -79,17 +92,20 @@ export function InboxClient({ initialItems, connectedPlatforms, initialUnreadCou
       if (!res.ok) return;
       const data = await res.json();
       if (data.totalNew > 0) {
-        toast.success(`${data.totalNew} new engagement item${data.totalNew > 1 ? "s" : ""} synced`);
+        notifySuccessWithCategory(`${data.totalNew} new engagement item${data.totalNew > 1 ? "s" : ""} synced`, {
+          category: "engagement",
+        });
       } else {
-        toast.info("No new engagement items found");
+        notifyInfoWithCategory("No new engagement items found", { category: "engagement" });
       }
+      cursorRef.current = null;
       setCursor(null);
       // Fetch fresh items after sync
       await new Promise((resolve) => setTimeout(resolve, 100));
       setItems([]);
       doFetch();
     } catch {
-      toast.error("Failed to sync engagement");
+      notifyErrorWithCategory("Failed to sync engagement", { category: "engagement" });
     } finally {
       setIsSyncing(false);
     }
@@ -108,7 +124,7 @@ export function InboxClient({ initialItems, connectedPlatforms, initialUnreadCou
       );
       setUnreadCount((c) => Math.max(0, c - 1));
     } catch {
-      toast.error("Failed to mark as read");
+      notifyErrorWithCategory("Failed to mark as read", { category: "engagement" });
     }
   }, [selectedId]);
 
@@ -117,7 +133,7 @@ export function InboxClient({ initialItems, connectedPlatforms, initialUnreadCou
       prev.map((i) => (i.id === selectedId ? { ...i, status: "REPLIED" } : i))
     );
     setUnreadCount((c) => Math.max(0, c - 1));
-    toast.success("Reply sent successfully");
+    notifySuccessWithCategory("Reply sent successfully", { category: "engagement" });
   }, [selectedId]);
 
   const handleLoadMore = useCallback(() => {
@@ -128,8 +144,10 @@ export function InboxClient({ initialItems, connectedPlatforms, initialUnreadCou
 
   // Fetch items when filters change
   useEffect(() => {
+    cursorRef.current = null;
     setCursor(null);
     doFetch();
+    return () => { abortControllerRef.current?.abort(); };
   }, [doFetch]);
 
   // Initial sync once on mount if empty

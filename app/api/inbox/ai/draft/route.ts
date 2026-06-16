@@ -100,8 +100,14 @@ Generate a reply that addresses their point directly and matches the brand voice
     const stream = new ReadableStream({
       async start(controller) {
         const enqueue = (event: string, data: Record<string, unknown>) => {
+          if (req.signal.aborted) return false;
           const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
-          controller.enqueue(encoder.encode(message));
+          try {
+            controller.enqueue(encoder.encode(message));
+            return true;
+          } catch {
+            return false;
+          }
         };
 
         try {
@@ -112,26 +118,39 @@ Generate a reply that addresses their point directly and matches the brand voice
 
           let fullContent = "";
           for await (const chunk of response) {
+            if (req.signal.aborted) break;
             const token = typeof chunk.content === "string" ? chunk.content : String(chunk.content);
             fullContent += token;
-            enqueue("content_chunk", { content: fullContent });
+            if (!enqueue("content_chunk", { content: fullContent })) break;
+          }
+
+          if (req.signal.aborted) {
+            controller.close();
+            return;
           }
 
           const sanitized = sanitizeContent(fullContent);
 
-          // Cache the draft
+          // Cache the draft with AI-generated flag
           await prisma.engagementItem.update({
             where: { id: engagementItemId },
-            data: { aiDraft: sanitized },
+            data: {
+              aiDraft: sanitized,
+              aiDraftGenerated: true,
+            },
           });
 
-          enqueue("draft_complete", { content: sanitized });
+          enqueue("draft_complete", { content: sanitized, aiGenerated: true });
         } catch (err) {
           log.error("api.inbox.ai.draft.failed", { error: String(err) });
           enqueue("draft_error", { error: "Failed to generate draft" });
         }
 
         controller.close();
+      },
+      async cancel() {
+        // Client disconnected
+        log.warn("api.inbox.ai.draft.cancelled_by_client");
       },
     });
 

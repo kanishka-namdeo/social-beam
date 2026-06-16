@@ -1,0 +1,235 @@
+---
+description: Block AI code slop patterns at generation time — narrative comments, TODO stubs, oversized functions, magic values. Apply when writing or reviewing any code.
+globs: "**/*.ts,**/*.tsx"
+alwaysApply: false
+---
+
+# Anti-Code Slop Guardrails
+
+**Trigger**: Always active. These guardrails block common AI code slop patterns that appear functional but degrade code quality.
+
+## What Is Code Slop?
+
+Code slop is AI-generated code that looks polished and type-safe but smuggles in subtle anti-patterns: narrative comments that restate the code, TODO stubs without ticket references, oversized functions, and magic values. None of these fail CI. All of them reach production and compound into maintenance debt.
+
+Source: [scanaislop.com](https://scanaislop.com/blog/ai-slop-detection-complete-guide/), [eslint-config-zero-tolerance](https://github.com/Coderrob/eslint-config-zero-tolerance)
+
+## Cross-References to Existing Rules
+
+These slop patterns are already covered by other rules — do not duplicate enforcement here:
+
+- **No `any`, no unused code, no swallowed exceptions** → See `typescript-standards.mdc`
+- **No `as any` in React components** → See `react-components.mdc`
+- **Error logging requirements** → See `debuggability.mdc`
+
+This rule covers patterns NOT addressed elsewhere.
+
+## Rule 1: No Narrative Comments
+
+**Forbidden**: Comments that explain *what* the code does.
+
+**Required**: Comments only explain *why* — non-obvious intent, trade-offs, constraints.
+
+### Anti-pattern (DO NOT DO):
+
+```typescript
+// BAD: Narrative comment restating the code
+// Filter the array to only include active users
+const activeUsers = users.filter(user => user.isActive);
+
+// BAD: Comment explaining obvious logic
+// Return true if the user is premium
+return user.plan === 'premium';
+
+// BAD: JSDoc that restates the function signature
+/**
+ * Calculates the total price
+ * @param items Array of items
+ * @returns The total price
+ */
+function calculateTotal(items: Item[]): number {
+  return items.reduce((sum, item) => sum + item.price, 0);
+}
+```
+
+### Correct pattern:
+
+```typescript
+// GOOD: Comment explains WHY (non-obvious business rule)
+// Free items are excluded from tax calculation per IRS Publication 525
+const taxableItems = items.filter(item => item.price > 0);
+
+// GOOD: Comment explains trade-off decision
+// Using polling instead of WebSocket because LinkedIn blocks persistent connections
+// from residential IPs. Revisit when we have dedicated IP infrastructure.
+const status = await pollPublishingStatus(postId);
+
+// GOOD: No comment needed — code is self-explanatory
+const activeUsers = users.filter(user => user.isActive);
+```
+
+## Rule 2: No TODO Stubs
+
+**Forbidden**: `// TODO`, `// FIXME`, `// HACK`, `// XXX` without a ticket reference.
+
+**Required**: Every TODO must reference a tracked issue. No placeholder implementations in production code.
+
+### Anti-pattern (DO NOT DO):
+
+```typescript
+// BAD: TODO without ticket
+// TODO: implement proper validation
+function validate(input: string): boolean {
+  return true; // always passes
+}
+
+// BAD: FIXME without context
+// FIXME: this is slow
+function processLargeDataset(data: Item[]) {
+  return data.map(item => expensiveOperation(item));
+}
+```
+
+### Correct pattern:
+
+```typescript
+// GOOD: TODO with ticket reference
+// TODO(SOCIAL-1234): Add Zod schema validation for email format
+function validateEmail(input: string): boolean {
+  return input.includes('@'); // basic check until SOC-1234
+}
+
+// GOOD: If optimization is needed, track it and implement the simple version now
+// Tracked in SOCIAL-5678 — current O(n) is acceptable for <1000 items
+function processDataset(data: Item[]) {
+  return data.map(item => expensiveOperation(item));
+}
+```
+
+## Rule 3: Function Size Limits
+
+**Forbidden**: Functions exceeding 50 lines of code (excluding blank lines and comments).
+
+**Required**: Extract helper functions, use early returns, and decompose complex logic.
+
+### Anti-pattern (DO NOT DO):
+
+```typescript
+// BAD: 80-line function doing everything
+async function handlePublish(post: Post) {
+  // validate
+  if (!post.title) throw new Error('Title required');
+  if (!post.content) throw new Error('Content required');
+  // ... 20 more validation lines
+
+  // format
+  const formattedTitle = post.title.trim();
+  const formattedContent = post.content.trim();
+  // ... 15 more formatting lines
+
+  // publish to each platform
+  if (post.platforms.includes('linkedin')) {
+    // ... 20 lines of LinkedIn-specific logic
+  }
+  if (post.platforms.includes('twitter')) {
+    // ... 15 lines of Twitter-specific logic
+  }
+
+  // update status
+  await db.post.update({ ... });
+  await notifyUser(post.userId, 'published');
+  await trackAnalytics(post.id);
+}
+```
+
+### Correct pattern:
+
+```typescript
+// GOOD: Decomposed into focused functions
+async function handlePublish(post: Post) {
+  validatePost(post);
+  const formatted = formatPost(post);
+  await publishToPlatforms(formatted);
+  await finalizePublish(post);
+}
+
+function validatePost(post: Post): void {
+  if (!post.title) throw new Error('Title required');
+  if (!post.content) throw new Error('Content required');
+}
+
+function formatPost(post: Post): FormattedPost {
+  return {
+    title: post.title.trim(),
+    content: post.content.trim(),
+    platforms: post.platforms,
+  };
+}
+
+async function publishToPlatforms(post: FormattedPost): Promise<void> {
+  await Promise.all(
+    post.platforms.map(platform => publishAdapters[platform](post))
+  );
+}
+
+async function finalizePublish(post: Post): Promise<void> {
+  await db.post.update({ where: { id: post.id }, data: { status: 'published' } });
+  await notifyUser(post.userId, 'published');
+  await trackAnalytics(post.id);
+}
+```
+
+## Rule 4: No Magic Values
+
+**Forbidden**: Unnamed numeric or string literals in logic (except 0, 1, -1, true, false, '', and empty collections).
+
+**Required**: Extract to named constants with descriptive names.
+
+### Anti-pattern (DO NOT DO):
+
+```typescript
+// BAD: Magic numbers
+if (retryCount > 3) { ... }
+const timeout = 30000;
+if (status === 2) { ... }
+
+// BAD: Magic strings
+if (platform === 'li') { ... }
+const role = 'admin';
+```
+
+### Correct pattern:
+
+```typescript
+// GOOD: Named constants
+const MAX_RETRY_ATTEMPTS = 3;
+const API_TIMEOUT_MS = 30_000;
+const POST_STATUS_PUBLISHED = 2;
+
+if (retryCount > MAX_RETRY_ATTEMPTS) { ... }
+const timeout = API_TIMEOUT_MS;
+if (status === POST_STATUS_PUBLISHED) { ... }
+
+// GOOD: Enum or constant for platform identifiers
+const PLATFORM_LINKEDIN = 'linkedin';
+if (platform === PLATFORM_LINKEDIN) { ... }
+```
+
+## Enforcement Priority
+
+These guardrails are non-negotiable. When in doubt:
+
+1. **No narrative comments** — if the code needs explanation, rewrite the code
+2. **No TODO stubs** — track in issues, do not embed in code
+3. **Functions under 50 lines** — decompose or extract
+4. **No magic values** — name everything
+
+## Integration with Other Rules
+
+- **`typescript-standards.mdc`**: Covers `any`, unused code, and error swallowing
+- **`react-components.mdc`**: Covers `as any` in React components
+- **`debuggability.mdc`**: Covers error logging requirements
+- **`dry-principles.mdc`**: Dead code often comes from extracting utilities without cleaning up originals
+- **`agentic-reasoning-guardrails.mdc`**: Slop patterns are a form of reasoning failure — the agent took a shortcut
+- **`continuous-improvement.mdc`**: Slop discoveries should feed back into rule updates
+- **`general.mdc`**: Verification requirements include checking for slop patterns before commit

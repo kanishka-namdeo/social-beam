@@ -11,6 +11,7 @@ const WebFetchSchema = z.object({
 
 export const webFetchTool = tool(
   async (input: unknown) => {
+    // Validate input BEFORE launching browser to prevent resource leak on invalid input
     const { url, maxChars, waitForMs } = WebFetchSchema.parse(input);
     const log = logger.child({ tool: "web_fetch", url });
 

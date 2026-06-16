@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,14 +14,27 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Report to error tracking in production
+    // Log to Sentry
+    Sentry.captureException(error, {
+      tags: {
+        component: "GlobalError",
+      },
+      extra: {
+        digest: error.digest,
+      },
+    });
+
+    // Also log to our API for redundancy
+    const controller = new AbortController();
     if (process.env.NODE_ENV === "production") {
       fetch("/api/compose/error", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ error: error.message, digest: error.digest, page: "global" }),
+        signal: controller.signal,
       }).catch(() => {});
     }
+    return () => controller.abort();
   }, [error]);
 
   return (

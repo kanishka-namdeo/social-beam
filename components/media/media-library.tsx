@@ -45,27 +45,39 @@ export function MediaLibrary({ initialAssets, total: initialTotal, connectedPlat
   const [libraryTab, setLibraryTab] = useState<"upload" | "stock" | "gifs">("upload");
   const [showArchived, setShowArchived] = useState(false);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const filteredAssets = showArchived ? assets : assets.filter((a) => a.status !== "archived");
 
-  const fetchAssets = useCallback(async () => {
+  const fetchAssets = useCallback(async (searchValue?: string) => {
+    // Cancel any in-flight fetch so stale responses can't overwrite newer state.
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    const query = searchValue !== undefined ? searchValue : search;
+
     try {
       const params = new URLSearchParams();
       params.set("take", "50");
-      if (search) params.set("search", search);
+      if (query) params.set("search", query);
 
       setSearchLoading(true);
-      const response = await fetch(`/api/media?${params.toString()}`);
+      const response = await fetch(`/api/media?${params.toString()}`, {
+        signal: controller.signal,
+      });
       if (!response.ok) throw new Error("Failed to fetch assets");
 
       const data = await response.json();
+      if (controller.signal.aborted) return;
       setAssets(data.data?.assets ?? []);
       setTotal(data.data?.total ?? assets.length);
-      setHasSearched(!!search);
-    } catch {
+      setHasSearched(!!query);
+    } catch (err) {
+      if (controller.signal.aborted) return;
       // Silent fail
     } finally {
-      setSearchLoading(false);
+      if (!controller.signal.aborted) setSearchLoading(false);
     }
   }, [search]);
 
@@ -155,16 +167,17 @@ export function MediaLibrary({ initialAssets, total: initialTotal, connectedPlat
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
-    // Set new timeout
-    searchTimeoutRef.current = setTimeout(() => fetchAssets(), 300);
+    // Set new timeout - pass the new value directly to avoid stale closure
+    searchTimeoutRef.current = setTimeout(() => fetchAssets(value), 300);
   };
 
-  // Cleanup search timeout on unmount
+  // Cleanup search timeout and abort in-flight fetch on unmount
   useEffect(() => {
     return () => {
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
       }
+      abortControllerRef.current?.abort();
     };
   }, []);
 

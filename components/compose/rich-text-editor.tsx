@@ -9,7 +9,9 @@ import Emoji from "@tiptap/extension-emoji";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Typography from "@tiptap/extension-typography";
+import Mention from "@tiptap/extension-mention";
 import { cn } from "@/lib/utils";
+import { createMentionSuggestionPopup, type MentionSuggestion } from "./mention-suggestion-popup";
 import { Toolbar } from "./toolbar/toolbar";
 import { InlineSuggestion, updateSuggestionDecoration, INLINE_SUGGESTION_KEY } from "./inline-suggestion";
 import type { InlineSuggestionStorage } from "./inline-suggestion";
@@ -28,6 +30,8 @@ interface RichTextEditorProps {
   onSuggestionDismiss?: () => void;
   /** Whether to show mobile accept button */
   isMobile?: boolean;
+  /** Selected platforms for filtering mention suggestions */
+  selectedPlatforms?: string[];
 }
 
 export function RichTextEditor({
@@ -38,6 +42,7 @@ export function RichTextEditor({
   suggestionText,
   onSuggestionAccept,
   isMobile = false,
+  selectedPlatforms = [],
 }: RichTextEditorProps) {
   const isInitialMount = useRef(true);
   const lastContentRef = useRef(content);
@@ -46,12 +51,21 @@ export function RichTextEditor({
   const suggestionDismissedRef = useRef(false);
   /** Tracks which suggestion text was dismissed — prevents re-rendering same suggestion from React state */
   const dismissedSuggestionTextRef = useRef<string | null>(null);
+  /** AbortController for mention suggestion fetches — cancels previous request on new query */
+  const mentionAbortRef = useRef<AbortController | null>(null);
 
   // Keep refs in sync with latest callbacks
   useEffect(() => {
     onContentChangeRef.current = onContentChange;
     onSuggestionAcceptRef.current = onSuggestionAccept;
   });
+
+  // Clean up mention abort controller on unmount
+  useEffect(() => {
+    return () => {
+      mentionAbortRef.current?.abort();
+    };
+  }, []);
 
   const editor = useEditor({
     extensions: [
@@ -90,6 +104,61 @@ export function RichTextEditor({
         suggestion: suggestionText,
         onAccept: onSuggestionAccept,
         isMobile,
+      }),
+      Mention.configure({
+        HTMLAttributes: {
+          class: "mention",
+        },
+        suggestion: {
+          char: "@",
+          items: async ({ query }) => {
+            // Cancel any in-flight mention search before starting a new one
+            mentionAbortRef.current?.abort();
+            const controller = new AbortController();
+            mentionAbortRef.current = controller;
+            try {
+              const platformsParam = selectedPlatforms.length > 0
+                ? `&platforms=${selectedPlatforms.join(",")}`
+                : "";
+              const res = await fetch(
+                `/api/mentions?q=${encodeURIComponent(query)}${platformsParam}`,
+                { signal: controller.signal }
+              );
+              if (!res.ok) return [];
+              return await res.json();
+            } catch {
+              return [];
+            }
+          },
+          render: () => {
+            let popup: ReturnType<typeof createMentionSuggestionPopup> | null = null;
+            let commandFn: ((item: MentionSuggestion) => void) | null = null;
+
+            return {
+              onStart: (props: { items: MentionSuggestion[]; command: (item: MentionSuggestion) => void; clientRect?: (() => DOMRect | null) | null }) => {
+                commandFn = props.command;
+                popup = createMentionSuggestionPopup({
+                  onSelect: (item: MentionSuggestion) => {
+                    commandFn?.(item);
+                  },
+                });
+                popup.onStart({ items: props.items, clientRect: props.clientRect });
+              },
+              onUpdate: (props: { items: MentionSuggestion[]; command: (item: MentionSuggestion) => void; clientRect?: (() => DOMRect | null) | null }) => {
+                commandFn = props.command;
+                popup?.onUpdate({ items: props.items, clientRect: props.clientRect });
+              },
+              onExit: () => {
+                popup?.onExit();
+                popup = null;
+                commandFn = null;
+              },
+              onKeyDown: (props: { event: KeyboardEvent }) => {
+                return popup?.onKeyDown(props) ?? false;
+              },
+            };
+          },
+        },
       }),
     ],
     content,
@@ -332,6 +401,12 @@ function EditorContainer({
         "[&_.ProseMirror_u]:underline",
         "[&_.ProseMirror_s]:line-through",
         "[&_.ProseMirror_p]:my-1",
+        // Mention styling
+        "[&_.mention]:text-brand",
+        "[&_.mention]:font-medium",
+        "[&_.mention]:bg-brand/10",
+        "[&_.mention]:rounded-sm",
+        "[&_.mention]:px-0.5",
         // Ghost suggestion styling
         "[&_.ghost-suggestion-text]:text-muted-foreground",
         "[&_.ghost-suggestion-text]:opacity-50",

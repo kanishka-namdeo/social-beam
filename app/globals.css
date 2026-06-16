@@ -785,3 +785,22 @@
     animation: shake 0.3s ease-in-out;
   }
 }
+
+/* react-grid-layout overrides */
+.react-grid-layout {
+  position: relative;
+}
+
+.react-grid-item {
+  transition: all 200ms ease;
+}
+
+.react-grid-item.react-draggable-dragging {
+  transition: none;
+  z-index: 10;
+}
+
+.react-grid-item.resizing {
+  transition: none;
+  z-index: 10;
+}

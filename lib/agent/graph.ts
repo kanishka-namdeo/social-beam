@@ -81,6 +81,7 @@ async function ensureCheckpointer() {
     if (!databaseUrl) {
       throw new Error('DATABASE_URL is required for PostgresSaver checkpointer');
     }
+    // PostgresSaver manages its own connection pool internally
     checkpointer = PostgresSaver.fromConnString(databaseUrl);
     if (!checkpointerSetupComplete) {
       await checkpointer.setup();
@@ -98,6 +99,14 @@ export async function setupCheckpointer(): Promise<void> {
   } catch (error) {
     logger.error('agent.checkpointer.setup_error', { error: String(error) });
   }
+}
+
+export async function shutdownCheckpointer(): Promise<void> {
+  // PostgresSaver doesn't have an explicit end() method, but we can
+  // clear the reference to allow garbage collection of any internal state
+  checkpointer = undefined;
+  checkpointerSetupComplete = false;
+  logger.info('agent.checkpointer.shutdown_complete');
 }
 
 function buildWorkflow() {
@@ -128,7 +137,7 @@ function buildWorkflow() {
     .addNode('audienceCollector', debugAudienceCollector)
     .addNode('audienceCollectorWait', debugAudienceCollectorWait)
     .addNode('audienceCollectorTools', withDebugTrace('audienceCollectorTools', async (state) => {
-      const iteration = ((state as Record<string, unknown>).__tool_loop_iteration as number ?? 0) + 1;
+      const iteration = (((state as Record<string, unknown>).__tool_loop_iteration as number) ?? 0) + 1;
       const result = await audienceCollectorTools.invoke(state);
       return {
         ...(result as unknown as Partial<OnboardingStateType>),
@@ -189,8 +198,15 @@ function buildWorkflow() {
 }
 
 async function compileGraph() {
-  const cp = await ensureCheckpointer();
-  return buildWorkflow().compile({ checkpointer: cp });
+  const Sentry = await import('@sentry/nextjs');
+  
+  return Sentry.startSpan(
+    { name: 'agent.graph.compile', op: 'agent.compile', attributes: { 'checkpointer.type': 'postgres' } },
+    async () => {
+      const cp = await ensureCheckpointer();
+      return buildWorkflow().compile({ checkpointer: cp });
+    }
+  );
 }
 
 export async function getOnboardingGraph() {

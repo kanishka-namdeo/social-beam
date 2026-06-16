@@ -373,7 +373,7 @@ export type MediaAssetScalarWhereWithAggregatesInput = {
 }
 
 export type MediaAssetCreateInput = {
-  id: string
+  id?: string
   originalName: string
   mimeType: string
   fileSize: number
@@ -390,7 +390,7 @@ export type MediaAssetCreateInput = {
 }
 
 export type MediaAssetUncheckedCreateInput = {
-  id: string
+  id?: string
   workspaceId: string
   originalName: string
   mimeType: string
@@ -441,7 +441,7 @@ export type MediaAssetUncheckedUpdateInput = {
 }
 
 export type MediaAssetCreateManyInput = {
-  id: string
+  id?: string
   workspaceId: string
   originalName: string
   mimeType: string
@@ -611,7 +611,7 @@ export type MediaAssetUncheckedUpdateManyWithoutWorkspaceNestedInput = {
 }
 
 export type MediaAssetCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   originalName: string
   mimeType: string
   fileSize: number
@@ -627,7 +627,7 @@ export type MediaAssetCreateWithoutWorkspaceInput = {
 }
 
 export type MediaAssetUncheckedCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   originalName: string
   mimeType: string
   fileSize: number
@@ -689,7 +689,7 @@ export type MediaAssetScalarWhereInput = {
 }
 
 export type MediaAssetCreateManyWorkspaceInput = {
-  id: string
+  id?: string
   originalName: string
   mimeType: string
   fileSize: number

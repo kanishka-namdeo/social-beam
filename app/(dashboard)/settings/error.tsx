@@ -1,5 +1,6 @@
 'use client';
 
+import * as Sentry from '@sentry/nextjs';
 import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,11 +17,14 @@ export default function SettingsError({
   useEffect(() => {
     if (!loggedRef.current) {
       loggedRef.current = true;
-      fetch('/api/compose/error', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: error.message, digest: error.digest, page: 'settings' }),
-      }).catch(() => {});
+      Sentry.captureException(error, {
+        tags: {
+          component: 'SettingsError',
+        },
+        extra: {
+          digest: error.digest,
+        },
+      });
     }
   }, [error]);
 
@@ -28,7 +32,7 @@ export default function SettingsError({
     <div className="flex min-h-[60vh] items-center justify-center">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <Warning className="mx-auto size-12 text-warning" weight="fill" />
+          <Warning className="mx-auto size-12 text-destructive" weight="fill" />
           <CardTitle className="mt-3 text-xl">Something went wrong</CardTitle>
           <CardDescription>
             An unexpected error occurred while loading settings.
@@ -36,7 +40,7 @@ export default function SettingsError({
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-center text-sm text-muted-foreground">
-            Your settings are saved on our servers. Try again to see the latest changes.
+            Your settings are saved on our servers. Try again or contact support for assistance.
           </p>
           <div className="flex justify-center gap-3">
             <Button variant="default" onClick={() => reset()}>
@@ -46,7 +50,7 @@ export default function SettingsError({
               Refresh page
             </Button>
             <Button variant="outline" asChild>
-              <a href="/settings">Back to Settings</a>
+              <a href="/contact">Contact support</a>
             </Button>
           </div>
         </CardContent>

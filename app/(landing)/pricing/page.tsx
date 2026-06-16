@@ -6,9 +6,9 @@ import { Check, Sparkle, Rocket, Building } from "@phosphor-icons/react/ssr";
 import { LandingPageShell } from "@/components/landing/landing-page-shell";
 
 export const metadata: Metadata = {
-  title: "Pricing — Free Social Media Scheduler | SocialBeam",
+  title: "Pricing — Free Forever, AI from $19/mo | SocialBeam",
   description:
-    "Start free with unlimited posts across 10 accounts. Upgrade to AI features starting at $19/mo. No hidden fees, cancel anytime.",
+    "Start free with unlimited posts across 10 accounts. Add AI features starting at $19/mo. No hidden fees, cancel anytime.",
 };
 
 const tiers = [
@@ -16,7 +16,7 @@ const tiers = [
     name: "Free",
     price: "$0",
     period: "forever",
-    description: "Everything you need to get started with social media scheduling.",
+    description: "Full scheduling for 10 accounts. No limits, no trial, no credit card.",
     icon: Sparkle,
     features: [
       "10 social accounts",
@@ -33,7 +33,7 @@ const tiers = [
     name: "AI Starter",
     price: "$19",
     period: "/mo",
-    description: "AI content creation and smart scheduling for individuals.",
+    description: "AI writes your content and picks the best times. Save 10+ hours every week.",
     icon: Rocket,
     features: [
       "Everything in Free",
@@ -51,7 +51,7 @@ const tiers = [
     name: "AI Pro",
     price: "$49",
     period: "/mo",
-    description: "Advanced AI and analytics for growing teams and businesses.",
+    description: "Brand voice training, competitor analysis, and team tools. For teams that take social seriously.",
     icon: Rocket,
     features: [
       "Everything in AI Starter",
@@ -70,7 +70,7 @@ const tiers = [
     name: "AI Agency",
     price: "$149",
     period: "/mo",
-    description: "Full-scale AI suite for agencies managing multiple brands.",
+    description: "Unlimited accounts, white-label reports, and client management. Run your agency on one platform.",
     icon: Building,
     features: [
       "Everything in AI Pro",
@@ -92,9 +92,9 @@ export default function PricingPage() {
   return (
     <LandingPageShell
       hero={{
-        title: "Simple, transparent pricing",
+        title: "Start free. Scale when you're ready.",
         description:
-          "Start free with unlimited posts across 10 accounts. Upgrade to AI features when you're ready. No hidden fees, cancel anytime.",
+          "Full scheduling for 10 accounts, free forever. Add AI features when you're ready. No hidden fees, cancel anytime.",
       }}
     >
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">

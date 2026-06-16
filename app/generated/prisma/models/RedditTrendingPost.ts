@@ -30,12 +30,22 @@ export type RedditTrendingPostAvgAggregateOutputType = {
   upvotes: number | null
   commentCount: number | null
   relevanceScore: number | null
+  engagementDepthScore: number | null
+  intentScore: number | null
+  velocityScore: number | null
+  previousUpvotes: number | null
+  previousComments: number | null
 }
 
 export type RedditTrendingPostSumAggregateOutputType = {
   upvotes: number | null
   commentCount: number | null
   relevanceScore: number | null
+  engagementDepthScore: number | null
+  intentScore: number | null
+  velocityScore: number | null
+  previousUpvotes: number | null
+  previousComments: number | null
 }
 
 export type RedditTrendingPostMinAggregateOutputType = {
@@ -58,6 +68,14 @@ export type RedditTrendingPostMinAggregateOutputType = {
   riskLevel: string | null
   riskReason: string | null
   sentiment: string | null
+  engagementDepthScore: number | null
+  intentScore: number | null
+  intentType: string | null
+  velocityScore: number | null
+  trendPhase: string | null
+  previousUpvotes: number | null
+  previousComments: number | null
+  lastVelocityCheck: Date | null
 }
 
 export type RedditTrendingPostMaxAggregateOutputType = {
@@ -80,6 +98,14 @@ export type RedditTrendingPostMaxAggregateOutputType = {
   riskLevel: string | null
   riskReason: string | null
   sentiment: string | null
+  engagementDepthScore: number | null
+  intentScore: number | null
+  intentType: string | null
+  velocityScore: number | null
+  trendPhase: string | null
+  previousUpvotes: number | null
+  previousComments: number | null
+  lastVelocityCheck: Date | null
 }
 
 export type RedditTrendingPostCountAggregateOutputType = {
@@ -104,6 +130,15 @@ export type RedditTrendingPostCountAggregateOutputType = {
   riskReason: number
   sentiment: number
   brandReasonTags: number
+  engagementDepthScore: number
+  intentScore: number
+  intentType: number
+  intentSignals: number
+  velocityScore: number
+  trendPhase: number
+  previousUpvotes: number
+  previousComments: number
+  lastVelocityCheck: number
   _all: number
 }
 
@@ -112,12 +147,22 @@ export type RedditTrendingPostAvgAggregateInputType = {
   upvotes?: true
   commentCount?: true
   relevanceScore?: true
+  engagementDepthScore?: true
+  intentScore?: true
+  velocityScore?: true
+  previousUpvotes?: true
+  previousComments?: true
 }
 
 export type RedditTrendingPostSumAggregateInputType = {
   upvotes?: true
   commentCount?: true
   relevanceScore?: true
+  engagementDepthScore?: true
+  intentScore?: true
+  velocityScore?: true
+  previousUpvotes?: true
+  previousComments?: true
 }
 
 export type RedditTrendingPostMinAggregateInputType = {
@@ -140,6 +185,14 @@ export type RedditTrendingPostMinAggregateInputType = {
   riskLevel?: true
   riskReason?: true
   sentiment?: true
+  engagementDepthScore?: true
+  intentScore?: true
+  intentType?: true
+  velocityScore?: true
+  trendPhase?: true
+  previousUpvotes?: true
+  previousComments?: true
+  lastVelocityCheck?: true
 }
 
 export type RedditTrendingPostMaxAggregateInputType = {
@@ -162,6 +215,14 @@ export type RedditTrendingPostMaxAggregateInputType = {
   riskLevel?: true
   riskReason?: true
   sentiment?: true
+  engagementDepthScore?: true
+  intentScore?: true
+  intentType?: true
+  velocityScore?: true
+  trendPhase?: true
+  previousUpvotes?: true
+  previousComments?: true
+  lastVelocityCheck?: true
 }
 
 export type RedditTrendingPostCountAggregateInputType = {
@@ -186,6 +247,15 @@ export type RedditTrendingPostCountAggregateInputType = {
   riskReason?: true
   sentiment?: true
   brandReasonTags?: true
+  engagementDepthScore?: true
+  intentScore?: true
+  intentType?: true
+  intentSignals?: true
+  velocityScore?: true
+  trendPhase?: true
+  previousUpvotes?: true
+  previousComments?: true
+  lastVelocityCheck?: true
   _all?: true
 }
 
@@ -297,6 +367,15 @@ export type RedditTrendingPostGroupByOutputType = {
   riskReason: string | null
   sentiment: string
   brandReasonTags: string[]
+  engagementDepthScore: number | null
+  intentScore: number | null
+  intentType: string | null
+  intentSignals: runtime.JsonValue | null
+  velocityScore: number | null
+  trendPhase: string | null
+  previousUpvotes: number
+  previousComments: number
+  lastVelocityCheck: Date | null
   _count: RedditTrendingPostCountAggregateOutputType | null
   _avg: RedditTrendingPostAvgAggregateOutputType | null
   _sum: RedditTrendingPostSumAggregateOutputType | null
@@ -344,7 +423,17 @@ export type RedditTrendingPostWhereInput = {
   riskReason?: Prisma.StringNullableFilter<"RedditTrendingPost"> | string | null
   sentiment?: Prisma.StringFilter<"RedditTrendingPost"> | string
   brandReasonTags?: Prisma.StringNullableListFilter<"RedditTrendingPost">
+  engagementDepthScore?: Prisma.FloatNullableFilter<"RedditTrendingPost"> | number | null
+  intentScore?: Prisma.IntNullableFilter<"RedditTrendingPost"> | number | null
+  intentType?: Prisma.StringNullableFilter<"RedditTrendingPost"> | string | null
+  intentSignals?: Prisma.JsonNullableFilter<"RedditTrendingPost">
+  velocityScore?: Prisma.FloatNullableFilter<"RedditTrendingPost"> | number | null
+  trendPhase?: Prisma.StringNullableFilter<"RedditTrendingPost"> | string | null
+  previousUpvotes?: Prisma.IntFilter<"RedditTrendingPost"> | number
+  previousComments?: Prisma.IntFilter<"RedditTrendingPost"> | number
+  lastVelocityCheck?: Prisma.DateTimeNullableFilter<"RedditTrendingPost"> | Date | string | null
   Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  RedditComment?: Prisma.RedditCommentListRelationFilter
 }
 
 export type RedditTrendingPostOrderByWithRelationInput = {
@@ -369,7 +458,17 @@ export type RedditTrendingPostOrderByWithRelationInput = {
   riskReason?: Prisma.SortOrderInput | Prisma.SortOrder
   sentiment?: Prisma.SortOrder
   brandReasonTags?: Prisma.SortOrder
+  engagementDepthScore?: Prisma.SortOrderInput | Prisma.SortOrder
+  intentScore?: Prisma.SortOrderInput | Prisma.SortOrder
+  intentType?: Prisma.SortOrderInput | Prisma.SortOrder
+  intentSignals?: Prisma.SortOrderInput | Prisma.SortOrder
+  velocityScore?: Prisma.SortOrderInput | Prisma.SortOrder
+  trendPhase?: Prisma.SortOrderInput | Prisma.SortOrder
+  previousUpvotes?: Prisma.SortOrder
+  previousComments?: Prisma.SortOrder
+  lastVelocityCheck?: Prisma.SortOrderInput | Prisma.SortOrder
   Workspace?: Prisma.WorkspaceOrderByWithRelationInput
+  RedditComment?: Prisma.RedditCommentOrderByRelationAggregateInput
 }
 
 export type RedditTrendingPostWhereUniqueInput = Prisma.AtLeast<{
@@ -397,7 +496,17 @@ export type RedditTrendingPostWhereUniqueInput = Prisma.AtLeast<{
   riskReason?: Prisma.StringNullableFilter<"RedditTrendingPost"> | string | null
   sentiment?: Prisma.StringFilter<"RedditTrendingPost"> | string
   brandReasonTags?: Prisma.StringNullableListFilter<"RedditTrendingPost">
+  engagementDepthScore?: Prisma.FloatNullableFilter<"RedditTrendingPost"> | number | null
+  intentScore?: Prisma.IntNullableFilter<"RedditTrendingPost"> | number | null
+  intentType?: Prisma.StringNullableFilter<"RedditTrendingPost"> | string | null
+  intentSignals?: Prisma.JsonNullableFilter<"RedditTrendingPost">
+  velocityScore?: Prisma.FloatNullableFilter<"RedditTrendingPost"> | number | null
+  trendPhase?: Prisma.StringNullableFilter<"RedditTrendingPost"> | string | null
+  previousUpvotes?: Prisma.IntFilter<"RedditTrendingPost"> | number
+  previousComments?: Prisma.IntFilter<"RedditTrendingPost"> | number
+  lastVelocityCheck?: Prisma.DateTimeNullableFilter<"RedditTrendingPost"> | Date | string | null
   Workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  RedditComment?: Prisma.RedditCommentListRelationFilter
 }, "id">
 
 export type RedditTrendingPostOrderByWithAggregationInput = {
@@ -422,6 +531,15 @@ export type RedditTrendingPostOrderByWithAggregationInput = {
   riskReason?: Prisma.SortOrderInput | Prisma.SortOrder
   sentiment?: Prisma.SortOrder
   brandReasonTags?: Prisma.SortOrder
+  engagementDepthScore?: Prisma.SortOrderInput | Prisma.SortOrder
+  intentScore?: Prisma.SortOrderInput | Prisma.SortOrder
+  intentType?: Prisma.SortOrderInput | Prisma.SortOrder
+  intentSignals?: Prisma.SortOrderInput | Prisma.SortOrder
+  velocityScore?: Prisma.SortOrderInput | Prisma.SortOrder
+  trendPhase?: Prisma.SortOrderInput | Prisma.SortOrder
+  previousUpvotes?: Prisma.SortOrder
+  previousComments?: Prisma.SortOrder
+  lastVelocityCheck?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.RedditTrendingPostCountOrderByAggregateInput
   _avg?: Prisma.RedditTrendingPostAvgOrderByAggregateInput
   _max?: Prisma.RedditTrendingPostMaxOrderByAggregateInput
@@ -454,10 +572,19 @@ export type RedditTrendingPostScalarWhereWithAggregatesInput = {
   riskReason?: Prisma.StringNullableWithAggregatesFilter<"RedditTrendingPost"> | string | null
   sentiment?: Prisma.StringWithAggregatesFilter<"RedditTrendingPost"> | string
   brandReasonTags?: Prisma.StringNullableListFilter<"RedditTrendingPost">
+  engagementDepthScore?: Prisma.FloatNullableWithAggregatesFilter<"RedditTrendingPost"> | number | null
+  intentScore?: Prisma.IntNullableWithAggregatesFilter<"RedditTrendingPost"> | number | null
+  intentType?: Prisma.StringNullableWithAggregatesFilter<"RedditTrendingPost"> | string | null
+  intentSignals?: Prisma.JsonNullableWithAggregatesFilter<"RedditTrendingPost">
+  velocityScore?: Prisma.FloatNullableWithAggregatesFilter<"RedditTrendingPost"> | number | null
+  trendPhase?: Prisma.StringNullableWithAggregatesFilter<"RedditTrendingPost"> | string | null
+  previousUpvotes?: Prisma.IntWithAggregatesFilter<"RedditTrendingPost"> | number
+  previousComments?: Prisma.IntWithAggregatesFilter<"RedditTrendingPost"> | number
+  lastVelocityCheck?: Prisma.DateTimeNullableWithAggregatesFilter<"RedditTrendingPost"> | Date | string | null
 }
 
 export type RedditTrendingPostCreateInput = {
-  id: string
+  id?: string
   subreddit: string
   title: string
   url: string
@@ -477,11 +604,21 @@ export type RedditTrendingPostCreateInput = {
   riskReason?: string | null
   sentiment?: string
   brandReasonTags?: Prisma.RedditTrendingPostCreatebrandReasonTagsInput | string[]
+  engagementDepthScore?: number | null
+  intentScore?: number | null
+  intentType?: string | null
+  intentSignals?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  velocityScore?: number | null
+  trendPhase?: string | null
+  previousUpvotes?: number
+  previousComments?: number
+  lastVelocityCheck?: Date | string | null
   Workspace: Prisma.WorkspaceCreateNestedOneWithoutRedditTrendingPostInput
+  RedditComment?: Prisma.RedditCommentCreateNestedManyWithoutRedditTrendingPostInput
 }
 
 export type RedditTrendingPostUncheckedCreateInput = {
-  id: string
+  id?: string
   workspaceId: string
   subreddit: string
   title: string
@@ -502,6 +639,16 @@ export type RedditTrendingPostUncheckedCreateInput = {
   riskReason?: string | null
   sentiment?: string
   brandReasonTags?: Prisma.RedditTrendingPostCreatebrandReasonTagsInput | string[]
+  engagementDepthScore?: number | null
+  intentScore?: number | null
+  intentType?: string | null
+  intentSignals?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  velocityScore?: number | null
+  trendPhase?: string | null
+  previousUpvotes?: number
+  previousComments?: number
+  lastVelocityCheck?: Date | string | null
+  RedditComment?: Prisma.RedditCommentUncheckedCreateNestedManyWithoutRedditTrendingPostInput
 }
 
 export type RedditTrendingPostUpdateInput = {
@@ -525,7 +672,17 @@ export type RedditTrendingPostUpdateInput = {
   riskReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentiment?: Prisma.StringFieldUpdateOperationsInput | string
   brandReasonTags?: Prisma.RedditTrendingPostUpdatebrandReasonTagsInput | string[]
+  engagementDepthScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  intentScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  intentSignals?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  velocityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  trendPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousUpvotes?: Prisma.IntFieldUpdateOperationsInput | number
+  previousComments?: Prisma.IntFieldUpdateOperationsInput | number
+  lastVelocityCheck?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutRedditTrendingPostNestedInput
+  RedditComment?: Prisma.RedditCommentUpdateManyWithoutRedditTrendingPostNestedInput
 }
 
 export type RedditTrendingPostUncheckedUpdateInput = {
@@ -550,10 +707,20 @@ export type RedditTrendingPostUncheckedUpdateInput = {
   riskReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentiment?: Prisma.StringFieldUpdateOperationsInput | string
   brandReasonTags?: Prisma.RedditTrendingPostUpdatebrandReasonTagsInput | string[]
+  engagementDepthScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  intentScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  intentSignals?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  velocityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  trendPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousUpvotes?: Prisma.IntFieldUpdateOperationsInput | number
+  previousComments?: Prisma.IntFieldUpdateOperationsInput | number
+  lastVelocityCheck?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  RedditComment?: Prisma.RedditCommentUncheckedUpdateManyWithoutRedditTrendingPostNestedInput
 }
 
 export type RedditTrendingPostCreateManyInput = {
-  id: string
+  id?: string
   workspaceId: string
   subreddit: string
   title: string
@@ -574,6 +741,15 @@ export type RedditTrendingPostCreateManyInput = {
   riskReason?: string | null
   sentiment?: string
   brandReasonTags?: Prisma.RedditTrendingPostCreatebrandReasonTagsInput | string[]
+  engagementDepthScore?: number | null
+  intentScore?: number | null
+  intentType?: string | null
+  intentSignals?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  velocityScore?: number | null
+  trendPhase?: string | null
+  previousUpvotes?: number
+  previousComments?: number
+  lastVelocityCheck?: Date | string | null
 }
 
 export type RedditTrendingPostUpdateManyMutationInput = {
@@ -597,6 +773,15 @@ export type RedditTrendingPostUpdateManyMutationInput = {
   riskReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentiment?: Prisma.StringFieldUpdateOperationsInput | string
   brandReasonTags?: Prisma.RedditTrendingPostUpdatebrandReasonTagsInput | string[]
+  engagementDepthScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  intentScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  intentSignals?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  velocityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  trendPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousUpvotes?: Prisma.IntFieldUpdateOperationsInput | number
+  previousComments?: Prisma.IntFieldUpdateOperationsInput | number
+  lastVelocityCheck?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type RedditTrendingPostUncheckedUpdateManyInput = {
@@ -621,6 +806,15 @@ export type RedditTrendingPostUncheckedUpdateManyInput = {
   riskReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentiment?: Prisma.StringFieldUpdateOperationsInput | string
   brandReasonTags?: Prisma.RedditTrendingPostUpdatebrandReasonTagsInput | string[]
+  engagementDepthScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  intentScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  intentSignals?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  velocityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  trendPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousUpvotes?: Prisma.IntFieldUpdateOperationsInput | number
+  previousComments?: Prisma.IntFieldUpdateOperationsInput | number
+  lastVelocityCheck?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type RedditTrendingPostCountOrderByAggregateInput = {
@@ -645,12 +839,26 @@ export type RedditTrendingPostCountOrderByAggregateInput = {
   riskReason?: Prisma.SortOrder
   sentiment?: Prisma.SortOrder
   brandReasonTags?: Prisma.SortOrder
+  engagementDepthScore?: Prisma.SortOrder
+  intentScore?: Prisma.SortOrder
+  intentType?: Prisma.SortOrder
+  intentSignals?: Prisma.SortOrder
+  velocityScore?: Prisma.SortOrder
+  trendPhase?: Prisma.SortOrder
+  previousUpvotes?: Prisma.SortOrder
+  previousComments?: Prisma.SortOrder
+  lastVelocityCheck?: Prisma.SortOrder
 }
 
 export type RedditTrendingPostAvgOrderByAggregateInput = {
   upvotes?: Prisma.SortOrder
   commentCount?: Prisma.SortOrder
   relevanceScore?: Prisma.SortOrder
+  engagementDepthScore?: Prisma.SortOrder
+  intentScore?: Prisma.SortOrder
+  velocityScore?: Prisma.SortOrder
+  previousUpvotes?: Prisma.SortOrder
+  previousComments?: Prisma.SortOrder
 }
 
 export type RedditTrendingPostMaxOrderByAggregateInput = {
@@ -673,6 +881,14 @@ export type RedditTrendingPostMaxOrderByAggregateInput = {
   riskLevel?: Prisma.SortOrder
   riskReason?: Prisma.SortOrder
   sentiment?: Prisma.SortOrder
+  engagementDepthScore?: Prisma.SortOrder
+  intentScore?: Prisma.SortOrder
+  intentType?: Prisma.SortOrder
+  velocityScore?: Prisma.SortOrder
+  trendPhase?: Prisma.SortOrder
+  previousUpvotes?: Prisma.SortOrder
+  previousComments?: Prisma.SortOrder
+  lastVelocityCheck?: Prisma.SortOrder
 }
 
 export type RedditTrendingPostMinOrderByAggregateInput = {
@@ -695,12 +911,30 @@ export type RedditTrendingPostMinOrderByAggregateInput = {
   riskLevel?: Prisma.SortOrder
   riskReason?: Prisma.SortOrder
   sentiment?: Prisma.SortOrder
+  engagementDepthScore?: Prisma.SortOrder
+  intentScore?: Prisma.SortOrder
+  intentType?: Prisma.SortOrder
+  velocityScore?: Prisma.SortOrder
+  trendPhase?: Prisma.SortOrder
+  previousUpvotes?: Prisma.SortOrder
+  previousComments?: Prisma.SortOrder
+  lastVelocityCheck?: Prisma.SortOrder
 }
 
 export type RedditTrendingPostSumOrderByAggregateInput = {
   upvotes?: Prisma.SortOrder
   commentCount?: Prisma.SortOrder
   relevanceScore?: Prisma.SortOrder
+  engagementDepthScore?: Prisma.SortOrder
+  intentScore?: Prisma.SortOrder
+  velocityScore?: Prisma.SortOrder
+  previousUpvotes?: Prisma.SortOrder
+  previousComments?: Prisma.SortOrder
+}
+
+export type RedditTrendingPostScalarRelationFilter = {
+  is?: Prisma.RedditTrendingPostWhereInput
+  isNot?: Prisma.RedditTrendingPostWhereInput
 }
 
 export type RedditTrendingPostListRelationFilter = {
@@ -729,6 +963,20 @@ export type RedditTrendingPostUpdatetopicTagsInput = {
 export type RedditTrendingPostUpdatebrandReasonTagsInput = {
   set?: string[]
   push?: string | string[]
+}
+
+export type RedditTrendingPostCreateNestedOneWithoutRedditCommentInput = {
+  create?: Prisma.XOR<Prisma.RedditTrendingPostCreateWithoutRedditCommentInput, Prisma.RedditTrendingPostUncheckedCreateWithoutRedditCommentInput>
+  connectOrCreate?: Prisma.RedditTrendingPostCreateOrConnectWithoutRedditCommentInput
+  connect?: Prisma.RedditTrendingPostWhereUniqueInput
+}
+
+export type RedditTrendingPostUpdateOneRequiredWithoutRedditCommentNestedInput = {
+  create?: Prisma.XOR<Prisma.RedditTrendingPostCreateWithoutRedditCommentInput, Prisma.RedditTrendingPostUncheckedCreateWithoutRedditCommentInput>
+  connectOrCreate?: Prisma.RedditTrendingPostCreateOrConnectWithoutRedditCommentInput
+  upsert?: Prisma.RedditTrendingPostUpsertWithoutRedditCommentInput
+  connect?: Prisma.RedditTrendingPostWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RedditTrendingPostUpdateToOneWithWhereWithoutRedditCommentInput, Prisma.RedditTrendingPostUpdateWithoutRedditCommentInput>, Prisma.RedditTrendingPostUncheckedUpdateWithoutRedditCommentInput>
 }
 
 export type RedditTrendingPostCreateNestedManyWithoutWorkspaceInput = {
@@ -773,8 +1021,8 @@ export type RedditTrendingPostUncheckedUpdateManyWithoutWorkspaceNestedInput = {
   deleteMany?: Prisma.RedditTrendingPostScalarWhereInput | Prisma.RedditTrendingPostScalarWhereInput[]
 }
 
-export type RedditTrendingPostCreateWithoutWorkspaceInput = {
-  id: string
+export type RedditTrendingPostCreateWithoutRedditCommentInput = {
+  id?: string
   subreddit: string
   title: string
   url: string
@@ -794,10 +1042,168 @@ export type RedditTrendingPostCreateWithoutWorkspaceInput = {
   riskReason?: string | null
   sentiment?: string
   brandReasonTags?: Prisma.RedditTrendingPostCreatebrandReasonTagsInput | string[]
+  engagementDepthScore?: number | null
+  intentScore?: number | null
+  intentType?: string | null
+  intentSignals?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  velocityScore?: number | null
+  trendPhase?: string | null
+  previousUpvotes?: number
+  previousComments?: number
+  lastVelocityCheck?: Date | string | null
+  Workspace: Prisma.WorkspaceCreateNestedOneWithoutRedditTrendingPostInput
+}
+
+export type RedditTrendingPostUncheckedCreateWithoutRedditCommentInput = {
+  id?: string
+  workspaceId: string
+  subreddit: string
+  title: string
+  url: string
+  author: string
+  upvotes?: number
+  commentCount?: number
+  scrapedAt?: Date | string
+  relevanceScore?: number | null
+  relevanceReason?: string | null
+  isActionable?: boolean
+  topicTags?: Prisma.RedditTrendingPostCreatetopicTagsInput | string[]
+  suggestedAction?: string | null
+  actedOnAt?: Date | string | null
+  dismissedAt?: Date | string | null
+  postId?: string | null
+  riskLevel?: string
+  riskReason?: string | null
+  sentiment?: string
+  brandReasonTags?: Prisma.RedditTrendingPostCreatebrandReasonTagsInput | string[]
+  engagementDepthScore?: number | null
+  intentScore?: number | null
+  intentType?: string | null
+  intentSignals?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  velocityScore?: number | null
+  trendPhase?: string | null
+  previousUpvotes?: number
+  previousComments?: number
+  lastVelocityCheck?: Date | string | null
+}
+
+export type RedditTrendingPostCreateOrConnectWithoutRedditCommentInput = {
+  where: Prisma.RedditTrendingPostWhereUniqueInput
+  create: Prisma.XOR<Prisma.RedditTrendingPostCreateWithoutRedditCommentInput, Prisma.RedditTrendingPostUncheckedCreateWithoutRedditCommentInput>
+}
+
+export type RedditTrendingPostUpsertWithoutRedditCommentInput = {
+  update: Prisma.XOR<Prisma.RedditTrendingPostUpdateWithoutRedditCommentInput, Prisma.RedditTrendingPostUncheckedUpdateWithoutRedditCommentInput>
+  create: Prisma.XOR<Prisma.RedditTrendingPostCreateWithoutRedditCommentInput, Prisma.RedditTrendingPostUncheckedCreateWithoutRedditCommentInput>
+  where?: Prisma.RedditTrendingPostWhereInput
+}
+
+export type RedditTrendingPostUpdateToOneWithWhereWithoutRedditCommentInput = {
+  where?: Prisma.RedditTrendingPostWhereInput
+  data: Prisma.XOR<Prisma.RedditTrendingPostUpdateWithoutRedditCommentInput, Prisma.RedditTrendingPostUncheckedUpdateWithoutRedditCommentInput>
+}
+
+export type RedditTrendingPostUpdateWithoutRedditCommentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  subreddit?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  url?: Prisma.StringFieldUpdateOperationsInput | string
+  author?: Prisma.StringFieldUpdateOperationsInput | string
+  upvotes?: Prisma.IntFieldUpdateOperationsInput | number
+  commentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  relevanceReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActionable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  topicTags?: Prisma.RedditTrendingPostUpdatetopicTagsInput | string[]
+  suggestedAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actedOnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sentiment?: Prisma.StringFieldUpdateOperationsInput | string
+  brandReasonTags?: Prisma.RedditTrendingPostUpdatebrandReasonTagsInput | string[]
+  engagementDepthScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  intentScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  intentSignals?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  velocityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  trendPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousUpvotes?: Prisma.IntFieldUpdateOperationsInput | number
+  previousComments?: Prisma.IntFieldUpdateOperationsInput | number
+  lastVelocityCheck?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutRedditTrendingPostNestedInput
+}
+
+export type RedditTrendingPostUncheckedUpdateWithoutRedditCommentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  subreddit?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  url?: Prisma.StringFieldUpdateOperationsInput | string
+  author?: Prisma.StringFieldUpdateOperationsInput | string
+  upvotes?: Prisma.IntFieldUpdateOperationsInput | number
+  commentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  relevanceReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActionable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  topicTags?: Prisma.RedditTrendingPostUpdatetopicTagsInput | string[]
+  suggestedAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actedOnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  riskReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sentiment?: Prisma.StringFieldUpdateOperationsInput | string
+  brandReasonTags?: Prisma.RedditTrendingPostUpdatebrandReasonTagsInput | string[]
+  engagementDepthScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  intentScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  intentSignals?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  velocityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  trendPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousUpvotes?: Prisma.IntFieldUpdateOperationsInput | number
+  previousComments?: Prisma.IntFieldUpdateOperationsInput | number
+  lastVelocityCheck?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type RedditTrendingPostCreateWithoutWorkspaceInput = {
+  id?: string
+  subreddit: string
+  title: string
+  url: string
+  author: string
+  upvotes?: number
+  commentCount?: number
+  scrapedAt?: Date | string
+  relevanceScore?: number | null
+  relevanceReason?: string | null
+  isActionable?: boolean
+  topicTags?: Prisma.RedditTrendingPostCreatetopicTagsInput | string[]
+  suggestedAction?: string | null
+  actedOnAt?: Date | string | null
+  dismissedAt?: Date | string | null
+  postId?: string | null
+  riskLevel?: string
+  riskReason?: string | null
+  sentiment?: string
+  brandReasonTags?: Prisma.RedditTrendingPostCreatebrandReasonTagsInput | string[]
+  engagementDepthScore?: number | null
+  intentScore?: number | null
+  intentType?: string | null
+  intentSignals?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  velocityScore?: number | null
+  trendPhase?: string | null
+  previousUpvotes?: number
+  previousComments?: number
+  lastVelocityCheck?: Date | string | null
+  RedditComment?: Prisma.RedditCommentCreateNestedManyWithoutRedditTrendingPostInput
 }
 
 export type RedditTrendingPostUncheckedCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   subreddit: string
   title: string
   url: string
@@ -817,6 +1223,16 @@ export type RedditTrendingPostUncheckedCreateWithoutWorkspaceInput = {
   riskReason?: string | null
   sentiment?: string
   brandReasonTags?: Prisma.RedditTrendingPostCreatebrandReasonTagsInput | string[]
+  engagementDepthScore?: number | null
+  intentScore?: number | null
+  intentType?: string | null
+  intentSignals?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  velocityScore?: number | null
+  trendPhase?: string | null
+  previousUpvotes?: number
+  previousComments?: number
+  lastVelocityCheck?: Date | string | null
+  RedditComment?: Prisma.RedditCommentUncheckedCreateNestedManyWithoutRedditTrendingPostInput
 }
 
 export type RedditTrendingPostCreateOrConnectWithoutWorkspaceInput = {
@@ -870,10 +1286,19 @@ export type RedditTrendingPostScalarWhereInput = {
   riskReason?: Prisma.StringNullableFilter<"RedditTrendingPost"> | string | null
   sentiment?: Prisma.StringFilter<"RedditTrendingPost"> | string
   brandReasonTags?: Prisma.StringNullableListFilter<"RedditTrendingPost">
+  engagementDepthScore?: Prisma.FloatNullableFilter<"RedditTrendingPost"> | number | null
+  intentScore?: Prisma.IntNullableFilter<"RedditTrendingPost"> | number | null
+  intentType?: Prisma.StringNullableFilter<"RedditTrendingPost"> | string | null
+  intentSignals?: Prisma.JsonNullableFilter<"RedditTrendingPost">
+  velocityScore?: Prisma.FloatNullableFilter<"RedditTrendingPost"> | number | null
+  trendPhase?: Prisma.StringNullableFilter<"RedditTrendingPost"> | string | null
+  previousUpvotes?: Prisma.IntFilter<"RedditTrendingPost"> | number
+  previousComments?: Prisma.IntFilter<"RedditTrendingPost"> | number
+  lastVelocityCheck?: Prisma.DateTimeNullableFilter<"RedditTrendingPost"> | Date | string | null
 }
 
 export type RedditTrendingPostCreateManyWorkspaceInput = {
-  id: string
+  id?: string
   subreddit: string
   title: string
   url: string
@@ -893,6 +1318,15 @@ export type RedditTrendingPostCreateManyWorkspaceInput = {
   riskReason?: string | null
   sentiment?: string
   brandReasonTags?: Prisma.RedditTrendingPostCreatebrandReasonTagsInput | string[]
+  engagementDepthScore?: number | null
+  intentScore?: number | null
+  intentType?: string | null
+  intentSignals?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  velocityScore?: number | null
+  trendPhase?: string | null
+  previousUpvotes?: number
+  previousComments?: number
+  lastVelocityCheck?: Date | string | null
 }
 
 export type RedditTrendingPostUpdateWithoutWorkspaceInput = {
@@ -916,6 +1350,16 @@ export type RedditTrendingPostUpdateWithoutWorkspaceInput = {
   riskReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentiment?: Prisma.StringFieldUpdateOperationsInput | string
   brandReasonTags?: Prisma.RedditTrendingPostUpdatebrandReasonTagsInput | string[]
+  engagementDepthScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  intentScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  intentSignals?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  velocityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  trendPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousUpvotes?: Prisma.IntFieldUpdateOperationsInput | number
+  previousComments?: Prisma.IntFieldUpdateOperationsInput | number
+  lastVelocityCheck?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  RedditComment?: Prisma.RedditCommentUpdateManyWithoutRedditTrendingPostNestedInput
 }
 
 export type RedditTrendingPostUncheckedUpdateWithoutWorkspaceInput = {
@@ -939,6 +1383,16 @@ export type RedditTrendingPostUncheckedUpdateWithoutWorkspaceInput = {
   riskReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentiment?: Prisma.StringFieldUpdateOperationsInput | string
   brandReasonTags?: Prisma.RedditTrendingPostUpdatebrandReasonTagsInput | string[]
+  engagementDepthScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  intentScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  intentSignals?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  velocityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  trendPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousUpvotes?: Prisma.IntFieldUpdateOperationsInput | number
+  previousComments?: Prisma.IntFieldUpdateOperationsInput | number
+  lastVelocityCheck?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  RedditComment?: Prisma.RedditCommentUncheckedUpdateManyWithoutRedditTrendingPostNestedInput
 }
 
 export type RedditTrendingPostUncheckedUpdateManyWithoutWorkspaceInput = {
@@ -962,8 +1416,46 @@ export type RedditTrendingPostUncheckedUpdateManyWithoutWorkspaceInput = {
   riskReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentiment?: Prisma.StringFieldUpdateOperationsInput | string
   brandReasonTags?: Prisma.RedditTrendingPostUpdatebrandReasonTagsInput | string[]
+  engagementDepthScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  intentScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  intentSignals?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  velocityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  trendPhase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousUpvotes?: Prisma.IntFieldUpdateOperationsInput | number
+  previousComments?: Prisma.IntFieldUpdateOperationsInput | number
+  lastVelocityCheck?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
+
+/**
+ * Count Type RedditTrendingPostCountOutputType
+ */
+
+export type RedditTrendingPostCountOutputType = {
+  RedditComment: number
+}
+
+export type RedditTrendingPostCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  RedditComment?: boolean | RedditTrendingPostCountOutputTypeCountRedditCommentArgs
+}
+
+/**
+ * RedditTrendingPostCountOutputType without action
+ */
+export type RedditTrendingPostCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RedditTrendingPostCountOutputType
+   */
+  select?: Prisma.RedditTrendingPostCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * RedditTrendingPostCountOutputType without action
+ */
+export type RedditTrendingPostCountOutputTypeCountRedditCommentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RedditCommentWhereInput
+}
 
 
 export type RedditTrendingPostSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -988,7 +1480,18 @@ export type RedditTrendingPostSelect<ExtArgs extends runtime.Types.Extensions.In
   riskReason?: boolean
   sentiment?: boolean
   brandReasonTags?: boolean
+  engagementDepthScore?: boolean
+  intentScore?: boolean
+  intentType?: boolean
+  intentSignals?: boolean
+  velocityScore?: boolean
+  trendPhase?: boolean
+  previousUpvotes?: boolean
+  previousComments?: boolean
+  lastVelocityCheck?: boolean
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  RedditComment?: boolean | Prisma.RedditTrendingPost$RedditCommentArgs<ExtArgs>
+  _count?: boolean | Prisma.RedditTrendingPostCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["redditTrendingPost"]>
 
 export type RedditTrendingPostSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1013,6 +1516,15 @@ export type RedditTrendingPostSelectCreateManyAndReturn<ExtArgs extends runtime.
   riskReason?: boolean
   sentiment?: boolean
   brandReasonTags?: boolean
+  engagementDepthScore?: boolean
+  intentScore?: boolean
+  intentType?: boolean
+  intentSignals?: boolean
+  velocityScore?: boolean
+  trendPhase?: boolean
+  previousUpvotes?: boolean
+  previousComments?: boolean
+  lastVelocityCheck?: boolean
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["redditTrendingPost"]>
 
@@ -1038,6 +1550,15 @@ export type RedditTrendingPostSelectUpdateManyAndReturn<ExtArgs extends runtime.
   riskReason?: boolean
   sentiment?: boolean
   brandReasonTags?: boolean
+  engagementDepthScore?: boolean
+  intentScore?: boolean
+  intentType?: boolean
+  intentSignals?: boolean
+  velocityScore?: boolean
+  trendPhase?: boolean
+  previousUpvotes?: boolean
+  previousComments?: boolean
+  lastVelocityCheck?: boolean
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["redditTrendingPost"]>
 
@@ -1063,11 +1584,22 @@ export type RedditTrendingPostSelectScalar = {
   riskReason?: boolean
   sentiment?: boolean
   brandReasonTags?: boolean
+  engagementDepthScore?: boolean
+  intentScore?: boolean
+  intentType?: boolean
+  intentSignals?: boolean
+  velocityScore?: boolean
+  trendPhase?: boolean
+  previousUpvotes?: boolean
+  previousComments?: boolean
+  lastVelocityCheck?: boolean
 }
 
-export type RedditTrendingPostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "subreddit" | "title" | "url" | "author" | "upvotes" | "commentCount" | "scrapedAt" | "relevanceScore" | "relevanceReason" | "isActionable" | "topicTags" | "suggestedAction" | "actedOnAt" | "dismissedAt" | "postId" | "riskLevel" | "riskReason" | "sentiment" | "brandReasonTags", ExtArgs["result"]["redditTrendingPost"]>
+export type RedditTrendingPostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "subreddit" | "title" | "url" | "author" | "upvotes" | "commentCount" | "scrapedAt" | "relevanceScore" | "relevanceReason" | "isActionable" | "topicTags" | "suggestedAction" | "actedOnAt" | "dismissedAt" | "postId" | "riskLevel" | "riskReason" | "sentiment" | "brandReasonTags" | "engagementDepthScore" | "intentScore" | "intentType" | "intentSignals" | "velocityScore" | "trendPhase" | "previousUpvotes" | "previousComments" | "lastVelocityCheck", ExtArgs["result"]["redditTrendingPost"]>
 export type RedditTrendingPostInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  RedditComment?: boolean | Prisma.RedditTrendingPost$RedditCommentArgs<ExtArgs>
+  _count?: boolean | Prisma.RedditTrendingPostCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RedditTrendingPostIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
@@ -1080,6 +1612,7 @@ export type $RedditTrendingPostPayload<ExtArgs extends runtime.Types.Extensions.
   name: "RedditTrendingPost"
   objects: {
     Workspace: Prisma.$WorkspacePayload<ExtArgs>
+    RedditComment: Prisma.$RedditCommentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1103,6 +1636,15 @@ export type $RedditTrendingPostPayload<ExtArgs extends runtime.Types.Extensions.
     riskReason: string | null
     sentiment: string
     brandReasonTags: string[]
+    engagementDepthScore: number | null
+    intentScore: number | null
+    intentType: string | null
+    intentSignals: runtime.JsonValue | null
+    velocityScore: number | null
+    trendPhase: string | null
+    previousUpvotes: number
+    previousComments: number
+    lastVelocityCheck: Date | null
   }, ExtArgs["result"]["redditTrendingPost"]>
   composites: {}
 }
@@ -1498,6 +2040,7 @@ readonly fields: RedditTrendingPostFieldRefs;
 export interface Prisma__RedditTrendingPostClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   Workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  RedditComment<T extends Prisma.RedditTrendingPost$RedditCommentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RedditTrendingPost$RedditCommentArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RedditCommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1548,6 +2091,15 @@ export interface RedditTrendingPostFieldRefs {
   readonly riskReason: Prisma.FieldRef<"RedditTrendingPost", 'String'>
   readonly sentiment: Prisma.FieldRef<"RedditTrendingPost", 'String'>
   readonly brandReasonTags: Prisma.FieldRef<"RedditTrendingPost", 'String[]'>
+  readonly engagementDepthScore: Prisma.FieldRef<"RedditTrendingPost", 'Float'>
+  readonly intentScore: Prisma.FieldRef<"RedditTrendingPost", 'Int'>
+  readonly intentType: Prisma.FieldRef<"RedditTrendingPost", 'String'>
+  readonly intentSignals: Prisma.FieldRef<"RedditTrendingPost", 'Json'>
+  readonly velocityScore: Prisma.FieldRef<"RedditTrendingPost", 'Float'>
+  readonly trendPhase: Prisma.FieldRef<"RedditTrendingPost", 'String'>
+  readonly previousUpvotes: Prisma.FieldRef<"RedditTrendingPost", 'Int'>
+  readonly previousComments: Prisma.FieldRef<"RedditTrendingPost", 'Int'>
+  readonly lastVelocityCheck: Prisma.FieldRef<"RedditTrendingPost", 'DateTime'>
 }
     
 
@@ -1946,6 +2498,30 @@ export type RedditTrendingPostDeleteManyArgs<ExtArgs extends runtime.Types.Exten
    * Limit how many RedditTrendingPosts to delete.
    */
   limit?: number
+}
+
+/**
+ * RedditTrendingPost.RedditComment
+ */
+export type RedditTrendingPost$RedditCommentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RedditComment
+   */
+  select?: Prisma.RedditCommentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RedditComment
+   */
+  omit?: Prisma.RedditCommentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RedditCommentInclude<ExtArgs> | null
+  where?: Prisma.RedditCommentWhereInput
+  orderBy?: Prisma.RedditCommentOrderByWithRelationInput | Prisma.RedditCommentOrderByWithRelationInput[]
+  cursor?: Prisma.RedditCommentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RedditCommentScalarFieldEnum | Prisma.RedditCommentScalarFieldEnum[]
 }
 
 /**

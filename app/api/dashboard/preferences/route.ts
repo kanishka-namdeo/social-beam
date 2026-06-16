@@ -4,30 +4,26 @@ import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getDefaultLayoutForRole, getAllowedSizes, findNearestAllowedSize, SIZE_MAP } from "@/lib/dashboard/widget-registry";
 
 const widgetSchema = z.object({
-  id: z.string(),
-  visible: z.boolean(),
-  colSpan: z.number().int().min(1).max(4),
+  i: z.string(),
+  x: z.number().int().min(0),
+  y: z.number().int().min(0),
+  w: z.number().int().min(1).max(10),
+  h: z.number().int().min(1),
+  size: z.string().optional(),
+  minW: z.number().int().min(1).optional(),
+  maxW: z.number().int().max(10).optional(),
+  minH: z.number().int().min(1).optional(),
+  maxH: z.number().int().optional(),
+  static: z.boolean().optional(),
+  visible: z.boolean().optional(),
 });
 
 const layoutSchema = z.object({
   widgets: z.array(widgetSchema),
 });
-
-const DEFAULT_LAYOUT = {
-  widgets: [
-    { id: "quick-stats", visible: true, colSpan: 4 },
-    { id: "recent-posts", visible: true, colSpan: 2 },
-    { id: "insights", visible: true, colSpan: 2 },
-    { id: "calendar-preview", visible: true, colSpan: 2 },
-    { id: "trending-radar", visible: true, colSpan: 2 },
-    { id: "engagement-sparkline", visible: true, colSpan: 2 },
-    { id: "posting-streak", visible: true, colSpan: 2 },
-    { id: "profile-analysis", visible: true, colSpan: 4 },
-    { id: "connected-accounts", visible: true, colSpan: 4 },
-  ],
-};
 
 export async function GET() {
   const requestId = crypto.randomUUID();
@@ -51,13 +47,52 @@ export async function GET() {
     });
 
     if (!preference) {
+      // Get user role to return role-specific default layout
+      const user = await prisma.user.findUnique({
+        where: { id: (session.user as Record<string, unknown>).id as string },
+        select: { role: true },
+      });
+
+      const userRole = user?.role ?? "FREE_USER";
+      const defaultLayout = getDefaultLayoutForRole(userRole);
+
       preference = await prisma.dashboardPreference.create({
         data: {
           id: crypto.randomUUID(),
           workspaceId,
-          layout: DEFAULT_LAYOUT as Prisma.InputJsonValue,
+          layout: defaultLayout as unknown as Prisma.InputJsonValue,
         },
       });
+    }
+
+    // Normalize widget sizes to ensure they're still in the allowed list
+    const layout = preference.layout as { widgets?: Array<{ i: string; w: number; h: number; size?: string }> };
+    if (layout?.widgets) {
+      let needsUpdate = false;
+      const normalizedWidgets = layout.widgets.map((widget) => {
+        const allowedSizes = getAllowedSizes(widget.i);
+        const sizeToken = widget.size || `${widget.w}x${widget.h}`;
+        const isValid = allowedSizes.some((s) => s.token === sizeToken);
+
+        if (!isValid) {
+          needsUpdate = true;
+          const nearest = findNearestAllowedSize({ w: widget.w, h: widget.h }, widget.i);
+          if (nearest) {
+            return { ...widget, w: nearest.w, h: nearest.h, size: nearest.token };
+          }
+        }
+        return widget;
+      });
+
+      if (needsUpdate) {
+        const updatedLayout = { ...layout, widgets: normalizedWidgets };
+        await prisma.dashboardPreference.update({
+          where: { workspaceId },
+          data: { layout: updatedLayout as unknown as Prisma.InputJsonValue },
+        });
+        log.info("api.request.normalized", { requestId, workspaceId });
+        return NextResponse.json({ data: updatedLayout }, { status: 200 });
+      }
     }
 
     log.info("api.request.success", { requestId });

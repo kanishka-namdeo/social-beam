@@ -1,9 +1,10 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Warning } from "@phosphor-icons/react/ssr";
+import * as Sentry from '@sentry/nextjs';
+import { useEffect, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Warning } from '@phosphor-icons/react/ssr';
 
 export default function DashboardError({
   error,
@@ -12,12 +13,19 @@ export default function DashboardError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const loggedRef = useRef(false);
   useEffect(() => {
-    fetch("/api/compose/error", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ error: error.message, digest: error.digest, page: "dashboard" }),
-    }).catch(() => {});
+    if (!loggedRef.current) {
+      loggedRef.current = true;
+      Sentry.captureException(error, {
+        tags: {
+          component: 'DashboardError',
+        },
+        extra: {
+          digest: error.digest,
+        },
+      });
+    }
   }, [error]);
 
   return (

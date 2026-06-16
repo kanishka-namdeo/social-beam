@@ -79,14 +79,19 @@ export function AccountCard({ platform: platformProp, status: statusProp, accoun
   const platform = isFullAccount ? account.platform : platformProp!;
   const status = isFullAccount ? account.status : statusProp!;
 
-  const isConnected = status === 'connected';
+  // LinkedIn requires both OAuth token AND session cookie to be considered connected
+  const hasSession = isFullAccount && !!account.sessionCookie;
+  const isLinkedInFullyConnected = platform === 'linkedin' && hasSession;
+  const isNonLinkedInConnected = platform !== 'linkedin' && status === 'connected';
+  const isConnected = isNonLinkedInConnected || isLinkedInFullyConnected;
+  // LinkedIn with OAuth but no session cookie should show a "partial" state
+  const isLinkedInPartial = platform === 'linkedin' && isFullAccount && status !== 'expired' && !hasSession;
   const needsAttention = status === 'expired' || status === 'revoked' || status === 'error';
   const expiryInfo = isFullAccount ? getTokenExpiryLabel(account.tokenExpiry) : null;
   const sessionExpiry = isFullAccount ? getTokenExpiryLabel(account.cookieExpiry) : null;
 
   const username = isFullAccount ? account.platformUsername : null;
   const followers = isFullAccount ? formatFollowerCount(account.followerCount) : null;
-  const hasSession = isFullAccount && account.sessionCookie;
 
   return (
     <Card className="rounded-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
@@ -115,6 +120,13 @@ export function AccountCard({ platform: platformProp, status: statusProp, accoun
                 <Badge variant="secondary" className="gap-1 text-xs font-normal text-success rounded-sm">
                   <CheckCircle size={14} />
                   Connected
+                </Badge>
+              )}
+
+              {isLinkedInPartial && (
+                <Badge variant="default" className="gap-1 text-xs font-normal rounded-sm">
+                  <Clock size={14} />
+                  OAuth connected
                 </Badge>
               )}
 
@@ -160,6 +172,13 @@ export function AccountCard({ platform: platformProp, status: statusProp, accoun
               {isConnected && (
                 <Button variant="outline" size="sm" className="rounded-sm" onClick={onDisconnect}>
                   Disconnect
+                </Button>
+              )}
+
+              {isLinkedInPartial && (
+                <Button variant="default" size="sm" className="rounded-sm gap-1" onClick={onConnectSession}>
+                  <span className="size-3 rounded-full bg-[#0A66C2]" />
+                  Connect Session
                 </Button>
               )}
 

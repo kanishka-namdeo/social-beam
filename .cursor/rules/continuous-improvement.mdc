@@ -75,14 +75,16 @@ Determine whether the mistake belongs to a rule domain or a skill domain, then i
 | Domain | Rule File | Examples |
 |--------|-----------|----------|
 | TypeScript | `typescript-standards.mdc` | Type errors, any usage, import issues |
-| React | `react-component-boundaries.mdc`, `react-module-anti-patterns.mdc` | Re-renders, hooks misuse, component coupling |
+| React | `react-components.mdc` | Re-renders, hooks misuse, component coupling, Server/Client classification |
 | Next.js | `nextjs-patterns.mdc` | Routing, server components, API routes |
 | LangGraph | `langgraph-patterns.mdc` | Tool loops, state management, node routing, graph cycles |
 | UI/Design | `design-assets-enforcement.mdc` | Raw HTML, hardcoded colors, missing shadcn |
 | Data/DB | `data-layer.mdc` | N+1 queries, missing indexes, migration issues |
 | Testing | `testing-conventions.mdc` | Flaky tests, missing assertions |
-| Agent behavior | `general.mdc`, `qwen36-plus-reasoning-guardrails.mdc` | Tool loops, hallucinations, serial execution |
+| Agent behavior | `general.mdc`, `agentic-reasoning-guardrails.mdc` | Tool loops, hallucinations, serial execution |
 | Layout | `layout-and-page-patterns.mdc` | Responsive breaks, spacing issues |
+| DRY/Reuse | `dry-principles.mdc` | Code duplication, missed reuse opportunities, utility extraction |
+| Code quality | `anti-code-slop.mdc` | Narrative comments, TODO stubs, oversized functions, magic values |
 
 #### Skill Domains (specialized workflows, tool usage, domain expertise)
 

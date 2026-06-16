@@ -1,183 +1,38 @@
 import { logger } from "@/lib/logger";
-import type { RawComment, RawMention, RawDM } from "@/lib/inbox/types";
-import { withLinkedInPage, extractLiAtCookie, shutdownBrowser, LinkedInCookieExpiredError } from "@/lib/linkedin/browser";
+import type { RawComment } from "@/lib/inbox/types";
+import { withLinkedInPageForUser, shutdownBrowser, scrapeEnhancedPostAnalyticsForUser, type EnhancedLinkedInPostAnalytics } from "@/lib/linkedin/browser";
+import { INBOX_SELECTORS, POST_CONTAINER_SELECTORS } from "@/lib/linkedin/selectors";
+import {
+  extractPostUrnFromUrl,
+  normalizeUrl,
+  delay,
+  withRetry,
+  isLinkedInLoginPage,
+  triggerSelfHealerForScraper,
+  LinkedInCookieExpiredError,
+} from "@/lib/linkedin/scraping-utils";
+import { scrapePosts, type ScrapedPost } from "@/lib/linkedin/post-scraper";
+import type { ProcessContext } from "@/lib/processes/process-context";
 
 // ─── Configuration ────────────────────────────────────────────────
-const MAX_POSTS_PER_SYNC = 10;
 const MAX_COMMENTS_PER_POST = 50;
 const DELAY_BETWEEN_PAGES_MS = 2500;
 const PAGE_LOAD_TIMEOUT_MS = 30000;
 const COMMENT_SECTION_TIMEOUT_MS = 15000;
-const FEED_STABILIZE_DELAY_MS = 5000;
 
-// ─── Retry Configuration ──────────────────────────────────────────
-const MAX_RETRIES = 3;
-const RETRY_BASE_DELAY_MS = 1000;
-
-function isRetryableError(err: unknown): boolean {
-  if (err instanceof LinkedInCookieExpiredError) return false;
-  if (err instanceof Error && err.name === "LinkedInOperationTimeoutError") return true;
-  return true;
-}
-
-async function delayWithBackoff(attempt: number): Promise<void> {
-  const backoffMs = RETRY_BASE_DELAY_MS * Math.pow(2, attempt);
-  await new Promise((resolve) => setTimeout(resolve, backoffMs + Math.random() * 200));
-}
-
-async function withRetry<T>(
-  operation: string,
-  fn: () => Promise<T>,
-  maxRetries: number = MAX_RETRIES,
-): Promise<T | null> {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      return await fn();
-    } catch (err) {
-      if (err instanceof LinkedInCookieExpiredError) {
-        logger.warn("linkedin.scraper.cookie_expired", { operation, error: err.message });
-        return null;
-      }
-      if (attempt < maxRetries && isRetryableError(err)) {
-        logger.warn("linkedin.scraper.retry_attempt", {
-          operation,
-          attempt: attempt + 1,
-          maxRetries,
-          error: String(err),
-        });
-        await delayWithBackoff(attempt);
-  } else {
-    logger.error("linkedin.scraper.operation_failed", {
-      operation,
-      attempts: attempt + 1,
-      error: String(err),
-    });
-
-    // Self-healer trigger: after all retries exhausted, trigger DOM check
-    if (attempt >= maxRetries) {
-      logger.warn("linkedin.scraper.triggering_self_healer", { operation, maxRetries });
-      import("@/lib/agent/self-healer/trigger").then(({ triggerSelfHealer }) =>
-        triggerSelfHealer("inbox").catch(() => {}),
-      ).catch(() => {});
-    }
-
-    return null;
-  }
-    }
-  }
-  return null;
-}
-
-// ─── LinkedIn DOM Selectors (multiple fallback strategies) ────────
-// LinkedIn frequently changes class names. We use multiple strategies:
-// 1. BEM-style class patterns (relatively stable)
-// 2. Attribute-based selectors (data-* attributes)
-// 3. Structural selectors (parent-child relationships)
-// Note: Playwright :has-text() selectors do NOT work with page.$().
-// For text-based matching, use the trySelectorsWithText fallback.
-const SELECTOR_STRATEGIES = {
-  // Strategy 1: BEM class patterns (most common)
-  postContainers: [
-    "div.feed-shared-update-v2",
-    "article[data-view-name='update']",
-    "div.update-components-container",
-    "div.occludable-update",
-  ],
-  // Strategy 2: Comment item selectors
-  commentItems: [
-    "div.comments-comment-item",
-    "div.comment-item",
-    "div.social-detail-comment",
-    "li.comments-comment-item",
-    "div[data-urn*='comment']",
-  ],
-  // Strategy 3: Post link patterns
-  postLinks: [
-    "a[href*='/feed/update/']",
-    "a[href*='/posts/']",
-    "a[data-control-name='view_post_detail']",
-  ],
-  // Strategy 4: Comment text
-  commentText: [
-    "span.comments-comment-item__main-content",
-    "span[class*='main-content']",
-    "div[class*='comment-text']",
-    "span[class*='break-words']",
-    "div[class*='attributed-text']",
-  ],
-  // Strategy 5: Comment author
-  commentAuthor: [
-    "span.feed-shared-actor__name",
-    "div.feed-shared-actor__description",
-    "a[href*='/in/']",
-    "span[class*='actor__name']",
-  ],
-  // Strategy 6: Show more replies — :has-text() selectors handled by text fallback
-  showMoreReplies: [
-    "button[aria-label*='replies']",
-    "button[aria-label*='more']",
-    "button[role='button']",
-  ],
-  // Strategy 7: Reply/comment input box
-  commentInput: [
-    'div[role="textbox"]',
-    'textarea[placeholder*="comment"]',
-    'div[class*="comment-box"] div[role="textbox"]',
-    'div[contenteditable="true"]',
-  ],
-  // Strategy 8: Post button — :has-text() selectors handled by text fallback
-  postButton: [
-    'button[class*="post"]',
-    'button[type="submit"]',
-    'button[role="button"]',
-  ],
-  // Strategy 9: Text-based button matching (used by trySelectorsWithText)
-  showMoreText: ["Show more", "Show all", "more replies"],
-  postButtonText: ["Post", "Reply"],
-} as const;
-
-// ─── Post Data Structure ──────────────────────────────────────────
-interface ScrapedPost {
-  urn: string;
-  url: string;
-  text: string;
-  timestamp: Date | null;
-}
+// For 3 months of data, we need more aggressive scrolling
+const SCROLL_ITERATIONS_FOR_3_MONTHS = 30; // Increased from 3
+const MAX_POSTS_FOR_3_MONTHS = 100; // Increased from 10
 
 // ─── Helper Functions ─────────────────────────────────────────────
 
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms + Math.random() * 500));
+function extractHandle(profileUrl: string): string | null {
+  const match = profileUrl.match(/\/in\/([^/]+)/);
+  return match?.[1] ?? null;
 }
 
 function generateCommentId(commentId: string, postUrn: string): string {
   return `li-comment-${commentId}-${postUrn}`;
-}
-
-function normalizeUrl(raw: string): string {
-  if (raw.startsWith("http")) return raw;
-  return `https://www.linkedin.com${raw}`;
-}
-
-/**
- * Extract a post URN from a LinkedIn URL.
- * URLs look like: https://www.linkedin.com/feed/update/urn:li:activity:7123456789/
- * or: https://www.linkedin.com/posts/username_activity-7123456789-AbCd/
- */
-function extractPostUrnFromUrl(url: string): string | null {
-  // Try /feed/update/urn:li:activity:xxx format
-  const feedMatch = url.match(/\/feed\/update\/(urn:li:[^\/\?]+)/);
-  if (feedMatch) return feedMatch[1];
-
-  // Try /posts/..._activity-xxx-... format
-  const activityMatch = url.match(/activity[-:](\d+)/);
-  if (activityMatch) return `urn:li:activity:${activityMatch[1]}`;
-
-  // Try /posts/..._share-xxx-... format
-  const shareMatch = url.match(/share[-:](\d+)/);
-  if (shareMatch) return `urn:li:share:${shareMatch[1]}`;
-
-  return null;
 }
 
 /**
@@ -185,7 +40,8 @@ function extractPostUrnFromUrl(url: string): string | null {
  */
 function extractCommentId(element: Element): string {
   // Try data attributes first
-  const dataId = element.getAttribute("data-comment-id") ||
+  const dataId =
+    element.getAttribute("data-comment-id") ||
     element.getAttribute("data-id") ||
     element.getAttribute("id");
   if (dataId) return dataId;
@@ -195,13 +51,14 @@ function extractCommentId(element: Element): string {
   return `gen-${Buffer.from(text).toString("base64url").slice(0, 16)}`;
 }
 
-// ─── Scraping Functions ───────────────────────────────────────────
-
 /**
  * Try multiple CSS selectors to find elements on the page.
  * Returns the first selector that finds elements.
  */
-async function trySelectors(page: any, selectors: readonly string[]): Promise<string | null> {
+async function trySelectors(
+  page: any,
+  selectors: readonly string[],
+): Promise<string | null> {
   for (const selector of selectors) {
     try {
       const element = await page.$(selector);
@@ -215,13 +72,18 @@ async function trySelectors(page: any, selectors: readonly string[]): Promise<st
 
 /**
  * Find a button by text content on the page.
- * Returns 'TEXT_MATCH' if found, null otherwise.
+ * Returns true if found, false otherwise.
  */
-async function findButtonByText(page: any, searchText: string): Promise<boolean> {
+async function findButtonByText(
+  page: any,
+  searchText: string,
+): Promise<boolean> {
   try {
     const found = await page.evaluate((search: string) => {
-      const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('button'));
-      return buttons.some(b => b.textContent?.includes(search));
+      const buttons = Array.from(
+        document.querySelectorAll<HTMLButtonElement>("button"),
+      );
+      return buttons.some((b) => b.textContent?.includes(search));
     }, searchText);
     return found;
   } catch {
@@ -250,110 +112,17 @@ async function trySelectorsWithText(
   return null;
 }
 
-/**
- * Scrape the user's recent posts from the LinkedIn activity feed.
- */
-async function scrapeUserPosts(): Promise<ScrapedPost[]> {
-  logger.info("linkedin.scraper.scraping_posts");
-
-  const result = await withLinkedInPage(async (page) => {
-    const posts: ScrapedPost[] = [];
-
-    // Navigate to the user's activity/all posts page
-    await page.goto("https://www.linkedin.com/feed/?segmentationFilter=memberActivity", {
-      waitUntil: "domcontentloaded",
-      timeout: PAGE_LOAD_TIMEOUT_MS,
-    });
-
-    // Check for cookie-expired redirect
-    const feedUrl = page.url();
-    if (feedUrl.includes("/login") || feedUrl.includes("/uas/oauth")) {
-      logger.error("linkedin.scraper.cookie_expired", { url: feedUrl });
-      throw new Error("LinkedIn cookie expired — please re-run scripts/extract-linkedin-cookie.mjs");
-    }
-
-    await delay(FEED_STABILIZE_DELAY_MS); // Wait for page to stabilize
-
-    // Auto-scroll to trigger lazy loading of more posts
-    await page.evaluate(() => {
-      return new Promise((resolve) => {
-        let scrollCount = 0;
-        const maxScrolls = 3;
-        const scrollInterval = setInterval(() => {
-          window.scrollBy(0, 800);
-          scrollCount++;
-          if (scrollCount >= maxScrolls) {
-            clearInterval(scrollInterval);
-            resolve(undefined);
-          }
-        }, 1000);
-      });
-    });
-    await delay(2000);
-
-    // Try each post container selector strategy
-    const workingSelector = await trySelectors(page, SELECTOR_STRATEGIES.postContainers);
-    if (!workingSelector) {
-      logger.warn("linkedin.scraper.no_posts_found", { tried: SELECTOR_STRATEGIES.postContainers });
-      return posts;
-    }
-
-    logger.info("linkedin.scraper.post_selector_found", { selector: workingSelector });
-
-    // Wait for post containers to appear
-    try {
-      await page.waitForSelector(workingSelector, { timeout: COMMENT_SECTION_TIMEOUT_MS });
-    } catch {
-      logger.warn("linkedin.scraper.post_wait_timeout", { selector: workingSelector });
-      return posts;
-    }
-
-    // Extract post data
-    const postData = await page.evaluate((selector) => {
-      const elements = Array.from(document.querySelectorAll(selector)).slice(0, 10);
-      return elements.map((el) => {
-        // Find the post link
-        const link = el.querySelector("a[href*='feed/update'], a[href*='activity'], a[href*='/posts/']");
-        const url = link ? (link as HTMLAnchorElement).href : null;
-
-        // Find the post text
-        const textEl = el.querySelector("div.feed-shared-text, span.break-words, div.attributed-text-segment-list__content, span[class*='main-content']");
-        const text = textEl ? (textEl as HTMLElement).innerText?.trim() : "";
-
-        // Find timestamp
-        const timeEl = el.querySelector("time");
-        const datetime = timeEl ? (timeEl as HTMLTimeElement).dateTime : null;
-
-        return { url, text, datetime };
-      });
-    }, workingSelector);
-
-    for (const pd of postData) {
-      if (!pd.url) continue;
-      const urn = extractPostUrnFromUrl(pd.url);
-      if (!urn) continue;
-
-      posts.push({
-        urn,
-        url: normalizeUrl(pd.url),
-        text: pd.text,
-        timestamp: pd.datetime ? new Date(pd.datetime) : null,
-      });
-    }
-
-    logger.info("linkedin.scraper.posts_found", { count: posts.length });
-    return posts;
-  });
-
-  return result ?? [];
-}
+// ─── Scraping Functions ───────────────────────────────────────────
 
 /**
  * Scrape comments from a single LinkedIn post.
  */
-async function scrapePostComments(post: ScrapedPost): Promise<RawComment[]> {
+async function scrapePostComments(
+  post: ScrapedPost,
+  workspaceId: string,
+): Promise<RawComment[]> {
   return withRetry("scrapePostComments", async () => {
-    const result = await withLinkedInPage(async (page) => {
+    const result = await withLinkedInPageForUser(workspaceId, async (page) => {
       const postComments: RawComment[] = [];
 
       await page.goto(post.url, {
@@ -364,37 +133,48 @@ async function scrapePostComments(post: ScrapedPost): Promise<RawComment[]> {
       await delay(2000);
 
       // Try each comment selector strategy
-      const workingCommentSelector = await trySelectors(page, SELECTOR_STRATEGIES.commentItems);
+      const workingCommentSelector = await trySelectors(
+        page,
+        INBOX_SELECTORS.commentItems,
+      );
       if (!workingCommentSelector) {
         logger.warn("linkedin.scraper.no_comments_found", {
           postUrn: post.urn,
-          tried: SELECTOR_STRATEGIES.commentItems,
+          tried: INBOX_SELECTORS.commentItems,
         });
         return postComments;
       }
 
-      logger.info("linkedin.scraper.comment_selector_found", { selector: workingCommentSelector });
+      logger.info("linkedin.scraper.comment_selector_found", {
+        selector: workingCommentSelector,
+      });
 
       // Try to wait for comments section
       try {
-        await page.waitForSelector(workingCommentSelector, { timeout: COMMENT_SECTION_TIMEOUT_MS });
+        await page.waitForSelector(workingCommentSelector, {
+          timeout: COMMENT_SECTION_TIMEOUT_MS,
+        });
       } catch {
-        logger.warn("linkedin.scraper.comment_wait_timeout", { postUrn: post.urn });
+        logger.warn("linkedin.scraper.comment_wait_timeout", {
+          postUrn: post.urn,
+        });
         return postComments;
       }
 
       // Click "Show more replies" if present to load all comments
       const showMoreSelector = await trySelectorsWithText(
         page,
-        SELECTOR_STRATEGIES.showMoreReplies,
-        SELECTOR_STRATEGIES.showMoreText,
+        INBOX_SELECTORS.showMoreReplies,
+        INBOX_SELECTORS.showMoreText,
       );
       if (showMoreSelector) {
         try {
           if (showMoreSelector.startsWith("TEXT_MATCH:")) {
             // Use Playwright's locator for text-based buttons
             const buttonText = showMoreSelector.split("TEXT_MATCH:")[1];
-            const showMoreBtn = await page.getByRole("button", { name: buttonText, exact: false }).first();
+            const showMoreBtn = await page
+              .getByRole("button", { name: buttonText, exact: false })
+              .first();
             if (showMoreBtn) {
               await showMoreBtn.click();
               await delay(1000);
@@ -413,45 +193,136 @@ async function scrapePostComments(post: ScrapedPost): Promise<RawComment[]> {
 
       // Extract comments
       const commentData = await page.evaluate(
-        ({ commentSelector, maxCount }: { commentSelector: string; maxCount: number }) => {
-          const elements = Array.from(document.querySelectorAll(commentSelector)).slice(0, maxCount);
+        (
+          { commentSelector, maxCount }: { commentSelector: string; maxCount: number },
+        ) => {
+          const elements = Array.from(
+            document.querySelectorAll(commentSelector),
+          ).slice(0, maxCount);
           return elements.map((el) => {
-            // Author
-            const authorLink = el.querySelector("a[href*='/in/']");
-            const authorName = authorLink
-              ? (authorLink as HTMLElement).innerText?.trim()
-              : (el.querySelector("span.feed-shared-actor__name, div.feed-shared-actor__description, span[class*='actor__name']") as HTMLElement)?.innerText?.trim()
-              || "Unknown";
+            // Author - find the first profile link with an image (avatar link)
+            const authorLinks = Array.from(el.querySelectorAll("a[href*='/in/']"));
+            const avatarLink = authorLinks.find(a => a.querySelector("img[src*='media.licdn.com']")) || authorLinks[0];
+            
+            // Extract author name from the link text or from nearby elements
+            let authorName = "Unknown";
+            if (avatarLink) {
+              // Try to get name from the link's text content
+              const linkText = (avatarLink as HTMLElement).innerText?.trim();
+              if (linkText && linkText.length > 0 && linkText.length < 100) {
+                authorName = linkText;
+              } else {
+                // Fallback: get name from the next link that has text
+                const nameLink = authorLinks.find(a => {
+                  const t = (a as HTMLElement).innerText?.trim();
+                  return t && t.length > 1 && t.length < 80 && !t.includes("http");
+                });
+                if (nameLink) {
+                  authorName = (nameLink as HTMLElement).innerText?.trim() || "Unknown";
+                }
+              }
+            }
 
-            // Comment text - try multiple selectors
-            const textEl = el.querySelector("span.comments-comment-item__main-content, span[class*='main-content'], span[class*='break-words'], div[class*='attributed-text']");
-            const content = textEl
-              ? (textEl as HTMLElement).innerText?.trim()
-              : "";
+            // Profile URL and handle from the author link
+            const profileUrl = avatarLink?.getAttribute("href") || null;
+            const handleMatch = profileUrl?.match(/\/in\/([^/]+)/);
+            const handle = handleMatch ? handleMatch[1] : null;
 
-            // Timestamp
+            // Author avatar - extract from <figure><img> inside the avatar link
+            let authorAvatar: string | null = null;
+            if (avatarLink) {
+              const avatarImg = avatarLink.querySelector("img[src*='media.licdn.com']") ||
+                                el.querySelector("figure img[src*='media.licdn.com']");
+              authorAvatar = avatarImg?.getAttribute("src") || null;
+            }
+
+            // Comment text - try multiple strategies
+            let content = "";
+            
+            // Strategy 1: Look for <p> elements with substantial text (new LinkedIn structure)
+            const pElements = Array.from(el.querySelectorAll("p"));
+            for (const p of pElements) {
+              const pText = (p as HTMLElement).innerText?.trim() || "";
+              // Skip short text like author names, timestamps
+              if (pText.length > 20 && !/^\d+\s*(min|hour|day|week|month|yr|sec|من)/i.test(pText)) {
+                content = pText;
+                break;
+              }
+            }
+            
+            // Strategy 2: Legacy selectors
+            if (!content) {
+              const textEl = el.querySelector(
+                "span.comments-comment-item__main-content, span[class*='main-content'], span[class*='break-words'], div[class*='attributed-text']",
+              );
+              content = textEl
+                ? (textEl as HTMLElement).innerText?.trim()
+                : "";
+            }
+
+            // Timestamp - try multiple strategies
+            let datetime: string | null = null;
+            
+            // Strategy 1: Look for <time> element with datetime attribute
             const timeEl = el.querySelector("time");
-            const datetime = timeEl ? (timeEl as HTMLTimeElement).dateTime : null;
+            if (timeEl) {
+              datetime = (timeEl as HTMLTimeElement).dateTime;
+            }
+            
+            // Strategy 2: Look for text patterns like "X minutes/hours/days ago" or Arabic equivalents
+            if (!datetime) {
+              const allElements = Array.from(el.querySelectorAll("*"));
+              for (const elem of allElements) {
+                const t = (elem as HTMLElement).textContent || "";
+                // English patterns
+                if (/\d+\s*(min|hour|day|week|month|year)s?\s*ago/i.test(t) && t.length < 30) {
+                  // Can't extract exact datetime from relative time, but we found it
+                  break;
+                }
+                // Arabic patterns
+                if (/\d+\s*(من الدقائق|من الساعات|من الأيام|من الأسابيع|من الأشهر)/.test(t) && t.length < 30) {
+                  break;
+                }
+              }
+            }
 
-            // Comment ID
-            const commentId = el.getAttribute("data-comment-id") ||
+            // Comment ID - extract from componentkey attribute (new structure) or data attributes
+            const componentKey = el.getAttribute("componentkey") || "";
+            const urnMatch = componentKey.match(/urn:li:comment:\(([^)]+)\)/);
+            const commentId =
+              (urnMatch ? urnMatch[1] : null) ||
+              el.getAttribute("data-comment-id") ||
               el.getAttribute("data-id") ||
               el.getAttribute("data-urn") ||
               el.id ||
               "";
 
-            return { authorName, content, datetime, commentId };
+            return { authorName, content, datetime, commentId, profileUrl, handle, authorAvatar };
           });
         },
-        { commentSelector: workingCommentSelector, maxCount: MAX_COMMENTS_PER_POST }
+        { commentSelector: workingCommentSelector, maxCount: MAX_COMMENTS_PER_POST },
       );
 
-      for (const cd of commentData as Array<{ authorName: string; content: string; datetime: string | null; commentId: string }>) {
+      for (const cd of commentData as Array<{
+        authorName: string;
+        content: string;
+        datetime: string | null;
+        commentId: string;
+        profileUrl: string | null;
+        handle: string | null;
+        authorAvatar: string | null;
+      }>) {
         if (!cd.content) continue;
 
         postComments.push({
-          platformItemId: generateCommentId(cd.commentId || cd.content.slice(0, 50), post.urn),
+          platformItemId: generateCommentId(
+            cd.commentId || cd.content.slice(0, 50),
+            post.urn,
+          ),
           authorName: cd.authorName,
+          authorAvatar: cd.authorAvatar || undefined,
+          authorProfileUrl: cd.profileUrl,
+          authorHandle: cd.handle,
           content: cd.content,
           parentContent: post.text,
           platformUrl: post.url,
@@ -467,14 +338,35 @@ async function scrapePostComments(post: ScrapedPost): Promise<RawComment[]> {
 }
 
 /**
+ * Scraped post with comments and analytics data
+ */
+export interface ScrapedPostWithData {
+  post: ScrapedPost;
+  comments: RawComment[];
+  analytics: EnhancedLinkedInPostAnalytics | null;
+}
+
+/**
  * Main function: scrape all recent posts and their comments.
  */
-export async function scrapeLinkedInComments(since?: Date): Promise<RawComment[]> {
-  logger.info("linkedin.scraper.operation_start", { operation: "scrapeLinkedInComments", since: since?.toISOString() });
+export async function scrapeLinkedInComments(
+  workspaceId: string,
+  since?: Date,
+): Promise<RawComment[]> {
+  logger.info("linkedin.scraper.operation_start", {
+    operation: "scrapeLinkedInComments",
+    since: since?.toISOString(),
+  });
 
   try {
-    // Phase 1: Get user's recent posts
-    const postsResult = await withRetry("scrapeUserPosts", scrapeUserPosts);
+    // Phase 1: Get user's recent posts using shared scrapePosts
+    const postsResult = await withRetry("scrapePosts", () =>
+      scrapePosts(workspaceId, {
+        pageUrl: "https://www.linkedin.com/in/me/recent-activity/all/",
+        scrollIterations: 3,
+        maxPosts: 10,
+      }),
+    );
     const posts = postsResult ?? [];
 
     if (posts.length === 0) {
@@ -496,7 +388,7 @@ export async function scrapeLinkedInComments(since?: Date): Promise<RawComment[]
         postUrl: post.url,
       });
 
-      const postComments = await scrapePostComments(post);
+      const postComments = await scrapePostComments(post, workspaceId);
       allComments.push(...postComments);
 
       logger.info("linkedin.scraper.post_comments_done", {
@@ -522,9 +414,146 @@ export async function scrapeLinkedInComments(since?: Date): Promise<RawComment[]
 }
 
 /**
+ * Comprehensive scraper: fetches posts, comments, and analytics for the last 3 months.
+ * This is the main function for getting complete LinkedIn engagement data.
+ */
+export async function scrapeLinkedInComplete(
+  workspaceId: string,
+  since?: Date,
+  ctx?: ProcessContext,
+): Promise<ScrapedPostWithData[]> {
+  await ctx?.reportProgress(0, 'Starting LinkedIn scrape...');
+  
+  // Default to 3 months ago if no date provided
+  const defaultSince = since || new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+  
+  logger.info("linkedin.complete_scraper.start", {
+    workspaceId,
+    since: defaultSince.toISOString(),
+    monthsBack: 3,
+  });
+
+  try {
+    // Phase 1: Get user's posts with more aggressive scrolling for 3 months of data
+    logger.info("linkedin.complete_scraper.fetching_posts", {
+      scrollIterations: SCROLL_ITERATIONS_FOR_3_MONTHS,
+      maxPosts: MAX_POSTS_FOR_3_MONTHS,
+    });
+
+    const postsResult = await withRetry("scrapePosts", () =>
+      scrapePosts(workspaceId, {
+        pageUrl: "https://www.linkedin.com/feed/?segmentationFilter=memberActivity",
+        scrollIterations: SCROLL_ITERATIONS_FOR_3_MONTHS,
+        maxPosts: MAX_POSTS_FOR_3_MONTHS,
+      }, ctx),
+    );
+    const allPosts = postsResult ?? [];
+
+    if (allPosts.length === 0) {
+      logger.info("linkedin.complete_scraper.no_posts_found");
+      return [];
+    }
+
+    // Filter posts by date
+    const posts = allPosts.filter(post => {
+      if (!post.timestamp) return true; // Include posts without timestamps
+      return post.timestamp >= defaultSince;
+    });
+
+    logger.info("linkedin.complete_scraper.posts_filtered", {
+      totalPosts: allPosts.length,
+      postsInDateRange: posts.length,
+      since: defaultSince.toISOString(),
+    });
+
+    if (posts.length === 0) {
+      logger.info("linkedin.complete_scraper.no_posts_in_date_range");
+      return [];
+    }
+
+    await ctx?.reportProgress(20, `Found ${posts.length} posts, processing...`);
+
+    // Phase 2: Scrape comments and analytics for each post
+    const results: ScrapedPostWithData[] = [];
+
+    for (let i = 0; i < posts.length; i++) {
+      ctx?.throwIfCancelled();
+      const post = posts[i];
+      
+      logger.info("linkedin.complete_scraper.processing_post", {
+        postIndex: i + 1,
+        totalPosts: posts.length,
+        postUrn: post.urn,
+      });
+
+      await ctx?.reportProgress(20 + Math.round((i / posts.length) * 70), `Processing post ${i + 1} of ${posts.length}`);
+
+      // Scrape comments
+      const comments = await scrapePostComments(post, workspaceId);
+      
+      logger.info("linkedin.complete_scraper.comments_scraped", {
+        postUrn: post.urn,
+        commentCount: comments.length,
+      });
+
+      // Scrape analytics
+      const analytics = await scrapeEnhancedPostAnalyticsForUser(workspaceId, post.url);
+      
+      logger.info("linkedin.complete_scraper.analytics_scraped", {
+        postUrn: post.urn,
+        impressions: analytics?.impressions || 0,
+        likes: analytics?.likes || 0,
+        comments: analytics?.comments || 0,
+        shares: analytics?.shares || 0,
+      });
+
+      results.push({
+        post,
+        comments,
+        analytics,
+      });
+
+      await ctx?.reportPostsProcessed(i + 1);
+
+      // Rate limiting delay between posts
+      if (i < posts.length - 1) {
+        await delay(DELAY_BETWEEN_PAGES_MS);
+      }
+    }
+
+    // Summary statistics
+    const totalComments = results.reduce((sum, r) => sum + r.comments.length, 0);
+    const totalImpressions = results.reduce((sum, r) => sum + (r.analytics?.impressions || 0), 0);
+    const totalLikes = results.reduce((sum, r) => sum + (r.analytics?.likes || 0), 0);
+    const totalShares = results.reduce((sum, r) => sum + (r.analytics?.shares || 0), 0);
+
+    logger.info("linkedin.complete_scraper.complete", {
+      workspaceId,
+      postsScraped: results.length,
+      totalComments,
+      totalImpressions,
+      totalLikes,
+      totalShares,
+      dateRange: {
+        since: defaultSince.toISOString(),
+        until: new Date().toISOString(),
+      },
+    });
+
+    await ctx?.reportProgress(100, 'Complete');
+
+    return results;
+  } catch (err) {
+    logger.error("linkedin.complete_scraper.failed", { error: String(err) });
+    return [];
+  }
+}
+
+/**
  * Post a reply to a LinkedIn comment via browser automation.
  */
 export async function postReplyToLinkedInComment(
+  workspaceId: string,
   platformItemId: string,
   text: string,
 ): Promise<{ success: boolean; error?: string }> {
@@ -533,7 +562,9 @@ export async function postReplyToLinkedInComment(
   try {
     // Extract the post URN from the platformItemId
     // Format: li-comment-{commentId}-{postUrn}
-    const postUrnMatch = platformItemId.match(/li-comment-.+?-(urn:li:[^:]+:\d+)/);
+    const postUrnMatch = platformItemId.match(
+      /li-comment-.+?-(urn:li:[^:]+:\d+)/,
+    );
     if (!postUrnMatch) {
       return { success: false, error: "Could not extract post URN from platformItemId" };
     }
@@ -541,7 +572,7 @@ export async function postReplyToLinkedInComment(
     // Reconstruct post URL
     const postUrl = `https://www.linkedin.com/feed/update/${postUrnMatch[1]}`;
 
-    const result = await withLinkedInPage(async (page) => {
+    const result = await withLinkedInPageForUser(workspaceId, async (page) => {
       // Navigate to the post
       await page.goto(postUrl, {
         waitUntil: "domcontentloaded",
@@ -551,7 +582,10 @@ export async function postReplyToLinkedInComment(
       await delay(2000);
 
       // Find comment input using multiple strategies
-      const commentInputSelector = await trySelectors(page, SELECTOR_STRATEGIES.commentInput as readonly string[]);
+      const commentInputSelector = await trySelectors(
+        page,
+        INBOX_SELECTORS.commentInput as readonly string[],
+      );
       if (!commentInputSelector) {
         logger.warn("linkedin.scraper.reply_comment_box_not_found");
         return { success: false, error: "Could not find comment input" };
@@ -573,8 +607,8 @@ export async function postReplyToLinkedInComment(
       // Find and click the Post/Reply button
       const postButtonSelector = await trySelectorsWithText(
         page,
-        SELECTOR_STRATEGIES.postButton,
-        SELECTOR_STRATEGIES.postButtonText,
+        INBOX_SELECTORS.postButton,
+        INBOX_SELECTORS.postButtonText,
       );
       if (!postButtonSelector) {
         logger.warn("linkedin.scraper.reply_post_button_not_found");
@@ -584,7 +618,9 @@ export async function postReplyToLinkedInComment(
       let postButton;
       if (postButtonSelector.startsWith("TEXT_MATCH:")) {
         const buttonText = postButtonSelector.split("TEXT_MATCH:")[1];
-        postButton = await page.getByRole("button", { name: buttonText, exact: false }).first();
+        postButton = await page
+          .getByRole("button", { name: buttonText, exact: false })
+          .first();
       } else {
         postButton = await page.$(postButtonSelector);
       }
@@ -623,10 +659,18 @@ export async function postReplyToLinkedInComment(
     return result;
   } catch (err) {
     if (err instanceof LinkedInCookieExpiredError) {
-      logger.warn("linkedin.scraper.reply_cookie_expired", { platformItemId });
-      return { success: false, error: "LinkedIn session expired — refresh cookie and try again" };
+      logger.warn("linkedin.scraper.reply_cookie_expired", {
+        platformItemId,
+      });
+      return {
+        success: false,
+        error: "LinkedIn session expired — refresh cookie and try again",
+      };
     }
-    logger.error("linkedin.scraper.reply_failed", { platformItemId, error: String(err) });
+    logger.error("linkedin.scraper.reply_failed", {
+      platformItemId,
+      error: String(err),
+    });
     return { success: false, error: String(err) };
   }
 }
@@ -634,6 +678,9 @@ export async function postReplyToLinkedInComment(
 /**
  * Post a reply to a LinkedIn DM (not supported via scraping).
  */
-export async function postReplyToLinkedInDM(): Promise<{ success: boolean; error?: string }> {
+export async function postReplyToLinkedInDM(): Promise<{
+  success: boolean;
+  error?: string;
+}> {
   return { success: false, error: "LinkedIn DMs not available via scraping" };
 }

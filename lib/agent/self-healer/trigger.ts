@@ -36,7 +36,9 @@ export async function triggerSelfHealer(
         correlationId: runId,
         userId: 'self-healer',
       },
-      {} as Parameters<typeof graph.invoke>[1],
+      {
+        configurable: { thread_id: runId },
+      } as Parameters<typeof graph.invoke>[1],
     );
 
     logger.info('self-healer.trigger.complete', {

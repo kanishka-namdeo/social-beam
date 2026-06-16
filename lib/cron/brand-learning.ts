@@ -2,6 +2,8 @@ import cron from "node-cron";
 import { prisma } from "@/lib/prisma";
 import { aggregateSignals, initializeFieldStates } from "@/lib/brand/learning-signal-aggregator";
 import { logger } from "@/lib/logger";
+import { startActivity, completeActivity, failActivity } from "@/lib/activity-tracker";
+import { ActivityType } from "@/app/generated/prisma";
 
 type ScheduledTask = ReturnType<typeof cron.schedule>;
 
@@ -31,6 +33,10 @@ export function startBrandLearningCron(): void {
     logger.info("brand_learning.cron.processing", { contextCount: brandContexts.length });
 
     for (const ctx of brandContexts) {
+      const logId = await startActivity(ctx.workspaceId, ActivityType.BRAND_LEARNING, {
+        brandContextId: ctx.id,
+      });
+
       try {
         await initializeFieldStates(ctx.id);
 
@@ -38,6 +44,11 @@ export function startBrandLearningCron(): void {
 
         if (aggregated.length === 0) {
           logger.debug("brand_learning.cron.no_signals", { brandContextId: ctx.id });
+          await completeActivity(logId, {
+            signalGroups: 0,
+            driftedFields: [],
+            status: "no_signals",
+          });
           continue;
         }
 
@@ -56,16 +67,30 @@ export function startBrandLearningCron(): void {
             workspaceId: ctx.workspaceId,
             driftedFields: driftedFields.map((d) => d.fieldName),
           });
+
+          await completeActivity(logId, {
+            signalGroups: aggregated.length,
+            driftedFields: driftedFields.map((d) => d.fieldName),
+            status: "drift_detected",
+          });
         } else {
           logger.info("brand_learning.cron.stable", {
             brandContextId: ctx.id,
             signalGroups: aggregated.length,
+          });
+          await completeActivity(logId, {
+            signalGroups: aggregated.length,
+            driftedFields: [],
+            status: "stable",
           });
         }
       } catch (err) {
         logger.error("brand_learning.cron.context_error", {
           brandContextId: ctx.id,
           error: String(err),
+        });
+        await failActivity(logId, err instanceof Error ? err : String(err), {
+          brandContextId: ctx.id,
         });
       }
     }

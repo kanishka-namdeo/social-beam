@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { CheckCircle, Spinner, WarningCircle } from "@phosphor-icons/react/ssr";
 import { cn } from "@/lib/utils";
 
@@ -12,15 +11,6 @@ interface AutoSaveIndicatorProps {
 }
 
 export function AutoSaveIndicator({ state, className }: AutoSaveIndicatorProps) {
-  useEffect(() => {
-    if (state === "saved") {
-      const timer = setTimeout(() => {
-        // parent should handle reset to idle via its own state
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [state]);
-
   if (state === "idle") return null;
 
   return (

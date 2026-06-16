@@ -9,6 +9,30 @@
 * 🟢 You can import this file directly.
 */
 
+export const ActivityType = {
+  REDDIT_SCRAPING: 'REDDIT_SCRAPING',
+  BRAND_LEARNING: 'BRAND_LEARNING',
+  SCRAPER_HEALER: 'SCRAPER_HEALER',
+  PUBLISH_QUEUE: 'PUBLISH_QUEUE',
+  ANALYTICS_SYNC: 'ANALYTICS_SYNC',
+  BRAND_ANALYSIS: 'BRAND_ANALYSIS',
+  LINKEDIN_IMPORT: 'LINKEDIN_IMPORT',
+  MCP_TOOL_CALL: 'MCP_TOOL_CALL'
+} as const
+
+export type ActivityType = (typeof ActivityType)[keyof typeof ActivityType]
+
+
+export const ActivityStatus = {
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type ActivityStatus = (typeof ActivityStatus)[keyof typeof ActivityStatus]
+
+
 export const SubscriptionTier = {
   FREE: 'FREE',
   AI_STARTER: 'AI_STARTER',
@@ -65,3 +89,110 @@ export const PostStatus = {
 } as const
 
 export type PostStatus = (typeof PostStatus)[keyof typeof PostStatus]
+
+
+export const NotificationType = {
+  info: 'info',
+  success: 'success',
+  warning: 'warning',
+  error: 'error'
+} as const
+
+export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
+
+
+export const NotificationCategory = {
+  post_publish: 'post_publish',
+  engagement: 'engagement',
+  system: 'system',
+  billing: 'billing',
+  ai_insight: 'ai_insight',
+  connection: 'connection',
+  brand: 'brand',
+  custom: 'custom'
+} as const
+
+export type NotificationCategory = (typeof NotificationCategory)[keyof typeof NotificationCategory]
+
+
+export const DigestFrequency = {
+  NEVER: 'NEVER',
+  DAILY: 'DAILY',
+  WEEKLY: 'WEEKLY'
+} as const
+
+export type DigestFrequency = (typeof DigestFrequency)[keyof typeof DigestFrequency]
+
+
+export const ProcessStatus = {
+  QUEUED: 'QUEUED',
+  STARTING: 'STARTING',
+  RUNNING: 'RUNNING',
+  PAUSED: 'PAUSED',
+  STOPPING: 'STOPPING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED',
+  ORPHANED: 'ORPHANED'
+} as const
+
+export type ProcessStatus = (typeof ProcessStatus)[keyof typeof ProcessStatus]
+
+
+export const CampaignStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  COMPLETED: 'COMPLETED',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type CampaignStatus = (typeof CampaignStatus)[keyof typeof CampaignStatus]
+
+
+export const CampaignPhaseType = {
+  TEASER: 'TEASER',
+  LAUNCH: 'LAUNCH',
+  SOCIAL_PROOF: 'SOCIAL_PROOF',
+  LAST_CALL: 'LAST_CALL',
+  CUSTOM: 'CUSTOM'
+} as const
+
+export type CampaignPhaseType = (typeof CampaignPhaseType)[keyof typeof CampaignPhaseType]
+
+
+export const QueueSourceType = {
+  MANUAL: 'MANUAL',
+  RECYCLE: 'RECYCLE',
+  TEMPLATE: 'TEMPLATE'
+} as const
+
+export type QueueSourceType = (typeof QueueSourceType)[keyof typeof QueueSourceType]
+
+
+export const QueueStatus = {
+  ACTIVE: 'ACTIVE',
+  PAUSED: 'PAUSED',
+  EXHAUSTED: 'EXHAUSTED'
+} as const
+
+export type QueueStatus = (typeof QueueStatus)[keyof typeof QueueStatus]
+
+
+export const IdeaSource = {
+  MANUAL: 'MANUAL',
+  AI_GENERATED: 'AI_GENERATED',
+  RSS: 'RSS',
+  TRENDING: 'TRENDING'
+} as const
+
+export type IdeaSource = (typeof IdeaSource)[keyof typeof IdeaSource]
+
+
+export const IdeaStatus = {
+  NEW: 'NEW',
+  PLACED: 'PLACED',
+  CONVERTED: 'CONVERTED',
+  DISMISSED: 'DISMISSED'
+} as const
+
+export type IdeaStatus = (typeof IdeaStatus)[keyof typeof IdeaStatus]

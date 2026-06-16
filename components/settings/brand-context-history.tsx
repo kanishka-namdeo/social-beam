@@ -108,7 +108,31 @@ export function BrandContextHistory() {
 
   /* eslint-disable react-hooks/set-state-in-effect -- safe: only fires on mount, setState is in async function */
   useEffect(() => {
-    void reloadHistory();
+    let cancelled = false;
+    const controller = new AbortController();
+
+    (async () => {
+      if (cancelled) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/brand-context/history", { signal: controller.signal });
+        if (!res.ok) {
+          throw new Error("Failed to fetch history");
+        }
+        const json = await res.json();
+        if (!cancelled) setVersions(json.data ?? []);
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
 

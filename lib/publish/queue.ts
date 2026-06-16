@@ -5,6 +5,7 @@ import type { DuePost } from '@/lib/publish/types';
 /**
  * Fetch posts that are scheduled and their scheduledAt time has passed.
  * Returns posts with status 'SCHEDULED' where scheduledAt <= now.
+ * @deprecated Use fetchAndLockDuePosts() to avoid race conditions
  */
 export async function fetchDuePosts(): Promise<DuePost[]> {
   const now = new Date();
@@ -32,6 +33,65 @@ export async function fetchDuePosts(): Promise<DuePost[]> {
   });
 
   logger.info('publish.queue.fetched', { count: posts.length });
+
+  return posts.map(post => ({
+    id: post.id,
+    workspaceId: post.workspaceId,
+    scheduledAt: post.scheduledAt!,
+    platforms: post.PostPlatform.map(p => ({
+      platformId: p.id,
+      platform: p.platform as DuePost['platforms'][number]['platform'],
+      content: p.content,
+      mediaUrls: (p.mediaUrls as string[]) ?? [],
+    })),
+  }));
+}
+
+export async function fetchAndLockDuePosts(): Promise<DuePost[]> {
+  const now = new Date();
+
+  const posts = await prisma.$transaction(async (tx) => {
+    const duePosts = await tx.post.findMany({
+      where: {
+        status: 'SCHEDULED',
+        scheduledAt: { lte: now },
+      },
+      select: { id: true },
+    });
+
+    if (duePosts.length === 0) return [];
+
+    const postIds = duePosts.map(p => p.id);
+    await tx.post.updateMany({
+      where: { id: { in: postIds } },
+      data: { status: 'PUBLISHING' },
+    });
+
+    await tx.postPlatform.updateMany({
+      where: { postId: { in: postIds }, status: 'SCHEDULED' },
+      data: { status: 'PUBLISHING' },
+    });
+
+    return tx.post.findMany({
+      where: { id: { in: postIds } },
+      select: {
+        id: true,
+        workspaceId: true,
+        scheduledAt: true,
+        PostPlatform: {
+          where: { status: 'PUBLISHING' },
+          select: {
+            id: true,
+            platform: true,
+            content: true,
+            mediaUrls: true,
+          },
+        },
+      },
+    });
+  });
+
+  logger.info('publish.queue.fetched_and_locked', { count: posts.length });
 
   return posts.map(post => ({
     id: post.id,

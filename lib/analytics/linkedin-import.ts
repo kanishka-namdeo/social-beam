@@ -3,6 +3,10 @@ import { prisma } from '@/lib/prisma';
 import { decryptToken } from '@/lib/oauth/crypto';
 import { scrapeEnhancedPostAnalyticsForUser, scrapeEnhancedPostAnalytics, scrapeProfileDataForUser, scrapeProfileData, scrapePostAnalytics, scrapePostAnalyticsForUser } from '@/lib/linkedin/browser';
 import { scrapeCreatorDashboardForUser, CreatorDashboardPost, TimeRange } from '@/lib/linkedin/creator-analytics-scraper';
+import { scrapePosts, type ScrapedPost } from '@/lib/linkedin/post-scraper';
+import { extractShareId } from '@/lib/linkedin/scraping-utils';
+import { startActivity, completeActivity, failActivity } from '@/lib/activity-tracker';
+import { ActivityType } from '@/app/generated/prisma';
 
 export interface ImportResult {
   postsSynced: number;
@@ -12,26 +16,6 @@ export interface ImportResult {
 }
 
 const DEFAULT_TIME_RANGE: TimeRange = "90 days";
-
-/**
- * Scraped post from the LinkedIn activity feed.
- */
-interface ScrapedPost {
-  urn: string;
-  url: string;
-  text: string;
-  timestamp: Date | null;
-}
-
-const ACTIVITY_PAGE_URL = 'https://www.linkedin.com/in/me/recent-activity/all/';
-const PAGE_LOAD_TIMEOUT_MS = 60000;
-const FEED_STABILIZE_DELAY_MS = 5000;
-const POST_CONTAINERS = [
-  'div.occludable-update',
-  'div.feed-shared-update-v2',
-  "article[data-view-name='update']",
-  'div.update-components-container',
-];
 
 /**
  * Import all LinkedIn posts and their analytics for a connected account.
@@ -62,87 +46,121 @@ export async function importLinkedinPosts(
 
   logger.info('linkedin.import.start', { workspaceId, authorUrn, sourcePlatform, timeRange });
 
-  try {
-    // Step 1: Fetch follower count
-    await importFollowerCount(workspaceId, sourcePlatform, authorUrn);
-    result.followerSnapshotCreated = true;
-  } catch (error) {
-    logger.warn('linkedin.import.follower_count_failed', { workspaceId, error: String(error) });
-  }
-
-  // Step 2: Try Creator Dashboard first (PRIMARY method) for recent posts with accurate metrics
-  let dashboardPosts: CreatorDashboardPost[] = [];
-  try {
-    logger.info('linkedin.import.creating_dashboard_scrape', { workspaceId, timeRange });
-    const dashboardData = await scrapeCreatorDashboardForUser(workspaceId, timeRange);
-    if (dashboardData && dashboardData.posts.length > 0) {
-      dashboardPosts = dashboardData.posts;
-      logger.info('linkedin.import.dashboard_posts_found', { workspaceId, count: dashboardPosts.length, timeRange: dashboardData.timeRange });
-    }
-  } catch (error) {
-    logger.warn('linkedin.import.dashboard_scrape_failed', { workspaceId, error: String(error) });
-  }
-
-  // Step 3: Import posts from Creator Dashboard
-  const dashboardUrns = new Set<string>();
-  if (dashboardPosts.length > 0) {
-    for (const dashboardPost of dashboardPosts) {
-      try {
-        await importDashboardPost(workspaceId, dashboardPost, authorUrn);
-        dashboardUrns.add(dashboardPost.urn);
-        result.postsSynced += 1;
-        result.snapshotsCreated += 1;
-      } catch (error) {
-        logger.warn('linkedin.import.single_post_failed', {
-          workspaceId,
-          postUrn: dashboardPost.urn,
-          error: String(error),
-        });
-      }
-    }
-  }
-
-  // Step 4: Also scrape activity feed for older posts (complementary to Creator Dashboard)
-  // This ensures we get posts from the full time range even if Creator Dashboard only shows recent ones
-  logger.info('linkedin.import.scraping_activity_feed', { workspaceId });
-  try {
-    const feedPosts = await scrapeUserPosts(workspaceId);
-    logger.info('linkedin.import.feed_posts_found', { workspaceId, count: feedPosts.length });
-
-    for (const feedPost of feedPosts) {
-      // Skip posts already imported from Creator Dashboard
-      const feedUrn = feedPost.urn;
-      if (dashboardUrns.has(feedUrn)) {
-        logger.debug('linkedin.import.skipping_duplicate', { workspaceId, urn: feedUrn });
-        continue;
-      }
-
-      try {
-        await importScrapedPost(workspaceId, feedPost, authorUrn);
-        result.postsSynced += 1;
-        result.snapshotsCreated += 1;
-      } catch (error) {
-        logger.warn('linkedin.import.single_post_failed', {
-          workspaceId,
-          postUrn: feedPost.urn,
-          error: String(error),
-        });
-      }
-    }
-  } catch (error) {
-    const msg = `Failed to scrape feed posts: ${error instanceof Error ? error.message : 'Unknown'}`;
-    result.errors.push(msg);
-    logger.error('linkedin.import.posts_scrape_failed', { workspaceId, error: String(error) });
-  }
-
-  logger.info('linkedin.import.complete', {
-    workspaceId,
-    postsSynced: result.postsSynced,
-    snapshotsCreated: result.snapshotsCreated,
-    errorCount: result.errors.length,
+  // Start activity tracking
+  const logId = await startActivity(workspaceId, ActivityType.LINKEDIN_IMPORT, {
+    sourcePlatform,
+    timeRange,
+    platform: 'linkedin',
+    authorUrn,
   });
 
-  return result;
+  try {
+    try {
+      // Step 1: Fetch follower count
+      await importFollowerCount(workspaceId, sourcePlatform, authorUrn);
+      result.followerSnapshotCreated = true;
+    } catch (error) {
+      logger.warn('linkedin.import.follower_count_failed', { workspaceId, error: String(error) });
+    }
+
+    // Step 2: Try Creator Dashboard first (PRIMARY method) for recent posts with accurate metrics
+    let dashboardPosts: CreatorDashboardPost[] = [];
+    try {
+      logger.info('linkedin.import.creating_dashboard_scrape', { workspaceId, timeRange });
+      const dashboardData = await scrapeCreatorDashboardForUser(workspaceId, timeRange);
+      if (dashboardData && dashboardData.posts.length > 0) {
+        dashboardPosts = dashboardData.posts;
+        logger.info('linkedin.import.dashboard_posts_found', { workspaceId, count: dashboardPosts.length, timeRange: dashboardData.timeRange });
+      }
+    } catch (error) {
+      logger.warn('linkedin.import.dashboard_scrape_failed', { workspaceId, error: String(error) });
+    }
+
+    // Step 3: Import posts from Creator Dashboard
+    const dashboardUrns = new Set<string>();
+    if (dashboardPosts.length > 0) {
+      for (const dashboardPost of dashboardPosts) {
+        try {
+          await importDashboardPost(workspaceId, dashboardPost, authorUrn);
+          dashboardUrns.add(dashboardPost.urn);
+          result.postsSynced += 1;
+          result.snapshotsCreated += 1;
+        } catch (error) {
+          logger.warn('linkedin.import.single_post_failed', {
+            workspaceId,
+            postUrn: dashboardPost.urn,
+            error: String(error),
+          });
+        }
+      }
+    }
+
+    // Step 4: Also scrape activity feed for older posts (complementary to Creator Dashboard)
+    // This ensures we get posts from the full time range even if Creator Dashboard only shows recent ones
+    logger.info('linkedin.import.scraping_activity_feed', { workspaceId });
+    try {
+      const feedPosts = await scrapePosts(workspaceId, {
+        pageUrl: "https://www.linkedin.com/in/me/recent-activity/all/",
+        scrollIterations: 20,
+        maxPosts: 50,
+        timeoutMs: 60000,
+        activityPage: true,
+      });
+      logger.info('linkedin.import.feed_posts_found', { workspaceId, count: feedPosts.length });
+
+      for (const feedPost of feedPosts) {
+        // Skip posts already imported from Creator Dashboard
+        const feedUrn = feedPost.urn;
+        if (dashboardUrns.has(feedUrn)) {
+          logger.debug('linkedin.import.skipping_duplicate', { workspaceId, urn: feedUrn });
+          continue;
+        }
+
+        try {
+          await importScrapedPost(workspaceId, feedPost, authorUrn);
+          result.postsSynced += 1;
+          result.snapshotsCreated += 1;
+        } catch (error) {
+          logger.warn('linkedin.import.single_post_failed', {
+            workspaceId,
+            postUrn: feedPost.urn,
+            error: String(error),
+          });
+        }
+      }
+    } catch (error) {
+      const msg = `Failed to scrape feed posts: ${error instanceof Error ? error.message : 'Unknown'}`;
+      result.errors.push(msg);
+      logger.error('linkedin.import.posts_scrape_failed', { workspaceId, error: String(error) });
+    }
+
+    logger.info('linkedin.import.complete', {
+      workspaceId,
+      postsSynced: result.postsSynced,
+      snapshotsCreated: result.snapshotsCreated,
+      errorCount: result.errors.length,
+    });
+
+    // Complete activity tracking
+    await completeActivity(logId, {
+      postsImported: result.postsSynced,
+      snapshotsCreated: result.snapshotsCreated,
+      followerSnapshotCreated: result.followerSnapshotCreated,
+      dateRange: timeRange,
+      platform: 'linkedin',
+      sourcePlatform,
+      errors: result.errors.length,
+    });
+
+    return result;
+  } catch (err) {
+    await failActivity(logId, err instanceof Error ? err : String(err), {
+      platform: 'linkedin',
+      sourcePlatform,
+      dateRange: timeRange,
+    });
+    throw err;
+  }
 }
 
 /**
@@ -223,16 +241,19 @@ async function importDashboardPost(
       },
     });
     post = created;
-  } else if (dashboardPost.analyticsUrl && !post.PostPlatform[0]?.analyticsUrl) {
+  } else if (dashboardPost.analyticsUrl) {
     // Fill in missing analyticsUrl on existing posts
-    await prisma.postPlatform.update({
-      where: { id: post.PostPlatform[0].id },
-      data: {
-        analyticsUrl: dashboardPost.analyticsUrl.startsWith('http')
-          ? dashboardPost.analyticsUrl
-          : `https://www.linkedin.com${dashboardPost.analyticsUrl}`,
-      },
-    });
+    const existingPlatform = post.PostPlatform[0];
+    if (existingPlatform && !existingPlatform.analyticsUrl) {
+      await prisma.postPlatform.update({
+        where: { id: existingPlatform.id },
+        data: {
+          analyticsUrl: dashboardPost.analyticsUrl.startsWith('http')
+            ? dashboardPost.analyticsUrl
+            : `https://www.linkedin.com${dashboardPost.analyticsUrl}`,
+        },
+      });
+    }
   }
 
   // Use Creator Dashboard metrics as baseline
@@ -366,14 +387,17 @@ async function importScrapedPost(
       },
     });
     post = created;
-  } else if (postUrn.includes('activity') && !post.PostPlatform[0]?.analyticsUrl) {
+  } else if (postUrn.includes('activity')) {
     // Fill in missing analyticsUrl on existing posts
-    await prisma.postPlatform.update({
-      where: { id: post.PostPlatform[0].id },
-      data: {
-        analyticsUrl: `https://www.linkedin.com/analytics/post-summary/${encodeURIComponent(postUrn)}/`,
-      },
-    });
+    const existingPlatform = post.PostPlatform[0];
+    if (existingPlatform && !existingPlatform.analyticsUrl) {
+      await prisma.postPlatform.update({
+        where: { id: existingPlatform.id },
+        data: {
+          analyticsUrl: `https://www.linkedin.com/analytics/post-summary/${encodeURIComponent(postUrn)}/`,
+        },
+      });
+    }
   }
 
   // Build the analytics dashboard URL for enhanced scraping
@@ -432,148 +456,6 @@ async function importScrapedPost(
     shares,
     totalEngagements,
   });
-}
-
-/**
- * Scrape user's recent posts from the LinkedIn activity feed.
- * Reuses the same selector strategies as the inbox scraper.
- */
-async function scrapeUserPosts(workspaceId: string): Promise<ScrapedPost[]> {
-  const posts: ScrapedPost[] = [];
-
-  const { withLinkedInPageForUser } = await import('@/lib/linkedin/browser');
-
-  const result = await withLinkedInPageForUser(workspaceId, async (page) => {
-    await page.goto(ACTIVITY_PAGE_URL, {
-      waitUntil: 'domcontentloaded',
-      timeout: PAGE_LOAD_TIMEOUT_MS,
-    });
-
-    // Check for cookie-expired redirect
-    const feedUrl = page.url();
-    if (feedUrl.includes('/login') || feedUrl.includes('/uas/oauth')) {
-      return posts;
-    }
-
-    // Wait for initial render then scroll to trigger lazy loading
-    await new Promise((resolve) => setTimeout(resolve, FEED_STABILIZE_DELAY_MS));
-
-    // Scroll down aggressively to trigger lazy loading of activity feed content (90-day coverage)
-    await page.evaluate(async () => {
-      for (let i = 0; i < 20; i++) {
-        window.scrollBy(0, window.innerHeight);
-        await new Promise((r) => setTimeout(r, 1000));
-      }
-    });
-
-    // Wait for lazy content to render after scrolling
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-
-    // Try each post container selector strategy
-    let workingSelector: string | null = null;
-    for (const selector of POST_CONTAINERS) {
-      try {
-        const element = await page.$(selector);
-        if (element) {
-          workingSelector = selector;
-          break;
-        }
-      } catch {
-        // Selector syntax error, try next
-      }
-    }
-
-    if (!workingSelector) {
-      logger.warn('linkedin.import.no_posts_found', { tried: POST_CONTAINERS });
-      return posts;
-    }
-
-    // Wait for post containers to appear
-    try {
-      await page.waitForSelector(workingSelector, { timeout: 15000 });
-    } catch {
-      return posts;
-    }
-
-    // Extract post data (up to 50 posts for 90-day coverage)
-    const postData = await page.evaluate((selector) => {
-      const elements = Array.from(document.querySelectorAll(selector)).slice(0, 50);
-      return elements.map((el) => {
-        // Find any link containing urn:li:share or urn:li:activity
-        const allLinks = Array.from(el.querySelectorAll('a'));
-        let foundUrl: string | null = null;
-        for (const a of allLinks) {
-          const href = a.getAttribute('href') || '';
-          if (href.includes('urn:li:share') || href.includes('urn:li:activity')) {
-            foundUrl = a.href; // Use absolute URL from anchor element
-            break;
-          }
-        }
-        const url = foundUrl;
-        const textEl = el.querySelector("div.attributed-text-segment-list__content, span.break-words, div[class*='feed-shared-text']");
-        const text = textEl ? (textEl as HTMLElement).innerText?.trim() : '';
-        const timeEl = el.querySelector('time');
-        const datetime = timeEl ? (timeEl as HTMLTimeElement).dateTime : null;
-        return { url, text, datetime };
-      });
-    }, workingSelector);
-
-    // Debug: log what we found
-    const postCount = postData.filter(pd => pd.url).length;
-    logger.info('linkedin.import.posts_scraped', { workspaceId, postCount, samples: postData.slice(0, 3) });
-
-    for (const pd of postData) {
-      if (!pd.url) continue;
-      const urn = extractPostUrnFromUrl(pd.url);
-      if (!urn) continue;
-
-      // Convert analytics/post-summary URLs to public feed URLs for scraping
-      // Activity page links are /analytics/post-summary/urn:li:activity:XXX/
-      // But scrapers need /feed/update/urn:li:activity:XXX format
-      const publicUrl = `https://www.linkedin.com/feed/update/${encodeURIComponent(urn)}`;
-
-      posts.push({
-        urn,
-        url: publicUrl,
-        text: pd.text || '',
-        timestamp: pd.datetime ? new Date(pd.datetime) : null,
-      });
-    }
-
-    return posts;
-  });
-
-  return result ?? [];
-}
-
-/**
- * Extract a post URN from a LinkedIn URL.
- */
-function extractPostUrnFromUrl(url: string): string | null {
-  const feedMatch = url.match(/\/feed\/update\/(urn:li:[^\/\?]+)/);
-  if (feedMatch) return feedMatch[1];
-
-  const activityMatch = url.match(/activity[-:](\d+)/);
-  if (activityMatch) return `urn:li:activity:${activityMatch[1]}`;
-
-  const shareMatch = url.match(/share[-:](\d+)/);
-  if (shareMatch) return `urn:li:share:${shareMatch[1]}`;
-
-  return null;
-}
-
-/**
- * Extract the numeric share ID from a LinkedIn URN.
- */
-function extractShareId(urn: string): string | null {
-  if (urn.includes('urn:li:')) {
-    const parts = urn.split(':');
-    return parts[parts.length - 1] ?? null;
-  }
-  if (/^\d+$/.test(urn)) {
-    return urn;
-  }
-  return null;
 }
 
 /**

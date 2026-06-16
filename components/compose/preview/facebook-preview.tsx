@@ -10,9 +10,10 @@ interface FacebookPreviewProps {
   content: string;
   account?: AccountInfo;
   mediaUrls?: string[];
+  signature?: { text: string; url?: string } | null;
 }
 
-export function FacebookPreview({ content, account, mediaUrls }: FacebookPreviewProps) {
+export function FacebookPreview({ content, account, mediaUrls, signature }: FacebookPreviewProps) {
   // Use account data or fall back to defaults
   const displayName = account?.platformUsername || "You";
   const avatarSrc = account?.avatarUrl || "";
@@ -66,6 +67,14 @@ export function FacebookPreview({ content, account, mediaUrls }: FacebookPreview
         )}
         {mediaUrls && mediaUrls.length > 0 && (
           <MediaPreview mediaUrls={mediaUrls} className="mt-3 rounded-sm overflow-hidden" />
+        )}
+        {signature && (
+          <div className="mt-2 border-t border-border/50 pt-2">
+            <p className="text-xs text-muted-foreground">{signature.text}</p>
+            {signature.url && (
+              <p className="text-xs text-primary">{signature.url}</p>
+            )}
+          </div>
         )}
       </div>
 

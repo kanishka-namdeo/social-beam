@@ -27,37 +27,38 @@ interface PreviewPanelProps {
   title?: string;
   connectedAccounts: ConnectedAccount[];
   mediaAssets?: MediaAsset[];
+  signature?: { text: string; url?: string } | null;
 }
 
-function renderPreview(platform: string, content: string, title?: string, account?: ConnectedAccount, mediaUrls?: string[]) {
+function renderPreview(platform: string, content: string, title?: string, account?: ConnectedAccount, mediaUrls?: string[], signature?: { text: string; url?: string } | null) {
   const mediaComponent = mediaUrls && mediaUrls.length > 0 ? <MediaPreview mediaUrls={mediaUrls} className="mt-3" /> : null;
   switch (platform) {
     case "linkedin":
-      return <LinkedInPreview content={content} account={account} mediaUrls={mediaUrls} />;
+      return <LinkedInPreview content={content} account={account} mediaUrls={mediaUrls} signature={signature} />;
     case "x":
-      return <XPreview content={content} account={account} mediaUrls={mediaUrls} />;
+      return <XPreview content={content} account={account} mediaUrls={mediaUrls} signature={signature} />;
     case "instagram":
-      return <InstagramPreview content={content} account={account} mediaUrls={mediaUrls} />;
+      return <InstagramPreview content={content} account={account} mediaUrls={mediaUrls} signature={signature} />;
     case "facebook":
-      return <FacebookPreview content={content} account={account} mediaUrls={mediaUrls} />;
+      return <FacebookPreview content={content} account={account} mediaUrls={mediaUrls} signature={signature} />;
     case "tiktok":
-      return <TikTokPreview content={content} account={account} mediaUrls={mediaUrls} />;
+      return <TikTokPreview content={content} account={account} mediaUrls={mediaUrls} signature={signature} />;
     case "pinterest":
-      return <PinterestPreview content={content} title={title} account={account} mediaUrls={mediaUrls} />;
+      return <PinterestPreview content={content} title={title} account={account} mediaUrls={mediaUrls} signature={signature} />;
     case "threads":
-      return <XPreview content={content} account={account} mediaUrls={mediaUrls} />;
+      return <XPreview content={content} account={account} mediaUrls={mediaUrls} signature={signature} />;
     case "youtube":
-      return <YoutubePreview content={content} title={title} account={account} mediaUrls={mediaUrls} />;
+      return <YoutubePreview content={content} title={title} account={account} mediaUrls={mediaUrls} signature={signature} />;
     case "googleBusiness":
-      return <GoogleBusinessPreview content={content} account={account} mediaUrls={mediaUrls} />;
+      return <GoogleBusinessPreview content={content} account={account} mediaUrls={mediaUrls} signature={signature} />;
     case "bluesky":
-      return <XPreview content={content} account={account} mediaUrls={mediaUrls} />;
+      return <XPreview content={content} account={account} mediaUrls={mediaUrls} signature={signature} />;
     default:
       return null;
   }
 }
 
-export function PreviewPanel({ selectedPlatforms, content, title, connectedAccounts, mediaAssets = [] }: PreviewPanelProps) {
+export function PreviewPanel({ selectedPlatforms, content, title, connectedAccounts, mediaAssets = [], signature }: PreviewPanelProps) {
   if (selectedPlatforms.length === 0) {
     return null;
   }
@@ -88,7 +89,7 @@ export function PreviewPanel({ selectedPlatforms, content, title, connectedAccou
                 </Badge>
               </div>
               <CardContent className="flex-center p-preview">
-                {renderPreview(platform, content, title, account, mediaUrls)}
+                {renderPreview(platform, content, title, account, mediaUrls, signature)}
               </CardContent>
             </Card>
           );

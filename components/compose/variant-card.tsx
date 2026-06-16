@@ -19,9 +19,10 @@ interface VariantCardProps {
   isComplete: boolean;
   isSelected: boolean;
   onSelect: (variantId: number, content: string) => void;
+  className?: string;
 }
 
-export function VariantCard({ variantId, content, isComplete, isSelected, onSelect }: VariantCardProps) {
+export function VariantCard({ variantId, content, isComplete, isSelected, onSelect, className }: VariantCardProps) {
   const label = VARIANT_LABELS[variantId] ?? `Variant ${variantId}`;
 
   return (
@@ -31,6 +32,7 @@ export function VariantCard({ variantId, content, isComplete, isSelected, onSele
         isSelected
           ? "border-brand ring-2 ring-brand/20"
           : "border-border hover:bg-muted",
+        className,
       )}
     >
       <div className="flex-between mb-3">

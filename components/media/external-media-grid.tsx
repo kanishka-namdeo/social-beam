@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import NextImage from "next/image";
 import { Camera, Check, Plus } from "@phosphor-icons/react/ssr";
 import { cn } from "@/lib/utils";
 import type { ExternalMediaItem } from "@/lib/media/types";
@@ -66,11 +67,12 @@ export function ExternalMediaGrid({
                   <Camera className="size-8" weight="thin" />
                 </div>
               ) : (
-                <img
+                <NextImage
                   src={item.thumbUrl}
                   alt={`Photo by ${item.userName}`}
-                  className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                  loading="lazy"
+                  fill
+                  className="object-cover transition-transform group-hover:scale-105"
+                  unoptimized
                   onError={() => setErrorIds((prev) => new Set(prev).add(item.id))}
                 />
               )}

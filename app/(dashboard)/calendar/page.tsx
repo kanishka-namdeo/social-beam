@@ -37,6 +37,7 @@ export default async function CalendarPage() {
         content: true,
         status: true,
         confidence: true,
+        category: true,
         scheduledAt: true,
         publishedAt: true,
         createdAt: true,
@@ -74,6 +75,7 @@ export default async function CalendarPage() {
             content: content.text ?? null,
             status: p.status,
             confidence: p.confidence,
+            category: p.category ?? null,
             scheduledAt: p.scheduledAt?.toISOString() ?? null,
             publishedAt: p.publishedAt?.toISOString() ?? null,
             platforms: p.PostPlatform.map((pl) => ({

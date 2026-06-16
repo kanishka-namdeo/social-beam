@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PaintBrush, LinkSimple, ShieldCheck, ArrowRight, CheckCircle, Warning, Clock, InstagramLogo, XLogo, LinkedinLogo, MetaLogo, TiktokLogo, PinterestLogo, Desktop, Code, ThreadsLogo, GoogleLogo, YoutubeLogo, ChatCircleText, Eye, Sparkle, CreditCard } from "@phosphor-icons/react/ssr";
+import { PaintBrush, LinkSimple, ShieldCheck, ArrowRight, CheckCircle, Warning, Clock, InstagramLogo, XLogo, LinkedinLogo, MetaLogo, TiktokLogo, PinterestLogo, Desktop, Code, ThreadsLogo, GoogleLogo, YoutubeLogo, ChatCircleText, Eye, Sparkle, CreditCard, Bell, AddressBook, PenNib } from "@phosphor-icons/react/ssr";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,10 +17,16 @@ import { DisconnectDialog } from "@/app/(dashboard)/dashboard/settings/component
 import { LinkedInUnifiedDialog } from "@/app/(dashboard)/dashboard/settings/components/linkedin-unified-dialog";
 import Link from "next/link";
 import { toast } from "sonner";
+import { notifySuccessWithCategory, notifyErrorWithCategory } from "@/lib/notifications";
 import { SidebarVariantSwitcher } from "@/components/dashboard/sidebar-variant-switcher";
 import { useInvisibleAI } from "@/lib/invisible-ai-context";
 import { getDisplayName } from "@/lib/oauth/platform-registry";
 import type { UserRole } from "@/lib/role-guard";
+import { NotificationsTab } from "@/app/(dashboard)/settings/notifications-tab";
+import { McpTab } from "@/app/(dashboard)/settings/mcp-tab";
+import { SignatureTab } from "@/components/settings/signature-tab";
+import { SyncButton } from "@/components/sync/sync-button";
+import { isSyncAvailable } from "@/lib/sync/platform-capabilities";
 
 const statusBadge: Record<string, { variant: "default" | "secondary" | "outline"; icon: React.ReactNode; label: string }> = {
   trained: { variant: "default", icon: <CheckCircle className="size-3" weight="fill" />, label: "Trained" },
@@ -67,6 +73,17 @@ async function fetchConnectedAccounts(): Promise<ConnectedAccount[]> {
   }
 }
 
+/**
+ * Determine if a LinkedIn account is fully connected (has both OAuth token and session cookie).
+ * The API returns `pending_session` status for LinkedIn accounts that have OAuth but no session cookie.
+ */
+function isAccountFullyConnected(account: ConnectedAccount): boolean {
+  if (account.platform === 'linkedin') {
+    return account.status === 'connected';
+  }
+  return account.status === 'connected';
+}
+
 function openOAuthPopup(authUrl: string, platform: string): Window | null {
   const width = 600;
   const height = 700;
@@ -92,7 +109,7 @@ const platformIcons: Record<string, React.ReactNode> = {
   bluesky: <ChatCircleText className="size-5" weight="fill" />,
 };
 
-function PlatformConnectButton({ platform, label }: { platform: string; label: string }) {
+function PlatformConnectButton({ platform, label, onLinkedinConnect }: { platform: string; label: string; onLinkedinConnect?: () => void }) {
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -109,6 +126,12 @@ function PlatformConnectButton({ platform, label }: { platform: string; label: s
   }, []);
 
   const handleConnect = async () => {
+    // Route LinkedIn through the unified dialog to ensure cookie extraction
+    if (platform === 'linkedin' && onLinkedinConnect) {
+      onLinkedinConnect();
+      return;
+    }
+
     setConnecting(true);
     setError(null);
 
@@ -192,13 +215,18 @@ function DeveloperAppsTabContent() {
   const [clientSecret, setClientSecret] = useState("");
 
   useEffect(() => {
-    fetch("/api/settings/oauth-apps")
+    let cancelled = false;
+    const controller = new AbortController();
+    fetch("/api/settings/oauth-apps", { signal: controller.signal })
       .then((res) => res.json())
       .then((data) => {
-        setApps(data.apps ?? []);
-        setLoading(false);
+        if (!cancelled) {
+          setApps(data.apps ?? []);
+          setLoading(false);
+        }
       })
-      .catch(() => setLoading(false));
+      .catch(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; controller.abort(); };
   }, []);
 
   const handleSave = async () => {
@@ -387,7 +415,7 @@ export function SettingsContent({
 
   const handleDisconnectSuccess = useCallback(() => {
     fetchConnectedAccounts().then(setConnectedAccounts);
-    toast.success("Account disconnected");
+    notifySuccessWithCategory("Account disconnected", { category: "connection" });
     setDisconnectingPlatform(null);
   }, []);
 
@@ -398,7 +426,7 @@ export function SettingsContent({
 
   const setTab = useCallback(
     (value: string) => {
-      if (!["overview", "accounts", "developer", "ai", "navigation"].includes(value)) {
+      if (!["overview", "accounts", "developer", "ai", "navigation", "notifications", "mcp", "contacts", "signatures"].includes(value)) {
         value = "overview";
       }
       setTabLoading(true);
@@ -427,7 +455,8 @@ export function SettingsContent({
     const platform = params.get("platform") ?? "unknown";
 
     if (oauthStatus === "success") {
-      toast.success(`${platform} connected`, {
+      notifySuccessWithCategory(`${platform} connected`, {
+        category: "connection",
         description: "Your account has been linked successfully.",
       });
       // Clean URL
@@ -435,13 +464,13 @@ export function SettingsContent({
       fetchConnectedAccounts().then(setConnectedAccounts);
     } else if (oauthStatus === "error") {
       const reason = params.get("reason") ?? "unknown";
-      toast.error(`Failed to connect ${platform}`, {
+      notifyErrorWithCategory(`Failed to connect ${platform}`, {
+        category: "connection",
         description: reason === "missing_code"
           ? "Authorization code was not received from the platform."
           : reason === "missing_token_or_user_id"
             ? "The platform did not return a valid token or user ID."
             : `OAuth error: ${reason}. Please try again.`,
-        duration: 6000,
       });
       window.history.replaceState({}, "", "/settings?tab=accounts");
     }
@@ -450,11 +479,15 @@ export function SettingsContent({
   // Fetch connected accounts when accounts tab is active
   useEffect(() => {
     if (tab === "accounts") {
+      let cancelled = false;
       requestAnimationFrame(() => setAccountsLoading(true));
       fetchConnectedAccounts().then((accounts) => {
-        setConnectedAccounts(accounts);
-        setAccountsLoading(false);
+        if (!cancelled) {
+          setConnectedAccounts(accounts);
+          setAccountsLoading(false);
+        }
       });
+      return () => { cancelled = true; };
     }
   }, [tab]);
 
@@ -468,6 +501,10 @@ export function SettingsContent({
         )}
         <TabsTrigger value="ai" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">AI Guardrails</TabsTrigger>
         <TabsTrigger value="navigation" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">Navigation</TabsTrigger>
+        <TabsTrigger value="notifications" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">Notifications</TabsTrigger>
+        <TabsTrigger value="contacts" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">Contacts</TabsTrigger>
+        <TabsTrigger value="signatures" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">Signatures</TabsTrigger>
+        <TabsTrigger value="mcp" className="data-[state=active]:border-b-2 data-[state=active]:border-brand data-[state=active]:font-medium data-[state=active]:text-brand rounded-sm border-b-2 border-transparent transition-all">MCP</TabsTrigger>
       </TabsList>
 
       {tabLoading ? (
@@ -605,6 +642,69 @@ export function SettingsContent({
                   </Card>
                 </CardContent>
               </Card>
+
+              {/* Notifications */}
+              <Card className="flex flex-col rounded-sm">
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2 tracking-tight">
+                    <Bell className="size-5 text-brand" weight="fill" />
+                    Notifications
+                  </CardTitle>
+                  <CardDescription>
+                    Control notification channels, categories, and email digest frequency.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-1 flex-col justify-end">
+                  <Card className="group flex items-center justify-between rounded-sm border-border p-3 hover:bg-accent transition-colors cursor-pointer"
+                    onClick={() => setTab("notifications")}
+                  >
+                    <span className="text-sm text-foreground tracking-tight">Manage preferences</span>
+                    <ArrowRight className="size-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+                  </Card>
+                </CardContent>
+              </Card>
+
+              {/* Contacts */}
+              <Card className="flex flex-col rounded-sm">
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2 tracking-tight">
+                    <AddressBook className="size-5 text-brand" weight="fill" />
+                    Contacts
+                  </CardTitle>
+                  <CardDescription>
+                    Manage saved contacts for mention autocomplete in posts.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-1 flex-col justify-end">
+                  <Card className="group flex items-center justify-between rounded-sm border-border p-3 hover:bg-accent transition-colors cursor-pointer"
+                    onClick={() => router.push('/settings/contacts')}
+                  >
+                    <span className="text-sm text-foreground tracking-tight">Manage contacts</span>
+                    <ArrowRight className="size-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+                  </Card>
+                </CardContent>
+              </Card>
+
+              {/* Signatures */}
+              <Card className="flex flex-col rounded-sm">
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2 tracking-tight">
+                    <PenNib className="size-5 text-brand" weight="fill" />
+                    Signatures
+                  </CardTitle>
+                  <CardDescription>
+                    Customize post signatures to brand your content.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-1 flex-col justify-end">
+                  <Card className="group flex items-center justify-between rounded-sm border-border p-3 hover:bg-accent transition-colors cursor-pointer"
+                    onClick={() => setTab("signatures")}
+                  >
+                    <span className="text-sm text-foreground tracking-tight">Manage signatures</span>
+                    <ArrowRight className="size-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+                  </Card>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
@@ -635,7 +735,10 @@ export function SettingsContent({
                   </div>
                 ) : connectedAccounts.length > 0 ? (
                   <div className="space-y-3">
-                    {connectedAccounts.map((account) => (
+                    {connectedAccounts.map((account) => {
+                      const fullyConnected = isAccountFullyConnected(account);
+                      const isLinkedInPartial = account.platform === 'linkedin' && account.status === 'pending_session';
+                      return (
                       <div
                         key={account.platform}
                         className="flex items-center gap-4 rounded-sm border border-border p-4"
@@ -649,13 +752,29 @@ export function SettingsContent({
                           </p>
                           <p className="text-xs text-muted-foreground capitalize">{account.platform}</p>
                         </div>
-                        <Badge
-                          variant={account.status === "connected" ? "outline" : "outline"}
-                          className="rounded-sm bg-success/20 text-success border-success/30"
-                        >
-                          {account.status === "connected" ? "Connected" : account.status}
-                        </Badge>
-                        {account.status === "connected" && (
+                        {fullyConnected ? (
+                          <Badge
+                            variant="outline"
+                            className="rounded-sm bg-success/20 text-success border-success/30"
+                          >
+                            Connected
+                          </Badge>
+                        ) : isLinkedInPartial ? (
+                          <Badge
+                            variant="default"
+                            className="rounded-sm"
+                          >
+                            OAuth only — needs session
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className="rounded-sm"
+                          >
+                            {account.status}
+                          </Badge>
+                        )}
+                        {fullyConnected && (
                           <div className="flex items-center gap-2">
                             {account.platform === "linkedin" && (
                               <Button
@@ -671,6 +790,24 @@ export function SettingsContent({
                                 Configure
                               </Button>
                             )}
+                            {isSyncAvailable(account.platform) ? (
+                              <SyncButton
+                                platform={account.platform}
+                                variant="outline"
+                                size="sm"
+                                className="rounded-sm"
+                              />
+                            ) : (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="rounded-sm"
+                                disabled
+                                title="Sync not available for this platform yet"
+                              >
+                                Coming soon
+                              </Button>
+                            )}
                             <Button
                               variant="outline"
                               size="sm"
@@ -681,8 +818,20 @@ export function SettingsContent({
                             </Button>
                           </div>
                         )}
+                        {isLinkedInPartial && (
+                          <Button
+                            variant="default"
+                            size="sm"
+                            className="rounded-sm gap-1"
+                            onClick={() => setLinkedinUnifiedDialogOpen(true)}
+                          >
+                            <span className="size-3 rounded-full bg-[#0A66C2]" />
+                            Connect Session
+                          </Button>
+                        )}
                       </div>
-                    ))}
+                    );
+                    })}
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center gap-3 rounded-sm border border-dashed border-border p-8 text-center">
@@ -702,7 +851,11 @@ export function SettingsContent({
                     <PlatformConnectButton platform="instagram" label="Instagram" />
                     <PlatformConnectButton platform="facebook" label="Facebook" />
                     <PlatformConnectButton platform="x" label="X (Twitter)" />
-                    <PlatformConnectButton platform="linkedin" label="LinkedIn" />
+                    <PlatformConnectButton 
+                      platform="linkedin" 
+                      label="LinkedIn" 
+                      onLinkedinConnect={() => setLinkedinUnifiedDialogOpen(true)}
+                    />
                     <PlatformConnectButton platform="tiktok" label="TikTok" />
                     <PlatformConnectButton platform="pinterest" label="Pinterest" />
                     <PlatformConnectButton platform="threads" label="Threads" />
@@ -760,6 +913,40 @@ export function SettingsContent({
                 <SidebarVariantSwitcher />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="notifications" className="space-y-0">
+            <NotificationsTab />
+          </TabsContent>
+
+          <TabsContent value="contacts" className="space-y-0">
+            <Card className="rounded-sm">
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2 tracking-tight">
+                  <AddressBook className="size-5 text-brand" weight="fill" />
+                  Contacts
+                </CardTitle>
+                <CardDescription>
+                  Manage your saved contacts for mention autocomplete in posts.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-1 flex-col justify-end">
+                <Card className="group flex items-center justify-between rounded-sm border-border p-3 hover:bg-accent transition-colors cursor-pointer"
+                  onClick={() => router.push('/settings/contacts')}
+                >
+                  <span className="text-sm text-foreground tracking-tight">Manage contacts</span>
+                  <ArrowRight className="size-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+                </Card>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="mcp" className="space-y-0">
+            <McpTab />
+          </TabsContent>
+
+          <TabsContent value="signatures" className="space-y-0">
+            <SignatureTab />
           </TabsContent>
         </>
       )}

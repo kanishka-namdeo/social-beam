@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Providers } from "@/components/providers";
+import { WebVitalsReporter } from "@/components/web-vitals-reporter";
 import { ThemeProvider as WrkszThemeProvider } from "@wrksz/themes/next";
 import { organizationSchema, webSiteSchema, softwareApplicationSchema, renderJsonLd } from "@/lib/seo/schemas";
 
@@ -112,9 +113,10 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: appSchema }}
         />
-        <WrkszThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <WrkszThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <Providers session={session}>
             {children}
+            <WebVitalsReporter />
           </Providers>
         </WrkszThemeProvider>
       </body>

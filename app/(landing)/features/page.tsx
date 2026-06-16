@@ -9,13 +9,21 @@ import {
   PaintBrush,
   ShieldCheck,
   Globe,
+  ChatCircleText,
+  RedditLogo,
+  Image,
+  Wrench,
+  PlugsConnected,
+  Megaphone,
+  Robot,
+  Eye,
 } from "@phosphor-icons/react/ssr";
 import { LandingPageShell } from "@/components/landing/landing-page-shell";
 
 export const metadata: Metadata = {
-  title: "Features — Free AI-Powered Social Media Scheduler | SocialBeam",
+  title: "Features — Social Media Management, Automated | SocialBeam",
   description:
-    "AI content creation, visual calendar scheduling, actionable analytics, and smart posting times. All free for up to 10 accounts.",
+    "Content creation, unified inbox, visual calendar scheduling, actionable analytics, Reddit trend discovery, and smart posting times. All free for up to 10 accounts.",
 };
 
 const features = [
@@ -23,43 +31,91 @@ const features = [
     icon: Sparkle,
     title: "AI Content Engine",
     description:
-      "Describe what you want. AI writes platform-optimized captions, hashtags, and full campaigns tailored to your brand voice.",
+      "Describe the post you want. Get platform-optimized captions, hashtags, and campaigns in your brand voice — ready to publish.",
+  },
+  {
+    icon: ChatCircleText,
+    title: "Never Miss a Conversation",
+    description:
+      "Every comment, mention, and DM in one place. AI drafts replies so you respond faster and stay engaged.",
   },
   {
     icon: CalendarCheck,
-    title: "Free Forever Scheduling",
+    title: "Schedule Without Limits",
     description:
-      "10 accounts. Unlimited posts. Visual drag-and-drop calendar. No credit card required, no limits on basic scheduling.",
+      "10 accounts. Unlimited posts. Drag-and-drop calendar. Free forever — not a trial, not a teaser.",
+  },
+  {
+    icon: RedditLogo,
+    title: "Catch Trends Before They Peak",
+    description:
+      "Discover trending topics matched to your brand. Turn what's hot into ready-to-publish posts in one click.",
   },
   {
     icon: ChartBar,
-    title: "Actionable Analytics",
+    title: "Insights That Tell You What to Do",
     description:
-      "Natural language insights, not raw data dumps. AI tells you what to do next based on your performance data.",
+      "Skip the dashboards. Get plain-English recommendations on what to post next, when, and why.",
   },
   {
     icon: Clock,
     title: "Smart Scheduling",
     description:
-      "AI predicts optimal posting times per platform — delivering 25-40% engagement lift over manual scheduling.",
-  },
-  {
-    icon: Users,
-    title: "Team Collaboration",
-    description:
-      "Assign roles, approve posts, and manage workflows. Built for teams of any size with clear permissions.",
+      "Post when your audience is actually watching. AI picks the optimal time per platform — 25-40% more engagement than guessing.",
   },
   {
     icon: PaintBrush,
-    title: "Brand Voice Training",
+    title: "Your Voice, Every Platform",
     description:
-      "Upload your style guide or past content. AI learns your voice and maintains consistency across all platforms.",
+      "Upload your style guide. The system learns your tone and keeps it consistent from LinkedIn thought leadership to Instagram captions.",
+  },
+  {
+    icon: Image,
+    title: "All Your Assets, One Place",
+    description:
+      "Upload, tag, and organize every image and video. Drag them straight into scheduled posts.",
+  },
+  {
+    icon: Users,
+    title: "Everyone Knows Their Role",
+    description:
+      "Assign tasks, review drafts, and approve posts — no stepping on each other's work. Built for teams of any size.",
+  },
+  {
+    icon: Wrench,
+    title: "Free Tools, No Signup",
+    description:
+      "Hashtag generator, post creator, UTM builder, link-in-bio, and Instagram name generator — all free, all usable without creating an account.",
+  },
+  {
+    icon: PlugsConnected,
+    title: "Let Your AI Agents Run It",
+    description:
+      "Connect Claude, Cursor, and any AI agent to manage your social presence autonomously. OAuth 2.1 with PKCE, 7 tool categories, and scope-based permissions.",
+  },
+  {
+    icon: Megaphone,
+    title: "Launch Campaigns in 4 Steps",
+    description:
+      "Describe your campaign. AI generates phased content, adapts to audience response, and recycles what works. Build multi-phase campaigns that evolve with your audience.",
+  },
+  {
+    icon: Robot,
+    title: "An Agent That Knows Your Brand",
+    description:
+      "A dedicated AI agent that studies your content, researches your market, and handles your social strategy end-to-end.",
+  },
+  {
+    icon: Eye,
+    title: "Competitive Intelligence",
+    description:
+      "See what's working for your competitors. Browse any platform's trending content and engagement data without getting blocked.",
   },
   {
     icon: ShieldCheck,
     title: "Enterprise Security",
     description:
-      "SOC 2 compliant, encrypted tokens, role-based access. Your data and social accounts stay protected.",
+      "SOC 2 compliant. Encrypted connections. Role-based access. Your accounts and data stay protected.",
   },
   {
     icon: Globe,
@@ -73,12 +129,12 @@ export default function FeaturesPage() {
   return (
     <LandingPageShell
       hero={{
-        title: "Everything you need to grow on social media",
+        title: "Every tool. Zero busywork.",
         description:
-          "From AI-powered content creation to smart scheduling and actionable analytics — all the tools your team needs in one platform.",
+          "From content creation to smart scheduling and actionable analytics — all the tools your team needs in one platform.",
       }}
     >
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
         {features.map((feature) => {
           const Icon = feature.icon;
           return (

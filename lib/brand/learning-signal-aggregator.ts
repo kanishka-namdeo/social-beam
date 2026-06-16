@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/app/generated/prisma';
 import { logger } from '@/lib/logger';
+import { startActivity, completeActivity, failActivity } from '@/lib/activity-tracker';
+import { ActivityType } from '@/app/generated/prisma';
 
 export interface AggregatedSignal {
   fieldName: string;
@@ -310,8 +312,48 @@ export async function applySuggestion(
 
 export async function getSuggestions(brandContextId: string): Promise<FieldSuggestion[]> {
   logger.info('learning.suggestions.get', { brandContextId });
-  const aggregated = await aggregateSignals(brandContextId);
-  return generateSuggestions(brandContextId, aggregated);
+
+  const brandContext = await prisma.brandContext.findUnique({
+    where: { id: brandContextId },
+    select: { workspaceId: true },
+  });
+
+  if (!brandContext) {
+    logger.warn('learning.suggestions.no_context_for_tracking', { brandContextId });
+    return [];
+  }
+
+  const logId = await startActivity(brandContext.workspaceId, ActivityType.BRAND_LEARNING, {
+    brandContextId,
+    phase: 'aggregating_signals',
+  });
+
+  try {
+    const aggregated = await aggregateSignals(brandContextId);
+    const suggestions = await generateSuggestions(brandContextId, aggregated);
+
+    await completeActivity(logId, {
+      phase: 'complete',
+      signalsProcessed: aggregated.reduce((sum, a) => sum + a.signalCount, 0),
+      fieldGroups: aggregated.length,
+      fieldsLearned: aggregated.map(a => a.fieldName),
+      suggestionsGenerated: suggestions.length,
+      confidenceChanges: aggregated.map(a => ({
+        field: a.fieldName,
+        direction: a.direction,
+        confidence: Number(a.netConfidence.toFixed(3)),
+        signalCount: a.signalCount,
+      })),
+    });
+
+    return suggestions;
+  } catch (err) {
+    await failActivity(logId, err instanceof Error ? err : String(err), {
+      brandContextId,
+      phase: 'failed',
+    });
+    throw err;
+  }
 }
 
 export async function initializeFieldStates(brandContextId: string): Promise<void> {

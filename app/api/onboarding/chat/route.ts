@@ -5,6 +5,7 @@ import { saveStepData, updateSessionStep, markSessionComplete, getExistingOnboar
 import { GraphInterrupt } from '@langchain/langgraph';
 import { HumanMessage, AIMessage } from '@langchain/core/messages';
 import type { Session } from 'next-auth';
+import * as Sentry from '@sentry/nextjs';
 
 export async function POST(req: Request) {
   const correlationId = crypto.randomUUID();
@@ -87,15 +88,34 @@ export async function POST(req: Request) {
     const encoder = new TextEncoder();
     const graph = await onboardingGraphPromise;
 
+    let streamAborted = false;
+    const ONBOARDING_TIMEOUT_MS = 120_000; // 2 minutes
+
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          const eventStream = graph.streamEvents(input, {
-            version: 'v2',
-            configurable: { thread_id: sessionId },
+          await Sentry.startSpan(
+            { name: 'onboarding.agent.stream', op: 'ai.stream', attributes: { 'thread.id': sessionId } },
+            async () => {
+          // Timeout to prevent indefinite hangs
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error(`Onboarding stream timeout after ${ONBOARDING_TIMEOUT_MS}ms`)), ONBOARDING_TIMEOUT_MS);
           });
 
+          const eventStream = await Promise.race([
+            graph.streamEvents(input, {
+              version: 'v2',
+              configurable: { thread_id: sessionId },
+            }),
+            timeoutPromise,
+          ]);
+
           for await (const event of eventStream) {
+            if (req.signal.aborted) {
+              streamAborted = true;
+              try { controller.close(); } catch {}
+              return;
+            }
             const eventType = event.event;
             const eventData = event.data as Record<string, unknown>;
 
@@ -194,6 +214,8 @@ export async function POST(req: Request) {
           } catch (dbError) {
             logger.error('chat.route: failed to save step data', { error: dbError, currentStep: stateValues?.currentStep, userId });
           }
+            }
+          );
         } catch (error) {
           if (error instanceof GraphInterrupt) {
             logger.info('onboarding.graphInterrupt', { threadId: sessionId });
@@ -226,6 +248,8 @@ export async function POST(req: Request) {
             controller.enqueue(encoder.encode(errorData));
             controller.close();
           }
+        } finally {
+          try { controller.close(); } catch {}
         }
       },
     });
@@ -241,3 +265,4 @@ export async function POST(req: Request) {
     return new Response('Internal Server Error', { status: 500 });
   }
 }
+

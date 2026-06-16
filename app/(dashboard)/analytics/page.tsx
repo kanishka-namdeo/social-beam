@@ -2,22 +2,23 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { AnalyticsOverview } from "@/components/analytics/analytics-overview";
 import { AudienceGrowthChart } from "@/components/analytics/audience-growth-chart";
+import { ConfidenceCorrelationChart } from "@/components/analytics/confidence-correlation-chart";
+import { PostFrequencyChart } from "@/components/analytics/post-frequency-chart";
+
 import { ContentRankingTable } from "@/components/analytics/content-ranking-table";
 import { BestTimesHeatmap } from "@/components/analytics/best-times-heatmap";
 import { MetricCards } from "@/components/analytics/metric-cards";
 import { buildMetricCards } from "@/lib/analytics/metric-cards-utils";
 import { PlatformComparison } from "@/components/analytics/platform-comparison";
-import { ConfidenceCorrelationChart } from "@/components/analytics/confidence-correlation-chart";
 import { PublishingReliabilityTable } from "@/components/analytics/publishing-reliability-table";
-import { PostFrequencyChart } from "@/components/analytics/post-frequency-chart";
 import { OptimalTimesRecommendations } from "@/components/analytics/optimal-times-recommendations";
 import { PeriodSelector } from "@/components/analytics/period-selector";
-import { InlineUpgradeNudge } from "@/components/dashboard/inline-upgrade-nudge";
+import { FeatureGate } from "@/components/dashboard/feature-gate";
 import type { HeatmapSlot } from "@/components/analytics/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChartBar, TrendUp, Users, Eye, Cursor, Clock, Check } from "@phosphor-icons/react/ssr";
+import { ChartBar, TrendUp, Users, Eye, Cursor, Clock, Check, Sparkle } from "@phosphor-icons/react/ssr";
 import { HintTooltip } from "@/components/ui/hint-tooltip";
 import { cn } from "@/lib/utils";
 import { subDays } from "@/lib/utils/dates";
@@ -55,17 +56,9 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   const currentStart = subDays(now, periodDays);
   const previousStart = subDays(now, periodDays * 2);
 
-  // Fetch current and previous period analytics in parallel
-  const [
-    currentAnalytics,
-    previousAnalytics,
-    currentPosts,
-    currentFollowersGrouped,
-    previousFollowers,
-    allFollowerSnapshots,
-    externalPostCount,
-    publishedPostCount,
-  ] = await Promise.all([
+  // Batch queries to avoid overwhelming the database connection pool
+  // Batch 1: Analytics snapshots (current and previous period)
+  const [currentAnalytics, previousAnalytics] = await Promise.all([
     prisma.analyticsSnapshot.findMany({
       where: { snapshotAt: { gte: currentStart }, Post: { workspaceId } },
       include: { Post: { select: { publishedAt: true } } },
@@ -74,6 +67,10 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
       where: { snapshotAt: { gte: previousStart, lt: currentStart }, Post: { workspaceId } },
       include: { Post: { select: { publishedAt: true } } },
     }),
+  ]);
+
+  // Batch 2: Posts and follower data
+  const [currentPosts, currentFollowersGrouped] = await Promise.all([
     prisma.post.findMany({
       where: { workspaceId, publishedAt: { gte: currentStart } },
       select: { id: true, title: true, publishedAt: true, confidence: true, isExternal: true, PostPlatform: { select: { platform: true, status: true, postUrl: true, content: true } } },
@@ -84,6 +81,10 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
       _sum: { followers: true },
       where: { workspaceId },
     }),
+  ]);
+
+  // Batch 3: Follower snapshots and post counts
+  const [previousFollowers, allFollowerSnapshots, externalPostCount, publishedPostCount] = await Promise.all([
     prisma.followerSnapshot.findMany({
       where: { workspaceId, snapshotAt: { gte: previousStart } },
       orderBy: { snapshotAt: "asc" },
@@ -218,21 +219,30 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   }
   const platformMetrics = Array.from(platformMap.values());
 
-  // Content ranking
+  // Content ranking - use only the latest snapshot per post to avoid double counting
   const rankedPosts = currentPosts
     .map((post) => {
       const postAnalytics = currentAnalytics.filter((a) => a.postId === post.id);
-      const totalEng = postAnalytics.reduce((sum, a) => sum + a.likes + a.comments + a.shares, 0);
-      const totalImp = postAnalytics.reduce((sum, a) => sum + a.impressions, 0);
+      // Get the latest snapshot for this post (cumulative metrics)
+      const latestSnapshot = postAnalytics.length > 0
+        ? postAnalytics.reduce((latest, current) =>
+            current.snapshotAt > latest.snapshotAt ? current : latest
+          )
+        : null;
+
+      const totalEng = latestSnapshot
+        ? latestSnapshot.likes + latestSnapshot.comments + latestSnapshot.shares
+        : 0;
+      const totalImp = latestSnapshot?.impressions ?? 0;
       // For posts with zero impressions (external/scraped), use raw engagement / 1000 as pseudo-rate
       // This keeps them comparable with published posts' typical 0.01-0.10 engagement rates
       const effectiveRate = totalImp > 0 ? totalEng / totalImp : totalEng / 1000;
       return {
         id: post.id, title: post.title, platform: post.PostPlatform[0]?.platform ?? "unknown",
         engagementRate: effectiveRate, impressions: totalImp,
-        likes: postAnalytics.reduce((sum, a) => sum + a.likes, 0),
-        comments: postAnalytics.reduce((sum, a) => sum + a.comments, 0),
-        shares: postAnalytics.reduce((sum, a) => sum + a.shares, 0),
+        likes: latestSnapshot?.likes ?? 0,
+        comments: latestSnapshot?.comments ?? 0,
+        shares: latestSnapshot?.shares ?? 0,
         publishedAt: post.publishedAt?.toISOString() ?? null, rank: 0,
         url: post.PostPlatform[0]?.postUrl ?? null,
         isExternal: post.isExternal,
@@ -461,27 +471,32 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
       {/* Best Times Heatmap */}
       <BestTimesHeatmap data={heatmapSlots} />
 
-      {/* New Advanced Analytics Sections */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {isPremiumUser ? (
+      {/* AI Insights — consolidated premium section */}
+      {isPremiumUser ? (
+        <div className="grid gap-6 lg:grid-cols-2">
           <ConfidenceCorrelationChart data={confidenceCorrelation} />
-        ) : (
-          <AnalyticsPlaceholderCard
-            icon={<ChartBar className="size-8" weight="light" />}
-            title="Confidence Insights"
-            description="Upgrade for AI-powered confidence insights to understand how your content quality correlates with engagement."
-          />
-        )}
-        {isPremiumUser ? (
           <PublishingReliabilityTable data={publishingReliability} />
-        ) : (
-          <AnalyticsPlaceholderCard
-            icon={<Check className="size-8" weight="light" />}
-            title="Publishing Reliability"
-            description="Track publishing success rates and failure patterns across platforms with AI-powered reliability metrics."
-          />
-        )}
-      </div>
+        </div>
+      ) : (
+        <Card className="rounded-sm border-border">
+          <CardContent className="pt-6 text-center space-y-3">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-brand/10">
+              <Sparkle className="size-6 text-brand" weight="fill" />
+            </div>
+            <CardTitle className="text-base">AI Insights</CardTitle>
+            <CardDescription className="max-w-md mx-auto">
+              Unlock AI-powered confidence insights, publishing reliability tracking, and optimal posting time recommendations to maximize your reach.
+            </CardDescription>
+            <FeatureGate
+              isPremium={false}
+              featureName="AI Insights"
+              description="Confidence correlation, publishing reliability, and optimal posting times"
+              variant="inline"
+              className="justify-center"
+            />
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <PostFrequencyChart
@@ -495,13 +510,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
             heatmapData={heatmapSlots}
             platformMetrics={platformMetrics}
           />
-        ) : (
-          <AnalyticsPlaceholderCard
-            icon={<Clock className="size-8" weight="light" />}
-            title="Optimal Posting Times"
-            description="Get AI-powered recommendations for the best times to post based on your audience engagement patterns."
-          />
-        )}
+        ) : null}
       </div>
     </div>
   );
@@ -531,24 +540,4 @@ function computeStreak(postsPerDayData: { date: string; count: number }[]): numb
     else break;
   }
   return streak;
-}
-
-function AnalyticsPlaceholderCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
-  return (
-    <Card className="h-full rounded-sm border-border">
-      <CardContent className="pt-6 text-center space-y-4">
-        <div className="mx-auto mb-2 text-muted-foreground/50">{icon}</div>
-        <CardTitle className="text-base">{title}</CardTitle>
-        <CardDescription className="mt-2 max-w-sm mx-auto">
-          {description}
-        </CardDescription>
-        <InlineUpgradeNudge
-          variant="compact"
-          title="Premium Feature"
-          description="Upgrade to unlock"
-          className="justify-center"
-        />
-      </CardContent>
-    </Card>
-  );
 }

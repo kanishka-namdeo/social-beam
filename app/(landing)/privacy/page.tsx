@@ -47,6 +47,74 @@ const sections = [
     ),
   },
   {
+    id: "legal-basis",
+    title: "Legal Basis for Processing (GDPR)",
+    content: (
+      <>
+        <p>
+          If you are a user in the European Economic Area (EEA), we process your personal data under the following legal
+          bases as required by the General Data Protection Regulation (GDPR):
+        </p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>
+            <strong>Contract Performance:</strong> Processing necessary to fulfill our contract with you, such as
+            providing our services, processing payments, and managing your account.
+          </li>
+          <li>
+            <strong>Legitimate Interests:</strong> Processing necessary for our legitimate business interests, such as
+            improving our services, preventing fraud, and ensuring network security, provided these interests are not
+            overridden by your rights.
+          </li>
+          <li>
+            <strong>Consent:</strong> Processing based on your explicit consent, such as for marketing communications or
+            optional analytics. You can withdraw consent at any time.
+          </li>
+          <li>
+            <strong>Legal Obligations:</strong> Processing necessary to comply with legal obligations, such as tax
+            reporting or responding to lawful requests.
+          </li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    id: "data-retention",
+    title: "Data Retention Periods",
+    content: (
+      <>
+        <p>We retain your personal data only for as long as necessary to fulfill the purposes for which it was collected:</p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>
+            <strong>Account Data:</strong> Retained for the duration of your account plus 30 days after deletion request
+            to allow for data export and account recovery.
+          </li>
+          <li>
+            <strong>Post and Content Data:</strong> Retained for the duration of your account. Deleted within 30 days of
+            account deletion.
+          </li>
+          <li>
+            <strong>Analytics Data:</strong> Retained for up to 24 months for service improvement and reporting purposes.
+          </li>
+          <li>
+            <strong>Payment Records:</strong> Retained for 7 years to comply with tax and financial reporting obligations.
+          </li>
+          <li>
+            <strong>Consent Records:</strong> Retained for the duration of your account plus 3 years to demonstrate
+            compliance with consent requirements.
+          </li>
+          <li>
+            <strong>Log Data:</strong> Server logs and access logs retained for up to 90 days for security and
+            troubleshooting purposes.
+          </li>
+        </ul>
+        <p>
+          After these periods, data is securely deleted or anonymized. Some data may be retained in backup systems for
+          disaster recovery purposes but is not accessible for regular processing.
+        </p>
+      </>
+    ),
+  },
+  {
     id: "data-sharing",
     title: "Data Sharing and Disclosure",
     content: (
@@ -96,6 +164,39 @@ const sections = [
           To exercise any of these rights, please contact us at the email address provided below. We will respond to
           verified requests within 30 days. You also have the right to lodge a complaint with a supervisory authority if
           you believe we have not handled your data appropriately.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "ccpa-rights",
+    title: "California Consumer Privacy Act (CCPA)",
+    content: (
+      <>
+        <p>
+          If you are a California resident, you have additional rights under the California Consumer Privacy Act (CCPA):
+        </p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>
+            <strong>Right to Know:</strong> You can request information about the categories and specific pieces of
+            personal information we have collected about you.
+          </li>
+          <li>
+            <strong>Right to Delete:</strong> You can request deletion of your personal information, subject to certain
+            exceptions.
+          </li>
+          <li>
+            <strong>Right to Opt-Out:</strong> We do not sell your personal information. However, if we ever do, you
+            would have the right to opt-out of such sales.
+          </li>
+          <li>
+            <strong>Right to Non-Discrimination:</strong> You will not receive discriminatory treatment for exercising
+            your CCPA rights.
+          </li>
+        </ul>
+        <p>
+          To submit a verifiable consumer request, contact us at hello@socialbeam.ai. We will verify your identity before
+          processing your request.
         </p>
       </>
     ),
@@ -187,7 +288,7 @@ export default function PrivacyPage() {
         {/* Last Updated */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ShieldCheck className="w-4 h-4" />
-          <span>Last updated: May 22, 2026</span>
+          <span>Last updated: June 15, 2026</span>
         </div>
 
         <Separator />

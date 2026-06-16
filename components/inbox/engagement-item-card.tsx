@@ -9,7 +9,7 @@ import {
   ChatCircleText,
   At,
   PaperPlaneTilt,
-} from "@phosphor-icons/react";
+} from "@phosphor-icons/react/ssr";
 import { formatDistanceToNow } from "date-fns";
 
 interface EngagementItemCardProps {

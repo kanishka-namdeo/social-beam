@@ -5,6 +5,7 @@ import { DndContext, closestCenter, type DragEndEvent, PointerSensor, useSensor,
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Link from "next/link";
+import NextImage from "next/image";
 import { toast } from "sonner";
 import {
   Check,
@@ -19,6 +20,7 @@ import {
   WarningCircle,
   X,
 } from "@phosphor-icons/react/ssr";
+import { notifySuccessWithCategory, notifyErrorWithCategory, notifyInfoWithCategory } from "@/lib/notifications";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,15 +45,26 @@ import {
   PLATFORM_DISPLAY_NAMES,
 } from "@/lib/oauth/platform-icons";
 import { PreviewPanel } from "./preview/preview-panel";
-import { RichTextEditor } from "./rich-text-editor";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
 import { MediaPicker } from "@/components/media/media-picker";
 import { useInvisibleAI } from "@/lib/invisible-ai-context";
 import type { MediaAsset } from "@/lib/media/types";
-import { VariantCard } from "./variant-card";
 import { ModifierBar, type ModifierKey } from "./modifier-bar";
+
+const RichTextEditor = dynamic(() => import("./rich-text-editor").then(mod => ({ default: mod.RichTextEditor })), {
+  ssr: false,
+  loading: () => <Skeleton className="h-48 w-full rounded-sm" />,
+});
+
+const SuggestionCarousel = dynamic(() => import("./suggestion-carousel").then(mod => ({ default: mod.SuggestionCarousel })), {
+  ssr: false,
+  loading: () => <Skeleton className="h-48 w-full rounded-sm" />,
+});
 import { VARIANT_MODIFIERS } from "@/lib/ai/compose-prompt-builder";
 import { InlineUpgradeNudge } from "@/components/dashboard/inline-upgrade-nudge";
-import { useFreeFeatureUsage } from "@/components/dashboard/limited-feature-wrapper";
+import { getSignatureLength } from "@/lib/compose/signature-formatter";
+import { SignatureSelector } from "./signature-selector";
 
 const variantIds = Object.keys(VARIANT_MODIFIERS).map(Number);
 
@@ -67,6 +80,8 @@ interface ComposeFormProps {
   initialPrompt?: string;
   userRole?: string;
   brandSearchQuery?: string;
+  signatures?: Array<{ id: string; name: string | null; text: string; url: string | null; isDefault: boolean }>;
+  signatureEnabled?: boolean;
 }
 
 function getActiveLimit(
@@ -108,11 +123,15 @@ function SortableMediaItem({ asset, onRemove }: { asset: MediaAsset; onRemove: (
 
   return (
     <div ref={setNodeRef} style={style} className="relative group">
-      <img
-        src={asset.publicUrl}
-        alt={asset.originalName}
-        className="size-12 rounded-sm object-cover border border-border"
-      />
+      <div className="relative size-12 rounded-sm border border-border overflow-hidden">
+        <NextImage
+          src={asset.publicUrl}
+          alt={asset.originalName}
+          fill
+          className="object-cover"
+          unoptimized
+        />
+      </div>
       <div
         {...attributes}
         {...listeners}
@@ -140,7 +159,7 @@ function SortableMediaItem({ asset, onRemove }: { asset: MediaAsset; onRemove: (
   );
 }
 
-export function ComposeForm({ connectedAccounts, initialPrompt, userRole, brandSearchQuery }: ComposeFormProps) {
+export function ComposeForm({ connectedAccounts, initialPrompt, userRole, brandSearchQuery, signatures = [], signatureEnabled = true }: ComposeFormProps) {
   const isPremium = userRole === 'PREMIUM_USER' || userRole === 'ADMIN';
   const connectedPlatforms = connectedAccounts.map((a) => a.platform);
   const [title, setTitle] = useState(initialPrompt ? initialPrompt.slice(0, 80) : "");
@@ -152,6 +171,10 @@ export function ComposeForm({ connectedAccounts, initialPrompt, userRole, brandS
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitState, setSubmitState] = useState<"idle" | "saved" | "published" | "scheduled">("idle");
   const [, startTransition] = useTransition();
+
+  // Signature state
+  const [selectedSignatureId, setSelectedSignatureId] = useState<string | null>(null);
+  const [localSignatureEnabled, setLocalSignatureEnabled] = useState(signatureEnabled);
 
   // Auto-revert optimistic success state after 2 seconds
   useEffect(() => {
@@ -240,9 +263,34 @@ export function ComposeForm({ connectedAccounts, initialPrompt, userRole, brandS
     title !== initialTitle ||
     contentText !== initialContentText;
 
+  // Compute effective signature for preview and character counting
+  const effectiveSignature = useMemo(() => {
+    if (!localSignatureEnabled) return null;
+    if (!isPremium) {
+      return { text: 'Written with SocialBeam', url: 'https://socialbeam.app' };
+    }
+    if (!signatures?.length) return null;
+    const sig = signatures.find(s => s.id === selectedSignatureId) || signatures.find(s => s.isDefault);
+    if (!sig) return null;
+    return { text: sig.text, url: sig.url ?? undefined };
+  }, [isPremium, localSignatureEnabled, selectedSignatureId, signatures]);
+
+  // Calculate signature length for the most restrictive platform
+  const signatureLength = useMemo(() => {
+    if (!effectiveSignature || selectedPlatforms.length === 0) return 0;
+    const lengths = selectedPlatforms.map(p => 
+      getSignatureLength(effectiveSignature, p as any)
+    );
+    return Math.max(...lengths);
+  }, [effectiveSignature, selectedPlatforms]);
+
   const activeLimit = useMemo(
-    () => getActiveLimit(selectedPlatforms),
-    [selectedPlatforms],
+    () => {
+      const baseLimit = getActiveLimit(selectedPlatforms);
+      if (baseLimit == null) return null;
+      return Math.max(baseLimit - signatureLength, 0);
+    },
+    [selectedPlatforms, signatureLength],
   );
   const counterState = useMemo(
     () => getCounterState(contentText.length, activeLimit),
@@ -333,9 +381,10 @@ export function ComposeForm({ connectedAccounts, initialPrompt, userRole, brandS
       if (res.ok) {
         const data = await res.json();
         if (data.data?.extracted > 0) {
-          toast.success("Brand learning updated", {
+          notifySuccessWithCategory("Brand learning updated", {
+            category: "brand",
             description: `Captured ${data.data.extracted} signal(s) from your edit`,
-            duration: 3000,
+            id: "brand-learning-edit",
           });
         }
       }
@@ -366,9 +415,10 @@ export function ComposeForm({ connectedAccounts, initialPrompt, userRole, brandS
       if (res.ok) {
         const data = await res.json();
         if (data.data?.extracted > 0) {
-          toast.success("Brand learning updated", {
+          notifySuccessWithCategory("Brand learning updated", {
+            category: "brand",
             description: `Captured ${data.data.extracted} signal(s) from ${modifier} transform`,
-            duration: 3000,
+            id: "brand-learning-modifier",
           });
         }
       }
@@ -660,6 +710,13 @@ export function ComposeForm({ connectedAccounts, initialPrompt, userRole, brandS
     }
     if (action === "publish") {
       body.scheduledAt = new Date().toISOString();
+      body.immediate = true;
+    }
+
+    // Add signature data
+    body.signatureEnabled = localSignatureEnabled;
+    if (isPremium) {
+      body.signatureId = selectedSignatureId || undefined;
     }
 
     // Capture final learning signal if AI content was edited before publish
@@ -679,8 +736,9 @@ export function ComposeForm({ connectedAccounts, initialPrompt, userRole, brandS
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: "Unknown error" }));
-        toast.error(err.error ?? "Failed to create post");
+        const err = await res.json().catch(() => ({}));
+        const errorMessage = err.data?.error ?? err.error ?? "Failed to create post";
+        toast.error(errorMessage);
         // Revert on failure — the auto-revert effect will clear after 2s
         setSubmitState("idle");
         return;
@@ -693,8 +751,10 @@ export function ComposeForm({ connectedAccounts, initialPrompt, userRole, brandS
           : action === "schedule"
             ? "Post scheduled"
             : "Post created";
-      toast.success(`${actionLabel}`, {
+      notifySuccessWithCategory(actionLabel, {
+        category: "post_publish",
         description: `Post ID: ${data.data?.id?.slice(0, 8) ?? "..."}`,
+        actionUrl: "/dashboard/calendar",
       });
       // Reset learning capture refs so next AI suggestion cycle can capture again
       learningCapturedRef.current = {};
@@ -705,7 +765,10 @@ export function ComposeForm({ connectedAccounts, initialPrompt, userRole, brandS
         resetForm();
       });
     } catch {
-      toast.error("Failed to create post. Please try again.");
+      notifyErrorWithCategory("Failed to create post", {
+        category: "post_publish",
+        description: "Please try again.",
+      });
       setSubmitState("idle");
     } finally {
       setIsSubmitting(false);
@@ -865,7 +928,7 @@ export function ComposeForm({ connectedAccounts, initialPrompt, userRole, brandS
         {!isPremium && showGenerateNudge && (
           <InlineUpgradeNudge
             title="AI Compose"
-            description="Upgrade to Premium for AI-powered content generation with 4 style variants."
+            description="Generate 4 AI-powered content variants tailored to your platform."
             variant="default"
           />
         )}
@@ -909,6 +972,7 @@ export function ComposeForm({ connectedAccounts, initialPrompt, userRole, brandS
           content={contentHtml}
           onContentChange={handleContentChange}
           isMobile={isMobile}
+          selectedPlatforms={selectedPlatforms}
           className={cn(
             "focus-within:border-brand",
             isSuggestionLoading && "border-brand/30 ring-2 ring-brand/10",
@@ -930,7 +994,7 @@ export function ComposeForm({ connectedAccounts, initialPrompt, userRole, brandS
           </p>
         )}
 
-        {/* Variant card grid — AI feature */}
+        {/* Variant card carousel — AI feature */}
         {Object.keys(variants).length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -944,37 +1008,14 @@ export function ComposeForm({ connectedAccounts, initialPrompt, userRole, brandS
                 </p>
               )}
             </div>
-            <div className="grid gap-section sm:grid-cols-2 lg:grid-cols-4">
-              {variantIds.map((vid) => {
-                const isFreeVariant = vid === 0;
-                return isPremium || isFreeVariant ? (
-                  <VariantCard
-                    key={vid}
-                    variantId={vid}
-                    content={variants[vid] ?? ""}
-                    isComplete={variantComplete.has(vid)}
-                    isSelected={selectedVariantId === vid}
-                    onSelect={handleSuggestionAccept}
-                  />
-                ) : (
-                  <div key={vid} className="relative rounded-sm border border-border bg-muted/30 flex flex-col items-center justify-center min-h-[120px]">
-                    <div className="pointer-events-none select-none opacity-30 blur-[1px] absolute inset-0 flex items-center justify-center">
-                      <VariantCard
-                        variantId={vid}
-                        content={variants[vid] ?? ""}
-                        isComplete={false}
-                        isSelected={false}
-                        onSelect={() => {}}
-                      />
-                    </div>
-                    <div className="relative z-10 flex flex-col items-center gap-1 text-muted-foreground">
-                      <Lock className="size-5" weight="fill" />
-                      <span className="text-xs font-medium">Premium</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <SuggestionCarousel
+              variants={variants}
+              variantComplete={variantComplete}
+              selectedVariantId={selectedVariantId}
+              variantIds={variantIds}
+              onSelect={handleSuggestionAccept}
+              isPremium={isPremium}
+            />
           </div>
         )}
 
@@ -1099,12 +1140,23 @@ export function ComposeForm({ connectedAccounts, initialPrompt, userRole, brandS
         )}
       </div>
 
+      <SignatureSelector
+        isPremium={isPremium}
+        signatures={signatures}
+        signatureEnabled={signatureEnabled}
+        selectedSignatureId={selectedSignatureId}
+        onSignatureIdChange={setSelectedSignatureId}
+        localSignatureEnabled={localSignatureEnabled}
+        onSignatureEnabledChange={setLocalSignatureEnabled}
+      />
+
       <PreviewPanel
         selectedPlatforms={selectedPlatforms}
         content={contentText}
         title={title}
         connectedAccounts={connectedAccounts}
         mediaAssets={mediaAssets}
+        signature={effectiveSignature}
       />
 
       <div className="flex items-center justify-between rounded-sm border border-border bg-card p-card">
@@ -1301,7 +1353,7 @@ function ModifierBarWithPremiumGate({
               isActive && "border-brand bg-brand/5 text-brand",
               !isPremium && "opacity-60",
             )}
-            title={isPremium ? m.description : "Premium feature — upgrade to use"}
+            title={isPremium ? m.description : "AI-powered tone and length adjustments"}
           >
             {!isPremium && <Lock className="size-3" weight="fill" />}
             {isModifying && isActive ? (

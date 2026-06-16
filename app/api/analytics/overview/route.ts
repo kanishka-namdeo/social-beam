@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 
+export const revalidate = 60; // Cache for 60 seconds
+
 export async function GET() {
   const requestId = crypto.randomUUID();
   const log = logger.child({ requestId });
@@ -28,7 +30,8 @@ export async function GET() {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    // Fetch all analytics snapshots for the workspace in the last 30 days
+    // Fetch analytics snapshots for the workspace in the last 30 days
+    // Limit to 1000 records to prevent memory exhaustion on high-volume workspaces
     const snapshots = await prisma.analyticsSnapshot.findMany({
       where: {
         snapshotAt: {
@@ -48,6 +51,10 @@ export async function GET() {
         clicks: true,
         engagementRate: true,
         snapshotAt: true,
+      },
+      take: 1000,
+      orderBy: {
+        snapshotAt: 'desc',
       },
     });
 
@@ -176,37 +183,55 @@ export async function GET() {
         ) / daysWithEngagementRate.length;
     }
 
-    // Platform totals
+    // Platform totals via SQL aggregation instead of JS loops
+    const platformAgg = await prisma.analyticsSnapshot.groupBy({
+      by: ["platform"],
+      where: {
+        snapshotAt: { gte: thirtyDaysAgo },
+        post: { workspaceId },
+      },
+      _sum: {
+        impressions: true,
+        likes: true,
+        comments: true,
+        shares: true,
+        reach: true,
+        clicks: true,
+      },
+    });
+
     const platformTotalsResult: Record<
       string,
       { impressions: number; engagements: number; reach: number; clicks: number }
     > = {};
-    for (const entry of timeSeries) {
-      for (const [platform, totals] of Object.entries(entry.byPlatform)) {
-        if (!platformTotalsResult[platform]) {
-          platformTotalsResult[platform] = {
-            impressions: 0,
-            engagements: 0,
-            reach: 0,
-            clicks: 0,
-          };
-        }
-        platformTotalsResult[platform].impressions += totals.impressions;
-        platformTotalsResult[platform].engagements += totals.engagements;
-        platformTotalsResult[platform].reach += totals.reach;
-        platformTotalsResult[platform].clicks += totals.clicks;
-      }
+    for (const row of platformAgg) {
+      platformTotalsResult[row.platform] = {
+        impressions: row._sum.impressions ?? 0,
+        engagements:
+          (row._sum.likes ?? 0) +
+          (row._sum.comments ?? 0) +
+          (row._sum.shares ?? 0),
+        reach: row._sum.reach ?? 0,
+        clicks: row._sum.clicks ?? 0,
+      };
     }
 
     log.info("api.request.success", { snapshotCount: snapshots.length });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       data: {
         timeSeries,
         overall: overallTotals,
         byPlatform: platformTotalsResult,
       },
     });
+
+    response.headers.set(
+      "Cache-Control",
+      "public, s-maxage=300, stale-while-revalidate=60"
+    );
+
+    return response;
   } catch (err) {
     logger.error("api.request.error", {
       path: "/api/analytics/overview",

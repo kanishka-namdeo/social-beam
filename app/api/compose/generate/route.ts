@@ -6,6 +6,7 @@ import { buildComposePrompts } from "@/lib/ai/compose-prompt-builder";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
 import { requirePremium } from "@/lib/api-guards";
+import { slidingWindowRateLimit } from "@/lib/redis-rate-limiter";
 
 const GenerateSchema = z.object({
   prompt: z.string().min(1).max(2000),
@@ -38,6 +39,16 @@ export async function POST(req: Request) {
     const workspaceId = user.workspaceId;
     if (!workspaceId) {
       return NextResponse.json({ error: "No workspace" }, { status: 400 });
+    }
+
+    // Rate limit: 10 requests per minute per workspace
+    const rateLimitResult = await slidingWindowRateLimit(`compose:generate:${workspaceId}`, 10, 60_000);
+    if (!rateLimitResult.allowed) {
+      log.warn("api.compose.generate.rate_limit_exceeded", { workspaceId });
+      return NextResponse.json(
+        { error: "Too many requests. Please wait before generating more content." },
+        { status: 429, headers: { "Retry-After": String(rateLimitResult.retryAfter ?? 60) } }
+      );
     }
 
     const body = await req.json();
@@ -91,6 +102,12 @@ export async function POST(req: Request) {
                 { role: "user", content: p.userPrompt },
               ]);
 
+              // Check for disconnect after LLM call
+              if (req.signal.aborted) {
+                controller.close();
+                return;
+              }
+
               const content = typeof response.content === "string" ? response.content : String(response.content);
               const trimmed = content.trim();
 
@@ -105,6 +122,12 @@ export async function POST(req: Request) {
                   { role: "system", content: `Shorten this post to fit within ${p.charLimit} characters while preserving the core message and tone.` },
                   { role: "user", content: trimmed },
                 ]);
+                
+                if (req.signal.aborted) {
+                  controller.close();
+                  return;
+                }
+                
                 const shortenedContent = typeof shortened.content === "string" ? shortened.content.trim() : String(shortened.content).trim();
                 results.push({ platform: p.platform, content: shortenedContent, charCount: shortenedContent.length });
               } else {
@@ -143,6 +166,7 @@ export async function POST(req: Request) {
           enqueue("complete", {
             results,
             hasBrandContext: !!brandCtx,
+            aiGenerated: true,
           });
         } catch (err) {
           log.error("api.compose.generate.stream_error", { error: String(err) });
@@ -150,6 +174,10 @@ export async function POST(req: Request) {
         } finally {
           controller.close();
         }
+      },
+      async cancel() {
+        // Client disconnected
+        log.warn("api.compose.generate.cancelled_by_client");
       },
     });
 

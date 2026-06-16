@@ -9,12 +9,13 @@ alwaysApply: false
 
 ## CRITICAL: Plan Validation Gate
 
-> Plan execution patterns are in `agent-handoff-verification.mdc`. This file covers plan creation only.
+> Plan execution patterns are in `plan-execution.mdc`. This file covers plan creation only.
 
 ### Validation Checklist (Run Before Finalizing Plan)
 
 | # | Criterion | Pass/Fail | Action if Fail |
 |---|-----------|-----------|----------------|
+| 0 | **Software 3.0 check**: Can this be achieved by composing existing LLM/agent capabilities (new LangGraph node, existing tool, prompt adjustment) instead of writing new code? | Must Pass | Document why code is necessary; propose prompt/agent-first alternative |
 | 1 | Has "## Research Summary" section? | Must Pass | Run web research, add section |
 | 2 | Research Summary has 2+ cited sources? | Must Pass | Add more sources via Context7/WebSearch/WebFetch |
 | 3 | All sources dated 2025-2026? | Must Pass | Replace outdated sources with current |
@@ -41,9 +42,62 @@ THEN finalize plan
 
 ---
 
+## Human Comprehension Checkpoint
+
+**Before implementation begins, the human must demonstrate understanding of the plan's trade-offs.** This is not optional — it's a gate that prevents the agent from building something the human doesn't understand.
+
+**Checkpoint protocol**:
+1. Agent presents the finalized plan to the human
+2. Agent asks: "Before we proceed, can you restate the top 3 trade-offs in this plan?"
+3. Human must articulate:
+   - What we're gaining (the primary benefit)
+   - What we're giving up (the cost or limitation)
+   - What could go wrong (the risk)
+4. If the human cannot articulate these, the agent must:
+   - Simplify the plan
+   - Add more context to the plan
+   - Or ask clarifying questions until the human understands
+
+**Why this matters**: Karpathy's insight — "You can outsource your thinking but never your understanding." If the human doesn't understand the trade-offs, they cannot make informed decisions when issues arise during implementation. The agent becomes a black box that produces code the human cannot maintain or debug.
+
+**Checkpoint rules**:
+- This is a hard gate — implementation cannot start until the checkpoint passes
+- The agent must wait for the human's response — do not proceed on silence
+- If the human says "I don't know" or "you decide", the agent must push back: "I need you to understand this before we proceed"
+- The checkpoint is about understanding, not agreement — the human can disagree with the trade-offs and still proceed
+
+---
+
 ## Pre-Plan Research Checklist
 
 **Before creating implementation plan**:
+
+### 0. Software 3.0 Check (Prompt-First Evaluation)
+
+Before planning any new code, evaluate whether the feature can be achieved by composing existing LLM/agent capabilities:
+
+**Evaluation hierarchy** (try each before writing code):
+1. **Can this be achieved by prompting differently?** — Adjusting agent prompts, system instructions, or context
+2. **Can this be achieved by configuring an existing agent tool?** — Extending tool parameters, adding new tool configurations
+3. **Can this be achieved by adding a new LangGraph node?** — Composing existing agents without new infrastructure
+4. **Only if all three fail → write new code**
+
+**Document the evaluation**:
+```markdown
+### Software 3.0 Evaluation
+
+**User request**: [what the user wants]
+
+**Attempt 1 — Prompt adjustment**: [describe approach] → [why it fails or succeeds]
+**Attempt 2 — Tool configuration**: [describe approach] → [why it fails or succeeds]
+**Attempt 3 — Agent composition**: [describe approach] → [why it fails or succeeds]
+
+**Conclusion**: [why new code is necessary, or why prompt/agent approach suffices]
+```
+
+**Why this matters**: Karpathy's insight — "All of my MenuGen is spurious. That app shouldn't exist." Many features that would traditionally require new API routes, components, and database models can be achieved by adjusting prompts, extending tool configurations, or adding LangGraph nodes. This check prevents building code when a prompt would suffice.
+
+**When to skip**: Obvious bug fixes, typo corrections, or explicit user requests for code (e.g., "write a function that..."). The check is for feature requests and architectural decisions.
 
 ### 1. Identify Technologies
 - Extract all libraries/frameworks from user query
@@ -58,9 +112,12 @@ THEN finalize plan
 - If the feature is new, propose changes that fit the established design language
 
 ### 3. Parallel Web Research
+
 Execute all applicable research in parallel:
 - **Context7**: Query version-specific APIs for each library
-- **WebSearch**: "[library] best practices 2025 2026"
+- **WebSearch**: Follow query templates in `web-search-optimization.mdc`
+  - Pattern: `[topic] [specific aspect] [version] site:[domain] [year]`
+  - Example: `Next.js 15 cacheLife unstable_cache migration site:nextjs.org 2026`
 - **WebFetch**: Top 3 official documentation URLs
 - **Competitor Feasibility**: For social platform features (Instagram, TikTok, Facebook, LinkedIn, YouTube), check `docs/competitor-analysis/buffer-features-feasibility-2026.md` for pre-verified API constraints and limitations
 
@@ -73,7 +130,7 @@ When documentation, READMEs, or code comments reference files by name (screensho
 ```
 Documentation says "88 screenshots" → Glob "**/*.png" first
 Code references "config.json" → Glob "config.json" first
-README mentions "data.csv" → Shell "ls data.csv" first
+README mentions "data.csv" → Glob "data.csv" first (cross-platform)
 ```
 
 ### 4a. Existing Codebase Pattern Analysis
@@ -208,7 +265,7 @@ todos:
 
 ## Execution Mode
 
-Run scope analysis per task (see `agent-handoff-verification.mdc` decision tree):
+Run scope analysis per task (see `plan-execution.mdc` decision tree):
 - Tasks touching >3 files, crossing layers, or security-critical → use Task subagent
 - Single-file or same-layer changes → direct execution (TodoWrite + tools)
 

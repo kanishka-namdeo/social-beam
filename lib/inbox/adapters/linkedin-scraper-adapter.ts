@@ -1,4 +1,6 @@
 import { scrapeLinkedInComments, postReplyToLinkedInComment } from '@/lib/inbox/scrapers/linkedin-scraper';
+import { scrapeLinkedInMentions } from '@/lib/inbox/scrapers/linkedin-mention-scraper';
+import { scrapeLinkedInDMs } from '@/lib/inbox/scrapers/linkedin-dm-scraper';
 import type { EngagementAdapter, PlatformName, RawComment, RawDM, RawMention } from '@/lib/inbox/types';
 
 /**
@@ -6,26 +8,24 @@ import type { EngagementAdapter, PlatformName, RawComment, RawDM, RawMention } f
  * This uses Playwright/cloakbrowser to scrape LinkedIn's web interface
  * instead of the official REST API.
  */
-export function createLinkedinScraperAdapter(): EngagementAdapter {
+export function createLinkedinScraperAdapter(workspaceId: string): EngagementAdapter {
   return {
     platform: 'linkedin' as PlatformName,
 
     async fetchComments(since?: Date): Promise<RawComment[]> {
-      return scrapeLinkedInComments(since);
+      return scrapeLinkedInComments(workspaceId, since);
     },
 
-    async fetchMentions(_since?: Date): Promise<RawMention[]> {
-      // Not supported via scraping
-      return [];
+    async fetchMentions(since?: Date): Promise<RawMention[]> {
+      return scrapeLinkedInMentions(workspaceId, since);
     },
 
-    async fetchDMs(_since?: Date): Promise<RawDM[]> {
-      // Not supported via scraping
-      return [];
+    async fetchDMs(since?: Date): Promise<RawDM[]> {
+      return scrapeLinkedInDMs(workspaceId, since);
     },
 
     async replyToComment(platformItemId: string, text: string): Promise<{ success: boolean; error?: string }> {
-      return postReplyToLinkedInComment(platformItemId, text);
+      return postReplyToLinkedInComment(workspaceId, platformItemId, text);
     },
 
     async replyToDM(): Promise<{ success: boolean; error?: string }> {

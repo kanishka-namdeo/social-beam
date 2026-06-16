@@ -44,6 +44,7 @@ export async function GET(req: Request) {
         title: true,
         publishedAt: true,
         isExternal: true,
+        aiGenerated: true,
         PostPlatform: {
           select: {
             platform: true,
@@ -86,6 +87,7 @@ export async function GET(req: Request) {
           publishedAt: post.publishedAt,
           url: post.PostPlatform[0]?.postUrl ?? null,
           isExternal: post.isExternal,
+          aiGenerated: post.aiGenerated,
           fullText: post.PostPlatform[0]?.content ?? null,
         };
       })

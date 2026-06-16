@@ -4,6 +4,10 @@ import { markSessionComplete } from '@/lib/db/onboarding';
 import type { Session } from 'next-auth';
 
 export async function POST() {
+  if (process.env.NODE_ENV !== 'development') {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   try {
     const session = await auth();
     if (!session?.user) {
@@ -15,12 +19,6 @@ export async function POST() {
 
     if ((session.user as { role?: string })?.role !== 'ADMIN') {
       return new Response(JSON.stringify({ error: 'Forbidden' }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-    if (process.env.NODE_ENV === 'production') {
-      return new Response(JSON.stringify({ error: 'Debug endpoints disabled in production' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },
       });

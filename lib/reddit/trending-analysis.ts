@@ -294,7 +294,7 @@ export async function processAndStoreTrendingPosts(
   workspaceId: string,
   posts: RedditPost[],
   onProgress?: (phase: "scraping" | "analyzing" | "done", counts: { total: number; analyzed: number; skipped: number }) => void,
-): Promise<{ total: number; analyzed: number; skipped: number }> {
+): Promise<{ total: number; analyzed: number; skipped: number; refreshedPostIds?: string[] }> {
   if (posts.length === 0) return { total: 0, analyzed: 0, skipped: 0 };
 
   logger.info("reddit.trending.processing", { workspaceId, rawPostCount: posts.length });
@@ -310,39 +310,64 @@ export async function processAndStoreTrendingPosts(
 
   const existingPosts = await prisma.redditTrendingPost.findMany({
     where: { workspaceId, postId: { in: postIds } },
-    select: { postId: true, url: true },
+    select: { id: true, postId: true, url: true },
   });
   const existingPostIdSet = new Set(existingPosts.map((p) => p.postId));
   const existingUrlSet = new Set(existingPosts.map((p) => p.url));
 
-  const [existingPostsList, newPostsList] = dedupedPosts.reduce<[RedditPost[], RedditPost[]]>(
-    ([existing, newP], post) => {
-      const postId = extractPostId(post.url);
-      if (postId && existingPostIdSet.has(postId)) {
-        return [[...existing, post], newP];
-      }
-      if (existingUrlSet.has(post.url)) {
-        return [[...existing, post], newP];
-      }
-      return [existing, [...newP, post]];
-    },
-    [[], []],
-  );
+  // Partition posts into existing vs new using push instead of spread to avoid O(n²) allocations
+  const existingPostsList: RedditPost[] = [];
+  const newPostsList: RedditPost[] = [];
+
+  for (const post of dedupedPosts) {
+    const postId = extractPostId(post.url);
+    if (postId && existingPostIdSet.has(postId)) {
+      existingPostsList.push(post);
+    } else if (existingUrlSet.has(post.url)) {
+      existingPostsList.push(post);
+    } else {
+      newPostsList.push(post);
+    }
+  }
 
   if (existingPostsList.length > 0) {
     const existingPostIds = existingPostsList
       .map((p) => extractPostId(p.url))
       .filter((id): id is string => id !== null);
+    
     if (existingPostIds.length > 0) {
-      await prisma.redditTrendingPost.updateMany({
-        where: { workspaceId, postId: { in: existingPostIds } },
-        data: { scrapedAt: now },
+      const refreshedIds: string[] = [];
+      
+      for (const existingPost of existingPosts) {
+        const scrapedPost = existingPostsList.find(
+          (p) => extractPostId(p.url) === existingPost.postId
+        );
+        
+        if (scrapedPost && existingPost.postId) {
+          await prisma.redditTrendingPost.update({
+            where: { id: existingPost.id },
+            data: {
+              upvotes: scrapedPost.upvotes,
+              commentCount: scrapedPost.commentCount,
+              scrapedAt: now,
+            },
+          });
+          refreshedIds.push(existingPost.id);
+        }
+      }
+      
+      logger.info("reddit.trending.cache_refreshed", {
+        workspaceId,
+        refreshedCount: refreshedIds.length,
       });
+      
+      return { 
+        total: 0, 
+        analyzed: 0, 
+        skipped: 0,
+        refreshedPostIds: refreshedIds,
+      };
     }
-    logger.info("reddit.trending.cache_refreshed", {
-      workspaceId,
-      refreshedCount: existingPostsList.length,
-    });
   }
 
   if (newPostsList.length === 0) {
@@ -441,11 +466,242 @@ export async function processAndStoreTrendingPosts(
   const actionableCount = records.filter((r) => r.isActionable).length;
   logger.info("reddit.trending.stored", { workspaceId, postCount: records.length, actionableCount });
 
+  // Phase 2: Deep Analysis - Comment scraping and scoring
+  const newPostIds = records.map((r) => r.id);
+  const newPostUrls = records.map((r) => ({ id: r.id, url: r.url }));
+
+  try {
+    // Scrape comments for new posts
+    const { scrapeCommentsForPosts } = await import("./comment-scraper");
+    await scrapeCommentsForPosts(newPostUrls);
+
+    // Calculate engagement depth scores
+    const { calculateEngagementDepthForPosts } = await import("./engagement-analyzer");
+    const engagementResults = await calculateEngagementDepthForPosts(newPostIds);
+
+    // Calculate intent scores
+    const { calculateIntentScoreForPosts } = await import("./intent-scorer");
+    const intentResults = await calculateIntentScoreForPosts(newPostIds);
+
+    // Update posts with new scores
+    for (const postId of newPostIds) {
+      const engagement = engagementResults.get(postId);
+      const intent = intentResults.get(postId);
+
+      await prisma.redditTrendingPost.update({
+        where: { id: postId },
+        data: {
+          engagementDepthScore: engagement?.engagementDepthScore ?? null,
+          intentScore: intent?.intentScore ?? null,
+          intentType: intent?.intentType ?? null,
+          intentSignals: intent?.intentSignals ? JSON.parse(JSON.stringify(intent.intentSignals)) : null,
+        },
+      });
+    }
+
+    logger.info("reddit.trending.deep_analysis_complete", {
+      workspaceId,
+      postCount: newPostIds.length,
+    });
+  } catch (err) {
+    logger.error("reddit.trending.deep_analysis_error", {
+      workspaceId,
+      error: String(err),
+    });
+    // Continue even if deep analysis fails
+  }
+
+  // Phase 3: Check alerts and trigger notifications
+  try {
+    await checkAndTriggerAlerts(workspaceId, newPostIds);
+  } catch (err) {
+    logger.error("reddit.trending.alert_check_error", {
+      workspaceId,
+      error: String(err),
+    });
+  }
+
+  // Phase 3.3: Push notifications for high-intent leads
+  try {
+    await triggerHighIntentNotifications(workspaceId, newPostIds);
+  } catch (err) {
+    logger.error("reddit.trending.push_notification_error", {
+      workspaceId,
+      error: String(err),
+    });
+  }
+
   onProgress?.("done", { total: newPostsList.length, analyzed: postsToAnalyze.length, skipped: postsSkipped.length });
 
   return {
     total: newPostsList.length,
     analyzed: postsToAnalyze.length,
     skipped: postsSkipped.length,
+    refreshedPostIds: [],
   };
+}
+
+async function checkAndTriggerAlerts(workspaceId: string, postIds: string[]): Promise<void> {
+  if (postIds.length === 0) return;
+
+  const alerts = await prisma.redditAlert.findMany({
+    where: { workspaceId, enabled: true },
+  });
+
+  if (alerts.length === 0) return;
+
+  const posts = await prisma.redditTrendingPost.findMany({
+    where: { id: { in: postIds } },
+    select: {
+      id: true,
+      title: true,
+      subreddit: true,
+      upvotes: true,
+      relevanceScore: true,
+      intentScore: true,
+      url: true,
+    },
+  });
+
+  const workspace = await prisma.workspace.findUnique({
+    where: { id: workspaceId },
+    select: {
+      userId: true,
+      BrandContext: {
+        select: {
+          businessName: true,
+          competitors: true,
+        },
+      },
+    },
+  });
+
+  if (!workspace?.userId) return;
+
+  const userId = workspace.userId;
+  const brandName = workspace.BrandContext?.businessName?.toLowerCase();
+  const competitors = (workspace.BrandContext?.competitors ?? []).map((c) => c.toLowerCase());
+
+  for (const alert of alerts) {
+    const matchedPosts = posts.filter((post) => {
+      if (post.upvotes < alert.minScore) return false;
+      if (alert.minIntent !== null && (post.intentScore ?? 0) < alert.minIntent) return false;
+
+      if (alert.subreddits.length > 0 && !alert.subreddits.includes(post.subreddit)) {
+        return false;
+      }
+
+      const titleLower = post.title.toLowerCase();
+      const keywordMatch = alert.keywords.some((kw: string) => titleLower.includes(kw.toLowerCase()));
+      if (!keywordMatch) return false;
+
+      return true;
+    });
+
+    for (const post of matchedPosts) {
+      const notifyReasons: string[] = [];
+
+      if (alert.notifyOn.includes("high_relevance") && (post.relevanceScore ?? 0) >= 0.7) {
+        notifyReasons.push("High relevance");
+      }
+      if (alert.notifyOn.includes("high_intent") && (post.intentScore ?? 0) >= 70) {
+        notifyReasons.push("High intent lead");
+      }
+      if (alert.notifyOn.includes("brand_mention") && brandName && post.title.toLowerCase().includes(brandName)) {
+        notifyReasons.push("Brand mention");
+      }
+      if (alert.notifyOn.includes("competitor_mention") && competitors.some((c) => post.title.toLowerCase().includes(c))) {
+        notifyReasons.push("Competitor mention");
+      }
+
+      if (notifyReasons.length === 0) continue;
+
+      try {
+        const { createNotification } = await import("@/lib/notifications/server-dispatch");
+        await createNotification({
+          userId,
+          type: "info",
+          category: "ai_insight",
+          title: `Alert "${alert.name}": ${post.title}`,
+          description: `${notifyReasons.join(", ")} in r/${post.subreddit}`,
+          actionUrl: post.url,
+          workspaceId,
+        });
+
+        await prisma.redditAlert.update({
+          where: { id: alert.id },
+          data: { lastTriggered: new Date() },
+        });
+
+        logger.info("reddit.alert.triggered", {
+          alertId: alert.id,
+          postId: post.id,
+          reasons: notifyReasons,
+        });
+      } catch (err) {
+        logger.error("reddit.alert.notification_error", {
+          alertId: alert.id,
+          postId: post.id,
+          error: String(err),
+        });
+      }
+    }
+  }
+}
+
+async function triggerHighIntentNotifications(workspaceId: string, postIds: string[]): Promise<void> {
+  if (postIds.length === 0) return;
+
+  const highIntentPosts = await prisma.redditTrendingPost.findMany({
+    where: {
+      id: { in: postIds },
+      intentScore: { gte: 80 },
+      relevanceScore: { gte: 0.7 },
+    },
+    select: {
+      id: true,
+      title: true,
+      subreddit: true,
+      intentScore: true,
+      relevanceScore: true,
+      url: true,
+    },
+  });
+
+  if (highIntentPosts.length === 0) return;
+
+  const workspace = await prisma.workspace.findUnique({
+    where: { id: workspaceId },
+    select: { userId: true },
+  });
+
+  if (!workspace?.userId) return;
+
+  const userId = workspace.userId;
+
+  for (const post of highIntentPosts) {
+    try {
+      const { createNotification } = await import("@/lib/notifications/server-dispatch");
+      await createNotification({
+        userId,
+        type: "success",
+        category: "ai_insight",
+        title: `High-intent lead detected in r/${post.subreddit}`,
+        description: `"${post.title}" - Intent: ${post.intentScore}/100, Relevance: ${Math.round((post.relevanceScore ?? 0) * 100)}%`,
+        actionUrl: post.url,
+        workspaceId,
+      });
+
+      logger.info("reddit.high_intent.notification_sent", {
+        postId: post.id,
+        intentScore: post.intentScore,
+        relevanceScore: post.relevanceScore,
+      });
+    } catch (err) {
+      logger.error("reddit.high_intent.notification_error", {
+        postId: post.id,
+        error: String(err),
+      });
+    }
+  }
 }

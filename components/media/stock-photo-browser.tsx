@@ -32,14 +32,24 @@ export function StockPhotoBrowser({ defaultProvider = "all", hideProviderSwitche
   const [viewMode, setViewMode] = useState<"compact" | "large">("compact");
   const [previewItem, setPreviewItem] = useState<ExternalMediaItem | null>(null);
   const mountedRef = useRef(true);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     mountedRef.current = true;
-    return () => { mountedRef.current = false; };
+    return () => {
+      mountedRef.current = false;
+      abortControllerRef.current?.abort();
+    };
   }, []);
 
   const fetchResults = useCallback(async (q: string, p: number, append = false) => {
     if (!mountedRef.current) return;
+
+    // Cancel any in-flight fetches so stale responses can't overwrite newer state.
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setLoading(true);
     setError(null);
 
@@ -58,7 +68,9 @@ export function StockPhotoBrowser({ defaultProvider = "all", hideProviderSwitche
           if (q) params.set("q", q);
           params.set("page", String(p));
 
-          const res = await fetch(`/api/media/external/search?${params.toString()}`);
+          const res = await fetch(`/api/media/external/search?${params.toString()}`, {
+            signal: controller.signal,
+          });
           if (!res.ok) {
             const err = await res.json().catch(() => ({ message: "Search failed" }));
             throw new Error(err.message || `API error: ${res.status}`);
@@ -72,9 +84,15 @@ export function StockPhotoBrowser({ defaultProvider = "all", hideProviderSwitche
           allItems.push(...(result.value.data?.items ?? []));
           totalResults += result.value.data?.total ?? 0;
         } else {
-          console.warn("Provider search failed:", result.reason);
+          // Ignore aborted fetches; surface other failures.
+          const reason = result.reason as { name?: string } | undefined;
+          if (reason?.name !== "AbortError") {
+            console.warn("Provider search failed:", result.reason);
+          }
         }
       }
+
+      if (controller.signal.aborted || !mountedRef.current) return;
 
       if (provider === "all") {
         for (let i = allItems.length - 1; i > 0; i--) {
@@ -83,8 +101,6 @@ export function StockPhotoBrowser({ defaultProvider = "all", hideProviderSwitche
         }
       }
 
-      if (!mountedRef.current) return;
-
       if (append) {
         setItems((prev) => [...prev, ...allItems]);
       } else {
@@ -92,11 +108,11 @@ export function StockPhotoBrowser({ defaultProvider = "all", hideProviderSwitche
       }
       setTotal(totalResults);
       setHasSearched(true);
-    } catch {
-      if (!mountedRef.current) return;
+    } catch (err) {
+      if (controller.signal.aborted || !mountedRef.current) return;
       setError("Search failed. Please try again.");
     } finally {
-      if (mountedRef.current) setLoading(false);
+      if (!controller.signal.aborted && mountedRef.current) setLoading(false);
     }
   }, [provider]);
 

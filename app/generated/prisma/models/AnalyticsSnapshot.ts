@@ -425,7 +425,7 @@ export type AnalyticsSnapshotScalarWhereWithAggregatesInput = {
 }
 
 export type AnalyticsSnapshotCreateInput = {
-  id: string
+  id?: string
   platform: string
   likes?: number
   comments?: number
@@ -443,7 +443,7 @@ export type AnalyticsSnapshotCreateInput = {
 }
 
 export type AnalyticsSnapshotUncheckedCreateInput = {
-  id: string
+  id?: string
   postId: string
   platform: string
   likes?: number
@@ -497,7 +497,7 @@ export type AnalyticsSnapshotUncheckedUpdateInput = {
 }
 
 export type AnalyticsSnapshotCreateManyInput = {
-  id: string
+  id?: string
   postId: string
   platform: string
   likes?: number
@@ -708,7 +708,7 @@ export type AnalyticsSnapshotUncheckedUpdateManyWithoutPostNestedInput = {
 }
 
 export type AnalyticsSnapshotCreateWithoutPostInput = {
-  id: string
+  id?: string
   platform: string
   likes?: number
   comments?: number
@@ -725,7 +725,7 @@ export type AnalyticsSnapshotCreateWithoutPostInput = {
 }
 
 export type AnalyticsSnapshotUncheckedCreateWithoutPostInput = {
-  id: string
+  id?: string
   platform: string
   likes?: number
   comments?: number
@@ -789,7 +789,7 @@ export type AnalyticsSnapshotScalarWhereInput = {
 }
 
 export type AnalyticsSnapshotCreateManyPostInput = {
-  id: string
+  id?: string
   platform: string
   likes?: number
   comments?: number

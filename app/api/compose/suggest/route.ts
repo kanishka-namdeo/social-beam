@@ -7,64 +7,16 @@ import { logger } from "@/lib/logger";
 import { z } from "zod";
 import { PLATFORM_CHAR_LIMITS } from "@/lib/compose/constants";
 import { requirePremium } from "@/lib/api-guards";
+import { slidingWindowRateLimit } from "@/lib/redis-rate-limiter";
 
 const SuggestSchema = z.object({
   prompt: z.string().min(1).max(500),
   platform: z.string().min(1),
 });
 
-/** In-memory rate limiter: workspaceId -> array of timestamps */
-const rateLimitMap = new Map<string, number[]>();
-const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 10;
-const MAX_RATE_LIMIT_ENTRIES = 1000; // Maximum number of tracked workspaces
-const WORKSPACE_INACTIVITY_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+// Rate limiter cleanup is handled by Redis sliding window expiry.
+// No in-memory cleanup needed since we migrated to Redis-backed rate limiting.
 
-function checkRateLimit(workspaceId: string): boolean {
-  const now = Date.now();
-  const timestamps = rateLimitMap.get(workspaceId) ?? [];
-  // Remove expired entries within the window
-  const valid = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
-  
-  // If workspace has no recent activity and map is full, evict it
-  if (valid.length === 0 && rateLimitMap.size >= MAX_RATE_LIMIT_ENTRIES) {
-    // Find and evict the oldest inactive workspace
-    let oldestWorkspace: string | null = null;
-    let oldestTime = now;
-    for (const [wsId, ts] of rateLimitMap.entries()) {
-      const lastActive = ts.length > 0 ? Math.max(...ts) : 0;
-      if (now - lastActive > WORKSPACE_INACTIVITY_TTL_MS && lastActive < oldestTime) {
-        oldestTime = lastActive;
-        oldestWorkspace = wsId;
-      }
-    }
-    if (oldestWorkspace) {
-      rateLimitMap.delete(oldestWorkspace);
-    }
-  }
-  
-  rateLimitMap.set(workspaceId, valid);
-  if (valid.length >= RATE_LIMIT_MAX_REQUESTS) {
-    return false;
-  }
-  valid.push(now);
-  return true;
-}
-
-/**
- * Cleanup rate limiter entries for inactive workspaces.
- * Called periodically to prevent unbounded memory growth.
- */
-export function cleanupRateLimiter(): void {
-  const now = Date.now();
-  for (const [workspaceId, timestamps] of rateLimitMap.entries()) {
-    // Remove entries with no activity in the last 24 hours
-    const lastActive = timestamps.length > 0 ? Math.max(...timestamps) : 0;
-    if (now - lastActive > WORKSPACE_INACTIVITY_TTL_MS) {
-      rateLimitMap.delete(workspaceId);
-    }
-  }
-}
 
 const model = new ChatOpenAI({
   apiKey: process.env.OPENAI_API_KEY ?? process.env.API_KEY ?? "",
@@ -121,11 +73,12 @@ export async function POST(req: Request) {
     const { prompt, platform } = parsed.data;
 
     // Rate limiting — abuse protection is critical
-    if (!checkRateLimit(workspaceId)) {
+    const rateLimitResult = await slidingWindowRateLimit(`compose:suggest:${workspaceId}`, 10, 60_000);
+    if (!rateLimitResult.allowed) {
       log.warn("api.compose.suggest.rate_limit_exceeded", { workspaceId });
       return NextResponse.json(
         { error: "Too many requests. Please wait a moment before trying again." },
-        { status: 429, headers: { "Retry-After": "60" } },
+        { status: 429, headers: { "Retry-After": String(rateLimitResult.retryAfter ?? 60) } },
       );
     }
 
@@ -150,6 +103,7 @@ export async function POST(req: Request) {
 
     const stream = new ReadableStream({
       async start(controller) {
+        try {
         const enqueue = (event: string, data: Record<string, unknown>) => {
           if (req.signal.aborted) return false;
           const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
@@ -175,7 +129,10 @@ export async function POST(req: Request) {
 
             for await (const chunk of response) {
               // Check for client disconnect during streaming
-              if (req.signal.aborted) return;
+              if (req.signal.aborted) {
+                try { controller.close(); } catch {}
+                return;
+              }
               
               const token = typeof chunk.content === "string" ? chunk.content : String(chunk.content);
               fullContent += token;
@@ -209,7 +166,7 @@ export async function POST(req: Request) {
               }
             }
 
-            enqueue("variant_done", { variantId, content: sanitized, charCount: sanitized.length });
+            enqueue("variant_done", { variantId, content: sanitized, charCount: sanitized.length, aiGenerated: true });
           } catch (err) {
             log.warn("api.compose.suggest.variant_failed", {
               platform,
@@ -230,7 +187,11 @@ export async function POST(req: Request) {
         });
 
         controller.close();
+        } finally {
+          try { controller.close(); } catch {}
+        }
       },
+      async cancel() {},
     });
 
     return new Response(stream, {

@@ -1,0 +1,11 @@
+[Unit]
+Description=SocialBeam database backup
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/social-beam/scripts/backup.sh
+WorkingDirectory=/opt/social-beam
+EnvironmentFile=/opt/social-beam/.env.production
+User=root
+Group=root

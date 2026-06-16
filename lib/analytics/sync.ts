@@ -7,6 +7,15 @@ import { importLinkedinPosts } from './linkedin-import';
 import { importInstagramPosts } from './instagram';
 import { importFacebookPosts } from './facebook';
 import { importXTweets } from './x';
+import { startActivity, completeActivity, failActivity } from '@/lib/activity-tracker';
+import { ActivityType } from '@/app/generated/prisma';
+import {
+  linkedinCircuitBreaker,
+  instagramCircuitBreaker,
+  facebookCircuitBreaker,
+  xCircuitBreaker,
+  CircuitBreakerOpenError,
+} from '@/lib/circuit-breaker';
 
 export interface SyncAnalyticsResult {
   workspaceId: string;
@@ -21,9 +30,17 @@ export interface SyncAnalyticsResult {
  * This should be called by the cron job on a regular schedule.
  */
 export async function syncAllAnalytics(): Promise<SyncAnalyticsResult[]> {
+  const Sentry = await import('@sentry/nextjs');
+
+  return Sentry.startSpan(
+    { name: 'analytics.sync.all', op: 'analytics.sync' },
+    async () => syncAllAnalyticsImpl(),
+  );
+}
+
+async function syncAllAnalyticsImpl(): Promise<SyncAnalyticsResult[]> {
   const results: SyncAnalyticsResult[] = [];
 
-  // Get all workspaces with connected accounts
   const connectedAccounts = await prisma.connectedAccount.findMany({
     where: { status: 'connected' },
     include: { Workspace: true },
@@ -31,34 +48,148 @@ export async function syncAllAnalytics(): Promise<SyncAnalyticsResult[]> {
 
   logger.info('analytics.sync.start', { accountCount: connectedAccounts.length });
 
-  // Group by workspace and platform
+  // Group accounts by workspace
+  const accountsByWorkspace = new Map<string, typeof connectedAccounts>();
   for (const account of connectedAccounts) {
-    try {
-      const result = await syncWorkspaceAnalytics(
-        account.workspaceId,
-        account.platform,
-        account.accessToken,
-        account.platformUserId,
-        (account.sourcePlatform ?? 'personal') as 'personal' | 'organization',
-      );
-      results.push(result);
-    } catch (error) {
-      logger.error('analytics.sync.workspace_error', {
-        workspaceId: account.workspaceId,
-        platform: account.platform,
-        error: String(error),
-      });
-      results.push({
-        workspaceId: account.workspaceId,
-        platform: account.platform,
-        postsSynced: 0,
-        snapshotsCreated: 0,
-        errors: [`Sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`],
-      });
-    }
+    const existing = accountsByWorkspace.get(account.workspaceId) ?? [];
+    existing.push(account);
+    accountsByWorkspace.set(account.workspaceId, existing);
   }
 
-  logger.info('analytics.sync.complete', { workspaceCount: results.length });
+  // Process per-workspace with activity tracking
+  for (const [workspaceId, workspaceAccounts] of accountsByWorkspace) {
+    const platforms = [...new Set(workspaceAccounts.map(a => a.platform))];
+    const dateRange = { from: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(), to: new Date().toISOString() };
+    const logId = await startActivity(workspaceId, ActivityType.ANALYTICS_SYNC, {
+      platformCount: platforms.length,
+      platforms,
+      accountCount: workspaceAccounts.length,
+      dateRange,
+    });
+
+    const workspaceResults: SyncAnalyticsResult[] = [];
+    let totalPostsSynced = 0;
+    let totalSnapshotsCreated = 0;
+
+    try {
+      // Deduplicate by workspace+platform to avoid N+1 queries when
+      // multiple accounts share the same platform in a workspace
+      const seenPlatform = new Set<string>();
+      for (const account of workspaceAccounts) {
+        const platformKey = `${account.workspaceId}:${account.platform}`;
+        if (seenPlatform.has(platformKey)) {
+          logger.debug('analytics.sync.skip_duplicate_platform', {
+            workspaceId: account.workspaceId,
+            platform: account.platform,
+          });
+          continue;
+        }
+        seenPlatform.add(platformKey);
+
+        try {
+          const circuitBreakers: Record<string, typeof linkedinCircuitBreaker> = {
+            linkedin: linkedinCircuitBreaker,
+            instagram: instagramCircuitBreaker,
+            facebook: facebookCircuitBreaker,
+            x: xCircuitBreaker,
+            twitter: xCircuitBreaker,
+          };
+
+          const cb = circuitBreakers[account.platform.toLowerCase()];
+
+          if (cb && await cb.isOpen()) {
+            logger.warn('analytics.sync.circuit_open', {
+              workspaceId: account.workspaceId,
+              platform: account.platform,
+            });
+            workspaceResults.push({
+              workspaceId: account.workspaceId,
+              platform: account.platform,
+              postsSynced: 0,
+              snapshotsCreated: 0,
+              errors: [`Circuit breaker open for ${account.platform}`],
+            });
+            continue;
+          }
+
+          const result = await syncWorkspaceAnalytics(
+            account.workspaceId,
+            account.platform,
+            account.accessToken,
+            account.platformUserId,
+            (account.sourcePlatform ?? 'personal') as 'personal' | 'organization',
+          );
+          workspaceResults.push(result);
+          totalPostsSynced += result.postsSynced;
+          totalSnapshotsCreated += result.snapshotsCreated;
+
+          if (cb && result.errors.length > 0) {
+            await cb.recordFailure();
+          } else if (cb) {
+            await cb.recordSuccess();
+          }
+        } catch (error) {
+          if (error instanceof CircuitBreakerOpenError) {
+            workspaceResults.push({
+              workspaceId: account.workspaceId,
+              platform: account.platform,
+              postsSynced: 0,
+              snapshotsCreated: 0,
+              errors: [(error as CircuitBreakerOpenError).message],
+            });
+          } else {
+            logger.error('analytics.sync.workspace_error', {
+              workspaceId: account.workspaceId,
+              platform: account.platform,
+              error: String(error),
+            });
+            workspaceResults.push({
+              workspaceId: account.workspaceId,
+              platform: account.platform,
+              postsSynced: 0,
+              snapshotsCreated: 0,
+              errors: [`Sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`],
+            });
+
+            const circuitBreakers: Record<string, typeof linkedinCircuitBreaker> = {
+              linkedin: linkedinCircuitBreaker,
+              instagram: instagramCircuitBreaker,
+              facebook: facebookCircuitBreaker,
+              x: xCircuitBreaker,
+              twitter: xCircuitBreaker,
+            };
+            const cb = circuitBreakers[account.platform.toLowerCase()];
+            if (cb) {
+              await cb.recordFailure();
+            }
+          }
+        }
+      }
+
+      await completeActivity(logId, {
+        platformsSynced: platforms.length,
+        postsSynced: totalPostsSynced,
+        snapshotsCreated: totalSnapshotsCreated,
+        dateRange,
+        perPlatform: workspaceResults.map(r => ({
+          platform: r.platform,
+          postsSynced: r.postsSynced,
+          snapshotsCreated: r.snapshotsCreated,
+          errors: r.errors.length,
+        })),
+      });
+    } catch (err) {
+      await failActivity(logId, err instanceof Error ? err : String(err), {
+        platformsSynced: platforms.length,
+        postsSynced: totalPostsSynced,
+        dateRange,
+      });
+    }
+
+    results.push(...workspaceResults);
+  }
+
+  logger.info('analytics.sync.complete', { workspaceCount: accountsByWorkspace.size });
   return results;
 }
 
@@ -66,7 +197,7 @@ export async function syncAllAnalytics(): Promise<SyncAnalyticsResult[]> {
  * Sync analytics for a specific workspace and platform.
  * Handles both app-published posts (via existing sync) and external posts (via import modules).
  */
-async function syncWorkspaceAnalytics(
+export async function syncWorkspaceAnalytics(
   workspaceId: string,
   platform: string,
   encryptedAccessToken: string,

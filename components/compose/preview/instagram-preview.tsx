@@ -10,9 +10,10 @@ interface InstagramPreviewProps {
   content: string;
   account?: AccountInfo;
   mediaUrls?: string[];
+  signature?: { text: string; url?: string } | null;
 }
 
-export function InstagramPreview({ content, account, mediaUrls }: InstagramPreviewProps) {
+export function InstagramPreview({ content, account, mediaUrls, signature }: InstagramPreviewProps) {
   // Use account data or fall back to defaults
   const displayName = account?.platformUsername || "yourhandle";
   const avatarSrc = account?.avatarUrl || "";
@@ -107,6 +108,11 @@ export function InstagramPreview({ content, account, mediaUrls }: InstagramPrevi
             </span>
           )}
         </p>
+        {signature && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            {signature.text}
+          </p>
+        )}
       </div>
 
       {/* Comments count */}

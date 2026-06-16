@@ -6,7 +6,7 @@ import { ToolsCard } from "@/components/tools/tools-card";
 export const metadata: Metadata = {
   title: "Free Social Media Tools — Hashtag Generator, UTM Builder, Link in Bio | SocialBeam",
   description:
-    "Free AI-powered tools for social media marketers. Hashtag generator, post creator, UTM builder, link in bio, and Instagram name generator — no signup required.",
+    "Free tools for social media marketers. Hashtag generator, post creator, UTM builder, link in bio, and Instagram name generator — no signup required.",
 };
 
 const tools = [
@@ -51,9 +51,9 @@ export default function FreeToolsPage() {
   return (
     <LandingPageShell
       hero={{
-        title: "Free social media marketing tools",
+        title: "Grow on social — no account needed",
         description:
-          "Everything you need to create engaging content and grow your social presence — all for free, no signup required.",
+          "Hashtag generator, post creator, UTM builder, and more. Use them right now, no signup required.",
       }}
     >
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">

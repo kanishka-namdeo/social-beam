@@ -257,7 +257,7 @@ export type BrandVoiceScalarWhereWithAggregatesInput = {
 }
 
 export type BrandVoiceCreateInput = {
-  id: string
+  id?: string
   tonePreset?: string | null
   description?: string | null
   examples?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -268,7 +268,7 @@ export type BrandVoiceCreateInput = {
 }
 
 export type BrandVoiceUncheckedCreateInput = {
-  id: string
+  id?: string
   workspaceId: string
   tonePreset?: string | null
   description?: string | null
@@ -301,7 +301,7 @@ export type BrandVoiceUncheckedUpdateInput = {
 }
 
 export type BrandVoiceCreateManyInput = {
-  id: string
+  id?: string
   workspaceId: string
   tonePreset?: string | null
   description?: string | null
@@ -399,7 +399,7 @@ export type BrandVoiceUncheckedUpdateOneWithoutWorkspaceNestedInput = {
 }
 
 export type BrandVoiceCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   tonePreset?: string | null
   description?: string | null
   examples?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -409,7 +409,7 @@ export type BrandVoiceCreateWithoutWorkspaceInput = {
 }
 
 export type BrandVoiceUncheckedCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   tonePreset?: string | null
   description?: string | null
   examples?: Prisma.JsonNullValueInput | runtime.InputJsonValue

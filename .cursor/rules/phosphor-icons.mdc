@@ -1,6 +1,6 @@
 ---
 description: Phosphor Icons import paths, naming, styling, and SSR patterns. Apply when importing from @phosphor-icons/react.
-globs: "*.tsx,*.ts"
+globs: "**/*.tsx,**/*.ts"
 alwaysApply: false
 ---
 

@@ -9,13 +9,14 @@ import {
   ChartBar,
   Robot,
   Image,
-  SlidersHorizontal,
   RedditLogo,
   MagnifyingGlass,
   ChatCircle,
   Lock,
-  CreditCard,
   ShieldCheck,
+  ArrowClockwise,
+  Megaphone,
+  NotePencil,
 } from "@phosphor-icons/react/ssr";
 import type { Icon } from "@phosphor-icons/react";
 import {
@@ -33,12 +34,13 @@ export type IconName =
   | "chart-bar"
   | "robot"
   | "image"
-  | "sliders-horizontal"
   | "reddit-logo"
   | "magnifying-glass"
   | "chat-circle"
-  | "credit-card"
-  | "shield-check";
+  | "shield-check"
+  | "arrow-clockwise"
+  | "megaphone"
+  | "note-pencil";
 
 export interface NavItem {
   label: string;
@@ -55,7 +57,6 @@ const KEYBOARD_SHORTCUTS: Record<string, string> = {
   "/inbox": "I",
   "/reddit/trending": "R",
   "/media": "M",
-  "/settings": "S",
 };
 
 function getIconComponent(name: IconName): Icon {
@@ -66,12 +67,13 @@ function getIconComponent(name: IconName): Icon {
     case "chart-bar": return ChartBar;
     case "robot": return Robot;
     case "image": return Image;
-    case "sliders-horizontal": return SlidersHorizontal;
     case "reddit-logo": return RedditLogo;
     case "magnifying-glass": return MagnifyingGlass;
     case "chat-circle": return ChatCircle;
-    case "credit-card": return CreditCard;
     case "shield-check": return ShieldCheck;
+    case "arrow-clockwise": return ArrowClockwise;
+    case "megaphone": return Megaphone;
+    case "note-pencil": return NotePencil;
   }
 }
 

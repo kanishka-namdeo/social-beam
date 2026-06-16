@@ -144,7 +144,7 @@ try {
 
 ## Migration Conventions
 
-- **Always create a migration for schema changes**: `npx prisma migrate dev`
+- **Always create a migration for schema changes**: `pnpm exec prisma migrate dev`
 - **Never edit the generated client directly** — only modify `prisma/schema.prisma`
 - **Commit migrations and schema together**
 - **Test migrations on a copy of production data before running in production**

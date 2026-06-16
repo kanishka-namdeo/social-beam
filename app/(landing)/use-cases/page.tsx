@@ -13,9 +13,9 @@ import {
 import { LandingPageShell } from "@/components/landing/landing-page-shell";
 
 export const metadata: Metadata = {
-  title: "Use Cases — Social Media Solutions for Every Team | SocialBeam",
+  title: "Use Cases — Social Media for Agencies, SMBs, Creators | SocialBeam",
   description:
-    "From agencies to solopreneurs, SocialBeam adapts to your workflow. AI-powered scheduling for every team size.",
+    "From agencies to solopreneurs, SocialBeam adapts to your workflow. Scheduling and content tools for every team size.",
 };
 
 const useCases = [
@@ -23,7 +23,7 @@ const useCases = [
     icon: BuildingOffice,
     title: "Agencies",
     description:
-      "Manage multiple clients from one dashboard. White-label reports, client workspaces, and bulk scheduling save hours every week.",
+      "Manage 50 brands from one dashboard. White-label reports, client workspaces, and bulk scheduling.",
     features: [
       "Client workspaces with isolated data",
       "White-label analytics reports",
@@ -37,7 +37,7 @@ const useCases = [
     icon: Storefront,
     title: "Small Businesses",
     description:
-      "Maintain a consistent social presence without hiring a full-time marketer. AI writes your content and picks the best times to post.",
+      "Post consistently without hiring a marketer. AI creates content and picks optimal times.",
     features: [
       "AI-generated content from prompts",
       "Smart posting time predictions",
@@ -51,7 +51,7 @@ const useCases = [
     icon: UserCircle,
     title: "Freelancers & Creators",
     description:
-      "Build your personal brand while focusing on your craft. Schedule content in batches and let AI handle the rest.",
+      "Batch-create content, schedule in one click, and let AI handle the rest. Free forever.",
     features: [
       "Free tier with 10 accounts",
       "Content batch creation",
@@ -65,7 +65,7 @@ const useCases = [
     icon: UsersThree,
     title: "Enterprise Teams",
     description:
-      "Scale social operations across departments and regions. Advanced governance, compliance, and security for large organizations.",
+      "Govern social at scale. SSO, approval workflows, compliance rules, and dedicated support.",
     features: [
       "Unlimited accounts and users",
       "SSO and advanced security",
@@ -81,9 +81,9 @@ export default function UseCasesPage() {
   return (
     <LandingPageShell
       hero={{
-        title: "Built for every social media team",
+        title: "One platform. Every team size.",
         description:
-          "Whether you're managing one brand or fifty, SocialBeam scales to your needs. AI-powered tools that adapt to your workflow.",
+          "Whether you're managing one brand or fifty, SocialBeam scales to your needs. Tools that adapt to your workflow.",
       }}
     >
       <div className="max-w-5xl mx-auto space-y-8">

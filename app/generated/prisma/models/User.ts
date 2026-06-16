@@ -30,7 +30,13 @@ export type UserMinAggregateOutputType = {
   name: string | null
   password: string | null
   role: $Enums.UserRole | null
+  emailVerified: Date | null
+  emailVerificationToken: string | null
+  emailVerificationExpiresAt: Date | null
+  passwordResetToken: string | null
+  passwordResetExpiresAt: Date | null
   lastRoleChangeAt: Date | null
+  scheduledForDeletionAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -41,7 +47,13 @@ export type UserMaxAggregateOutputType = {
   name: string | null
   password: string | null
   role: $Enums.UserRole | null
+  emailVerified: Date | null
+  emailVerificationToken: string | null
+  emailVerificationExpiresAt: Date | null
+  passwordResetToken: string | null
+  passwordResetExpiresAt: Date | null
   lastRoleChangeAt: Date | null
+  scheduledForDeletionAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -52,7 +64,13 @@ export type UserCountAggregateOutputType = {
   name: number
   password: number
   role: number
+  emailVerified: number
+  emailVerificationToken: number
+  emailVerificationExpiresAt: number
+  passwordResetToken: number
+  passwordResetExpiresAt: number
   lastRoleChangeAt: number
+  scheduledForDeletionAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -65,7 +83,13 @@ export type UserMinAggregateInputType = {
   name?: true
   password?: true
   role?: true
+  emailVerified?: true
+  emailVerificationToken?: true
+  emailVerificationExpiresAt?: true
+  passwordResetToken?: true
+  passwordResetExpiresAt?: true
   lastRoleChangeAt?: true
+  scheduledForDeletionAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -76,7 +100,13 @@ export type UserMaxAggregateInputType = {
   name?: true
   password?: true
   role?: true
+  emailVerified?: true
+  emailVerificationToken?: true
+  emailVerificationExpiresAt?: true
+  passwordResetToken?: true
+  passwordResetExpiresAt?: true
   lastRoleChangeAt?: true
+  scheduledForDeletionAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -87,7 +117,13 @@ export type UserCountAggregateInputType = {
   name?: true
   password?: true
   role?: true
+  emailVerified?: true
+  emailVerificationToken?: true
+  emailVerificationExpiresAt?: true
+  passwordResetToken?: true
+  passwordResetExpiresAt?: true
   lastRoleChangeAt?: true
+  scheduledForDeletionAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -171,7 +207,13 @@ export type UserGroupByOutputType = {
   name: string | null
   password: string
   role: $Enums.UserRole
+  emailVerified: Date | null
+  emailVerificationToken: string | null
+  emailVerificationExpiresAt: Date | null
+  passwordResetToken: string | null
+  passwordResetExpiresAt: Date | null
   lastRoleChangeAt: Date | null
+  scheduledForDeletionAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -203,12 +245,25 @@ export type UserWhereInput = {
   name?: Prisma.StringNullableFilter<"User"> | string | null
   password?: Prisma.StringFilter<"User"> | string
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
+  emailVerified?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  emailVerificationToken?: Prisma.StringNullableFilter<"User"> | string | null
+  emailVerificationExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  passwordResetToken?: Prisma.StringNullableFilter<"User"> | string | null
+  passwordResetExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   lastRoleChangeAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  scheduledForDeletionAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   UserOAuthApp?: Prisma.UserOAuthAppListRelationFilter
   Workspace?: Prisma.WorkspaceListRelationFilter
   Subscription?: Prisma.XOR<Prisma.SubscriptionNullableScalarRelationFilter, Prisma.SubscriptionWhereInput> | null
+  Notification?: Prisma.NotificationListRelationFilter
+  NotificationPreference?: Prisma.XOR<Prisma.NotificationPreferenceNullableScalarRelationFilter, Prisma.NotificationPreferenceWhereInput> | null
+  OnboardingSession?: Prisma.XOR<Prisma.OnboardingSessionNullableScalarRelationFilter, Prisma.OnboardingSessionWhereInput> | null
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeListRelationFilter
+  McpRevokedToken?: Prisma.McpRevokedTokenListRelationFilter
+  PushSubscription?: Prisma.PushSubscriptionListRelationFilter
+  ConsentLog?: Prisma.XOR<Prisma.ConsentLogNullableScalarRelationFilter, Prisma.ConsentLogWhereInput> | null
 }
 
 export type UserOrderByWithRelationInput = {
@@ -217,30 +272,56 @@ export type UserOrderByWithRelationInput = {
   name?: Prisma.SortOrderInput | Prisma.SortOrder
   password?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrderInput | Prisma.SortOrder
+  emailVerificationToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  emailVerificationExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  passwordResetToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  passwordResetExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastRoleChangeAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  scheduledForDeletionAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   UserOAuthApp?: Prisma.UserOAuthAppOrderByRelationAggregateInput
   Workspace?: Prisma.WorkspaceOrderByRelationAggregateInput
   Subscription?: Prisma.SubscriptionOrderByWithRelationInput
+  Notification?: Prisma.NotificationOrderByRelationAggregateInput
+  NotificationPreference?: Prisma.NotificationPreferenceOrderByWithRelationInput
+  OnboardingSession?: Prisma.OnboardingSessionOrderByWithRelationInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeOrderByRelationAggregateInput
+  McpRevokedToken?: Prisma.McpRevokedTokenOrderByRelationAggregateInput
+  PushSubscription?: Prisma.PushSubscriptionOrderByRelationAggregateInput
+  ConsentLog?: Prisma.ConsentLogOrderByWithRelationInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   email?: string
+  emailVerificationToken?: string
+  passwordResetToken?: string
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   name?: Prisma.StringNullableFilter<"User"> | string | null
   password?: Prisma.StringFilter<"User"> | string
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
+  emailVerified?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  emailVerificationExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  passwordResetExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   lastRoleChangeAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  scheduledForDeletionAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   UserOAuthApp?: Prisma.UserOAuthAppListRelationFilter
   Workspace?: Prisma.WorkspaceListRelationFilter
   Subscription?: Prisma.XOR<Prisma.SubscriptionNullableScalarRelationFilter, Prisma.SubscriptionWhereInput> | null
-}, "id" | "email">
+  Notification?: Prisma.NotificationListRelationFilter
+  NotificationPreference?: Prisma.XOR<Prisma.NotificationPreferenceNullableScalarRelationFilter, Prisma.NotificationPreferenceWhereInput> | null
+  OnboardingSession?: Prisma.XOR<Prisma.OnboardingSessionNullableScalarRelationFilter, Prisma.OnboardingSessionWhereInput> | null
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeListRelationFilter
+  McpRevokedToken?: Prisma.McpRevokedTokenListRelationFilter
+  PushSubscription?: Prisma.PushSubscriptionListRelationFilter
+  ConsentLog?: Prisma.XOR<Prisma.ConsentLogNullableScalarRelationFilter, Prisma.ConsentLogWhereInput> | null
+}, "id" | "email" | "emailVerificationToken" | "passwordResetToken">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -248,7 +329,13 @@ export type UserOrderByWithAggregationInput = {
   name?: Prisma.SortOrderInput | Prisma.SortOrder
   password?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrderInput | Prisma.SortOrder
+  emailVerificationToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  emailVerificationExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  passwordResetToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  passwordResetExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastRoleChangeAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  scheduledForDeletionAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -265,37 +352,69 @@ export type UserScalarWhereWithAggregatesInput = {
   name?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   password?: Prisma.StringWithAggregatesFilter<"User"> | string
   role?: Prisma.EnumUserRoleWithAggregatesFilter<"User"> | $Enums.UserRole
+  emailVerified?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  emailVerificationToken?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  emailVerificationExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  passwordResetToken?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  passwordResetExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   lastRoleChangeAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  scheduledForDeletionAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
 
 export type UserCreateInput = {
-  id: string
+  id?: string
   email: string
   name?: string | null
   password: string
   role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
   lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   UserOAuthApp?: Prisma.UserOAuthAppCreateNestedManyWithoutUserInput
   Workspace?: Prisma.WorkspaceCreateNestedManyWithoutUserInput
   Subscription?: Prisma.SubscriptionCreateNestedOneWithoutUserInput
+  Notification?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeCreateNestedManyWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
-  id: string
+  id?: string
   email: string
   name?: string | null
   password: string
   role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
   lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   UserOAuthApp?: Prisma.UserOAuthAppUncheckedCreateNestedManyWithoutUserInput
   Workspace?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutUserInput
   Subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutUserInput
+  Notification?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedCreateNestedManyWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -304,12 +423,25 @@ export type UserUpdateInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   UserOAuthApp?: Prisma.UserOAuthAppUpdateManyWithoutUserNestedInput
   Workspace?: Prisma.WorkspaceUpdateManyWithoutUserNestedInput
   Subscription?: Prisma.SubscriptionUpdateOneWithoutUserNestedInput
+  Notification?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUpdateManyWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -318,21 +450,40 @@ export type UserUncheckedUpdateInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   UserOAuthApp?: Prisma.UserOAuthAppUncheckedUpdateManyWithoutUserNestedInput
   Workspace?: Prisma.WorkspaceUncheckedUpdateManyWithoutUserNestedInput
   Subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+  Notification?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedUpdateManyWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
-  id: string
+  id?: string
   email: string
   name?: string | null
   password: string
   role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
   lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -343,7 +494,13 @@ export type UserUpdateManyMutationInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -354,7 +511,13 @@ export type UserUncheckedUpdateManyInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -370,7 +533,13 @@ export type UserCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   password?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
+  emailVerificationToken?: Prisma.SortOrder
+  emailVerificationExpiresAt?: Prisma.SortOrder
+  passwordResetToken?: Prisma.SortOrder
+  passwordResetExpiresAt?: Prisma.SortOrder
   lastRoleChangeAt?: Prisma.SortOrder
+  scheduledForDeletionAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -381,7 +550,13 @@ export type UserMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   password?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
+  emailVerificationToken?: Prisma.SortOrder
+  emailVerificationExpiresAt?: Prisma.SortOrder
+  passwordResetToken?: Prisma.SortOrder
+  passwordResetExpiresAt?: Prisma.SortOrder
   lastRoleChangeAt?: Prisma.SortOrder
+  scheduledForDeletionAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -392,7 +567,13 @@ export type UserMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   password?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
+  emailVerificationToken?: Prisma.SortOrder
+  emailVerificationExpiresAt?: Prisma.SortOrder
+  passwordResetToken?: Prisma.SortOrder
+  passwordResetExpiresAt?: Prisma.SortOrder
   lastRoleChangeAt?: Prisma.SortOrder
+  scheduledForDeletionAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -409,6 +590,20 @@ export type UserUpdateOneRequiredWithoutSubscriptionNestedInput = {
   upsert?: Prisma.UserUpsertWithoutSubscriptionInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSubscriptionInput, Prisma.UserUpdateWithoutSubscriptionInput>, Prisma.UserUncheckedUpdateWithoutSubscriptionInput>
+}
+
+export type UserCreateNestedOneWithoutOnboardingSessionInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOnboardingSessionInput, Prisma.UserUncheckedCreateWithoutOnboardingSessionInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOnboardingSessionInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutOnboardingSessionNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOnboardingSessionInput, Prisma.UserUncheckedCreateWithoutOnboardingSessionInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOnboardingSessionInput
+  upsert?: Prisma.UserUpsertWithoutOnboardingSessionInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOnboardingSessionInput, Prisma.UserUpdateWithoutOnboardingSessionInput>, Prisma.UserUncheckedUpdateWithoutOnboardingSessionInput>
 }
 
 export type EnumUserRoleFieldUpdateOperationsInput = {
@@ -443,30 +638,140 @@ export type UserUpdateOneRequiredWithoutWorkspaceNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutWorkspaceInput, Prisma.UserUpdateWithoutWorkspaceInput>, Prisma.UserUncheckedUpdateWithoutWorkspaceInput>
 }
 
+export type UserCreateNestedOneWithoutMcpAuthorizationCodeInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMcpAuthorizationCodeInput, Prisma.UserUncheckedCreateWithoutMcpAuthorizationCodeInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMcpAuthorizationCodeInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutMcpAuthorizationCodeNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMcpAuthorizationCodeInput, Prisma.UserUncheckedCreateWithoutMcpAuthorizationCodeInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMcpAuthorizationCodeInput
+  upsert?: Prisma.UserUpsertWithoutMcpAuthorizationCodeInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMcpAuthorizationCodeInput, Prisma.UserUpdateWithoutMcpAuthorizationCodeInput>, Prisma.UserUncheckedUpdateWithoutMcpAuthorizationCodeInput>
+}
+
+export type UserCreateNestedOneWithoutMcpRevokedTokenInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMcpRevokedTokenInput, Prisma.UserUncheckedCreateWithoutMcpRevokedTokenInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMcpRevokedTokenInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutMcpRevokedTokenNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMcpRevokedTokenInput, Prisma.UserUncheckedCreateWithoutMcpRevokedTokenInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMcpRevokedTokenInput
+  upsert?: Prisma.UserUpsertWithoutMcpRevokedTokenInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMcpRevokedTokenInput, Prisma.UserUpdateWithoutMcpRevokedTokenInput>, Prisma.UserUncheckedUpdateWithoutMcpRevokedTokenInput>
+}
+
+export type UserCreateNestedOneWithoutNotificationInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutNotificationInput, Prisma.UserUncheckedCreateWithoutNotificationInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutNotificationInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutNotificationNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutNotificationInput, Prisma.UserUncheckedCreateWithoutNotificationInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutNotificationInput
+  upsert?: Prisma.UserUpsertWithoutNotificationInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutNotificationInput, Prisma.UserUpdateWithoutNotificationInput>, Prisma.UserUncheckedUpdateWithoutNotificationInput>
+}
+
+export type UserCreateNestedOneWithoutNotificationPreferenceInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutNotificationPreferenceInput, Prisma.UserUncheckedCreateWithoutNotificationPreferenceInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutNotificationPreferenceInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutNotificationPreferenceNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutNotificationPreferenceInput, Prisma.UserUncheckedCreateWithoutNotificationPreferenceInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutNotificationPreferenceInput
+  upsert?: Prisma.UserUpsertWithoutNotificationPreferenceInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutNotificationPreferenceInput, Prisma.UserUpdateWithoutNotificationPreferenceInput>, Prisma.UserUncheckedUpdateWithoutNotificationPreferenceInput>
+}
+
+export type UserCreateNestedOneWithoutPushSubscriptionInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPushSubscriptionInput, Prisma.UserUncheckedCreateWithoutPushSubscriptionInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPushSubscriptionInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPushSubscriptionNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPushSubscriptionInput, Prisma.UserUncheckedCreateWithoutPushSubscriptionInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPushSubscriptionInput
+  upsert?: Prisma.UserUpsertWithoutPushSubscriptionInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPushSubscriptionInput, Prisma.UserUpdateWithoutPushSubscriptionInput>, Prisma.UserUncheckedUpdateWithoutPushSubscriptionInput>
+}
+
+export type UserCreateNestedOneWithoutConsentLogInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutConsentLogInput, Prisma.UserUncheckedCreateWithoutConsentLogInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutConsentLogInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutConsentLogNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutConsentLogInput, Prisma.UserUncheckedCreateWithoutConsentLogInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutConsentLogInput
+  upsert?: Prisma.UserUpsertWithoutConsentLogInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutConsentLogInput, Prisma.UserUpdateWithoutConsentLogInput>, Prisma.UserUncheckedUpdateWithoutConsentLogInput>
+}
+
 export type UserCreateWithoutSubscriptionInput = {
-  id: string
+  id?: string
   email: string
   name?: string | null
   password: string
   role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
   lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   UserOAuthApp?: Prisma.UserOAuthAppCreateNestedManyWithoutUserInput
   Workspace?: Prisma.WorkspaceCreateNestedManyWithoutUserInput
+  Notification?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeCreateNestedManyWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSubscriptionInput = {
-  id: string
+  id?: string
   email: string
   name?: string | null
   password: string
   role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
   lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   UserOAuthApp?: Prisma.UserOAuthAppUncheckedCreateNestedManyWithoutUserInput
   Workspace?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutUserInput
+  Notification?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedCreateNestedManyWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSubscriptionInput = {
@@ -491,11 +796,24 @@ export type UserUpdateWithoutSubscriptionInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   UserOAuthApp?: Prisma.UserOAuthAppUpdateManyWithoutUserNestedInput
   Workspace?: Prisma.WorkspaceUpdateManyWithoutUserNestedInput
+  Notification?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUpdateManyWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSubscriptionInput = {
@@ -504,37 +822,196 @@ export type UserUncheckedUpdateWithoutSubscriptionInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   UserOAuthApp?: Prisma.UserOAuthAppUncheckedUpdateManyWithoutUserNestedInput
   Workspace?: Prisma.WorkspaceUncheckedUpdateManyWithoutUserNestedInput
+  Notification?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedUpdateManyWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUncheckedUpdateOneWithoutUserNestedInput
 }
 
-export type UserCreateWithoutUserOAuthAppInput = {
-  id: string
+export type UserCreateWithoutOnboardingSessionInput = {
+  id?: string
   email: string
   name?: string | null
   password: string
   role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
   lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppCreateNestedManyWithoutUserInput
+  Workspace?: Prisma.WorkspaceCreateNestedManyWithoutUserInput
+  Subscription?: Prisma.SubscriptionCreateNestedOneWithoutUserInput
+  Notification?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeCreateNestedManyWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogCreateNestedOneWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutOnboardingSessionInput = {
+  id?: string
+  email: string
+  name?: string | null
+  password: string
+  role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
+  lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUncheckedCreateNestedManyWithoutUserInput
+  Workspace?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutUserInput
+  Subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutUserInput
+  Notification?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedCreateNestedManyWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogUncheckedCreateNestedOneWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutOnboardingSessionInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutOnboardingSessionInput, Prisma.UserUncheckedCreateWithoutOnboardingSessionInput>
+}
+
+export type UserUpsertWithoutOnboardingSessionInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutOnboardingSessionInput, Prisma.UserUncheckedUpdateWithoutOnboardingSessionInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutOnboardingSessionInput, Prisma.UserUncheckedCreateWithoutOnboardingSessionInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutOnboardingSessionInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutOnboardingSessionInput, Prisma.UserUncheckedUpdateWithoutOnboardingSessionInput>
+}
+
+export type UserUpdateWithoutOnboardingSessionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUpdateManyWithoutUserNestedInput
+  Workspace?: Prisma.WorkspaceUpdateManyWithoutUserNestedInput
+  Subscription?: Prisma.SubscriptionUpdateOneWithoutUserNestedInput
+  Notification?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUpdateManyWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUpdateOneWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutOnboardingSessionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUncheckedUpdateManyWithoutUserNestedInput
+  Workspace?: Prisma.WorkspaceUncheckedUpdateManyWithoutUserNestedInput
+  Subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+  Notification?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedUpdateManyWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutUserOAuthAppInput = {
+  id?: string
+  email: string
+  name?: string | null
+  password: string
+  role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
+  lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   Workspace?: Prisma.WorkspaceCreateNestedManyWithoutUserInput
   Subscription?: Prisma.SubscriptionCreateNestedOneWithoutUserInput
+  Notification?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeCreateNestedManyWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUserOAuthAppInput = {
-  id: string
+  id?: string
   email: string
   name?: string | null
   password: string
   role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
   lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   Workspace?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutUserInput
   Subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutUserInput
+  Notification?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedCreateNestedManyWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUserOAuthAppInput = {
@@ -559,11 +1036,24 @@ export type UserUpdateWithoutUserOAuthAppInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Workspace?: Prisma.WorkspaceUpdateManyWithoutUserNestedInput
   Subscription?: Prisma.SubscriptionUpdateOneWithoutUserNestedInput
+  Notification?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUpdateManyWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUserOAuthAppInput = {
@@ -572,37 +1062,76 @@ export type UserUncheckedUpdateWithoutUserOAuthAppInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Workspace?: Prisma.WorkspaceUncheckedUpdateManyWithoutUserNestedInput
   Subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+  Notification?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedUpdateManyWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   email: string
   name?: string | null
   password: string
   role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
   lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   UserOAuthApp?: Prisma.UserOAuthAppCreateNestedManyWithoutUserInput
   Subscription?: Prisma.SubscriptionCreateNestedOneWithoutUserInput
+  Notification?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeCreateNestedManyWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   email: string
   name?: string | null
   password: string
   role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
   lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   UserOAuthApp?: Prisma.UserOAuthAppUncheckedCreateNestedManyWithoutUserInput
   Subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutUserInput
+  Notification?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedCreateNestedManyWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutWorkspaceInput = {
@@ -627,11 +1156,24 @@ export type UserUpdateWithoutWorkspaceInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   UserOAuthApp?: Prisma.UserOAuthAppUpdateManyWithoutUserNestedInput
   Subscription?: Prisma.SubscriptionUpdateOneWithoutUserNestedInput
+  Notification?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUpdateManyWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWorkspaceInput = {
@@ -640,11 +1182,744 @@ export type UserUncheckedUpdateWithoutWorkspaceInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   UserOAuthApp?: Prisma.UserOAuthAppUncheckedUpdateManyWithoutUserNestedInput
   Subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+  Notification?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedUpdateManyWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutMcpAuthorizationCodeInput = {
+  id?: string
+  email: string
+  name?: string | null
+  password: string
+  role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
+  lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppCreateNestedManyWithoutUserInput
+  Workspace?: Prisma.WorkspaceCreateNestedManyWithoutUserInput
+  Subscription?: Prisma.SubscriptionCreateNestedOneWithoutUserInput
+  Notification?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionCreateNestedOneWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogCreateNestedOneWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutMcpAuthorizationCodeInput = {
+  id?: string
+  email: string
+  name?: string | null
+  password: string
+  role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
+  lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUncheckedCreateNestedManyWithoutUserInput
+  Workspace?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutUserInput
+  Subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutUserInput
+  Notification?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedCreateNestedOneWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogUncheckedCreateNestedOneWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutMcpAuthorizationCodeInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMcpAuthorizationCodeInput, Prisma.UserUncheckedCreateWithoutMcpAuthorizationCodeInput>
+}
+
+export type UserUpsertWithoutMcpAuthorizationCodeInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMcpAuthorizationCodeInput, Prisma.UserUncheckedUpdateWithoutMcpAuthorizationCodeInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMcpAuthorizationCodeInput, Prisma.UserUncheckedCreateWithoutMcpAuthorizationCodeInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMcpAuthorizationCodeInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMcpAuthorizationCodeInput, Prisma.UserUncheckedUpdateWithoutMcpAuthorizationCodeInput>
+}
+
+export type UserUpdateWithoutMcpAuthorizationCodeInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUpdateManyWithoutUserNestedInput
+  Workspace?: Prisma.WorkspaceUpdateManyWithoutUserNestedInput
+  Subscription?: Prisma.SubscriptionUpdateOneWithoutUserNestedInput
+  Notification?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUpdateOneWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUpdateOneWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMcpAuthorizationCodeInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUncheckedUpdateManyWithoutUserNestedInput
+  Workspace?: Prisma.WorkspaceUncheckedUpdateManyWithoutUserNestedInput
+  Subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+  Notification?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedUpdateOneWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutMcpRevokedTokenInput = {
+  id?: string
+  email: string
+  name?: string | null
+  password: string
+  role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
+  lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppCreateNestedManyWithoutUserInput
+  Workspace?: Prisma.WorkspaceCreateNestedManyWithoutUserInput
+  Subscription?: Prisma.SubscriptionCreateNestedOneWithoutUserInput
+  Notification?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogCreateNestedOneWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutMcpRevokedTokenInput = {
+  id?: string
+  email: string
+  name?: string | null
+  password: string
+  role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
+  lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUncheckedCreateNestedManyWithoutUserInput
+  Workspace?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutUserInput
+  Subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutUserInput
+  Notification?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogUncheckedCreateNestedOneWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutMcpRevokedTokenInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMcpRevokedTokenInput, Prisma.UserUncheckedCreateWithoutMcpRevokedTokenInput>
+}
+
+export type UserUpsertWithoutMcpRevokedTokenInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMcpRevokedTokenInput, Prisma.UserUncheckedUpdateWithoutMcpRevokedTokenInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMcpRevokedTokenInput, Prisma.UserUncheckedCreateWithoutMcpRevokedTokenInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMcpRevokedTokenInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMcpRevokedTokenInput, Prisma.UserUncheckedUpdateWithoutMcpRevokedTokenInput>
+}
+
+export type UserUpdateWithoutMcpRevokedTokenInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUpdateManyWithoutUserNestedInput
+  Workspace?: Prisma.WorkspaceUpdateManyWithoutUserNestedInput
+  Subscription?: Prisma.SubscriptionUpdateOneWithoutUserNestedInput
+  Notification?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUpdateOneWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMcpRevokedTokenInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUncheckedUpdateManyWithoutUserNestedInput
+  Workspace?: Prisma.WorkspaceUncheckedUpdateManyWithoutUserNestedInput
+  Subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+  Notification?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutNotificationInput = {
+  id?: string
+  email: string
+  name?: string | null
+  password: string
+  role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
+  lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppCreateNestedManyWithoutUserInput
+  Workspace?: Prisma.WorkspaceCreateNestedManyWithoutUserInput
+  Subscription?: Prisma.SubscriptionCreateNestedOneWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeCreateNestedManyWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogCreateNestedOneWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutNotificationInput = {
+  id?: string
+  email: string
+  name?: string | null
+  password: string
+  role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
+  lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUncheckedCreateNestedManyWithoutUserInput
+  Workspace?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutUserInput
+  Subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedCreateNestedManyWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogUncheckedCreateNestedOneWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutNotificationInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutNotificationInput, Prisma.UserUncheckedCreateWithoutNotificationInput>
+}
+
+export type UserUpsertWithoutNotificationInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutNotificationInput, Prisma.UserUncheckedUpdateWithoutNotificationInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutNotificationInput, Prisma.UserUncheckedCreateWithoutNotificationInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutNotificationInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutNotificationInput, Prisma.UserUncheckedUpdateWithoutNotificationInput>
+}
+
+export type UserUpdateWithoutNotificationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUpdateManyWithoutUserNestedInput
+  Workspace?: Prisma.WorkspaceUpdateManyWithoutUserNestedInput
+  Subscription?: Prisma.SubscriptionUpdateOneWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUpdateManyWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUpdateOneWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutNotificationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUncheckedUpdateManyWithoutUserNestedInput
+  Workspace?: Prisma.WorkspaceUncheckedUpdateManyWithoutUserNestedInput
+  Subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedUpdateManyWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutNotificationPreferenceInput = {
+  id?: string
+  email: string
+  name?: string | null
+  password: string
+  role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
+  lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppCreateNestedManyWithoutUserInput
+  Workspace?: Prisma.WorkspaceCreateNestedManyWithoutUserInput
+  Subscription?: Prisma.SubscriptionCreateNestedOneWithoutUserInput
+  Notification?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeCreateNestedManyWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogCreateNestedOneWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutNotificationPreferenceInput = {
+  id?: string
+  email: string
+  name?: string | null
+  password: string
+  role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
+  lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUncheckedCreateNestedManyWithoutUserInput
+  Workspace?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutUserInput
+  Subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutUserInput
+  Notification?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedCreateNestedManyWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogUncheckedCreateNestedOneWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutNotificationPreferenceInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutNotificationPreferenceInput, Prisma.UserUncheckedCreateWithoutNotificationPreferenceInput>
+}
+
+export type UserUpsertWithoutNotificationPreferenceInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutNotificationPreferenceInput, Prisma.UserUncheckedUpdateWithoutNotificationPreferenceInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutNotificationPreferenceInput, Prisma.UserUncheckedCreateWithoutNotificationPreferenceInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutNotificationPreferenceInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutNotificationPreferenceInput, Prisma.UserUncheckedUpdateWithoutNotificationPreferenceInput>
+}
+
+export type UserUpdateWithoutNotificationPreferenceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUpdateManyWithoutUserNestedInput
+  Workspace?: Prisma.WorkspaceUpdateManyWithoutUserNestedInput
+  Subscription?: Prisma.SubscriptionUpdateOneWithoutUserNestedInput
+  Notification?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUpdateManyWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUpdateOneWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutNotificationPreferenceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUncheckedUpdateManyWithoutUserNestedInput
+  Workspace?: Prisma.WorkspaceUncheckedUpdateManyWithoutUserNestedInput
+  Subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+  Notification?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedUpdateManyWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutPushSubscriptionInput = {
+  id?: string
+  email: string
+  name?: string | null
+  password: string
+  role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
+  lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppCreateNestedManyWithoutUserInput
+  Workspace?: Prisma.WorkspaceCreateNestedManyWithoutUserInput
+  Subscription?: Prisma.SubscriptionCreateNestedOneWithoutUserInput
+  Notification?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeCreateNestedManyWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogCreateNestedOneWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutPushSubscriptionInput = {
+  id?: string
+  email: string
+  name?: string | null
+  password: string
+  role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
+  lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUncheckedCreateNestedManyWithoutUserInput
+  Workspace?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutUserInput
+  Subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutUserInput
+  Notification?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedCreateNestedManyWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedCreateNestedManyWithoutUserInput
+  ConsentLog?: Prisma.ConsentLogUncheckedCreateNestedOneWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutPushSubscriptionInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPushSubscriptionInput, Prisma.UserUncheckedCreateWithoutPushSubscriptionInput>
+}
+
+export type UserUpsertWithoutPushSubscriptionInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPushSubscriptionInput, Prisma.UserUncheckedUpdateWithoutPushSubscriptionInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPushSubscriptionInput, Prisma.UserUncheckedCreateWithoutPushSubscriptionInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPushSubscriptionInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPushSubscriptionInput, Prisma.UserUncheckedUpdateWithoutPushSubscriptionInput>
+}
+
+export type UserUpdateWithoutPushSubscriptionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUpdateManyWithoutUserNestedInput
+  Workspace?: Prisma.WorkspaceUpdateManyWithoutUserNestedInput
+  Subscription?: Prisma.SubscriptionUpdateOneWithoutUserNestedInput
+  Notification?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUpdateManyWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUpdateOneWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPushSubscriptionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUncheckedUpdateManyWithoutUserNestedInput
+  Workspace?: Prisma.WorkspaceUncheckedUpdateManyWithoutUserNestedInput
+  Subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+  Notification?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedUpdateManyWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedUpdateManyWithoutUserNestedInput
+  ConsentLog?: Prisma.ConsentLogUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutConsentLogInput = {
+  id?: string
+  email: string
+  name?: string | null
+  password: string
+  role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
+  lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppCreateNestedManyWithoutUserInput
+  Workspace?: Prisma.WorkspaceCreateNestedManyWithoutUserInput
+  Subscription?: Prisma.SubscriptionCreateNestedOneWithoutUserInput
+  Notification?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeCreateNestedManyWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutConsentLogInput = {
+  id?: string
+  email: string
+  name?: string | null
+  password: string
+  role?: $Enums.UserRole
+  emailVerified?: Date | string | null
+  emailVerificationToken?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  passwordResetToken?: string | null
+  passwordResetExpiresAt?: Date | string | null
+  lastRoleChangeAt?: Date | string | null
+  scheduledForDeletionAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUncheckedCreateNestedManyWithoutUserInput
+  Workspace?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutUserInput
+  Subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutUserInput
+  Notification?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedCreateNestedOneWithoutUserInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedCreateNestedManyWithoutUserInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedCreateNestedManyWithoutUserInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutConsentLogInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutConsentLogInput, Prisma.UserUncheckedCreateWithoutConsentLogInput>
+}
+
+export type UserUpsertWithoutConsentLogInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutConsentLogInput, Prisma.UserUncheckedUpdateWithoutConsentLogInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutConsentLogInput, Prisma.UserUncheckedCreateWithoutConsentLogInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutConsentLogInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutConsentLogInput, Prisma.UserUncheckedUpdateWithoutConsentLogInput>
+}
+
+export type UserUpdateWithoutConsentLogInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUpdateManyWithoutUserNestedInput
+  Workspace?: Prisma.WorkspaceUpdateManyWithoutUserNestedInput
+  Subscription?: Prisma.SubscriptionUpdateOneWithoutUserNestedInput
+  Notification?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUpdateManyWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutConsentLogInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordResetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordResetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleChangeAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledForDeletionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UserOAuthApp?: Prisma.UserOAuthAppUncheckedUpdateManyWithoutUserNestedInput
+  Workspace?: Prisma.WorkspaceUncheckedUpdateManyWithoutUserNestedInput
+  Subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+  Notification?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  NotificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  OnboardingSession?: Prisma.OnboardingSessionUncheckedUpdateOneWithoutUserNestedInput
+  McpAuthorizationCode?: Prisma.McpAuthorizationCodeUncheckedUpdateManyWithoutUserNestedInput
+  McpRevokedToken?: Prisma.McpRevokedTokenUncheckedUpdateManyWithoutUserNestedInput
+  PushSubscription?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -655,11 +1930,19 @@ export type UserUncheckedUpdateWithoutWorkspaceInput = {
 export type UserCountOutputType = {
   UserOAuthApp: number
   Workspace: number
+  Notification: number
+  McpAuthorizationCode: number
+  McpRevokedToken: number
+  PushSubscription: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   UserOAuthApp?: boolean | UserCountOutputTypeCountUserOAuthAppArgs
   Workspace?: boolean | UserCountOutputTypeCountWorkspaceArgs
+  Notification?: boolean | UserCountOutputTypeCountNotificationArgs
+  McpAuthorizationCode?: boolean | UserCountOutputTypeCountMcpAuthorizationCodeArgs
+  McpRevokedToken?: boolean | UserCountOutputTypeCountMcpRevokedTokenArgs
+  PushSubscription?: boolean | UserCountOutputTypeCountPushSubscriptionArgs
 }
 
 /**
@@ -686,6 +1969,34 @@ export type UserCountOutputTypeCountWorkspaceArgs<ExtArgs extends runtime.Types.
   where?: Prisma.WorkspaceWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountNotificationArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NotificationWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountMcpAuthorizationCodeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.McpAuthorizationCodeWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountMcpRevokedTokenArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.McpRevokedTokenWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPushSubscriptionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PushSubscriptionWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -693,12 +2004,25 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   name?: boolean
   password?: boolean
   role?: boolean
+  emailVerified?: boolean
+  emailVerificationToken?: boolean
+  emailVerificationExpiresAt?: boolean
+  passwordResetToken?: boolean
+  passwordResetExpiresAt?: boolean
   lastRoleChangeAt?: boolean
+  scheduledForDeletionAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   UserOAuthApp?: boolean | Prisma.User$UserOAuthAppArgs<ExtArgs>
   Workspace?: boolean | Prisma.User$WorkspaceArgs<ExtArgs>
   Subscription?: boolean | Prisma.User$SubscriptionArgs<ExtArgs>
+  Notification?: boolean | Prisma.User$NotificationArgs<ExtArgs>
+  NotificationPreference?: boolean | Prisma.User$NotificationPreferenceArgs<ExtArgs>
+  OnboardingSession?: boolean | Prisma.User$OnboardingSessionArgs<ExtArgs>
+  McpAuthorizationCode?: boolean | Prisma.User$McpAuthorizationCodeArgs<ExtArgs>
+  McpRevokedToken?: boolean | Prisma.User$McpRevokedTokenArgs<ExtArgs>
+  PushSubscription?: boolean | Prisma.User$PushSubscriptionArgs<ExtArgs>
+  ConsentLog?: boolean | Prisma.User$ConsentLogArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -708,7 +2032,13 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   name?: boolean
   password?: boolean
   role?: boolean
+  emailVerified?: boolean
+  emailVerificationToken?: boolean
+  emailVerificationExpiresAt?: boolean
+  passwordResetToken?: boolean
+  passwordResetExpiresAt?: boolean
   lastRoleChangeAt?: boolean
+  scheduledForDeletionAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -719,7 +2049,13 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   name?: boolean
   password?: boolean
   role?: boolean
+  emailVerified?: boolean
+  emailVerificationToken?: boolean
+  emailVerificationExpiresAt?: boolean
+  passwordResetToken?: boolean
+  passwordResetExpiresAt?: boolean
   lastRoleChangeAt?: boolean
+  scheduledForDeletionAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -730,16 +2066,29 @@ export type UserSelectScalar = {
   name?: boolean
   password?: boolean
   role?: boolean
+  emailVerified?: boolean
+  emailVerificationToken?: boolean
+  emailVerificationExpiresAt?: boolean
+  passwordResetToken?: boolean
+  passwordResetExpiresAt?: boolean
   lastRoleChangeAt?: boolean
+  scheduledForDeletionAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "password" | "role" | "lastRoleChangeAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "password" | "role" | "emailVerified" | "emailVerificationToken" | "emailVerificationExpiresAt" | "passwordResetToken" | "passwordResetExpiresAt" | "lastRoleChangeAt" | "scheduledForDeletionAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   UserOAuthApp?: boolean | Prisma.User$UserOAuthAppArgs<ExtArgs>
   Workspace?: boolean | Prisma.User$WorkspaceArgs<ExtArgs>
   Subscription?: boolean | Prisma.User$SubscriptionArgs<ExtArgs>
+  Notification?: boolean | Prisma.User$NotificationArgs<ExtArgs>
+  NotificationPreference?: boolean | Prisma.User$NotificationPreferenceArgs<ExtArgs>
+  OnboardingSession?: boolean | Prisma.User$OnboardingSessionArgs<ExtArgs>
+  McpAuthorizationCode?: boolean | Prisma.User$McpAuthorizationCodeArgs<ExtArgs>
+  McpRevokedToken?: boolean | Prisma.User$McpRevokedTokenArgs<ExtArgs>
+  PushSubscription?: boolean | Prisma.User$PushSubscriptionArgs<ExtArgs>
+  ConsentLog?: boolean | Prisma.User$ConsentLogArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -751,6 +2100,13 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     UserOAuthApp: Prisma.$UserOAuthAppPayload<ExtArgs>[]
     Workspace: Prisma.$WorkspacePayload<ExtArgs>[]
     Subscription: Prisma.$SubscriptionPayload<ExtArgs> | null
+    Notification: Prisma.$NotificationPayload<ExtArgs>[]
+    NotificationPreference: Prisma.$NotificationPreferencePayload<ExtArgs> | null
+    OnboardingSession: Prisma.$OnboardingSessionPayload<ExtArgs> | null
+    McpAuthorizationCode: Prisma.$McpAuthorizationCodePayload<ExtArgs>[]
+    McpRevokedToken: Prisma.$McpRevokedTokenPayload<ExtArgs>[]
+    PushSubscription: Prisma.$PushSubscriptionPayload<ExtArgs>[]
+    ConsentLog: Prisma.$ConsentLogPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -758,7 +2114,13 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     name: string | null
     password: string
     role: $Enums.UserRole
+    emailVerified: Date | null
+    emailVerificationToken: string | null
+    emailVerificationExpiresAt: Date | null
+    passwordResetToken: string | null
+    passwordResetExpiresAt: Date | null
     lastRoleChangeAt: Date | null
+    scheduledForDeletionAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1158,6 +2520,13 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   UserOAuthApp<T extends Prisma.User$UserOAuthAppArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$UserOAuthAppArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserOAuthAppPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Workspace<T extends Prisma.User$WorkspaceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$WorkspaceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Subscription<T extends Prisma.User$SubscriptionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$SubscriptionArgs<ExtArgs>>): Prisma.Prisma__SubscriptionClient<runtime.Types.Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Notification<T extends Prisma.User$NotificationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$NotificationArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  NotificationPreference<T extends Prisma.User$NotificationPreferenceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$NotificationPreferenceArgs<ExtArgs>>): Prisma.Prisma__NotificationPreferenceClient<runtime.Types.Result.GetResult<Prisma.$NotificationPreferencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  OnboardingSession<T extends Prisma.User$OnboardingSessionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$OnboardingSessionArgs<ExtArgs>>): Prisma.Prisma__OnboardingSessionClient<runtime.Types.Result.GetResult<Prisma.$OnboardingSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  McpAuthorizationCode<T extends Prisma.User$McpAuthorizationCodeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$McpAuthorizationCodeArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$McpAuthorizationCodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  McpRevokedToken<T extends Prisma.User$McpRevokedTokenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$McpRevokedTokenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$McpRevokedTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  PushSubscription<T extends Prisma.User$PushSubscriptionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$PushSubscriptionArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PushSubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ConsentLog<T extends Prisma.User$ConsentLogArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ConsentLogArgs<ExtArgs>>): Prisma.Prisma__ConsentLogClient<runtime.Types.Result.GetResult<Prisma.$ConsentLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1192,7 +2561,13 @@ export interface UserFieldRefs {
   readonly name: Prisma.FieldRef<"User", 'String'>
   readonly password: Prisma.FieldRef<"User", 'String'>
   readonly role: Prisma.FieldRef<"User", 'UserRole'>
+  readonly emailVerified: Prisma.FieldRef<"User", 'DateTime'>
+  readonly emailVerificationToken: Prisma.FieldRef<"User", 'String'>
+  readonly emailVerificationExpiresAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly passwordResetToken: Prisma.FieldRef<"User", 'String'>
+  readonly passwordResetExpiresAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly lastRoleChangeAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly scheduledForDeletionAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
@@ -1652,6 +3027,159 @@ export type User$SubscriptionArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   include?: Prisma.SubscriptionInclude<ExtArgs> | null
   where?: Prisma.SubscriptionWhereInput
+}
+
+/**
+ * User.Notification
+ */
+export type User$NotificationArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Notification
+   */
+  select?: Prisma.NotificationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Notification
+   */
+  omit?: Prisma.NotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationInclude<ExtArgs> | null
+  where?: Prisma.NotificationWhereInput
+  orderBy?: Prisma.NotificationOrderByWithRelationInput | Prisma.NotificationOrderByWithRelationInput[]
+  cursor?: Prisma.NotificationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
+}
+
+/**
+ * User.NotificationPreference
+ */
+export type User$NotificationPreferenceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the NotificationPreference
+   */
+  select?: Prisma.NotificationPreferenceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the NotificationPreference
+   */
+  omit?: Prisma.NotificationPreferenceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationPreferenceInclude<ExtArgs> | null
+  where?: Prisma.NotificationPreferenceWhereInput
+}
+
+/**
+ * User.OnboardingSession
+ */
+export type User$OnboardingSessionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OnboardingSession
+   */
+  select?: Prisma.OnboardingSessionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OnboardingSession
+   */
+  omit?: Prisma.OnboardingSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OnboardingSessionInclude<ExtArgs> | null
+  where?: Prisma.OnboardingSessionWhereInput
+}
+
+/**
+ * User.McpAuthorizationCode
+ */
+export type User$McpAuthorizationCodeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the McpAuthorizationCode
+   */
+  select?: Prisma.McpAuthorizationCodeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the McpAuthorizationCode
+   */
+  omit?: Prisma.McpAuthorizationCodeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.McpAuthorizationCodeInclude<ExtArgs> | null
+  where?: Prisma.McpAuthorizationCodeWhereInput
+  orderBy?: Prisma.McpAuthorizationCodeOrderByWithRelationInput | Prisma.McpAuthorizationCodeOrderByWithRelationInput[]
+  cursor?: Prisma.McpAuthorizationCodeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.McpAuthorizationCodeScalarFieldEnum | Prisma.McpAuthorizationCodeScalarFieldEnum[]
+}
+
+/**
+ * User.McpRevokedToken
+ */
+export type User$McpRevokedTokenArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the McpRevokedToken
+   */
+  select?: Prisma.McpRevokedTokenSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the McpRevokedToken
+   */
+  omit?: Prisma.McpRevokedTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.McpRevokedTokenInclude<ExtArgs> | null
+  where?: Prisma.McpRevokedTokenWhereInput
+  orderBy?: Prisma.McpRevokedTokenOrderByWithRelationInput | Prisma.McpRevokedTokenOrderByWithRelationInput[]
+  cursor?: Prisma.McpRevokedTokenWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.McpRevokedTokenScalarFieldEnum | Prisma.McpRevokedTokenScalarFieldEnum[]
+}
+
+/**
+ * User.PushSubscription
+ */
+export type User$PushSubscriptionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PushSubscription
+   */
+  select?: Prisma.PushSubscriptionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PushSubscription
+   */
+  omit?: Prisma.PushSubscriptionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushSubscriptionInclude<ExtArgs> | null
+  where?: Prisma.PushSubscriptionWhereInput
+  orderBy?: Prisma.PushSubscriptionOrderByWithRelationInput | Prisma.PushSubscriptionOrderByWithRelationInput[]
+  cursor?: Prisma.PushSubscriptionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PushSubscriptionScalarFieldEnum | Prisma.PushSubscriptionScalarFieldEnum[]
+}
+
+/**
+ * User.ConsentLog
+ */
+export type User$ConsentLogArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ConsentLog
+   */
+  select?: Prisma.ConsentLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ConsentLog
+   */
+  omit?: Prisma.ConsentLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ConsentLogInclude<ExtArgs> | null
+  where?: Prisma.ConsentLogWhereInput
 }
 
 /**

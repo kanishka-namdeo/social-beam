@@ -1,11 +1,10 @@
 ---
-description: Auto-update docs/features-built.md after feature implementation. Apply when completing a feature build, removal, or edit.
+description: Feature documentation auto-update — update docs/features-built.md after building features. Apply after completing feature implementation.
 alwaysApply: false
 ---
-
 # Feature Documentation Auto-Update
 
-**Trigger**: Always active. After every session where the agent builds, removes, edits, or modifies a feature in the app, the agent MUST update `docs/features-built.md`.
+**Trigger**: Agent-requested. After every session where the agent builds, removes, edits, or modifies a feature in the app, the agent MUST update `docs/features-built.md`.
 
 ## When to Update
 

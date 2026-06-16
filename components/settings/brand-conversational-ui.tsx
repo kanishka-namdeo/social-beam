@@ -34,6 +34,7 @@ import {
   PencilSimple,
 } from "@phosphor-icons/react/ssr";
 import { BrandContextReview } from "./brand-context-review";
+import { BrandResumePrompt } from "./brand-resume-prompt";
 
 interface Finding {
   type: string;
@@ -76,6 +77,9 @@ interface SSEEvent {
   suggestion?: string;
   heartbeat?: boolean;
   elapsedMs?: number;
+  resumed?: boolean;
+  checkpointStep?: string;
+  nextNode?: string;
   content_summary?: { pagesFound: string[]; pageCount: number };
   identity_extracted?: { businessName: string | null; tagline: string | null; industry: string | null };
   voice_extracted?: { tonePreset: string | null; voiceDescription: string | null };
@@ -84,7 +88,7 @@ interface SSEEvent {
   crawl_progress?: { pages: string[]; totalPages: number };
 }
 
-type Phase = "idle" | "streaming" | "review" | "editing" | "saving" | "complete" | "error";
+type Phase = "idle" | "streaming" | "review" | "editing" | "saving" | "complete" | "error" | "resume_prompt";
 
 const URL_ANALYSIS_STEPS = [
   { id: "collect", label: "Crawling website", icon: Globe },
@@ -148,6 +152,17 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
   const [crawledPages, setCrawledPages] = useState<string[]>([]);
   const [errorSuggestion, setErrorSuggestion] = useState<string | null>(null);
   const [lastHeartbeatMs, setLastHeartbeatMs] = useState(0);
+  const [resumeDraft, setResumeDraft] = useState<{
+    checkpointStep: string;
+    createdAt: string;
+    inputUrl?: string | null;
+    inputDescription?: string | null;
+    partialSummary: string;
+    hasBrandContextDraft: boolean;
+    hasPlatformContextsDraft: boolean;
+    hasSamplePosts: boolean;
+  } | null>(null);
+  const [isResuming, setIsResuming] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const streamingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phaseRef = useRef<Phase>("idle");
@@ -196,6 +211,31 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
     };
   }, []);
 
+  // Check for existing draft on mount
+  const draftCheckDone = useRef(false);
+
+  React.useEffect(() => {
+    if (phase !== "idle" || draftCheckDone.current || isReanalyzeMode) return;
+    draftCheckDone.current = true;
+
+    (async () => {
+      try {
+        const response = await fetch("/api/brand-context/resume-draft", {
+          headers: { "Content-Type": "application/json" },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.hasDraft) {
+            setResumeDraft(data.draft);
+            setPhase("resume_prompt");
+          }
+        }
+      } catch {
+        // Draft check failure is non-critical — stay in idle phase
+      }
+    })();
+  }, [phase, isReanalyzeMode]);
+
   // Auto-start analysis in re-analyze mode
   const autoStartTriggered = React.useRef(false);
 
@@ -211,6 +251,11 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
   React.useEffect(() => {
     if (!autoStartTriggered.current || !initialUrl) return;
     if (phase !== "idle") return;
+
+    // Create the abort controller eagerly so cleanup can always reach it,
+    // even if the outer deferred setTimeout hasn't fired yet.
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
 
     // Defer setState via microtask to avoid cascading render warning
     const id = setTimeout(() => {
@@ -229,9 +274,6 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
           setError("Analysis timed out. Please try again.");
         }
       }, 300_000);
-
-      const abortController = new AbortController();
-      abortControllerRef.current = abortController;
 
       void (async () => {
         try {
@@ -267,7 +309,17 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
       })();
     }, 0);
 
-    return () => clearTimeout(id);
+    return () => {
+      clearTimeout(id);
+      // Abort any in-flight stream and clear the safety timeout so a dep
+      // change while streaming doesn't leak the connection.
+      abortController.abort();
+      if (streamingTimeoutRef.current) {
+        clearTimeout(streamingTimeoutRef.current);
+        streamingTimeoutRef.current = null;
+      }
+      abortControllerRef.current = null;
+    };
   }, [isReanalyzeMode, initialUrl, phase]);
 
   function getAnalysisSteps() {
@@ -348,6 +400,11 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
               setLastHeartbeatMs(event.elapsedMs);
             }
 
+            // Resume event: show feedback that we're resuming from a checkpoint
+            if (event.resumed && event.checkpointStep) {
+              setCurrentSubStep(`Resuming from ${event.checkpointStep.replace(/_/g, " ")}...`);
+            }
+
             if (event.step) {
               setCurrentStep(event.step);
               updateSubStep(event.step);
@@ -420,6 +477,9 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
               setSavedSummary({ businessName, tonePreset, audienceType, platformCount });
               setPhase("complete");
             }
+            if (event.done && event.threadId) {
+              setThreadId(event.threadId);
+            }
             if (event.error) {
               hasReceivedError = true;
               setError(event.error);
@@ -455,6 +515,8 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
   /** Start a new brand analysis from URL */
   const startAnalysisFromUrl = useCallback(async (websiteUrl: string) => {
     setPhase("streaming");
+    // Discard any existing draft when starting fresh
+    fetch("/api/brand-context/draft", { method: "DELETE" }).catch(() => {});
     setDraft({});
     setPlatforms({});
     setSamples([]);
@@ -510,6 +572,8 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
   /** Start a new brand analysis from a text description */
   const startAnalysisFromDescription = useCallback(async (description: string) => {
     setPhase("streaming");
+    // Discard any existing draft when starting fresh
+    fetch("/api/brand-context/draft", { method: "DELETE" }).catch(() => {});
     setDraft({});
     setPlatforms({});
     setSamples([]);
@@ -561,6 +625,71 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
       abortControllerRef.current = null;
     }
   }, [phase]);
+
+  const handleResume = useCallback(async () => {
+    if (!resumeDraft) return;
+
+    setIsResuming(true);
+    setPhase("streaming");
+    setDraft({});
+    setPlatforms({});
+    setSamples([]);
+    setFindings([]);
+    setCurrentSubStep("");
+    setError(null);
+    setStreamProgress(0);
+
+    streamingTimeoutRef.current = setTimeout(() => {
+      if (phaseRef.current === "streaming") {
+        setPhase("error");
+        setError("Resume analysis timed out. Please try again.");
+      }
+    }, 360_000);
+
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    try {
+      const response = await fetch("/api/brand-context/resume-draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: abortController.signal,
+      });
+
+      if (!response.ok) {
+        const json = await response.json().catch(() => ({ error: "Resume failed" }));
+        throw new Error(json.error ?? "Resume failed");
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error("No readable stream");
+      }
+
+      await processStream(reader, abortController.signal);
+    } catch (err) {
+      if (err instanceof Error && err.name === "AbortError") return;
+      setError(err instanceof Error ? err.message : "Resume failed");
+      setPhase("resume_prompt");
+      setIsResuming(false);
+    } finally {
+      if (streamingTimeoutRef.current) {
+        clearTimeout(streamingTimeoutRef.current);
+      }
+      abortControllerRef.current = null;
+    }
+  }, [resumeDraft]);
+
+  const handleDiscardDraft = useCallback(async () => {
+    try {
+      await fetch("/api/brand-context/draft", { method: "DELETE" });
+    } catch {
+      // Discard failure is non-critical
+    }
+    setResumeDraft(null);
+    setPhase("idle");
+    setIsResuming(false);
+  }, []);
 
   /** Confirm the draft and save it, merging any inline edits first */
   const confirmDraft = useCallback(async (edits: Record<string, unknown> = {}) => {
@@ -831,6 +960,18 @@ export function BrandConversationalUI({ initialUrl, isReanalyzeMode, connectedPl
           )}
         </div>
       </div>
+    );
+  }
+
+  // Resume prompt phase
+  if (phase === "resume_prompt" && resumeDraft) {
+    return (
+      <BrandResumePrompt
+        draft={resumeDraft}
+        onResume={handleResume}
+        onDiscard={handleDiscardDraft}
+        isResuming={isResuming}
+      />
     );
   }
 

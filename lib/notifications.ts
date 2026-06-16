@@ -13,12 +13,20 @@ import { toast } from "sonner";
 
 const TOAST_COOLDOWN_MS = 2000;
 const recentToasts = new Map<string, number>();
+const MAX_RECENT_TOASTS = 100;
 
 function shouldShowToast(id: string | undefined): boolean {
   if (!id) return true;
   const last = recentToasts.get(id);
   if (last && Date.now() - last < TOAST_COOLDOWN_MS) return false;
   recentToasts.set(id, Date.now());
+  // Evict oldest entries if map grows too large
+  if (recentToasts.size > MAX_RECENT_TOASTS) {
+    const cutoff = Date.now() - TOAST_COOLDOWN_MS * 2;
+    for (const [key, ts] of recentToasts) {
+      if (ts < cutoff) recentToasts.delete(key);
+    }
+  }
   return true;
 }
 
@@ -105,3 +113,88 @@ export function notifyWithLoading<T>(
 // ── Toast with undo ─────────────────────────────────────────────────────
 
 export { toastWithUndo, toastSuccessUndo, toastWarning } from "./toast-utils";
+
+// ── Category-aware helpers (toast + server persistence) ────────────────
+
+type NotificationCategory =
+  | "post_publish"
+  | "engagement"
+  | "system"
+  | "billing"
+  | "ai_insight"
+  | "connection"
+  | "brand"
+  | "custom";
+
+interface CategoryNotifyOptions {
+  category: NotificationCategory;
+  description?: string;
+  actionUrl?: string;
+  workspaceId?: string;
+  id?: string;
+}
+
+async function persistNotification(
+  type: "info" | "success" | "warning" | "error",
+  title: string,
+  opts: CategoryNotifyOptions
+) {
+  if (typeof window === "undefined") return;
+
+  try {
+    await fetch("/api/notifications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type,
+        category: opts.category,
+        title,
+        description: opts.description,
+        actionUrl: opts.actionUrl,
+        workspaceId: opts.workspaceId,
+      }),
+    });
+  } catch (error) {
+    console.error("Failed to persist notification:", error);
+  }
+}
+
+export function notifySuccessWithCategory(
+  title: string,
+  opts: CategoryNotifyOptions
+) {
+  if (!shouldShowToast(opts.id)) return;
+  toast.success(title, { description: opts.description });
+  pushToBell("success", title, opts.description);
+  persistNotification("success", title, opts);
+}
+
+export function notifyErrorWithCategory(
+  title: string,
+  opts: CategoryNotifyOptions
+) {
+  if (!shouldShowToast(opts.id)) return;
+  toast.error(title, { description: opts.description });
+  pushToBell("error", title, opts.description);
+  persistNotification("error", title, opts);
+}
+
+export function notifyWarningWithCategory(
+  title: string,
+  opts: CategoryNotifyOptions
+) {
+  if (!shouldShowToast(opts.id)) return;
+  toast.warning(title, { description: opts.description });
+  pushToBell("warning", title, opts.description);
+  persistNotification("warning", title, opts);
+}
+
+export function notifyInfoWithCategory(
+  title: string,
+  opts: CategoryNotifyOptions
+) {
+  if (!shouldShowToast(opts.id)) return;
+  toast.info(title, { description: opts.description });
+  pushToBell("info", title, opts.description);
+  persistNotification("info", title, opts);
+}

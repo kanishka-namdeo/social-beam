@@ -1,6 +1,6 @@
 ---
 description: React component patterns for Next.js App Router — server/client classification, module-level JSX, Radix imports, third-party context providers, hydration prevention. Apply to all .tsx files.
-globs: "*.tsx,*.ts"
+globs: "**/*.tsx,**/*.ts"
 alwaysApply: false
 ---
 

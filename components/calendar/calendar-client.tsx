@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   DndContext,
   type DragEndEvent,
@@ -16,9 +16,13 @@ import {
   CaretRight,
   CalendarDots,
   Info,
+  Keyboard,
+  Lightbulb,
   ListBullets,
   Sidebar,
   Spinner,
+  Stack,
+  UploadSimple,
   Warning,
   X,
 } from "@phosphor-icons/react/ssr";
@@ -46,6 +50,8 @@ import {
 } from "@/components/ui/resizable";
 import { addMonths, subMonths, addWeeks, subWeeks, addDays, subDays, format } from "date-fns";
 import { toast } from "sonner";
+import { notifySuccessWithCategory, notifyErrorWithCategory } from "@/lib/notifications";
+import { cn } from "@/lib/utils";
 import { MonthView } from "./month-view";
 import { WeekView } from "./week-view";
 import { DayView } from "./day-view";
@@ -53,7 +59,16 @@ import { ListView } from "./list-view";
 import { RescheduleDialog } from "./reschedule-dialog";
 import { PostPreviewDialog } from "./post-preview-dialog";
 import { InsightsSidebar } from "./insights-sidebar";
-import type { PostItem } from "./types";
+import { BulkScheduleDialog } from "./bulk-schedule-dialog";
+import { CsvImportDialog } from "./csv-import-dialog";
+import { TimezoneSelector } from "./timezone-selector";
+import { CategoryFilter } from "./category-filter";
+import { AnalyticsOverlay } from "./analytics-overlay";
+import { CalendarShortcuts } from "./calendar-shortcuts";
+import { BatchActionBar } from "./batch-action-bar";
+import { AddNoteDialog } from "./add-note-dialog";
+import { useCalendarShortcuts } from "@/lib/hooks/use-calendar-shortcuts";
+import type { PostItem, IdeaItem, CalendarNote } from "./types";
 
 type CalendarView = "month" | "week" | "day" | "list";
 
@@ -101,6 +116,8 @@ export function CalendarClient({
   const [currentDate, setCurrentDate] = useState(() => new Date(initialDate));
   const [view, setView] = useState<CalendarView>("month");
   const [posts, setPosts] = useState<PostItem[]>(initialPosts);
+  const [ideas, setIdeas] = useState<IdeaItem[]>([]);
+  const [showIdeas, setShowIdeas] = useState(true);
   const [filterPlatform, setFilterPlatform] = useState<string>("all");
 
   // Insights sidebar toggle (mobile/tablet)
@@ -108,6 +125,9 @@ export function CalendarClient({
 
   // Track latest month fetch to avoid duplicate requests
   const lastFetchedMonthRef = useRef<string>(`${new Date(initialDate).getFullYear()}-${new Date(initialDate).getMonth()}`);
+
+  // AbortController ref to cancel previous fetch on rapid navigation
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Loading state for month navigation
   const [monthLoading, setMonthLoading] = useState(false);
@@ -121,10 +141,26 @@ export function CalendarClient({
   const [dialogPostId, setDialogPostId] = useState<string | null>(null);
   const [dialogOriginalDate, setDialogOriginalDate] = useState<string | null>(null);
   const [dialogTargetDate, setDialogTargetDate] = useState<Date | null>(null);
+  const [dialogSuggestedHour, setDialogSuggestedHour] = useState<number | null>(null);
+  const [dialogPlatforms, setDialogPlatforms] = useState<string[] | null>(null);
 
   // Preview dialog state
   const [previewPost, setPreviewPost] = useState<PostItem | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+
+  // Bulk schedule and CSV import dialogs
+  const [bulkScheduleOpen, setBulkScheduleOpen] = useState(false);
+  const [csvImportOpen, setCsvImportOpen] = useState(false);
+
+  // Phase 5: Timezone, notes, categories, analytics, shortcuts, batch selection
+  const [timezone, setTimezone] = useState<string>("UTC");
+  const [notes, setNotes] = useState<CalendarNote[]>([]);
+  const [addNoteDialogOpen, setAddNoteDialogOpen] = useState(false);
+  const [addNoteDate, setAddNoteDate] = useState<Date | null>(null);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [selectedPostIds, setSelectedPostIds] = useState<Set<string>>(new Set());
+  const [lastSelectedPostId, setLastSelectedPostId] = useState<string | null>(null);
 
   // Sensors for drag-and-drop
   const sensors = useSensors(
@@ -146,13 +182,30 @@ export function CalendarClient({
   const fetchPostsForMonth = useCallback(async (date: Date, forceRefetch = false) => {
     const key = `${date.getFullYear()}-${date.getMonth()}`;
     if (!forceRefetch && key === lastFetchedMonthRef.current) return;
+
+    // Abort previous fetch to prevent race conditions
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     lastFetchedMonthRef.current = key;
     setMonthLoading(true);
 
     const year = date.getFullYear();
     const month = date.getMonth();
     try {
-      const res = await fetch(`/api/calendar/posts?year=${year}&month=${month}`);
+      const params = new URLSearchParams({
+        year: year.toString(),
+        month: month.toString(),
+        timezone,
+      });
+      if (showAnalytics) {
+        params.set("includeAnalytics", "true");
+      }
+      const res = await fetch(`/api/calendar/posts?${params}`, {
+        signal: controller.signal,
+      });
+      if (controller.signal.aborted) return;
       if (res.ok) {
         const data = await res.json();
         setPosts(data.posts);
@@ -168,14 +221,47 @@ export function CalendarClient({
           return next;
         });
       }
-    } catch {
+    } catch (err) {
+      if (controller.signal.aborted) return;
       setMonthFetchErrors((prev) => {
         const next = new Map(prev);
         next.set(key, (next.get(key) ?? 0) + 1);
         return next;
       });
     } finally {
-      setMonthLoading(false);
+      if (!controller.signal.aborted) {
+        setMonthLoading(false);
+      }
+    }
+  }, [timezone, showAnalytics]);
+
+  // Fetch ideas for a given month
+  const fetchIdeasForMonth = useCallback(async (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    try {
+      const res = await fetch(`/api/calendar/ideas?year=${year}&month=${month}`);
+      if (res.ok) {
+        const data = await res.json();
+        setIdeas(data.ideas);
+      }
+    } catch (err) {
+      console.error("Failed to fetch ideas:", err);
+    }
+  }, []);
+
+  // Fetch notes for a given month
+  const fetchNotesForMonth = useCallback(async (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    try {
+      const res = await fetch(`/api/calendar/notes?year=${year}&month=${month}`);
+      if (res.ok) {
+        const data = await res.json();
+        setNotes(data.notes);
+      }
+    } catch (err) {
+      console.error("Failed to fetch notes:", err);
     }
   }, []);
 
@@ -183,21 +269,36 @@ export function CalendarClient({
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetchPostsForMonth(currentDate);
+    void fetchIdeasForMonth(currentDate);
+    void fetchNotesForMonth(currentDate);
+
+    return () => {
+      abortControllerRef.current?.abort();
+    };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Filter posts by platform
-  const filteredPosts = filterPlatform === "all"
-    ? posts
-    : posts.filter((p) => p.platforms.some((pl) => pl.platform === filterPlatform));
+  // Filter posts by platform and category
+  const filteredPosts = useMemo(() => {
+    let result = filterPlatform === "all"
+      ? posts
+      : posts.filter((p) => p.platforms.some((pl) => pl.platform === filterPlatform));
+    
+    if (selectedCategories.length > 0) {
+      result = result.filter((p) => p.category && selectedCategories.includes(p.category));
+    }
+    
+    return result;
+  }, [posts, filterPlatform, selectedCategories]);
 
   // Navigation handlers — update date and fetch posts
   const navigateAndFetch = useCallback((updater: (d: Date) => Date) => {
     setCurrentDate((prev) => {
       const next = updater(prev);
       void fetchPostsForMonth(next);
+      void fetchIdeasForMonth(next);
       return next;
     });
-  }, [fetchPostsForMonth]);
+  }, [fetchPostsForMonth, fetchIdeasForMonth]);
 
   const retryFailedMonth = useCallback((failedKey: string) => {
     const [yearStr, monthStr] = failedKey.split("-");
@@ -235,25 +336,44 @@ export function CalendarClient({
 
     if (!over || !active) return;
 
-    // Check if dropped on a day cell
+    const activePostId = typeof active.id === "string"
+      ? active.id.replace("post-", "")
+      : null;
+
+    if (!activePostId) return;
+
+    const originalPost = posts.find((p) => p.id === activePostId);
+    if (!originalPost) return;
+
     if (typeof over.id === "string" && over.id.startsWith("day-")) {
-      const activePostId = typeof active.id === "string"
-        ? active.id.replace("post-", "")
-        : null;
-
-      if (!activePostId) return;
-
-      // Parse target date from droppable id
+      // Dropped on a day cell (month view)
       const targetDateStr = over.id.replace("day-", "");
       const targetDate = new Date(targetDateStr);
-
-      // Find original scheduled date
-      const originalPost = posts.find((p) => p.id === activePostId);
-      if (!originalPost) return;
 
       setDialogPostId(activePostId);
       setDialogOriginalDate(originalPost.scheduledAt);
       setDialogTargetDate(targetDate);
+      setDialogSuggestedHour(null);
+      setDialogPlatforms(null);
+      setDialogOpen(true);
+    } else if (typeof over.id === "string" && over.id.startsWith("hour-")) {
+      // Dropped on an hour slot (week/day view)
+      // Format: hour-YYYY-MM-DD-HH
+      const parts = over.id.replace("hour-", "");
+      const lastDash = parts.lastIndexOf("-");
+      const dateStr = parts.substring(0, lastDash);
+      const hourStr = parts.substring(lastDash + 1);
+      const targetDate = new Date(dateStr + "T00:00:00");
+      const hour = parseInt(hourStr, 10);
+
+      // Extract platforms from the original post
+      const platforms = originalPost.platforms.map((p) => p.platform);
+
+      setDialogPostId(activePostId);
+      setDialogOriginalDate(originalPost.scheduledAt);
+      setDialogTargetDate(targetDate);
+      setDialogSuggestedHour(hour);
+      setDialogPlatforms(platforms);
       setDialogOpen(true);
     }
   };
@@ -293,11 +413,11 @@ export function CalendarClient({
     if (!pendingDeletePostId) return;
     const res = await fetch(`/api/calendar/posts?postId=${pendingDeletePostId}`, { method: "DELETE" });
     if (!res.ok) {
-      toast.error("Failed to delete post");
+      notifyErrorWithCategory("Failed to delete post", { category: "post_publish" });
       return;
     }
     setPosts((prev) => prev.filter((p) => p.id !== pendingDeletePostId));
-    toast.success("Post deleted");
+    notifySuccessWithCategory("Post deleted", { category: "post_publish" });
     setPendingDeletePostId(null);
   }, [pendingDeletePostId]);
 
@@ -309,12 +429,12 @@ export function CalendarClient({
       body: JSON.stringify({ postId }),
     });
     if (!res.ok) {
-      toast.error("Failed to duplicate post");
+      notifyErrorWithCategory("Failed to duplicate post", { category: "post_publish" });
       return;
     }
     // Refresh current month to include the new post
     void fetchPostsForMonth(currentDate);
-    toast.success("Post duplicated");
+    notifySuccessWithCategory("Post duplicated", { category: "post_publish" });
   };
 
   // Preview handler
@@ -340,6 +460,145 @@ export function CalendarClient({
   const handleComposeForSlot = useCallback((date: Date) => {
     window.location.href = `/dashboard/compose?date=${date.toISOString().slice(0, 10)}`;
   }, []);
+
+  // AI fill gaps with ideas
+  const handleAiFill = useCallback(async (dates: Date[]) => {
+    try {
+      // Generate ideas for the gap dates
+      const response = await fetch("/api/ideas/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          count: dates.length,
+          context: "Fill empty calendar slots",
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to generate ideas");
+
+      const { ideas } = await response.json();
+
+      // Create ideas with target dates
+      await Promise.all(
+        ideas.map((idea: any, index: number) =>
+          fetch("/api/ideas", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...idea,
+              targetDate: dates[index]?.toISOString(),
+            }),
+          })
+        )
+      );
+
+      // Refresh ideas for current month
+      await fetchIdeasForMonth(currentDate);
+    } catch (error) {
+      console.error("AI fill failed:", error);
+      throw error;
+    }
+  }, [currentDate, fetchIdeasForMonth]);
+
+  // Keyboard shortcuts
+  const { showHelp, setShowHelp } = useCalendarShortcuts({
+    setView,
+    goToday,
+    goNext,
+    goPrev,
+  });
+
+  // Selection handlers
+  const handleSelectPost = useCallback((postId: string, e: React.MouseEvent) => {
+    setSelectedPostIds((prev) => {
+      const next = new Set(prev);
+      if (e.shiftKey && lastSelectedPostId) {
+        // Range selection
+        const postIds = filteredPosts.map((p) => p.id);
+        const startIdx = postIds.indexOf(lastSelectedPostId);
+        const endIdx = postIds.indexOf(postId);
+        if (startIdx !== -1 && endIdx !== -1) {
+          const [from, to] = startIdx < endIdx ? [startIdx, endIdx] : [endIdx, startIdx];
+          for (let i = from; i <= to; i++) {
+            next.add(postIds[i]);
+          }
+        }
+      } else if (e.ctrlKey || e.metaKey) {
+        // Toggle selection
+        if (next.has(postId)) {
+          next.delete(postId);
+        } else {
+          next.add(postId);
+        }
+      } else {
+        // Single selection
+        next.clear();
+        next.add(postId);
+      }
+      return next;
+    });
+    setLastSelectedPostId(postId);
+  }, [lastSelectedPostId, filteredPosts]);
+
+  const handleClearSelection = useCallback(() => {
+    setSelectedPostIds(new Set());
+    setLastSelectedPostId(null);
+  }, []);
+
+  const handleBatchDelete = useCallback(async () => {
+    if (selectedPostIds.size === 0) return;
+    
+    const confirmed = window.confirm(`Delete ${selectedPostIds.size} post(s)?`);
+    if (!confirmed) return;
+
+    try {
+      await Promise.all(
+        Array.from(selectedPostIds).map((id) =>
+          fetch(`/api/calendar/posts?postId=${id}`, { method: "DELETE" })
+        )
+      );
+      setPosts((prev) => prev.filter((p) => !selectedPostIds.has(p.id)));
+      handleClearSelection();
+      notifySuccessWithCategory(`${selectedPostIds.size} post(s) deleted`, { category: "post_publish" });
+    } catch (error) {
+      notifyErrorWithCategory("Failed to delete posts", { category: "post_publish" });
+    }
+  }, [selectedPostIds, handleClearSelection]);
+
+  const handleBatchReschedule = useCallback(() => {
+    // TODO: Implement batch reschedule dialog
+    toast.info("Batch reschedule coming soon");
+  }, []);
+
+  const handleTimezoneChange = useCallback((newTimezone: string) => {
+    setTimezone(newTimezone);
+    // Refetch posts with new timezone
+    void fetchPostsForMonth(currentDate, true);
+  }, [currentDate, fetchPostsForMonth]);
+
+  const handleToggleAnalytics = useCallback(() => {
+    setShowAnalytics((prev) => !prev);
+    // Refetch posts with analytics
+    void fetchPostsForMonth(currentDate, true);
+  }, [currentDate, fetchPostsForMonth]);
+
+  const handleAddNote = useCallback((date: Date) => {
+    setAddNoteDate(date);
+    setAddNoteDialogOpen(true);
+  }, []);
+
+  const handleNoteCreated = useCallback(() => {
+    void fetchNotesForMonth(currentDate);
+  }, [currentDate, fetchNotesForMonth]);
+
+  // Extract categories from posts
+  const availableCategories = useMemo(() => {
+    const cats = new Set<string>();
+    posts.forEach((p) => {
+      if (p.category) cats.add(p.category);
+    });
+    return Array.from(cats);
+  }, [posts]);
 
   // Header label based on view
   const headerLabel = () => {
@@ -445,6 +704,47 @@ export function CalendarClient({
             </Select>
           )}
 
+          {/* Show Ideas toggle */}
+          <Button
+            variant={showIdeas ? "default" : "outline"}
+            size="sm"
+            className={cn(
+              "gap-1.5",
+              showIdeas && "bg-brand hover:bg-brand/90"
+            )}
+            onClick={() => setShowIdeas(!showIdeas)}
+            aria-pressed={showIdeas}
+            aria-label="Toggle ideas on calendar"
+          >
+            <Lightbulb className="size-4" weight={showIdeas ? "fill" : "regular"} />
+            <span className="hidden sm:inline">Ideas</span>
+          </Button>
+
+          {/* Phase 5: Timezone selector */}
+          <TimezoneSelector value={timezone} onChange={handleTimezoneChange} />
+
+          {/* Phase 5: Category filter */}
+          <CategoryFilter
+            categories={availableCategories}
+            selected={selectedCategories}
+            onChange={setSelectedCategories}
+          />
+
+          {/* Phase 5: Analytics overlay toggle */}
+          <AnalyticsOverlay active={showAnalytics} onToggle={handleToggleAnalytics} />
+
+          {/* Phase 5: Keyboard shortcuts help */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowHelp(true)}
+            aria-label="Show keyboard shortcuts"
+            className="gap-1.5"
+          >
+            <Keyboard className="size-4" />
+            <span className="hidden sm:inline">?</span>
+          </Button>
+
           {/* Insights toggle — mobile/tablet only */}
           <Button
             variant="outline"
@@ -477,10 +777,16 @@ export function CalendarClient({
           <MonthView
             currentDate={currentDate}
             posts={filteredPosts}
+            ideas={showIdeas ? ideas : []}
+            notes={notes}
+            selectedPostIds={selectedPostIds}
+            onSelectPost={handleSelectPost}
+            showAnalyticsOverlay={showAnalytics}
             onDateClick={handleDateClick}
             onPreview={handlePreview}
             onDelete={requestDelete}
             onDuplicate={handleDuplicate}
+            onAddNote={handleAddNote}
           />
         )}
         {view === "week" && (
@@ -553,10 +859,16 @@ export function CalendarClient({
                 <MonthView
                   currentDate={currentDate}
                   posts={filteredPosts}
+                  ideas={showIdeas ? ideas : []}
+                  notes={notes}
+                  selectedPostIds={selectedPostIds}
+                  onSelectPost={handleSelectPost}
+                  showAnalyticsOverlay={showAnalytics}
                   onDateClick={handleDateClick}
                   onPreview={handlePreview}
                   onDelete={requestDelete}
                   onDuplicate={handleDuplicate}
+                  onAddNote={handleAddNote}
                 />
               )}
               {view === "week" && (
@@ -626,6 +938,7 @@ export function CalendarClient({
                 filteredPosts={filteredPosts}
                 onComposeForSlot={handleComposeForSlot}
                 platformContexts={platformContexts}
+                onAiFill={handleAiFill}
               />
             </div>
           </ResizablePanel>
@@ -640,6 +953,7 @@ export function CalendarClient({
             filteredPosts={filteredPosts}
             onComposeForSlot={handleComposeForSlot}
             platformContexts={platformContexts}
+            onAiFill={handleAiFill}
           />
         </SheetContent>
       </Sheet>
@@ -650,11 +964,15 @@ export function CalendarClient({
         postId={dialogPostId}
         originalDate={dialogOriginalDate}
         targetDate={dialogTargetDate}
+        platforms={dialogPlatforms ?? undefined}
+        suggestedHour={dialogSuggestedHour}
         onClose={() => {
           setDialogOpen(false);
           setDialogPostId(null);
           setDialogOriginalDate(null);
           setDialogTargetDate(null);
+          setDialogSuggestedHour(null);
+          setDialogPlatforms(null);
         }}
         onConfirm={handleConfirmReschedule}
       />
@@ -682,6 +1000,46 @@ export function CalendarClient({
         confirmLabel="Delete"
         cancelLabel="Cancel"
       />
+
+      {/* Bulk schedule dialog */}
+      <BulkScheduleDialog
+        open={bulkScheduleOpen}
+        onOpenChange={setBulkScheduleOpen}
+        onSuccess={() => fetchPostsForMonth(currentDate, true)}
+      />
+
+      {/* CSV import dialog */}
+      <CsvImportDialog
+        open={csvImportOpen}
+        onOpenChange={setCsvImportOpen}
+        onSuccess={() => fetchPostsForMonth(currentDate, true)}
+      />
+
+      {/* Phase 5: Keyboard shortcuts dialog */}
+      <CalendarShortcuts
+        open={showHelp}
+        onOpenChange={setShowHelp}
+      />
+
+      {/* Phase 5: Batch action bar */}
+      {selectedPostIds.size > 0 && (
+        <BatchActionBar
+          selectedCount={selectedPostIds.size}
+          onReschedule={handleBatchReschedule}
+          onDelete={handleBatchDelete}
+          onClear={handleClearSelection}
+        />
+      )}
+
+      {/* Phase 5: Add note dialog */}
+      {addNoteDate && (
+        <AddNoteDialog
+          open={addNoteDialogOpen}
+          onOpenChange={setAddNoteDialogOpen}
+          date={addNoteDate}
+          onSuccess={handleNoteCreated}
+        />
+      )}
     </DndContext>
   );
 }

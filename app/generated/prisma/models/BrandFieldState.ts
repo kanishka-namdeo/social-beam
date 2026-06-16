@@ -306,7 +306,7 @@ export type BrandFieldStateScalarWhereWithAggregatesInput = {
 }
 
 export type BrandFieldStateCreateInput = {
-  id: string
+  id?: string
   fieldName: string
   currentValue: Prisma.JsonNullValueInput | runtime.InputJsonValue
   confidence?: number
@@ -317,7 +317,7 @@ export type BrandFieldStateCreateInput = {
 }
 
 export type BrandFieldStateUncheckedCreateInput = {
-  id: string
+  id?: string
   brandContextId: string
   fieldName: string
   currentValue: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -350,7 +350,7 @@ export type BrandFieldStateUncheckedUpdateInput = {
 }
 
 export type BrandFieldStateCreateManyInput = {
-  id: string
+  id?: string
   brandContextId: string
   fieldName: string
   currentValue: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -490,7 +490,7 @@ export type FloatFieldUpdateOperationsInput = {
 }
 
 export type BrandFieldStateCreateWithoutBrandContextInput = {
-  id: string
+  id?: string
   fieldName: string
   currentValue: Prisma.JsonNullValueInput | runtime.InputJsonValue
   confidence?: number
@@ -500,7 +500,7 @@ export type BrandFieldStateCreateWithoutBrandContextInput = {
 }
 
 export type BrandFieldStateUncheckedCreateWithoutBrandContextInput = {
-  id: string
+  id?: string
   fieldName: string
   currentValue: Prisma.JsonNullValueInput | runtime.InputJsonValue
   confidence?: number
@@ -550,7 +550,7 @@ export type BrandFieldStateScalarWhereInput = {
 }
 
 export type BrandFieldStateCreateManyBrandContextInput = {
-  id: string
+  id?: string
   fieldName: string
   currentValue: Prisma.JsonNullValueInput | runtime.InputJsonValue
   confidence?: number

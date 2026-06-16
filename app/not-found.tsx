@@ -1,25 +1,38 @@
-import Link from "next/link";
-import { House } from "@phosphor-icons/react/ssr";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Ghost, ArrowLeft, House } from "@phosphor-icons/react/ssr";
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
-      <div className="text-center">
-        <h1 className="text-8xl font-bold text-brand">404</h1>
-        <h2 className="mt-4 text-2xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-muted-foreground">
-          The page you&apos;re looking for doesn&apos;t exist or has been moved.
-        </p>
-        <div className="mt-8">
-          <Link href="/dashboard">
-            <Button className="h-10 gap-1.5 px-6 text-xs font-semibold tracking-widest uppercase">
-              <House className="size-4" weight="bold" />
-              Back to Dashboard
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <Ghost className="mx-auto size-16 text-muted-foreground" weight="thin" />
+          <CardTitle className="mt-4 text-6xl font-bold text-brand">404</CardTitle>
+          <CardDescription className="mt-2 text-base">
+            This page has drifted into the void. The link may be broken, or the page was moved.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-center text-sm text-muted-foreground">
+            Head back to where you were, or start fresh from the homepage.
+          </p>
+          <div className="flex justify-center gap-3">
+            <Button variant="outline" asChild>
+              <a href="javascript:history.back()">
+                <ArrowLeft className="mr-2 size-4" />
+                Go Back
+              </a>
             </Button>
-          </Link>
-        </div>
-      </div>
+            <Button variant="default" asChild>
+              <a href="/">
+                <House className="mr-2 size-4" />
+                Homepage
+              </a>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

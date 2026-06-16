@@ -1,6 +1,6 @@
 ---
 description: TypeScript coding standards and conventions. Apply when creating, modifying, or reviewing TypeScript/TSX files. Covers naming, types, imports, error handling, and async patterns.
-globs: *.ts,*.tsx
+globs: **/*.ts,**/*.tsx
 ---
 
 # TypeScript Standards
@@ -193,3 +193,9 @@ export async function createWorkspace(userId: string): Promise<Workspace> {
 - Remove unused imports, variables, and type parameters
 - NEVER leave `console.*` in production code — use the centralized logger (`@/lib/logger`) for all logging
 - Do not leave commented-out code blocks — delete and rely on git history
+
+## Related Rules
+
+- **`anti-code-slop.mdc`**: Additional code quality guardrails — narrative comments, TODO stubs, function size limits (50 lines), magic values
+- **`dry-principles.mdc`**: Search-before-write mandates, shared utility registry, extraction thresholds, domain-specific naming
+- **`debuggability.mdc`**: Centralized Pino logging requirements for all catch blocks and API routes

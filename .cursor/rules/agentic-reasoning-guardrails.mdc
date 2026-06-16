@@ -118,7 +118,7 @@ Agents serialize independent operations into one-tool-per-turn sequences, wastin
 
 **Always batch independent reads**: If you need to understand 3 files, read all 3 in a single parallel call set. Never read one, wait for result, read the next.
 
-**Parallel research queries**: When researching a topic, run Context7 + WebSearch + WebFetch in parallel — not sequentially.
+**Parallel research queries**: When researching a topic, run Context7 + WebSearch + WebFetch in parallel — not sequentially. Use query templates from `web-search-optimization.mdc` for effective WebSearch queries.
 
 **Parallel verification**: Run typecheck, lint, and build checks in parallel chains where possible (`pnpm run typecheck && pnpm run lint`).
 

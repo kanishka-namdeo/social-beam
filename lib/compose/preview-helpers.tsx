@@ -47,7 +47,7 @@ export function renderRichText(text: string): ReactNode[] {
       );
     } else {
       parts.push(
-        <span key={`mt-${item.start}`} className="text-brand hover:underline">
+        <span key={`mt-${item.start}`} className="rounded-sm bg-brand/10 px-0.5 font-medium text-brand">
           {item.match[0]}
         </span>,
       );

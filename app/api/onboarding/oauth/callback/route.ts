@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { exchangeCodeForTokens, persistConnectedAccount, enrichWithAccountInfo } from '@/lib/agent/tools/social-tools';
+import { importLinkedinPosts } from '@/lib/analytics/linkedin-import';
 import { logger } from '@/lib/logger';
-import { encryptToken } from '@/lib/oauth/crypto';
-import { prisma } from '@/lib/prisma';
+import { decodeOAuthState } from '@/lib/oauth/state';
 
 export async function GET(req: NextRequest) {
   const requestId = crypto.randomUUID();
@@ -42,15 +42,23 @@ export async function GET(req: NextRequest) {
     let redirectTo = 'onboarding';
 
     if (stateParam) {
-      try {
-        const state = JSON.parse(decodeURIComponent(stateParam));
-        platform = state.platform ?? 'unknown';
-        callbackCodeVerifier = state.codeVerifier;
-        if (state.workspaceId) callbackWorkspaceId = state.workspaceId;
-        if (state.redirectTo) redirectTo = state.redirectTo;
-      } catch {
-        log.warn('oauth.callback.state_parse_failed');
+      const decodedState = decodeOAuthState(stateParam);
+      if (decodedState) {
+        platform = decodedState.platform;
+        callbackCodeVerifier = decodedState.codeVerifier;
+        if (decodedState.workspaceId) callbackWorkspaceId = decodedState.workspaceId;
+        if (decodedState.redirectTo) redirectTo = decodedState.redirectTo;
+      } else {
+        log.warn('oauth.callback.state_verification_failed');
+        return NextResponse.redirect(
+          new URL('/onboarding?oauth=error&reason=invalid_state', req.url)
+        );
       }
+    } else {
+      log.warn('oauth.callback.missing_state');
+      return NextResponse.redirect(
+        new URL('/onboarding?oauth=error&reason=missing_state', req.url)
+      );
     }
 
     if (!callbackWorkspaceId) {
@@ -97,18 +105,29 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // For LinkedIn, automatically extract the li_at session cookie in the background
-    // so analytics scraping works without requiring a manual "Connect Session" step.
-    if (platform.toLowerCase() === 'linkedin') {
-      extractLinkedInSessionCookie(callbackWorkspaceId, log).catch((err) => {
-        log.error('oauth.callback.linkedin_cookie_extraction_background_failed', {
-          workspaceId: callbackWorkspaceId,
-          error: String(err),
-        });
-      });
-    }
-
     log.info('oauth.callback.success', { platform });
+
+    // Trigger LinkedIn post import after successful connection
+    if (platform === 'linkedin' && tokenResult.accessToken && tokenResult.platformUserId) {
+      try {
+        const importResult = await importLinkedinPosts(
+          callbackWorkspaceId,
+          tokenResult.accessToken,
+          tokenResult.platformUserId,
+          'personal'
+        );
+        log.info('oauth.callback.linkedin_import_completed', {
+          platform,
+          postsSynced: importResult.postsSynced,
+          snapshotsCreated: importResult.snapshotsCreated,
+        });
+      } catch (importError) {
+        log.error('oauth.callback.linkedin_import_failed', {
+          platform,
+          error: importError instanceof Error ? importError.message : String(importError),
+        });
+      }
+    }
 
     if (redirectTo === 'settings') {
       return NextResponse.redirect(
@@ -122,92 +141,5 @@ export async function GET(req: NextRequest) {
   } catch (err) {
     logger.error('oauth.callback.unexpected_error', { requestId, error: String(err) });
     return NextResponse.redirect(new URL('/onboarding?oauth=error', req.url));
-  }
-}
-
-/**
- * Extract and store the LinkedIn li_at session cookie after OAuth connection.
- * Opens a headless browser, prompts the user to log in via the onboarding UI,
- * and polls for the cookie. This runs as a fire-and-forget background task.
- */
-async function extractLinkedInSessionCookie(
-  workspaceId: string,
-  log: ReturnType<typeof logger['child']>,
-): Promise<void> {
-  const LOGIN_POLL_INTERVAL_MS = 5000;
-  const LOGIN_TIMEOUT_MS = 5 * 60 * 1000;
-
-  log.info('oauth.callback.linkedin.cookie_extraction_start', { workspaceId });
-
-  // Launch a headless browser that navigates to LinkedIn
-  const { launch } = await import('cloakbrowser');
-  const browser = await launch({ headless: false });
-  const context = await browser.newContext({
-    viewport: { width: 1280, height: 900 },
-  });
-  const page = await context.newPage();
-
-  await page.goto('https://www.linkedin.com/login', {
-    waitUntil: 'domcontentloaded',
-    timeout: 30000,
-  });
-
-  log.info('oauth.callback.linkedin.browser_opened', { workspaceId });
-
-  let loggedIn = false;
-  const startTime = Date.now();
-
-  while (Date.now() - startTime < LOGIN_TIMEOUT_MS) {
-    try {
-      const url = page.url();
-      if (url.includes('/feed') || url.includes('/mynetwork') || url.includes('/jobs')) {
-        loggedIn = true;
-        log.info('oauth.callback.linkedin.login_detected', { workspaceId, url });
-        break;
-      }
-    } catch {
-      // Page might have been closed or navigated
-    }
-    await new Promise((resolve) => setTimeout(resolve, LOGIN_POLL_INTERVAL_MS));
-  }
-
-  if (!loggedIn) {
-    log.warn('oauth.callback.linkedin.login_timeout', { workspaceId });
-    await browser.close();
-    return;
-  }
-
-  // Extract the li_at cookie
-  try {
-    const cookies = await page.context().cookies();
-    const liAtCookie = cookies.find((c: any) => c.name === 'li_at');
-
-    if (!liAtCookie?.value) {
-      log.error('oauth.callback.linkedin.cookie_not_found', { workspaceId });
-      await browser.close();
-      return;
-    }
-
-    // Encrypt and store the cookie in ConnectedAccount
-    const encryptedCookie = encryptToken(liAtCookie.value);
-    const cookieExpiry = new Date();
-    cookieExpiry.setFullYear(cookieExpiry.getFullYear() + 1);
-
-    await prisma.connectedAccount.updateMany({
-      where: {
-        workspaceId,
-        platform: 'linkedin',
-      },
-      data: {
-        sessionCookie: encryptedCookie,
-        cookieExpiry,
-      },
-    });
-
-    log.info('oauth.callback.linkedin.cookie_saved', { workspaceId });
-  } catch (err) {
-    log.error('oauth.callback.linkedin.cookie_save_error', { error: String(err) });
-  } finally {
-    await browser.close();
   }
 }

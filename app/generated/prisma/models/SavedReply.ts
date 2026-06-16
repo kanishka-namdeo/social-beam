@@ -309,7 +309,7 @@ export type SavedReplyScalarWhereWithAggregatesInput = {
 }
 
 export type SavedReplyCreateInput = {
-  id: string
+  id?: string
   title: string
   content: string
   tags?: Prisma.SavedReplyCreatetagsInput | string[]
@@ -321,7 +321,7 @@ export type SavedReplyCreateInput = {
 }
 
 export type SavedReplyUncheckedCreateInput = {
-  id: string
+  id?: string
   workspaceId: string
   title: string
   content: string
@@ -357,7 +357,7 @@ export type SavedReplyUncheckedUpdateInput = {
 }
 
 export type SavedReplyCreateManyInput = {
-  id: string
+  id?: string
   workspaceId: string
   title: string
   content: string
@@ -495,7 +495,7 @@ export type SavedReplyUncheckedUpdateManyWithoutWorkspaceNestedInput = {
 }
 
 export type SavedReplyCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   title: string
   content: string
   tags?: Prisma.SavedReplyCreatetagsInput | string[]
@@ -506,7 +506,7 @@ export type SavedReplyCreateWithoutWorkspaceInput = {
 }
 
 export type SavedReplyUncheckedCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   title: string
   content: string
   tags?: Prisma.SavedReplyCreatetagsInput | string[]
@@ -558,7 +558,7 @@ export type SavedReplyScalarWhereInput = {
 }
 
 export type SavedReplyCreateManyWorkspaceInput = {
-  id: string
+  id?: string
   title: string
   content: string
   tags?: Prisma.SavedReplyCreatetagsInput | string[]

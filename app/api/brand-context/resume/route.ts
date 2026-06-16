@@ -47,18 +47,15 @@ export async function POST(req: Request) {
     // For confirm/save_edits actions, save brand context directly from thread state
     // and return an SSE stream so the client can transition to the "complete" phase.
     if (action === "confirm" || action === "save_edits") {
-      console.log("[brand-debug] api.brand_resume: entering confirm/save_edits path", { threadId, action, hasEdits: !!edits, editKeys: edits ? Object.keys(edits) : [] });
-
       const graph = await getBrandAnalyzerGraph();
       const currentState = await graph.getState({ configurable: { thread_id: threadId } });
       const stateValues = currentState.values as Record<string, unknown>;
       const draft = stateValues?.brandContextDraft as Record<string, unknown> | undefined;
       const platformDrafts = stateValues?.platformContextsDraft as Record<string, Record<string, unknown>> | undefined;
 
-      console.log("[brand-debug] api.brand_resume: state values", { hasDraft: !!draft, draftKeys: draft ? Object.keys(draft) : [], draftIsEmpty: !draft || Object.keys(draft).length === 0, hasPlatformDrafts: !!platformDrafts, platformKeys: platformDrafts ? Object.keys(platformDrafts) : [] });
+      log.debug("api.brand_resume.state_values", { threadId, hasDraft: !!draft, draftKeys: draft ? Object.keys(draft) : [], hasPlatformDrafts: !!platformDrafts });
 
       if (!draft || Object.keys(draft).length === 0) {
-        console.error("[brand-debug] api.brand_resume: no_draft error");
         log.warn("api.brand_resume.no_draft", { threadId });
         return NextResponse.json(
           { error: "No brand context data found. Please start a new analysis." },
@@ -82,15 +79,6 @@ export async function POST(req: Request) {
       const websiteUrlVal = mergedEdits.websiteUrl as string | undefined;
       const urlForSave = websiteUrlVal && (websiteUrlVal.startsWith("http://") || websiteUrlVal.startsWith("https://")) ? websiteUrlVal : undefined;
 
-      // #region agent log
-      fetch('http://127.0.0.1:7451/ingest/b7035045-62e6-496c-836c-a051672742f3',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','X-Debug-Session-Id':'7dfc89'},
-        body:JSON.stringify({sessionId:'7dfc89',location:'resume/route.ts:60',message:'api.brand_resume: calling upsertBrandContext',data:{urlForSave:!!urlForSave,mergedEditsKeys:Object.keys(mergedEdits)},timestamp:Date.now(),runId:'debug1',hypothesisId:'E'}),
-        signal: AbortSignal.timeout(5000),
-      }).catch(()=>{});
-      // #endregion
-
       try {
         await upsertBrandContext(workspaceId, {
           businessName: mergedEdits.businessName as string | undefined,
@@ -111,11 +99,9 @@ export async function POST(req: Request) {
           trainingStatus: "trained",
         });
       } catch (upsertErr) {
-        console.error("[brand-debug] api.brand_resume: upsertBrandContext threw error", upsertErr instanceof Error ? upsertErr.message : String(upsertErr));
+        log.error("api.brand_resume.upsert_failed", { error: upsertErr instanceof Error ? upsertErr.message : String(upsertErr) });
         throw upsertErr;
       }
-
-      console.log("[brand-debug] api.brand_resume: saved successfully");
 
       log.info("api.brand_resume.saved", { threadId, workspaceId });
 
@@ -123,9 +109,16 @@ export async function POST(req: Request) {
       const encoder = new TextEncoder();
       const stream = new ReadableStream({
         async start(controller) {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ step: "saving", saving: true })}\n\n`));
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ saved: true })}\n\n`));
-          controller.close();
+          try {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ step: "saving", saving: true })}\n\n`));
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ saved: true })}\n\n`));
+          } catch {
+            // Client may have disconnected before we could send events
+          } finally {
+            try { controller.close(); } catch {
+              // Controller might already be closed
+            }
+          }
         },
       });
 
@@ -144,25 +137,38 @@ export async function POST(req: Request) {
 
       const graph = await getBrandAnalyzerGraph();
       const encoder = new TextEncoder();
+      const FEEDBACK_TIMEOUT_MS = 120_000; // 2 minutes
 
       const stream = new ReadableStream({
         async start(controller) {
           try {
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ step: "streaming", subStep: "Processing feedback..." })}\n\n`));
 
-            const resumeStream = await graph.stream(
-              {
-                messages: [new HumanMessage(parsed.data.feedback ?? "")],
-                userFeedback: parsed.data.feedback ?? "",
-                userConfirmed: false,
-              },
-              {
-                configurable: { thread_id: threadId },
-                streamMode: "values",
-              },
-            );
+            // Timeout to prevent indefinite hangs
+            const timeoutPromise = new Promise<never>((_, reject) => {
+              setTimeout(() => reject(new Error(`Feedback stream timeout after ${FEEDBACK_TIMEOUT_MS}ms`)), FEEDBACK_TIMEOUT_MS);
+            });
+
+            const resumeStream = await Promise.race([
+              graph.stream(
+                {
+                  messages: [new HumanMessage(parsed.data.feedback ?? "")],
+                  userFeedback: parsed.data.feedback ?? "",
+                  userConfirmed: false,
+                },
+                {
+                  configurable: { thread_id: threadId },
+                  streamMode: "values",
+                },
+              ),
+              timeoutPromise,
+            ]);
 
             for await (const stateValue of resumeStream) {
+              if (req.signal.aborted) {
+                try { controller.close(); } catch {}
+                return;
+              }
               if (!stateValue || typeof stateValue !== "object") continue;
               const output = stateValue as Record<string, unknown>;
 
@@ -179,10 +185,18 @@ export async function POST(req: Request) {
             controller.close();
           } catch (err) {
             log.error("api.brand_resume.feedback_stream_error", { error: String(err) });
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: "Failed to process feedback" })}\n\n`));
-            controller.close();
+            try {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: "Failed to process feedback" })}\n\n`));
+            } catch {
+              // Client may have disconnected
+            } finally {
+              try { controller.close(); } catch {
+                // Controller might already be closed
+              }
+            }
           }
         },
+        async cancel() {},
       });
 
       return new Response(stream, {

@@ -20,9 +20,9 @@ const sections = [
           (&quot;Terms&quot;). If you do not agree to these Terms, you may not access or use the Service.
         </p>
         <p>
-          These Terms constitute a legally binding agreement between you and SocialBeam. We may update these Terms from
-          time to time, and your continued use of the Service after changes are posted constitutes your acceptance of
-          the updated Terms.
+          These Terms constitute a legally binding agreement between you and SocialBeam Inc. (&quot;Company,&quot;
+          &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;). We may update these Terms from time to time, and your
+          continued use of the Service after changes are posted constitutes your acceptance of the updated Terms.
         </p>
       </>
     ),
@@ -151,17 +151,36 @@ const sections = [
   },
   {
     id: "governing-law",
-    title: "Governing Law",
+    title: "Governing Law and Jurisdiction",
     content: (
       <>
         <p>
-          These Terms shall be governed by and construed in accordance with the laws of the jurisdiction in which
-          SocialBeam is established, without regard to its conflict of law provisions.
+          These Terms shall be governed by and construed in accordance with the laws of the State of Delaware, United
+          States, without regard to its conflict of law provisions.
         </p>
         <p>
           Any disputes arising from or relating to these Terms or the Service shall be resolved through good-faith
-          negotiation. If negotiation fails, disputes shall be submitted to binding arbitration in accordance with
-          applicable arbitration rules, and judgment on the award may be entered in any court of competent jurisdiction.
+          negotiation. If negotiation fails, disputes shall be submitted to binding arbitration administered by the
+          American Arbitration Association (AAA) in accordance with its Commercial Arbitration Rules. The arbitration
+          shall take place in Wilmington, Delaware, and judgment on the award may be entered in any court of competent
+          jurisdiction.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "class-action-waiver",
+    title: "Class Action Waiver",
+    content: (
+      <>
+        <p>
+          YOU AND SOCIALBEAM AGREE THAT EACH MAY BRING CLAIMS AGAINST THE OTHER ONLY IN YOUR OR ITS INDIVIDUAL CAPACITY,
+          AND NOT AS A PLAINTIFF OR CLASS MEMBER IN ANY PURPORTED CLASS OR REPRESENTATIVE PROCEEDING.
+        </p>
+        <p>
+          If any court or arbitrator determines that the class action waiver set forth in this section is unenforceable,
+          the entirety of this Dispute Resolution section shall be deemed unenforceable. The class action waiver does not
+          affect your right to participate in government enforcement actions.
         </p>
       </>
     ),
@@ -199,7 +218,7 @@ export default function TermsPage() {
         {/* Last Updated */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Scales className="w-4 h-4" />
-          <span>Last updated: May 22, 2026</span>
+          <span>Last updated: June 15, 2026</span>
         </div>
 
         <Separator />

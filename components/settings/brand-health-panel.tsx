@@ -78,22 +78,28 @@ export function BrandHealthPanel() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function fetchHealth() {
       try {
         const res = await fetch("/api/brand-context/health");
         if (!res.ok) {
-          setError("Failed to fetch health data");
+          if (!cancelled) setError("Failed to fetch health data");
           return;
         }
         const json = await res.json();
-        setHealth(json.data);
+        if (!cancelled) setHealth(json.data);
       } catch {
-        setError("Network error");
+        if (!cancelled) setError("Network error");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
     fetchHealth();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (loading) {

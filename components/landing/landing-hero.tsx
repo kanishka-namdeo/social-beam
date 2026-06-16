@@ -11,21 +11,21 @@ export function LandingHero() {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground tracking-tight text-balance leading-tight">
-              AI-native social media management — free forever
+              Go from idea to published across every platform — in minutes, not hours
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground text-balance max-w-xl leading-relaxed">
-              Schedule unlimited posts across 10 accounts. AI writes, optimizes, and analyzes your content. Starts at $19/mo when you&apos;re ready.
+              SocialBeam handles content creation, optimal scheduling, and engagement insights by default. Connect all your accounts, describe what you want to share, and let the system do the rest. Free forever for 10 accounts — no credit card required.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link href="/register">
                 <Button size="lg" className="gap-2 min-w-48 rounded-sm">
-                  Get Started Free
+                  Start Publishing Free
                   <ArrowRight weight="bold" className="w-4 h-4" />
                 </Button>
               </Link>
               <a href="#features">
                 <Button size="lg" variant="outline" className="min-w-48 rounded-sm">
-                  See how it works
+                  Watch it in action
                 </Button>
               </a>
             </div>

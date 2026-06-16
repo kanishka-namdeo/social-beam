@@ -249,7 +249,7 @@ export type UserProfileScalarWhereWithAggregatesInput = {
 }
 
 export type UserProfileCreateInput = {
-  id: string
+  id?: string
   bio?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   tone?: string | null
   postTypes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -260,7 +260,7 @@ export type UserProfileCreateInput = {
 }
 
 export type UserProfileUncheckedCreateInput = {
-  id: string
+  id?: string
   workspaceId: string
   bio?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   tone?: string | null
@@ -293,7 +293,7 @@ export type UserProfileUncheckedUpdateInput = {
 }
 
 export type UserProfileCreateManyInput = {
-  id: string
+  id?: string
   workspaceId: string
   bio?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   tone?: string | null
@@ -387,7 +387,7 @@ export type UserProfileUncheckedUpdateOneWithoutWorkspaceNestedInput = {
 }
 
 export type UserProfileCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   bio?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   tone?: string | null
   postTypes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -397,7 +397,7 @@ export type UserProfileCreateWithoutWorkspaceInput = {
 }
 
 export type UserProfileUncheckedCreateWithoutWorkspaceInput = {
-  id: string
+  id?: string
   bio?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   tone?: string | null
   postTypes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue

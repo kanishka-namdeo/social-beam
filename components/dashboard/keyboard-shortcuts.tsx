@@ -22,7 +22,7 @@ export function KeyboardShortcuts() {
     let gTimeout: ReturnType<typeof setTimeout> | null = null;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
+      const target = e.target instanceof Element ? e.target : null;
       const isInput =
         target?.tagName === "INPUT" ||
         target?.tagName === "TEXTAREA" ||

@@ -18,6 +18,8 @@
 import { logger } from "@/lib/logger";
 import { withLinkedInPageForUser } from "@/lib/linkedin/browser";
 import type { EnhancedLinkedInPostAnalytics } from "@/lib/linkedin/browser";
+import { LinkedInCaptchaError, LinkedInCookieExpiredError, scrapeWithRetry, parseLinkedInNumber, delay } from "./scraping-utils";
+import type { ProcessContext } from "@/lib/processes/process-context";
 
 const CREATOR_ANALYTICS_URL = "https://www.linkedin.com/analytics/creator/content/";
 const PAGE_LOAD_TIMEOUT_MS = 30000;
@@ -59,22 +61,6 @@ export interface CreatorDashboardData {
   aggregate: CreatorDashboardAggregate | null;
   posts: CreatorDashboardPost[];
   rawText: string;
-}
-
-/**
- * Parse a number string that may contain commas, K/M suffixes, or percentage signs.
- */
-function parseNumber(str: string): number {
-  if (!str) return 0;
-  const cleaned = str.replace(/,/g, "").trim();
-  const numMatch = cleaned.match(/^(-?\d+\.?\d*)\s*([kKmMbB%])?$/);
-  if (!numMatch) return 0;
-  let num = parseFloat(numMatch[1]);
-  const suffix = numMatch[2]?.toLowerCase();
-  if (suffix === "k") num *= 1000;
-  else if (suffix === "m") num *= 1000000;
-  else if (suffix === "b") num *= 1000000000;
-  return Math.round(num);
 }
 
 /**
@@ -138,14 +124,14 @@ function extractAggregateMetrics(fullText: string): CreatorDashboardAggregate | 
   const impressionsChangePercent = findPercentChange(lines, "vs") ?? findPercentChange(lines, "prior");
 
   return {
-    impressions: parseNumber(impressionsText ?? "0"),
-    membersReached: parseNumber(membersReachedText ?? "0"),
-    socialEngagements: parseNumber(socialEngagementsText ?? "0"),
-    reactions: parseNumber(reactionsText ?? "0"),
-    comments: parseNumber(commentsText ?? "0"),
-    reposts: parseNumber(repostsText ?? "0"),
-    saves: parseNumber(savesText ?? "0"),
-    sendsOnLinkedIn: parseNumber(sendsOnLinkedInText ?? "0"),
+    impressions: parseLinkedInNumber(impressionsText ?? "0"),
+    membersReached: parseLinkedInNumber(membersReachedText ?? "0"),
+    socialEngagements: parseLinkedInNumber(socialEngagementsText ?? "0"),
+    reactions: parseLinkedInNumber(reactionsText ?? "0"),
+    comments: parseLinkedInNumber(commentsText ?? "0"),
+    reposts: parseLinkedInNumber(repostsText ?? "0"),
+    saves: parseLinkedInNumber(savesText ?? "0"),
+    sendsOnLinkedIn: parseLinkedInNumber(sendsOnLinkedInText ?? "0"),
     impressionsChangePercent,
   };
 }
@@ -289,24 +275,26 @@ async function selectTimeRange(page: any, timeRange: string): Promise<void> {
  * Scrape the LinkedIn Creator Dashboard for aggregate metrics and per-post data.
  * Defaults to 90 days for comprehensive analytics.
  */
-export async function scrapeCreatorDashboardForUser(
+async function scrapeCreatorDashboardOnce(
   workspaceId: string,
   timeRange: TimeRange = "90 days",
 ): Promise<CreatorDashboardData | null> {
-  logger.debug("linkedin.creator.dashboard.scrape.start", { workspaceId, timeRange });
-
-  const result = await withLinkedInPageForUser(workspaceId, async (page) => {
+  return await withLinkedInPageForUser(workspaceId, async (page) => {
     await page.goto(CREATOR_ANALYTICS_URL, {
       waitUntil: "domcontentloaded",
       timeout: PAGE_LOAD_TIMEOUT_MS,
     });
 
-    await new Promise((r) => setTimeout(r, RENDER_STABILIZE_DELAY_MS));
-
+    // CAPTCHA detection after navigation
     const currentUrl = page.url();
+    if (currentUrl.includes("/checkpoint/") || currentUrl.includes("/challenge/")) {
+      throw new LinkedInCaptchaError(`LinkedIn challenge page detected during dashboard scrape`);
+    }
     if (currentUrl.includes("/login") || currentUrl.includes("/uas/oauth")) {
       throw new Error("LinkedIn session expired");
     }
+
+    await new Promise((r) => setTimeout(r, RENDER_STABILIZE_DELAY_MS));
 
     // Select time range
     await selectTimeRange(page, timeRange);
@@ -360,11 +348,28 @@ export async function scrapeCreatorDashboardForUser(
       rawText: fullText,
     };
   });
+}
+
+export async function scrapeCreatorDashboardForUser(
+  workspaceId: string,
+  timeRange: TimeRange = "90 days",
+  ctx?: ProcessContext,
+): Promise<CreatorDashboardData | null> {
+  ctx?.log('info', 'Creator dashboard scrape started', { timeRange });
+  await ctx?.reportProgress(0, 'Loading creator dashboard...');
+  logger.debug("linkedin.creator.dashboard.scrape.start", { workspaceId, timeRange });
+
+  const result = await scrapeWithRetry("scrapeCreatorDashboardForUser", async (): Promise<CreatorDashboardData | null> => {
+    return await scrapeCreatorDashboardOnce(workspaceId, timeRange);
+  });
 
   if (result === null) {
     logger.warn("linkedin.creator.dashboard.scrape.no_cookie", { workspaceId });
     return null;
   }
+
+  await ctx?.reportProgress(60, `Found ${result.posts.length} posts in dashboard`);
+  await ctx?.reportPostsFound(result.posts.length);
 
   // Self-healer trigger: if no posts found when page loaded, trigger DOM check
   if (result.posts.length === 0 && result.aggregate !== null) {
@@ -374,6 +379,9 @@ export async function scrapeCreatorDashboardForUser(
       triggerSelfHealer("creator-dashboard", workspaceId).catch(() => {}),
     ).catch(() => {});
   }
+
+  await ctx?.reportProgress(100, 'Complete');
+  ctx?.log('info', 'Creator dashboard scrape complete', { postCount: result.posts.length });
 
   return result;
 }
@@ -394,11 +402,14 @@ export interface EnrichedPostAnalytics extends EnhancedLinkedInPostAnalytics {
 export async function scrapeCreatorDashboardWithDetails(
   workspaceId: string,
   timeRange: TimeRange = "90 days",
+  ctx?: ProcessContext,
 ): Promise<EnrichedPostAnalytics[] | null> {
+  ctx?.log('info', 'Creator dashboard enriched scrape started', { timeRange });
+  await ctx?.reportProgress(0, 'Starting detailed analytics scrape...');
   logger.debug("linkedin.creator.dashboard.enriched.start", { workspaceId, timeRange });
 
   // Step 1: Get the Creator Dashboard data
-  const dashboardData = await scrapeCreatorDashboardForUser(workspaceId, timeRange);
+  const dashboardData = await scrapeCreatorDashboardForUser(workspaceId, timeRange, ctx);
   if (!dashboardData) {
     return null;
   }
@@ -408,10 +419,17 @@ export async function scrapeCreatorDashboardWithDetails(
     return [];
   }
 
+  await ctx?.reportProgress(30, `Enriching ${dashboardData.posts.length} posts with detailed analytics...`);
+
   // Step 2: Enrich each post with detailed analytics
   const enriched: EnrichedPostAnalytics[] = [];
 
-  for (const post of dashboardData.posts) {
+  for (let i = 0; i < dashboardData.posts.length; i++) {
+    ctx?.throwIfCancelled();
+    const post = dashboardData.posts[i];
+
+    await ctx?.reportProgress(30 + Math.round((i / dashboardData.posts.length) * 60), `Enriching post ${i + 1} of ${dashboardData.posts.length}`);
+
     try {
       let detailed: EnhancedLinkedInPostAnalytics | null = null;
 
@@ -460,6 +478,8 @@ export async function scrapeCreatorDashboardWithDetails(
         error: String(error),
       });
     }
+
+    await ctx?.reportPostsProcessed(i + 1);
   }
 
   logger.debug("linkedin.creator.dashboard.enriched.complete", {
@@ -468,6 +488,9 @@ export async function scrapeCreatorDashboardWithDetails(
     fromIndividual: enriched.filter((p) => p.source === "individual_analytics").length,
     fromDashboard: enriched.filter((p) => p.source === "creator_dashboard").length,
   });
+
+  await ctx?.reportProgress(100, 'Complete');
+  ctx?.log('info', 'Creator dashboard enriched scrape complete', { postCount: enriched.length });
 
   return enriched;
 }

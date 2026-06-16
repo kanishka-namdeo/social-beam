@@ -1,0 +1,135 @@
+---
+description: DRY (Don't Repeat Yourself) enforcement and code reuse principles. Apply when creating new functions, components, utilities, or any reusable code. Covers search-before-write mandates, shared utility locations, and extraction thresholds.
+globs: "**/*.ts,**/*.tsx"
+alwaysApply: false
+---
+
+# DRY Principles Enforcement
+
+**Trigger**: Creating new functions, components, utilities, hooks, or any code that might duplicate existing functionality.
+
+## Core Principle
+
+**Search before write, reuse before create.** Never write new code without first checking if a suitable implementation already exists. Duplication is a failure mode, not an acceptable shortcut.
+
+## Search-Before-Write Mandate
+
+Before creating any new utility function, hook, component, or helper:
+
+1. **Search existing utilities**: Use Grep to search `lib/`, `utils/`, `hooks/`, and `components/` for similar functionality
+2. **Check for partial matches**: Even if an exact match doesn't exist, a similar function might be extensible
+3. **Verify before creating**: Only create new code after confirming nothing suitable exists
+
+### Search Strategy
+
+```bash
+# Search for existing implementations
+rg "function.*format.*date" lib/ utils/
+rg "export.*use.*[Hh]ook" hooks/
+rg "export.*const.*[Hh]elper" lib/utils/
+
+# Search by functionality, not just name
+rg "formatDate|formatTime|formatTimestamp" lib/
+rg "validateEmail|validateInput|validate.*form" lib/
+```
+
+## Shared Utility Registry
+
+Canonical locations for common patterns:
+
+| Pattern Type | Location | Examples |
+|--------------|----------|----------|
+| Date/time utilities | `lib/utils/dates.ts`, `lib/utils/timezone.ts` | `formatDate`, `parseDate`, `getTimezoneOffset` |
+| Cadence/scheduling | `lib/utils/cadence.ts` | `calculateNextPostTime`, `getCadenceOptions` |
+| UI hooks | `hooks/` | `useMobile`, `usePremium`, `useOneTimeNudge` |
+| Component hooks | `components/hooks/` | `useWidgetData`, `useWidgetDimensions` |
+| Validation helpers | `lib/utils/` | `validateEmail`, `sanitizeInput` |
+| API helpers | `lib/api/` | `fetchWithRetry`, `handleApiError` |
+| Formatting utilities | `lib/utils/` | `formatCurrency`, `formatNumber`, `truncateText` |
+
+## Naming Conventions
+
+Use **domain-specific names** to improve discoverability and prevent accidental duplication.
+
+| Bad (Generic) | Good (Domain-Specific) |
+|---------------|------------------------|
+| `formatDate` | `formatInvoiceDate`, `formatPostDate`, `formatRelativeDate` |
+| `validate` | `validateEmail`, `validatePostContent`, `validateCampaignName` |
+| `format` | `formatCurrency`, `formatPercentage`, `formatTimestamp` |
+| `parse` | `parsePostContent`, `parseCampaignData` |
+| `calculate` | `calculateEngagementRate`, `calculateOptimalPostTime` |
+
+**Why**: Generic names like `formatDate` are hard to search for and lead to multiple implementations with slightly different purposes.
+
+## Reuse-First Policy
+
+When you find an existing implementation:
+
+1. **Verify it meets your needs**: Check edge cases, error handling, and return types
+2. **Import and use it**: Do not copy-paste or rewrite
+3. **Extend if needed**: If the function is close but missing a feature, extend it rather than creating a variant
+4. **Document the reuse**: In your commit message, reference the original utility
+
+### Extension Pattern
+
+```typescript
+// BAD: Creating a variant
+export function formatDateV2(date: Date) {
+  // similar to formatDate but with timezone
+}
+
+// GOOD: Extending the original
+export function formatDate(date: Date, options?: { timezone?: string }) {
+  // add timezone support to existing function
+}
+```
+
+## Extraction Threshold
+
+**The Rule of Three**: When a pattern appears **3 or more times**, it must be extracted to a shared utility.
+
+| Occurrences | Action |
+|-------------|--------|
+| 1-2 times | Acceptable duplication; wait to see if pattern stabilizes |
+| 3 times | **Must extract** to shared utility |
+| 4+ times | **Critical**: Extract immediately and refactor existing instances |
+
+### Extraction Checklist
+
+Before extracting:
+
+- [ ] Pattern appears in 3+ locations with similar logic
+- [ ] Pattern is stable (unlikely to change independently in each location)
+- [ ] Extraction will reduce total code complexity
+- [ ] New utility has a clear, domain-specific name
+- [ ] All existing instances will be refactored to use the new utility
+
+## Anti-Patterns
+
+| Anti-Pattern | Problem | Fix |
+|--------------|---------|-----|
+| **Inline helpers in components** | Logic trapped in component files, hard to reuse | Extract to `lib/utils/` or `hooks/` |
+| **Copy-paste with minor changes** | Near-duplicate code drifts over time | Parameterize or extend the original |
+| **Generic function names** | Hard to search, leads to duplicates | Use domain-specific names |
+| **"I'll refactor later"** | Never happens; duplication compounds | Extract at the 3rd occurrence, not after |
+| **Not searching before writing** | Reinventing existing utilities | Always search `lib/`, `utils/`, `hooks/` first |
+| **Creating "V2" functions** | Parallel implementations with subtle differences | Extend the original function |
+
+## Verification
+
+Before claiming a feature is complete:
+
+1. **Search for duplicates**: `rg "[functionName]" lib/ utils/ hooks/ components/`
+2. **Check extraction threshold**: Are there 3+ similar patterns that should be extracted?
+3. **Verify naming**: Are function names domain-specific enough to be discoverable?
+4. **Confirm reuse**: Did you reuse existing utilities instead of writing new ones?
+
+## Integration with Other Rules
+
+- **`typescript-standards.mdc`**: Single-responsibility functions and small, composable functions support DRY extraction. Naming conventions (camelCase for functions, UPPER_SNAKE_CASE for constants) apply to extracted utilities.
+- **`react-components.mdc`**: When extracting React components, follow Server/Client Component classification rules. Extracted hooks must follow the `use` prefix convention.
+- **`anti-code-slop.mdc`**: Prevents dead code from accumulating when utilities are extracted. Function size limits (50 lines) encourage extraction. Magic values should be extracted to named constants.
+- **`debuggability.mdc`**: Extracted utilities must use centralized logging. When extracting error handling logic, ensure it follows the logging requirements.
+- **`continuous-improvement.mdc`**: Duplication discoveries should feed back into rule updates. When you find repeated patterns, update this registry.
+- **`general.mdc`**: Verification requirements include checking for unnecessary duplication. Simplicity First principle supports DRY but warns against premature abstraction.
+- **`agentic-reasoning-guardrails.mdc`**: Prevents tool loops when searching for existing implementations. Escalate after 2 empty search results instead of retrying with different patterns.

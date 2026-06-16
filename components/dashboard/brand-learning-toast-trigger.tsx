@@ -121,6 +121,10 @@ export function BrandLearningToastTrigger() {
   }
 
   function startPolling() {
+    // Create a fresh AbortController for each polling session so previous
+    // aborted controllers don't silently block new fetches
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = new AbortController();
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(checkAndShowToast, POLL_INTERVAL_MS);
   }
